@@ -1,0 +1,464 @@
+@import '~@fluentui/react/dist/sass/References.scss';
+
+.form {
+  // overflow: hidden;
+  // padding: 1em;
+  // color: "[theme:bodyText, default: #323130]";
+  // color: var(--bodyText);
+  // &.teams {
+  //   font-family: $ms-font-family-fallbacks;
+  // }
+  // border:3px solid yellow;
+  padding:6px;
+  min-height: 100vh;
+}
+
+.welcome {
+  text-align: center;
+}
+
+.welcomeImage {
+  width: 100%;
+  max-width: 420px;
+}
+
+.links {
+  a {
+    text-decoration: none;
+    color: "[theme:link, default:#03787c]";
+    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
+
+    &:hover {
+      text-decoration: underline;
+      color: "[theme:linkHovered, default: #014446]";
+      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
+    }
+  }
+}
+
+
+.generalSectionMainContainer{
+  border:1px solid green;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 8px;
+  color:white;
+  background-color: #034ea1;
+  font-weight: 300;
+  display: flex;
+  align-items: 'center';
+  justify-content: space-between;
+  padding:'10px';
+  
+  
+}
+
+.generalSection{
+  border:1px solid rgb(211, 211, 211);
+  // border:1px solid red;
+  flex-wrap: wrap;
+
+  display: "flex";
+  // justify-content: space-around;
+  margin-top: 5px;
+  border-radius: 9px;
+  padding:10px;
+  // min-height: 100px;
+
+  
+  
+}
+
+/* Tablet version */
+@media (max-width: 1024px) {
+  .generalSection {
+    /* Adjust padding for tablet */
+    padding: 8px;
+    /* Reduce border radius for a more compact look */
+    border-radius: 7px;
+    /* Optional: Adjust flex direction for tablet */
+    flex-direction: column;
+  }
+}
+
+/* Mobile version */
+@media (max-width: 768px) {
+  .generalSection {
+    /* Adjust padding for mobile */
+    padding: 6px;
+    /* Further reduce border radius for mobile */
+    border-radius: 5px;
+    /* Flex direction for mobile */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Optional: Adjust minimum height for mobile */
+    min-height: 80px;
+  }
+}
+
+/* Base styles */
+.halfWidth {
+  width: 45%;
+}
+
+/* Tablet view */
+@media (max-width: 1024px) {
+  .halfWidth {
+    width: 80%;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .halfWidth {
+    width: 80%;
+  }
+}
+
+/* Extra small devices (like smaller mobile screens) */
+@media (max-width: 480px) {
+  .halfWidth {
+    width: 80%;
+  }
+}
+.generalSectionContainer1 {
+  width:250px;
+}
+
+.generalSectionApproverDetails{
+  border:1px solid rgb(211, 211, 211);
+  // display: "flex";
+  
+  // justify-content: space-between;
+  margin-top: 5px;
+  border-radius: 9px;
+  padding:10px;
+  min-height: 100px;
+
+  
+  
+}
+
+
+.approverDetailsSection{
+  border:1px solid pink
+}
+
+.headerContainer{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #034ea1;
+  color:white;
+
+}
+
+.headers{
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.commonProperties{
+  padding:5px;
+  margin-top: 5px;
+}
+
+
+.responsiveTitle {
+  color: "[theme: themePrimary, default: #0078d7]";
+  text-align: center;
+  font-size: 14px; /* Default for desktop */
+  flex-grow: 1;
+}
+
+@media (max-width: 750px) {
+  .responsiveTitle {
+    font-size: 14px; /* Tablet view */
+  }
+}
+
+@media (max-width: 600px) {
+  .responsiveTitle {
+    font-size: 12px; /* Mobile view */
+  }
+}
+
+
+// .eCommitteeHeader{
+//   // width: 70%;
+//   border: 1px solid red;
+//   // text-align: right;
+// }
+
+.noteHeader{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  // border:1px solid red;
+  
+}
+
+
+.noteTitle {
+  display: flex;
+  // justify-content: space-between;
+  align-items: center;
+}
+
+/* Tablet view (between 600px and 900px) */
+@media (min-width: 600px) and (max-width: 900px) {
+  .noteTitle {
+    font-size: 18px; /* Adjust font size for tablets */
+  }
+}
+
+/* Mobile view (below 600px) */
+@media (max-width: 600px) {
+  .noteTitle {
+    font-size: 14px; /* Adjust font size for mobile */
+  }
+}
+
+
+.commonBtn{
+  border-radius: 8px;
+  border:none;
+  padding:8px;
+}
+
+.commonBtn1{
+  background-color: #034ea1;
+  color:white;
+  font-weight: 400;
+  margin:8px;
+}
+
+.commonBtn2{
+  background-color: rgb(211, 211, 211);
+  color:black;
+  font-weight: 400;
+  margin:8px;
+  
+}
+
+
+.addBtn{
+  border:1px solid green;
+  margin: 0px;
+  height: 30px;
+  border-radius: 8px;
+  border:none;
+  margin-left: 10px;
+  
+}
+
+
+.message{
+  color: green;
+  // text-align: center;
+  // border: 1px solid olive;
+  font-size: 10px;
+  align-self: flex-end;
+}
+
+.warning{
+  color:red;
+  margin-left: 6px;
+}
+
+.label{
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+
+/* Base styles */
+.tableContainer {
+  border: 1px solid rgb(211, 211, 211);
+  padding: 4px;
+  border-radius: 8px;
+  margin-top: 6px;
+  overflow-x: auto; /* Enables horizontal scrolling */
+}
+
+/* Tablet view */
+@media (max-width: 1024px) {
+  .tableContainer {
+    padding: 3px;
+    margin-top: 5px;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .tableContainer {
+    padding: 2px;
+    margin-top: 4px;
+  }
+}
+
+/* Extra small devices (like smaller mobile screens) */
+@media (max-width: 480px) {
+  .tableContainer {
+    padding: 1px;
+    margin-top: 3px;
+  }
+}
+
+
+
+
+.fileInputContainers{
+  width:45%;
+  margin: 12px;
+  // border: 1px solid red;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+/* Tablet view */
+@media (max-width: 1024px) {
+  .fileInputContainers {
+    width: 80%;
+    margin: 12px;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .fileInputContainers {
+    width: 100%;
+    margin: 12px;
+  }
+}
+
+/* Extra small devices (like smaller mobile screens) */
+@media (max-width: 480px) {
+  .fileInputContainers {
+    width: 100%;
+    margin: 12px;
+    
+  }
+}
+
+.fileAttachementsUl{
+  padding-left: 0px;
+  list-style-type: none;
+  // border: 1px solid green;
+}
+
+.basicLi{
+  border: 1px solid rgb(211, 211, 211);
+}
+
+.inputField{
+  display: flex;
+  flex-direction: column;
+}
+
+.attachementli{
+  margin: 0px;
+  display: flex;
+  padding-left: 4px;
+  
+  justify-content: space-between;
+}
+
+.customFileUpload {
+  display: inline-block;
+  padding: 8px 16px;
+  cursor: pointer;
+  background-color: #0078d4; /* Fluent UI primary color */
+  color: #fff;
+  font-size: 14px;
+  border-radius: 4px;
+  text-align: center;
+  border: 1px solid #0078d4; /* Same color as background for consistent styling */
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #005a9e; /* Darker shade for hover effect */
+    border-color: #005a9e; /* Match border with hover background color */
+  }
+
+  &:active {
+    background-color: #004578; /* Even darker shade for active state */
+    border-color: #004578;
+  }
+}
+
+///view Form css
+
+
+.viewForm {
+  padding: 10px;
+  // background-color: #f4f4f4;
+  min-height: 100vh;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.pdfViewer {
+  width: 100%;
+  max-width: 100%;  // Ensure iframe doesn't exceed container width
+  overflow: hidden; // Prevent content overflow
+  position: relative; // Contain iframe within the container
+  padding-bottom: 56.25%; // Aspect ratio for responsive design (16:9 ratio)
+  height: 100%; // Initialize height to zero
+}
+
+// .pdfViewer iframe {
+//   position: absolute; // Position the iframe absolutely within the container
+//   top: 0;
+//   left: 0;
+//   width: 100%; // Full width of the container
+//   height: 100%; // Full height of the container
+//   border: none; // Remove default border
+// }
+
+.sectionContainer {
+  // margin-bottom: 10px;
+  // padding:10px;
+  // border: 1px solid #000;
+  padding:0px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer; // Make the header clickable
+  padding: 5px;
+  background-color: #f0f8ff; // Background color for the header
+  border-radius: 4px; // Rounded corners
+}
+
+.sectionText {
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.chevronIcon {
+  margin-right: 8px;
+}
+
