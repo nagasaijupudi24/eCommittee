@@ -11,6 +11,7 @@ export interface IFormProps {
   context: WebPartContext; // Pass the WebPartContext
   listId:any;
   libraryId:any;
+  formType:any;
 }
 
 // pdfLink: 'https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB' // Link to the PDF

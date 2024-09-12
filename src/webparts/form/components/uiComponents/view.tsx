@@ -131,12 +131,12 @@ const getFromType = (): any => {
 export default class ViewForm extends React.Component<IViewFormProps, IViewFormState> {
   // private _userName: string = _getUserDetails();
   private _itemId: number = Number(getIdFromUrl());
-  // private _currentUserEmail = this.props.context.pageContext.user.email;
+  private _currentUserEmail = this.props.context.pageContext.user.email;
   
   // private _currentUserEmail ="ib.test4@xencia.com";
   // private _currentUserEmail ="Manidhar.j@xencia.com";
   // private _currentUserEmail ="ib.test2@xencia.com";
-  private _currentUserEmail ="Nandu.krishna@xencia.com";
+  // private _currentUserEmail ="Nandu.krishna@xencia.com";
   private _formType: string = getFromType();
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: string = `${this._absUrl}/${
@@ -432,7 +432,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       status:item.Status,
       statusNumber:item.statusNumber,
       ApproverDetails:JSON.parse(item.ApproverDetails),
-      ApproverOrder:this._getApproverOrder(JSON.parse(item.ApproverDetails)),
+      ApproverOrder:item.Author.EMail === this._currentUserEmail ?"":this._getApproverOrder(JSON.parse(item.ApproverDetails)),
       title:item.Title
     });
   };
@@ -717,6 +717,238 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
   }
 
+  private handleReject=async (e:any,statusFromEvent:string,statusNumber:string)=>{
+    console.log(e)
+
+
+    const modifyApproveDetails = this.state.ApproverDetails.map(
+     
+      (each:any,index:number)=>{
+       
+        if(each.approverEmail === this._currentUserEmail){
+         
+          return {...each,status:statusFromEvent}
+        }
+        // if (each.approverOrder===currentApproverOrder+1){
+        
+        //   return {...each,status:"pending"}
+
+        // }
+        if (each.approverOrder === this.state.ApproverOrder+1){
+          return {...each,status:'pending'}
+          
+        }
+        return each
+      }
+    )
+
+    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
+    console.log(updateAuditTrial)
+    const itemToUpdate = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+        'ApproverDetails': JSON.stringify(modifyApproveDetails),
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+        "AuditTrail":updateAuditTrial
+    });
+
+    console.log(itemToUpdate)
+
+
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
+      this.setState({status:statusFromEvent})
+      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+       
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+       
+    });
+
+    console.log(itemToUpdateStatusToApproved)
+    }
+
+
+  }
+
+  private handleRefer=async (e:any,statusFromEvent:string,statusNumber:string)=>{
+    console.log(e)
+
+
+    const modifyApproveDetails = this.state.ApproverDetails.map(
+     
+      (each:any,index:number)=>{
+       
+        if(each.approverEmail === this._currentUserEmail){
+         
+          return {...each,status:statusFromEvent}
+        }
+        // if (each.approverOrder===currentApproverOrder+1){
+        
+        //   return {...each,status:"pending"}
+
+        // }
+        if (each.approverOrder === this.state.ApproverOrder+1){
+          return {...each,status:'pending'}
+          
+        }
+        return each
+      }
+    )
+
+    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
+    console.log(updateAuditTrial)
+    const itemToUpdate = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+        'ApproverDetails': JSON.stringify(modifyApproveDetails),
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+        "AuditTrail":updateAuditTrial
+    });
+
+    console.log(itemToUpdate)
+
+
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
+      this.setState({status:statusFromEvent})
+      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+       
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+       
+    });
+
+    console.log(itemToUpdateStatusToApproved)
+    }
+
+
+  }
+
+  private handleReturn=async (e:any,statusFromEvent:string,statusNumber:string)=>{
+    console.log(e)
+
+
+    const modifyApproveDetails = this.state.ApproverDetails.map(
+     
+      (each:any,index:number)=>{
+       
+        if(each.approverEmail === this._currentUserEmail){
+         
+          return {...each,status:statusFromEvent}
+        }
+        // if (each.approverOrder===currentApproverOrder+1){
+        
+        //   return {...each,status:"pending"}
+
+        // }
+        if (each.approverOrder === this.state.ApproverOrder+1){
+          return {...each,status:'pending'}
+          
+        }
+        return each
+      }
+    )
+
+    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
+    console.log(updateAuditTrial)
+    const itemToUpdate = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+        'ApproverDetails': JSON.stringify(modifyApproveDetails),
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+        "AuditTrail":updateAuditTrial
+    });
+
+    console.log(itemToUpdate)
+
+
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
+      this.setState({status:statusFromEvent})
+      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+       
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+       
+    });
+
+    console.log(itemToUpdateStatusToApproved)
+    }
+
+
+  }
+
+  private handleCallBack=async (e:any,statusFromEvent:string,statusNumber:string)=>{
+    console.log(e)
+
+
+    const modifyApproveDetails = this.state.ApproverDetails.map(
+     
+      (each:any,index:number)=>{
+       
+        if(each.approverEmail === this._currentUserEmail){
+         
+          return {...each,status:statusFromEvent}
+        }
+        // if (each.approverOrder===currentApproverOrder+1){
+        
+        //   return {...each,status:"pending"}
+
+        // }
+        if (each.approverOrder === this.state.ApproverOrder+1){
+          return {...each,status:'pending'}
+          
+        }
+        return each
+      }
+    )
+
+    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
+    console.log(updateAuditTrial)
+    const itemToUpdate = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+        'ApproverDetails': JSON.stringify(modifyApproveDetails),
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+        "AuditTrail":updateAuditTrial
+    });
+
+    console.log(itemToUpdate)
+
+
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
+      this.setState({status:statusFromEvent})
+      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+       
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+       
+    });
+
+    console.log(itemToUpdateStatusToApproved)
+    }
+
+
+  }
+
   private _getApproverAndReviewerStageButton = (): any => {
     return (
       <div style={{display:'flex',gap:"10px"}}>
@@ -760,14 +992,26 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
               border:'none'
             }
           }}
-          onClick={() => this.setState({ status: "Reject",statusNumber:'4000'})}
+          onClick={(e) =>{
+            this.setState({ status: "Reject",statusNumber:'4000'}) 
+            this.handleReject(e,"Rejected","4000")
+
+          } }
         >
           Reject
         </PrimaryButton>
-        <PrimaryButton onClick={() => this.setState({ status: "Refer",statusNumber:'5000' })}>
+        <PrimaryButton onClick={(e) =>{
+          this.setState({ status: "Refer",statusNumber:'5000' })
+          this.handleRefer(e,"Refered","5000")
+        } }>
           Refer
         </PrimaryButton>
-        <PrimaryButton onClick={() => this.setState({ status: "Return",statusNumber:'3000' })}>
+        <PrimaryButton onClick={(e) =>{
+
+          this.setState({ status: "Return",statusNumber:'3000' })
+          this.handleReturn(e,"Returned","3000")
+
+        } }>
           Return
         </PrimaryButton>
       </div>
@@ -1070,7 +1314,10 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
             >
               {this._currentUserEmail === this.state.createdByEmail ? (
                 <PrimaryButton
-                  onClick={() => this.setState({ status: "Call Back" ,statusNumber:'7000'})}
+                  onClick={(e) =>{
+                    this.handleCallBack(e,"Call Back",'7000')
+                    this.setState({ status: "Call Back" ,statusNumber:'7000'})}
+                  } 
                 >
                   Call Back
                 </PrimaryButton>

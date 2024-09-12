@@ -293,8 +293,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     };
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.getfield();
-    this._getItemData(this._itemId, this._folderName);
-    this._getItemDocumentsData();
+    this.props.formType === "Edit" && this._getItemData(this._itemId, this._folderName);
+    this.props.formType === "Edit" && this._getItemDocumentsData();
     // eslint-disable-next-line no-void
     // void this.createFolder();
   }
@@ -417,7 +417,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
-      srNo: each.approverEmailName,
+      srNo: each.approverEmailName.split("@")[0],
       optionalText: each.designation,
       id: each.id,
       approverType: 1,
@@ -453,7 +453,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
-      srNo: each.approverEmailName,
+      srNo: each.approverEmailName.split("@")[0],
       optionalText: each.designation,
       id: each.id,
       approverType: 2,
@@ -726,11 +726,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       const items: any[] = await (
         await this.props.sp.web.lists
           .getByTitle("ApprovalConfiguration")
-          .items.select("*", "Approvers/Title", "Approvers/EMail")
-          .expand("Approvers")()
+          .items.select("*", "Approvers/Title", "Approvers/EMail","Secretaries/Title","Secretaries/EMail")
+          .expand("Approvers","Secretaries")()
       )
         .map((each: any) => {
-          // console.log(each)
+          console.log(each)
 
           const newObj = {
             text: each.Approvers.Title,
@@ -740,6 +740,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approversOrder: each.approversOrder,
             Title: each.Title,
             id: each.ApproversId,
+            secretary:each.Secretaries[0].Title,
+
           };
           return newObj;
         })
@@ -1375,9 +1377,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           approverStatus: 1,
           id: each.id,
           status:index===0?"pending":"waiting",
-          srNo: "selectedReveiwer.srNo",
+         
           designation: each.optionalText,
           approverEmailName: each.text,
+          srNo:each.srNo
         };
       }
     );
@@ -2349,7 +2352,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(peoplePickerData)
     const allData = [...peoplePickerData, ...peoplePickerApproverData];
     const booleanCheck = allData?.some((each: any) => {
-      if (each.text === "IB Test2") {
+      if (each.text === "IB Test1"||"IB Test3") {
         return true;
       }
     });
