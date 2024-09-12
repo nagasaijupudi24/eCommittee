@@ -40,6 +40,7 @@ export interface IFileDetails {
 }
 
 export interface IViewFormState {
+  title:string;
   expandSections: { [key: string]: boolean };
   pdfLink: string;
   isLoading: boolean;
@@ -132,7 +133,10 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
   private _itemId: number = Number(getIdFromUrl());
   // private _currentUserEmail = this.props.context.pageContext.user.email;
   
-  private _currentUserEmail ="ib.test4@xencia.com";
+  // private _currentUserEmail ="ib.test4@xencia.com";
+  // private _currentUserEmail ="Manidhar.j@xencia.com";
+  // private _currentUserEmail ="ib.test2@xencia.com";
+  private _currentUserEmail ="Nandu.krishna@xencia.com";
   private _formType: string = getFromType();
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: string = `${this._absUrl}/${
@@ -142,6 +146,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
   constructor(props: IViewFormProps) {
     super(props);
     this.state = {
+      title:'',
       isLoading: true,
       department: "",
       isNoteType: false,
@@ -427,7 +432,8 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       status:item.Status,
       statusNumber:item.statusNumber,
       ApproverDetails:JSON.parse(item.ApproverDetails),
-      ApproverOrder:this._getApproverOrder(JSON.parse(item.ApproverDetails))
+      ApproverOrder:this._getApproverOrder(JSON.parse(item.ApproverDetails)),
+      title:item.Title
     });
   };
 
@@ -629,6 +635,30 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     }
   };
 
+
+  private _getAuditTrail =async (status: any) => {
+    // console.log(this._currentUserEmail, this._role);
+    const profile = await this.props.sp.profiles.myProperties();
+    console.log(profile);
+    
+    const auditLog = [
+      {
+        Actioner: this._currentUserEmail,
+        ActionTaken: status,
+        Role: profile.Title,
+        // Role: this.props.context.pageContext.user.,
+        ActionTakenOn:
+          new Date().toDateString() + " " + new Date().toLocaleTimeString(),
+        Comments: "No Comments",
+      },
+    ];
+
+
+
+    return JSON.stringify([...this.state.auditTrail,...auditLog]);
+  };
+
+
   private _handleApproverButton=async (e:any,statusFromEvent:string)=>{
     console.log(e)
 
@@ -653,14 +683,37 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
         return each
       }
     )
+
+    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
+    console.log(updateAuditTrial)
     const itemToUpdate = await this.props.sp.web.lists
     .getByTitle(this.props.listId)
     .items.getById(this._itemId)
     .update({
-        'ApproverDetails': JSON.stringify(modifyApproveDetails)
+        'ApproverDetails': JSON.stringify(modifyApproveDetails),
+        "Status":"pending",
+        "statusNumber":'1500',
+        "AuditTrail":updateAuditTrial
     });
 
     console.log(itemToUpdate)
+
+
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
+      this.setState({status:statusFromEvent})
+      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+       
+        "Status":"Apporved",
+        "statusNumber":'2000',
+       
+    });
+
+    console.log(itemToUpdateStatusToApproved)
+    }
+
 
   }
 
@@ -775,11 +828,12 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
         ) : (
           <Stack tokens={{ childrenGap: 10 }} className={styles.viewForm}>
             <div className={`${styles.generalSectionMainContainer}`}>
-            <h1 style={{ alignSelf: "left", fontSize: "16px" }}>
+            {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
                 pending:{this._getPendingStatus()}
-              </h1>
+              </h1>}
+            
               <h1 style={{alignSelf:'center', textAlign: "center", fontSize: "16px" }}>
-                View Form
+              eCommittee Note - {this.state.title}
               </h1>
               <h1 style={{ alignSelf: "right", fontSize: "16px" }}>
                 Status:{this.state.status}
