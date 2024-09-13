@@ -24,7 +24,7 @@ import FileAttatchmentTable from "./simpleTable/fileAttatchmentsTable";
 import { Spinner } from "@fluentui/react/lib/Spinner";
 // import AdobePdfWebPart from "../../../adobePdf/AdobePdfWebPart";
 import AdobePdfViewer from "../adobe/adobepdf";
-
+import { DialogBlockingExample } from "./dialogFluentUi/dialogFluentUi";
 import { format } from "date-fns";
 import PdfViewer from "../pdfVeiwer/pdfreact";
 
@@ -112,6 +112,9 @@ export interface IViewFormState {
   createdByEmail:any;
   ApproverDetails:any;
   ApproverOrder:any;
+
+  dialogFluent:any;
+  dialogDetails:any;
 }
 
 const getIdFromUrl = (): any => {
@@ -213,7 +216,9 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       //   "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/SupportingDocument/Export.xlsx?d=w5597c83c4c7744daab598c33704569bc"
       // "https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB", // Link to the PDF
       createdByEmail: "",
-      ApproverOrder:''
+      ApproverOrder:'',
+      dialogFluent:true,
+      dialogDetails:{}
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -659,9 +664,8 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
   };
 
 
-  private _handleApproverButton=async (e:any,statusFromEvent:string)=>{
-    console.log(e)
-
+  private _handleApproverButton=async (statusFromEvent:string,statusNumber:string)=>{
+    
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
      
@@ -706,8 +710,8 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     .items.getById(this._itemId)
     .update({
        
-        "Status":"Apporved",
-        "statusNumber":'2000',
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
        
     });
 
@@ -949,6 +953,19 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
   }
 
+private _checkApproveredStatusIsFound= ():any =>{
+  const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
+    (accu:any,each:any)=>{
+      console.log(each)
+      console.log(each.status)
+      return accu.concat(each.status) 
+    },[]
+  )
+  console.log(checkApproverdStatusisAvailableInApproverDetails)
+  console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
+  return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
+}
+
   private _getApproverAndReviewerStageButton = (): any => {
     return (
       <div style={{display:'flex',gap:"10px"}}>
@@ -969,8 +986,9 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
             }
           }}
           onClick={(e) =>{
+            this._hanldeFluentDialog("Approve","Please check the details filled along with attachment and click on Confirm button to approve request.",this._handleApproverButton,this._closeDialog)
             this.setState({ status: "Approve",statusNumber:'2000' })
-            this._handleApproverButton(e,"Approved")
+            // this._handleApproverButton(e,"Approved")
 
           } }
         >
@@ -993,23 +1011,25 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
             }
           }}
           onClick={(e) =>{
+            this._hanldeFluentDialog("Reject","click on Confirm button to reject request.",this.handleReject,this._closeDialog)
             this.setState({ status: "Reject",statusNumber:'4000'}) 
-            this.handleReject(e,"Rejected","4000")
+            // this.handleReject(e,"Rejected","4000")
 
           } }
         >
           Reject
         </PrimaryButton>
         <PrimaryButton onClick={(e) =>{
+          this._hanldeFluentDialog("Refer","click on Confirm button to reject request.",this.handleRefer,this._closeDialog)
           this.setState({ status: "Refer",statusNumber:'5000' })
-          this.handleRefer(e,"Refered","5000")
+          // this.handleRefer(e,"Refered","5000")
         } }>
           Refer
         </PrimaryButton>
         <PrimaryButton onClick={(e) =>{
-
+          this._hanldeFluentDialog("Return","click on Confirm button to reject request.",this.handleReturn,this._closeDialog)
           this.setState({ status: "Return",statusNumber:'3000' })
-          this.handleReturn(e,"Returned","3000")
+          // this.handleReturn(e,"Returned","3000")
 
         } }>
           Return
@@ -1038,8 +1058,29 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
   }
 
+  private _closeDialog = ()=>{
+    console.log("close is triggered")
+    this.setState({dialogFluent:true})
+  }
+
+
+  private _hanldeFluentDialog = (btnType:string,message:string,functionType:any,closeFunction:any) =>{
+    this.setState({dialogFluent:false,
+      dialogDetails:{
+        subText:`Are you sure you want to ${btnType} this request?`,
+        message:message,
+        functionType:functionType,
+        closeFunction:closeFunction
+
+      }
+    })
+
+  }
+
+ 
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
+    this._checkApproveredStatusIsFound()
     const { expandSections } = this.state;
     // console.log(this._getPendingStatus())
     // const data = [
@@ -1313,6 +1354,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
               style={{ alignSelf: "center", margin: "10px 0px", gap: "10px" }}
             >
               {this._currentUserEmail === this.state.createdByEmail ? (
+                //  this._checkApproveredStatusIsFound()
                 <PrimaryButton
                   onClick={(e) =>{
                     this.handleCallBack(e,"Call Back",'7000')
@@ -1338,6 +1380,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
             </div>
           </Stack>
         )}
+        <DialogBlockingExample hiddenProp={this.state.dialogFluent} dialogDetails={this.state.dialogDetails}/>
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}
         <PdfViewer pdfUrl={this.state.pdfLink} />
