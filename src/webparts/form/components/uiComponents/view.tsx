@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable no-void */
 import * as React from "react";
@@ -899,26 +900,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     console.log(e)
 
 
-    const modifyApproveDetails = this.state.ApproverDetails.map(
-     
-      (each:any,index:number)=>{
-       
-        if(each.approverEmail === this._currentUserEmail){
-         
-          return {...each,status:statusFromEvent}
-        }
-        // if (each.approverOrder===currentApproverOrder+1){
-        
-        //   return {...each,status:"pending"}
-
-        // }
-        if (each.approverOrder === this.state.ApproverOrder+1){
-          return {...each,status:'pending'}
-          
-        }
-        return each
-      }
-    )
+   
 
     const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
     console.log(updateAuditTrial)
@@ -926,30 +908,13 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     .getByTitle(this.props.listId)
     .items.getById(this._itemId)
     .update({
-        'ApproverDetails': JSON.stringify(modifyApproveDetails),
+       
         "Status":statusFromEvent,
         "statusNumber":statusNumber,
         "AuditTrail":updateAuditTrial
     });
 
     console.log(itemToUpdate)
-
-
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
-      this.setState({status:statusFromEvent})
-      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-       
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-       
-    });
-
-    console.log(itemToUpdateStatusToApproved)
-    }
-
 
   }
 
@@ -986,7 +951,7 @@ private _checkApproveredStatusIsFound= ():any =>{
             }
           }}
           onClick={(e) =>{
-            this._hanldeFluentDialog("Approve","Please check the details filled along with attachment and click on Confirm button to approve request.",this._handleApproverButton,this._closeDialog)
+            this._hanldeFluentDialog("Approve","Approved",'2000',"Please check the details filled along with attachment and click on Confirm button to approve request.",this._handleApproverButton,this._closeDialog)
             this.setState({ status: "Approve",statusNumber:'2000' })
             // this._handleApproverButton(e,"Approved")
 
@@ -1011,7 +976,7 @@ private _checkApproveredStatusIsFound= ():any =>{
             }
           }}
           onClick={(e) =>{
-            this._hanldeFluentDialog("Reject","click on Confirm button to reject request.",this.handleReject,this._closeDialog)
+            this._hanldeFluentDialog("Reject","Rejected","4000","click on Confirm button to reject request.",this.handleReject,this._closeDialog)
             this.setState({ status: "Reject",statusNumber:'4000'}) 
             // this.handleReject(e,"Rejected","4000")
 
@@ -1020,14 +985,14 @@ private _checkApproveredStatusIsFound= ():any =>{
           Reject
         </PrimaryButton>
         <PrimaryButton onClick={(e) =>{
-          this._hanldeFluentDialog("Refer","click on Confirm button to reject request.",this.handleRefer,this._closeDialog)
+          this._hanldeFluentDialog("Refer","Refered","5000","click on Confirm button to Refer request.",this.handleRefer,this._closeDialog)
           this.setState({ status: "Refer",statusNumber:'5000' })
           // this.handleRefer(e,"Refered","5000")
         } }>
           Refer
         </PrimaryButton>
         <PrimaryButton onClick={(e) =>{
-          this._hanldeFluentDialog("Return","click on Confirm button to reject request.",this.handleReturn,this._closeDialog)
+          this._hanldeFluentDialog("Return","Returned","3000","click on Confirm button to Return request.",this.handleReturn,this._closeDialog)
           this.setState({ status: "Return",statusNumber:'3000' })
           // this.handleReturn(e,"Returned","3000")
 
@@ -1064,9 +1029,12 @@ private _checkApproveredStatusIsFound= ():any =>{
   }
 
 
-  private _hanldeFluentDialog = (btnType:string,message:string,functionType:any,closeFunction:any) =>{
+  private _hanldeFluentDialog = (btnType:string,currentStatus:string,currentStatusNumber:string,message:string,functionType:any,closeFunction:any) =>{
     this.setState({dialogFluent:false,
       dialogDetails:{
+        type:btnType,
+        status:currentStatus,
+        statusNumber:currentStatusNumber,
         subText:`Are you sure you want to ${btnType} this request?`,
         message:message,
         functionType:functionType,
@@ -1113,7 +1081,10 @@ private _checkApproveredStatusIsFound= ():any =>{
         ) : (
           <Stack tokens={{ childrenGap: 10 }} className={styles.viewForm}>
             <div className={`${styles.generalSectionMainContainer}`}>
-            {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
+            {/* {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
+                pending:{this._getPendingStatus()}
+              </h1>} */}
+                {<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
                 pending:{this._getPendingStatus()}
               </h1>}
             
@@ -1367,7 +1338,7 @@ private _checkApproveredStatusIsFound= ():any =>{
                 this._getApproverAndReviewerStageButton()
                 
               )}
-              {this._getApproverAndReviewerStageButton()}
+              {/* {this._getApproverAndReviewerStageButton()} */}
 
               <DefaultButton
                 type="button"

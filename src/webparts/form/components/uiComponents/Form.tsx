@@ -173,6 +173,7 @@ interface IMainFormState {
   status: string;
   statusNumber: any;
   filesClear: any;
+  auditTrail:any;
 }
 
 // let fetchedData:any[];
@@ -278,6 +279,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       status: "",
       statusNumber: null,
       filesClear: [],
+      auditTrail:[]
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -293,8 +295,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     };
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.getfield();
-    this.props.formType === "Edit" && this._getItemData(this._itemId, this._folderName);
-    this.props.formType === "Edit" && this._getItemDocumentsData();
+    // this.props.formType === "Edit" && this._getItemData(this._itemId, this._folderName);
+    this._getItemData(this._itemId, this._folderName);
+    // this.props.formType === "Edit" && this._getItemDocumentsData();
+    this._getItemDocumentsData();
     // eslint-disable-next-line no-void
     // void this.createFolder();
   }
@@ -603,6 +607,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         item.ApproverDetails,
         "Approver"
       ),
+      status:item.Status
     });
   };
 
@@ -1404,7 +1409,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       },
     ];
 
-    return JSON.stringify(auditLog);
+    return JSON.stringify([...this.state.auditTrail,...auditLog]);
   };
 
   private _getReviewerId = () => {
@@ -1460,7 +1465,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       ),
       Status: status,
       statusNumber: status === "Submitted" ? statusNumber : "3000",
-      AuditTrail: this._getAuditTrail(status),
+      AuditTrail:this.state.status === "Call Back"?this._getAuditTrail("Re-submitted"): this._getAuditTrail(status),
       ReviewerId: this._getReviewerId(),
       ApproverId: this._getApproverId(),
     };
@@ -1539,10 +1544,25 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // this.isNatureOfApprovalOrSanction()
         ) {
           this.setState({ status: "Submitted", statusNumber: "1000" });
-          const id = await this.props.sp.web.lists
+
+          let id;
+          let status;
+          if (this.state.status==='Call Back'){
+            status = "Re-Submitted"
+            id = await this.props.sp.web.lists
+            .getByTitle(this.props.listId)
+            .items.add(this.createEcommitteeObject(status, "2500"));
+
+          }
+          else{
+            id = await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
-          console.log(id.Id, "id");
+            console.log(id.Id, "id");
+
+          }
+          console.log(id.Id, "id -----",status,"Status");
+         
           this.state.peoplePickerData.map(async (each: any) => {
             console.log(each);
             // const listItem = await this.props.sp.web.lists
@@ -2404,7 +2424,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // </Stack>
           <div className={styles.form}>
             {/* <Header /> */}
-            <Title formStatus={this._formType} />
+            <Title formType={this._formType} statusOfRequest={this.state.status}/>
             {/* {this.state.isDialogHidden&&<MyDialog  />} */}
             <MyDialog
               hidden={this.state.isDialogHidden}

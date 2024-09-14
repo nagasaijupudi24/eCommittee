@@ -43,9 +43,11 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({hi
     ],
   );
 
+  
+
   const handleConfirmBtn = ()=>{
     console.log("Confirm btn triggered")
-    dialogDetails.functionType("Approved")
+    dialogDetails.functionType(dialogDetails.status,dialogDetails.statusNumber)
   }
 
   return (
