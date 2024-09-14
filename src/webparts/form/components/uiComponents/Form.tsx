@@ -607,7 +607,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         item.ApproverDetails,
         "Approver"
       ),
-      status:item.Status
+      status:item.Status,
+      auditTrail:JSON.parse(item.AuditTrail)
     });
   };
 
@@ -1408,6 +1409,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         Comments: "No Comments",
       },
     ];
+    console.log(this.state.auditTrail)
+  
 
     return JSON.stringify([...this.state.auditTrail,...auditLog]);
   };
@@ -1665,10 +1668,23 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.peoplePickerData.length > 0
         ) {
           this.setState({ status: "Submitted", statusNumber: "1000" });
-          const id = await this.props.sp.web.lists
+          let id;
+          let status;
+          if (this.state.status==='Call Back'){
+            status = "Re-Submitted"
+            id = await this.props.sp.web.lists
+            .getByTitle(this.props.listId)
+            .items.add(this.createEcommitteeObject(status, "2500"));
+
+          }
+          else{
+            id = await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
-          console.log(id.Id, "id");
+            console.log(id.Id, "id");
+
+          }
+          console.log(id.Id, "id -----",status,"Status");
           this.state.peoplePickerData.map(async (each: any) => {
             console.log(each);
             // const listItem = await this.props.sp.web.lists
@@ -1769,10 +1785,23 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.peoplePickerData.length > 0
         ) {
           this.setState({ status: "Submitted", statusNumber: "1000" });
-          const id = await this.props.sp.web.lists
+          let id;
+          let status;
+          if (this.state.status==='Call Back'){
+            status = "Re-Submitted"
+            id = await this.props.sp.web.lists
+            .getByTitle(this.props.listId)
+            .items.add(this.createEcommitteeObject(status, "2500"));
+
+          }
+          else{
+            id = await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
-          console.log(id.Id, "id");
+            console.log(id.Id, "id");
+
+          }
+          console.log(id.Id, "id -----",status,"Status");
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           await this._generateRequsterNumber(id.Id);
           this.state.peoplePickerData.map(async (each: any) => {
@@ -1883,10 +1912,23 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.peoplePickerData.length > 0
         ) {
           console.log("else entered");
-          const id = await this.props.sp.web.lists
+          let id;
+          let status;
+          if (this.state.status==='Call Back'){
+            status = "Re-Submitted"
+            id = await this.props.sp.web.lists
+            .getByTitle(this.props.listId)
+            .items.add(this.createEcommitteeObject(status, "2500"));
+
+          }
+          else{
+            id = await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
-          console.log(id.Id, "id");
+            console.log(id.Id, "id");
+
+          }
+          console.log(id.Id, "id -----",status,"Status");
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           await this._generateRequsterNumber(id.Id);
           this.state.peoplePickerData.map(async (each: any) => {
@@ -1990,9 +2032,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.peoplePickerData,
       this.state.peoplePickerApproverData
     ),
-    Status: "Edited",
-    statusNumber: "2000",
-    AuditTrail: this._getAuditTrail("Edited"),
+    Status: "ReSubmitted",
+    statusNumber: "2500",
+    AuditTrail: this._getAuditTrail("ReSubmitted"),
     // Reviewer:{result:this._getReviewerId()}
     ReviewerId: this._getReviewerId(),
     ApproverId: this._getApproverId(),
