@@ -281,7 +281,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
-      srNo: each.approverEmailName,
+      srNo: each.approverEmailName.split("@")[0],
       optionalText: each.designation,
       id: each.id,
       approverType: 1,
@@ -318,7 +318,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
-      srNo: each.approverEmailName,
+      srNo:each.approverEmailName.split("@")[0],
       optionalText: each.designation,
       id: each.id,
       approverType: 2,
@@ -444,13 +444,22 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
   };
 
   private _getApproverOrder = (data:any):any=>{
-   return data.filter((each:any)=>{
+   const order =  data.filter((each:any)=>{
     console.log(each)
+    console.log(each.approverEmail)
+    console.log(this._currentUserEmail)
+
+    console.log(each.approverEmail===this._currentUserEmail)
+
       if (each.approverEmail===this._currentUserEmail){
-        return each.approverOrder
+        console.log(each.approverOrder)
+        return each
       }
 
-    })[0].approverOrder
+    })
+    console.log(order)
+    return order[0].approverOrder
+    
 
   }
 
@@ -666,13 +675,16 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
 
   private _handleApproverButton=async (statusFromEvent:string,statusNumber:string)=>{
+
     
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
      
       (each:any,index:number)=>{
+        console.log(each)
        
         if(each.approverEmail === this._currentUserEmail){
+          console.log("ednter")
          
           return {...each,status:statusFromEvent}
         }
@@ -681,13 +693,18 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
         //   return {...each,status:"pending"}
 
         // }
+        console.log(each.approversOrder)
+        console.log(this.state.ApproverOrder+1)
+        console.log(each.approverOrder === this.state.ApproverOrder+1)
         if (each.approverOrder === this.state.ApproverOrder+1){
+          console.log("ednter 2")
           return {...each,status:'pending'}
           
         }
         return each
       }
     )
+    console.log(modifyApproveDetails)
 
     const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
     console.log(updateAuditTrial)
@@ -718,12 +735,13 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
     console.log(itemToUpdateStatusToApproved)
     }
+    this._closeDialog()
 
 
   }
 
-  private handleReject=async (e:any,statusFromEvent:string,statusNumber:string)=>{
-    console.log(e)
+  private handleReject=async (statusFromEvent:string,statusNumber:string)=>{
+    
 
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
@@ -777,11 +795,72 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     console.log(itemToUpdateStatusToApproved)
     }
 
+    this._closeDialog()
+
 
   }
 
-  private handleRefer=async (e:any,statusFromEvent:string,statusNumber:string)=>{
-    console.log(e)
+  private handleRefer=async (statusFromEvent:string,statusNumber:string)=>{
+    
+
+
+    const modifyApproveDetails = this.state.ApproverDetails.map(
+     
+      (each:any,index:number)=>{
+       
+        if(each.approverEmail === this._currentUserEmail){
+         
+          return {...each,status:statusFromEvent}
+        }
+        // if (each.approverOrder===currentApproverOrder+1){
+        
+        //   return {...each,status:"pending"}
+
+        // }
+        if (each.approverOrder === this.state.ApproverOrder+1){
+          return {...each,status:'pending'}
+          
+        }
+        return each
+      }
+
+    )
+
+    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
+    console.log(updateAuditTrial)
+    const itemToUpdate = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+        'ApproverDetails': JSON.stringify(modifyApproveDetails),
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+        "AuditTrail":updateAuditTrial
+    });
+
+    console.log(itemToUpdate)
+
+
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
+      this.setState({status:statusFromEvent})
+      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+    .getByTitle(this.props.listId)
+    .items.getById(this._itemId)
+    .update({
+       
+        "Status":statusFromEvent,
+        "statusNumber":statusNumber,
+       
+    });
+
+    console.log(itemToUpdateStatusToApproved)
+    }
+    this._closeDialog()
+
+  }
+
+  private handleReturn=async (statusFromEvent:string,statusNumber:string)=>{
+    
 
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
@@ -834,70 +913,11 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
     console.log(itemToUpdateStatusToApproved)
     }
-
-
-  }
-
-  private handleReturn=async (e:any,statusFromEvent:string,statusNumber:string)=>{
-    console.log(e)
-
-
-    const modifyApproveDetails = this.state.ApproverDetails.map(
-     
-      (each:any,index:number)=>{
-       
-        if(each.approverEmail === this._currentUserEmail){
-         
-          return {...each,status:statusFromEvent}
-        }
-        // if (each.approverOrder===currentApproverOrder+1){
-        
-        //   return {...each,status:"pending"}
-
-        // }
-        if (each.approverOrder === this.state.ApproverOrder+1){
-          return {...each,status:'pending'}
-          
-        }
-        return each
-      }
-    )
-
-    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
-    console.log(updateAuditTrial)
-    const itemToUpdate = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-        'ApproverDetails': JSON.stringify(modifyApproveDetails),
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-        "AuditTrail":updateAuditTrial
-    });
-
-    console.log(itemToUpdate)
-
-
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
-      this.setState({status:statusFromEvent})
-      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-       
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-       
-    });
-
-    console.log(itemToUpdateStatusToApproved)
-    }
-
+    this._closeDialog()
 
   }
 
   private handleCallBack=async (e:any,statusFromEvent:string,statusNumber:string)=>{
-    console.log(e)
 
 
    
@@ -915,6 +935,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     });
 
     console.log(itemToUpdate)
+    this._closeDialog()
 
   }
 
@@ -1016,10 +1037,14 @@ private _checkApproveredStatusIsFound= ():any =>{
       }
     )
 
-    console.log(currentStatusOfApproverDetails[0].approverEmailName,"currentStatusOfApproverDetails")
+    if (currentStatusOfApproverDetails.length > 0){
+      console.log(currentStatusOfApproverDetails[0].approverEmailName,"currentStatusOfApproverDetails")
 
-    return currentStatusOfApproverDetails[0].approverEmailName
+      return currentStatusOfApproverDetails[0].approverEmailName
 
+
+    }
+    return ""
 
   }
 
@@ -1085,7 +1110,7 @@ private _checkApproveredStatusIsFound= ():any =>{
                 pending:{this._getPendingStatus()}
               </h1>} */}
                 {<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
-                pending:{this._getPendingStatus()}
+                pending:{this.state.status ==="pending"||"Submitted" && this._getPendingStatus()}
               </h1>}
             
               <h1 style={{alignSelf:'center', textAlign: "center", fontSize: "16px" }}>

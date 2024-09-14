@@ -425,6 +425,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       optionalText: each.designation,
       id: each.id,
       approverType: 1,
+      ...each
     }));
     console.log(approverData);
     // this.setState(()=>{
@@ -461,6 +462,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       optionalText: each.designation,
       id: each.id,
       approverType: 2,
+      ...each
     }));
     console.log(approverData);
     // this.setState(()=>{
@@ -749,6 +751,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             secretary:each.Secretaries[0].Title,
 
           };
+          console.log(newObj)
           return newObj;
         })
         .filter((each: any) => each.Title === "Development");
@@ -1373,6 +1376,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private _getApproverDetails = (reveiwerData: any, apporverData: any): any => {
     const dataOfReveiwerAndApprover = [...reveiwerData, ...apporverData];
+    console.log(dataOfReveiwerAndApprover)
     const finalData = dataOfReveiwerAndApprover.map(
       (each: any, index: number) => {
         console.log(each);
@@ -1390,6 +1394,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         };
       }
     );
+    console.log(finalData)
 
     console.log(JSON.stringify(finalData));
 
