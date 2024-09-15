@@ -46,6 +46,14 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
   }
 
   public _getCurentUserComment = (): any => {
+    console.log(this.props.data.some(
+        (each: any) =>{
+            console.log(each.commentedBy)
+            return  each.commentedBy === this.props.displayNamed
+        }
+      ))
+     
+      console.log(this.props.displayName)
     if (
       this.props.data.some(
         (each: any) => each.commentedBy === this.props.displayName

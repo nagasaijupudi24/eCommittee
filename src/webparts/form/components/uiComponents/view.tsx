@@ -29,6 +29,9 @@ import { DialogBlockingExample } from "./dialogFluentUi/dialogFluentUi";
 import { format } from "date-fns";
 import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
+import UploadFileComponent from "./uploadFile";
+
+
 
 export interface IFileDetails {
   name?: string;
@@ -114,11 +117,13 @@ export interface IViewFormState {
   createdByEmail:any;
   ApproverDetails:any;
   ApproverOrder:any;
+  ApproverType:any;
 
   dialogFluent:any;
   dialogDetails:any;
 
   commentsData:any
+  
 }
 
 const getIdFromUrl = (): any => {
@@ -208,6 +213,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       peoplePickerApproverData: [],
       ApproverDetails:[],
       approverInfo: [],
+      ApproverType:'',
       reviewerInfo: [],
       status: "",
       statusNumber: null,
@@ -407,6 +413,8 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
         },
       ],
     });
+    const dataApproverInfo =item.Author.EMail !== this._currentUserEmail && this._getApproverOrder(JSON.parse(item.ApproverDetails))
+    console.log(dataApproverInfo)
 
     this.setState({
       committeeNameFeildValue:
@@ -442,7 +450,9 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       status:item.Status,
       statusNumber:item.statusNumber,
       ApproverDetails:JSON.parse(item.ApproverDetails),
-      ApproverOrder:item.Author.EMail === this._currentUserEmail ?"":this._getApproverOrder(JSON.parse(item.ApproverDetails)),
+      ApproverOrder:item.Author.EMail === this._currentUserEmail ?"":dataApproverInfo[0],
+      ApproverType:item.Author.EMail === this._currentUserEmail ?"":dataApproverInfo[1],
+
       title:item.Title
     });
   };
@@ -462,7 +472,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
     })
     console.log(order)
-    return order[0].approverOrder
+    return [order[0].approverOrder,order[0].approverType]
     
 
   }
@@ -1102,6 +1112,31 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     }
     
   }
+
+  private handleSupportingFileChange = (files: File[], typeOfDoc: string) => {
+    console.log(typeOfDoc);
+    console.log(files);
+    for (let i = 0; i < files.length; i++) {
+      console.log(files[i]);
+    }
+
+    if (this.state.isWarningSupportingDocumentFiles) {
+      this.setState({ isWarningSupportingDocumentFiles: false });
+    }
+
+    if (files) {
+      console.log(files);
+      // Convert FileList to an array of File objects
+      const filesArray = Array.from(files);
+      // this.setState((prev) => ({
+      //   supportingDocumentfiles: [
+      //     ...prev.supportingDocumentfiles,
+      //     ...filesArray,
+      //   ],
+      // }));
+      this.setState({ supportingDocumentfiles: [...filesArray] });
+    }
+  };
  
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
@@ -1292,6 +1327,39 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
                     </div>
                   )}
                 </div>:""}
+
+                {/*ATR Assignees */}
+                {this.state.ApproverType.toString() === "2"?<div className={styles.sectionContainer}>
+                  <div
+                    className={styles.header}
+                    onClick={() => this._onToggleSection(`atrAssignees`)}
+                  >
+                    <Text className={styles.sectionText}>ATR Assignees</Text>
+                    <IconButton
+                      iconProps={{
+                        iconName: expandSections.atrAssignees
+                          ? "ChevronUp"
+                          : "ChevronDown",
+                      }}
+                      title="Expand/Collapse"
+                      ariaLabel="Expand/Collapse"
+                      className={styles.chevronIcon}
+                    />
+                  </div>
+                  {expandSections.atrAssignees && (
+                    <div
+                    //   style={{ overflowX: "scroll" }}
+                    >
+                      <GeneralCommentsFluentUIGrid
+                        handleCommentDataFuntion={this._getCommentData}
+                        data={this.state.commentsData}
+                        currentUserDetails = {this.props.context.pageContext.user}
+                        type="generalComments"
+                       
+                      />
+                    </div>
+                  )}
+                </div>:""}
                 
 
                 {/* Comments Log */}
@@ -1324,6 +1392,39 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
                     </div>
                   )}
                 </div>
+                  {/*Attach Supporting Documents */}
+                  {this._currentUserEmail !== this.state.createdByEmail?<div className={styles.sectionContainer}>
+                  <div
+                    className={styles.header}
+                    onClick={() => this._onToggleSection(`attachSupportingDocuments`)}
+                  >
+                    <Text className={styles.sectionText}>General Comments</Text>
+                    <IconButton
+                      iconProps={{
+                        iconName: expandSections.attachSupportingDocuments
+                          ? "ChevronUp"
+                          : "ChevronDown",
+                      }}
+                      title="Expand/Collapse"
+                      ariaLabel="Expand/Collapse"
+                      className={styles.chevronIcon}
+                    />
+                  </div>
+                  {expandSections.attachSupportingDocuments && (
+                    <div style={{ width: "100%", margin: "0px" }}>
+                    <UploadFileComponent
+                      typeOfDoc="supportingDocument"
+                      onChange={this.handleSupportingFileChange}
+                      accept=".xlsx,.pdf,.doc,.docx"
+                      multiple={true}
+                      maxFileSizeMB={25}
+                      maxTotalSizeMB={25}
+                      data={this.state.supportingDocumentfiles}
+                      // value={this.state.supportingDocumentfiles}
+                    />
+                  </div>
+                  )}
+                </div>:""}
                 {/* Workflow Log */}
                 <div className={styles.sectionContainer}>
                   <div
