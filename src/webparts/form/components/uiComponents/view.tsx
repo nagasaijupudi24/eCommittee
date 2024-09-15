@@ -1074,8 +1074,33 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
   }
 
-  public _getCommentData = (commentsData:any)=>{
-    this.setState(prev=>({commentsData:[...prev.commentsData,commentsData]}))
+  public _getCommentData = (commentsData:any,type:string="",id:string="")=>{
+    if (type === "add"){
+      this.setState(prev=>({commentsData:[...prev.commentsData,commentsData]}))
+
+    }else{
+      const filterIdforUpdateState = this.state.commentsData.filter((each:any)=>each.id===id)[0]
+      console.log(filterIdforUpdateState)
+      const returnValue =(rowData:any):any=>{
+        console.log(rowData)
+        const result = rowData.map(
+            (item:any)=>{
+                console.log(item)
+                if (item.id === filterIdforUpdateState.id){
+                    return commentsData
+                }
+                return item
+
+            }
+        )
+        console.log(result)
+       return result
+      }
+      console.log(returnValue(this.state.commentsData))
+      this.setState({commentsData:returnValue(this.state.commentsData)})
+
+    }
+    
   }
  
   public render(): React.ReactElement<IViewFormProps> {
