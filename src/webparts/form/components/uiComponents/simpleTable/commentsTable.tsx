@@ -30,10 +30,10 @@ const CommentsLogTable = (props: any) => {
                     >
         
                        
-                        <Column title="Page#" width="60px" />
-                        <Column title="Doc Reference" width="90px" />
-                        <Column  title="Comments" width="90px" />
-                        <Column  title="Comment By" />
+                        <Column field='pageNum' title="Page#" width="60px" />
+                        <Column field='page' title="Doc Reference" width="90px" />
+                        <Column field='comment'  title="Comments" width="90px" />
+                        <Column field='commentedBy'  title="Comment By" />
                        
                     </Grid>
                 </div>

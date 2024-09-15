@@ -117,6 +117,8 @@ export interface IViewFormState {
 
   dialogFluent:any;
   dialogDetails:any;
+
+  commentsData:any
 }
 
 const getIdFromUrl = (): any => {
@@ -220,7 +222,8 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       createdByEmail: "",
       ApproverOrder:'',
       dialogFluent:true,
-      dialogDetails:{}
+      dialogDetails:{},
+      commentsData:[]
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -940,18 +943,18 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
   }
 
-private _checkApproveredStatusIsFound= ():any =>{
-  const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
-    (accu:any,each:any)=>{
-      console.log(each)
-      console.log(each.status)
-      return accu.concat(each.status) 
-    },[]
-  )
-  console.log(checkApproverdStatusisAvailableInApproverDetails)
-  console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
-  return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
-}
+// private _checkApproveredStatusIsFound= ():any =>{
+//   const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
+//     (accu:any,each:any)=>{
+//       console.log(each)
+//       console.log(each.status)
+//       return accu.concat(each.status) 
+//     },[]
+//   )
+//   console.log(checkApproverdStatusisAvailableInApproverDetails)
+//   console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
+//   return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
+// }
 
   private _getApproverAndReviewerStageButton = (): any => {
     return (
@@ -1071,10 +1074,13 @@ private _checkApproveredStatusIsFound= ():any =>{
 
   }
 
+  public _getCommentData = (commentsData:any)=>{
+    this.setState(prev=>({commentsData:[...prev.commentsData,commentsData]}))
+  }
  
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
-    this._checkApproveredStatusIsFound()
+    // this._checkApproveredStatusIsFound()
     const { expandSections } = this.state;
     // console.log(this._getPendingStatus())
     // const data = [
@@ -1252,7 +1258,9 @@ private _checkApproveredStatusIsFound= ():any =>{
                     //   style={{ overflowX: "scroll" }}
                     >
                       <GeneralCommentsFluentUIGrid
-                        data={this.state.peoplePickerApproverData} //have change data valu
+                        handleCommentDataFuntion={this._getCommentData}
+                        data={this.state.commentsData}
+                        currentUserDetails = {this.props.context.pageContext.user}
                         type="generalComments"
                        
                       />
@@ -1285,7 +1293,7 @@ private _checkApproveredStatusIsFound= ():any =>{
                     //   style={{ overflowX: "scroll" }}
                     >
                       <CommentsLogTable
-                        data={this.state.peoplePickerApproverData}//have change data valu
+                        data={this.state.commentsData}//have change data valu
                         type="commentsLog"
                       />
                     </div>
