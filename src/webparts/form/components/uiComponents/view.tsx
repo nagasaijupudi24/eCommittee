@@ -28,6 +28,7 @@ import AdobePdfViewer from "../adobe/adobepdf";
 import { DialogBlockingExample } from "./dialogFluentUi/dialogFluentUi";
 import { format } from "date-fns";
 import PdfViewer from "../pdfVeiwer/pdfreact";
+import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 
 export interface IFileDetails {
   name?: string;
@@ -1228,7 +1229,40 @@ private _checkApproveredStatusIsFound= ():any =>{
                     </div>
                   )}
                 </div>
+                {/*General Comments */}
+                {this._currentUserEmail !== this.state.createdByEmail?<div className={styles.sectionContainer}>
+                  <div
+                    className={styles.header}
+                    onClick={() => this._onToggleSection(`generalComments`)}
+                  >
+                    <Text className={styles.sectionText}>General Comments</Text>
+                    <IconButton
+                      iconProps={{
+                        iconName: expandSections.generalComments
+                          ? "ChevronUp"
+                          : "ChevronDown",
+                      }}
+                      title="Expand/Collapse"
+                      ariaLabel="Expand/Collapse"
+                      className={styles.chevronIcon}
+                    />
+                  </div>
+                  {expandSections.generalComments && (
+                    <div
+                    //   style={{ overflowX: "scroll" }}
+                    >
+                      <GeneralCommentsFluentUIGrid
+                        data={this.state.peoplePickerApproverData} //have change data valu
+                        type="generalComments"
+                       
+                      />
+                    </div>
+                  )}
+                </div>:""}
+                
+
                 {/* Comments Log */}
+                
                 <div className={styles.sectionContainer}>
                   <div
                     className={styles.header}
@@ -1251,14 +1285,8 @@ private _checkApproveredStatusIsFound= ():any =>{
                     //   style={{ overflowX: "scroll" }}
                     >
                       <CommentsLogTable
-                        data={this.state.peoplePickerApproverData}
-                        type="Approver"
-                        fieldData={[
-                          "Page#",
-                          "Doc Reference",
-                          "Comments",
-                          "Comment By",
-                        ]}
+                        data={this.state.peoplePickerApproverData}//have change data valu
+                        type="commentsLog"
                       />
                     </div>
                   )}

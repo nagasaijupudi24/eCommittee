@@ -15,23 +15,34 @@ const CommentsLogTable = (props: any) => {
     // Function to handle removing a data item from the grid
    
 
-    return (
-        <div style={{ overflow: 'auto' }}>
-            <Grid
-                style={{ minWidth: '800px' }} // Sets minimum width for scrolling
-                data={gridData}
-                dataItemKey={"ProductID"}
-            >
+   
 
-               
-                <Column title="Page#" width="60px" />
-                <Column title="Doc Reference" width="90px" />
-                <Column  title="Comments" width="90px" />
-                <Column  title="Comment By" />
-               
-            </Grid>
-        </div>
-    );
+    switch(props.type){
+        case "generalComments":
+            return <div>{" "}</div>
+        case "commentsLog":
+            return (
+                <div style={{ overflow: 'auto' }}>
+                    <Grid
+                        style={{ minWidth: '800px' }} // Sets minimum width for scrolling
+                        data={gridData}
+                        dataItemKey={"ProductID"}
+                    >
+        
+                       
+                        <Column title="Page#" width="60px" />
+                        <Column title="Doc Reference" width="90px" />
+                        <Column  title="Comments" width="90px" />
+                        <Column  title="Comment By" />
+                       
+                    </Grid>
+                </div>
+            );
+            default:
+                return <div>{" "}</div>
+        
+
+    }
 };
 
 export default CommentsLogTable;
