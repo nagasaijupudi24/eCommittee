@@ -19,6 +19,10 @@ interface IGridState {
   commentValue: string;
   rowsData: any;
   editState: boolean;
+  id:any;
+  editPageNumValue:string;
+      editPageValue:string;
+      editCommentValue:string
 }
 
 export default class GeneralCommentsFluentUIGrid extends React.Component<
@@ -33,22 +37,73 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       commentValue: "",
       rowsData:this.props.data,
       editState: false,
+      id:'',
+      editPageNumValue:'',
+      editPageValue:'',
+      editCommentValue:''
     };
     console.log(v4());
   }
 
-  public handleInputElement = (event: any, type: any) => {
+  public handleInputElement = (event: any, type: any='',id:any='') => {
     console.log(event.target.value);
-    switch (type) {
-      case "pageNum":
-        this.setState({ pageNumValue: event.target.value });
-        break;
-      case "page":
-        this.setState({ pageValue: event.target.value });
-        break;
-      default:
-        this.setState({ commentValue: event.target.value });
+    if (this.state.editState){
+        switch (type) {
+            case "pageNum":
+              this.setState((prev)=>{
+                const updatedData = prev.rowsData.map(
+                    (each:any)=>{
+                        if (each.id===id){
+                            return {...each, pageNumValue: event.target.value}
+                        }
+                        return each
+                    }
+                )
+                return {rowsData:updatedData}
+              });
+              break;
+            case "page":
+                this.setState((prev)=>{
+                    const updatedData = prev.rowsData.map(
+                        (each:any)=>{
+                            if (each.id===id){
+                                return {...each, pageValue: event.target.value}
+                            }
+                            return each
+                        }
+                    )
+                    return {rowsData:updatedData}
+                  });
+              break;
+            default:
+                this.setState((prev)=>{
+                    const updatedData = prev.rowsData.map(
+                        (each:any)=>{
+                            if (each.id===id){
+                                return {...each, commentValue: event.target.value}
+                            }
+                            return each
+                        }
+                    )
+                    return {rowsData:updatedData}
+                  });
+          }
+        
+
+    }else{
+        switch (type) {
+            case "pageNum":
+              this.setState({ pageNumValue: event.target.value });
+              break;
+            case "page":
+              this.setState({ pageValue: event.target.value });
+              break;
+            default:
+              this.setState({ commentValue: event.target.value });
+          }
+
     }
+   
   };
 
   public handleAddBtn = (event: any) => {
@@ -71,7 +126,35 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     }));
   };
 
+  public _getValue = (type:any='')=>{
+    switch (type) {
+        case "pageNum":
+          return this.state.rowsData.filter((each:any)=>{
+                if (each.id === this.state.id){
+                    return each
+                }
+          })[0].pageNum
+          
+        case "page":
+            return this.state.rowsData.filter((each:any)=>{
+                if (each.id === this.state.id){
+                    return each
+                }
+          })[0].page
+        default:
+            return this.state.rowsData.filter((each:any)=>{
+                if (each.id === this.state.id){
+                    return each
+                }
+          })[0].comment
+      }
+    
+
+
+  }
+
   public render(): React.ReactElement<any> {
+    console.log(this.state)
     return (
       <div style={{ overflow: "auto" }}>
         <table
@@ -129,17 +212,28 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
                 return (
                   <tr key={each.index + 1}>
                     <td style={{ border: "1px solid black", padding: "10px" }}>
-                      {each.pageNum}
+                        <input value={this._getValue("pageNum")}  onChange={(e)=>{
+                            this.handleInputElement(e,"pageNum",each.id)
+                        }}/>
+                      
                     </td>
                     <td style={{ border: "1px solid black", padding: "10px" }}>
-                      {each.page}
+                     
+                      <input value={each.page} onChange={(e)=>{
+                        this.handleInputElement(e,"page",each.id)
+                      }}/>
                     </td>
                     <td style={{ border: "1px solid black", padding: "10px" }}>
-                      {each.comment}
+                      
+                      <input value={each.comment} onChange={(e)=>{
+                        this.handleInputElement(e,"comment",each.id)
+                      }}/>
                     </td>
                     <td style={{ border: "1px solid black", padding: "10px" }}>
-                      <button type="button">Delete</button>
-                      <button type="button">Edit</button>
+                        <button type="button" onClick={()=>{
+                            console.log("save btn triggered")
+                            this.setState({editState:false})
+                            }}>Save</button>
                     </td>
                   </tr>
                 );
@@ -147,11 +241,16 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
             : this.state.rowsData.map((each: any, index: number) => {
                 return (
                   <tr key={each.index + 1}>
-                    <td style={{ border: "1px solid black", padding: "10px" }}>{each.page}</td>
                     <td style={{ border: "1px solid black", padding: "10px" }}>{each.pageNum}</td>
+                    <td style={{ border: "1px solid black", padding: "10px" }}>{each.page}</td>
+                    
                     <td style={{ border: "1px solid black", padding: "10px" }}>{each.comment}</td>
                     <td style={{ border: "1px solid black", padding: "10px" }}>
-                      <button type="button">Save</button>
+                      
+                      <button type="button">Delete</button>
+                      <button type="button" onClick={()=>{
+                        console.log("Edit is triggered")
+                        this.setState({editState:true,id:each.id})}}>Edit</button>
                     </td>
                   </tr>
                 );
