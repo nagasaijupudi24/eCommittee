@@ -453,9 +453,29 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       ApproverOrder:item.Author.EMail === this._currentUserEmail ?"":dataApproverInfo[0],
       ApproverType:item.Author.EMail === this._currentUserEmail ?"":dataApproverInfo[1],
 
-      title:item.Title
+      title:item.Title,
+      commentsData:JSON.parse(item.CommentsLog)
     });
   };
+
+  private _checkCurrentUserIsApprovedTheCurrentRequest = ():any=>{
+    const check =  this.state.ApproverDetails.find(
+      (each:any)=>{
+        console.log(each)
+        if (each.approverEmail === this._currentUserEmail){
+          if (each.status === "Approved"){
+            return each
+          }
+
+        }
+        
+      }
+     
+
+    )
+    console.log(check)
+    return check.approverEmail === this._currentUserEmail
+  }
 
   private _getApproverOrder = (data:any):any=>{
    const order =  data.filter((each:any)=>{
@@ -729,7 +749,8 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
         'ApproverDetails': JSON.stringify(modifyApproveDetails),
         "Status":"pending",
         "statusNumber":'1500',
-        "AuditTrail":updateAuditTrial
+        "AuditTrail":updateAuditTrial,
+        "CommentsLog":JSON.stringify(this.state.commentsData),
     });
 
     console.log(itemToUpdate)
@@ -1141,6 +1162,8 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
     // this._checkApproveredStatusIsFound()
+    this._checkCurrentUserIsApprovedTheCurrentRequest()
+    console.log(this._checkCurrentUserIsApprovedTheCurrentRequest())
     const { expandSections } = this.state;
     // console.log(this._getPendingStatus())
     // const data = [
