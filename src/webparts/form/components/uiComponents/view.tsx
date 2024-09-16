@@ -31,8 +31,6 @@ import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
 
-
-
 export interface IFileDetails {
   name?: string;
   content?: File;
@@ -45,7 +43,7 @@ export interface IFileDetails {
 }
 
 export interface IViewFormState {
-  title:string;
+  title: string;
   expandSections: { [key: string]: boolean };
   pdfLink: string;
   isLoading: boolean;
@@ -101,6 +99,8 @@ export interface IViewFormState {
   supportingDocumentfiles: any[];
   isWarningSupportingDocumentFiles: boolean;
 
+  supportingFilesInViewForm: any[];
+
   isWarningPeoplePicker: boolean;
   isDialogHidden: boolean;
   isApproverOrReviewerDialogHandel: boolean;
@@ -114,16 +114,15 @@ export interface IViewFormState {
   statusNumber: any;
   auditTrail: any;
   filesClear: any;
-  createdByEmail:any;
-  ApproverDetails:any;
-  ApproverOrder:any;
-  ApproverType:any;
+  createdByEmail: any;
+  ApproverDetails: any;
+  ApproverOrder: any;
+  ApproverType: any;
 
-  dialogFluent:any;
-  dialogDetails:any;
+  dialogFluent: any;
+  dialogDetails: any;
 
-  commentsData:any
-  
+  commentsData: any;
 }
 
 const getIdFromUrl = (): any => {
@@ -140,11 +139,14 @@ const getFromType = (): any => {
   return formType;
 };
 
-export default class ViewForm extends React.Component<IViewFormProps, IViewFormState> {
+export default class ViewForm extends React.Component<
+  IViewFormProps,
+  IViewFormState
+> {
   // private _userName: string = _getUserDetails();
   private _itemId: number = Number(getIdFromUrl());
   private _currentUserEmail = this.props.context.pageContext.user.email;
-  
+
   // private _currentUserEmail ="ib.test4@xencia.com";
   // private _currentUserEmail ="Manidhar.j@xencia.com";
   // private _currentUserEmail ="ib.test2@xencia.com";
@@ -158,7 +160,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
   constructor(props: IViewFormProps) {
     super(props);
     this.state = {
-      title:'',
+      title: "",
       isLoading: true,
       department: "",
       isNoteType: false,
@@ -207,13 +209,16 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
 
       supportingDocumentfiles: [],
       isWarningSupportingDocumentFiles: false,
+
+      supportingFilesInViewForm: [],
+
       isDialogHidden: true,
       isApproverOrReviewerDialogHandel: true,
       peoplePickerData: [],
       peoplePickerApproverData: [],
-      ApproverDetails:[],
+      ApproverDetails: [],
       approverInfo: [],
-      ApproverType:'',
+      ApproverType: "",
       reviewerInfo: [],
       status: "",
       statusNumber: null,
@@ -226,10 +231,10 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       //   "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/SupportingDocument/Export.xlsx?d=w5597c83c4c7744daab598c33704569bc"
       // "https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB", // Link to the PDF
       createdByEmail: "",
-      ApproverOrder:'',
-      dialogFluent:true,
-      dialogDetails:{},
-      commentsData:[]
+      ApproverOrder: "",
+      dialogFluent: true,
+      dialogDetails: {},
+      commentsData: [],
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -237,29 +242,26 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     this._getItemData(this._itemId, this._folderName);
     this._getItemDocumentsData();
     // this._getUserCountry();
-
-
+    // this._checkCurrentUserIsApprovedTheCurrentRequest()
+    // console.log(this._checkCurrentUserIsApprovedTheCurrentRequest())
   }
 
   // private _getUserCountry = async () => {
   //   try {
   //     // Get the current user's regional settings
   //   const regionalSettings = await this.props.sp.web.regionalSettings.timeZone.get();
-    
+
   //   // Log or return the time zone details
   //   console.log("Time Zone Description:", regionalSettings.Description);
   //   console.log("Time Zone ID:", regionalSettings.Id);
-    
+
   //   return regionalSettings;
-      
+
   //     // return country;
   //   } catch (error) {
   //     console.error("Error retrieving user profile properties:", error);
   //   }
   // };
-  
- 
-  
 
   public _folderNameGenerate(id: any): any {
     const currentyear = new Date().getFullYear();
@@ -295,7 +297,7 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       optionalText: each.designation,
       id: each.id,
       approverType: 1,
-      ...each
+      ...each,
     }));
     console.log(approverData);
     // this.setState(()=>{
@@ -328,11 +330,11 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
-      srNo:each.approverEmailName.split("@")[0],
+      srNo: each.approverEmailName.split("@")[0],
       optionalText: each.designation,
       id: each.id,
       approverType: 2,
-      ...each
+      ...each,
     }));
     console.log(approverData);
     // this.setState(()=>{
@@ -413,8 +415,12 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
         },
       ],
     });
-    const dataApproverInfo =item.Author.EMail !== this._currentUserEmail && this._getApproverOrder(JSON.parse(item.ApproverDetails))
-    console.log(dataApproverInfo)
+    const dataApproverInfo =
+      item.Author.EMail !== this._currentUserEmail &&
+      this._getApproverOrder(JSON.parse(item.ApproverDetails));
+    console.log(dataApproverInfo);
+    console.log(item.CommentsLog)
+    console.log(typeof item.CommentsLog)
 
     this.setState({
       committeeNameFeildValue:
@@ -447,55 +453,58 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       auditTrail: JSON.parse(item.AuditTrail),
       isLoading: false,
       createdByEmail: item.Author.EMail,
-      status:item.Status,
-      statusNumber:item.statusNumber,
-      ApproverDetails:JSON.parse(item.ApproverDetails),
-      ApproverOrder:item.Author.EMail === this._currentUserEmail ?"":dataApproverInfo[0],
-      ApproverType:item.Author.EMail === this._currentUserEmail ?"":dataApproverInfo[1],
+      status: item.Status,
+      statusNumber: item.statusNumber,
+      ApproverDetails: JSON.parse(item.ApproverDetails),
+      ApproverOrder:
+        item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[0],
+      ApproverType:
+        item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[1],
 
-      title:item.Title,
-      commentsData:JSON.parse(item.CommentsLog)
+      title: item.Title,
+      commentsData:typeof item.CommentsLog === "object"? JSON.parse(item.CommentsLog):[],
+
+      //don't use this commentsData:item.CommentsLog !== typeof null||'null' ? JSON.parse(item.CommentsLog):[],
     });
   };
 
-  private _checkCurrentUserIsApprovedTheCurrentRequest = ():any=>{
-    const check =  this.state.ApproverDetails.find(
-      (each:any)=>{
-        console.log(each)
-        if (each.approverEmail === this._currentUserEmail){
-          if (each.status === "Approved"){
-            return each
-          }
+  private _checkCurrentUserIsApprovedTheCurrentRequest = (): any => {
+    const checkItem = this.state.ApproverDetails.find((each: any) => {
+      console.log(each);
+      return (
+        each.approverEmail === this._currentUserEmail &&
+        each.status === "Approved"
+      );
+    });
 
-        }
-        
+    if (checkItem) {
+      console.log(checkItem);
+      console.log(checkItem["approverEmail"]);
+      console.log(this._currentUserEmail);
+      // Return or perform actions based on checkItem
+      return checkItem.approverEmail === this._currentUserEmail;
+    } else {
+      console.log("No matching approver found.");
+      return null; // Or handle it appropriately
+    }
+  };
+
+  private _getApproverOrder = (data: any): any => {
+    const order = data.filter((each: any) => {
+      console.log(each);
+      console.log(each.approverEmail);
+      console.log(this._currentUserEmail);
+
+      console.log(each.approverEmail === this._currentUserEmail);
+
+      if (each.approverEmail === this._currentUserEmail) {
+        console.log(each.approverOrder);
+        return each;
       }
-     
-
-    )
-    console.log(check)
-    return check.approverEmail === this._currentUserEmail
-  }
-
-  private _getApproverOrder = (data:any):any=>{
-   const order =  data.filter((each:any)=>{
-    console.log(each)
-    console.log(each.approverEmail)
-    console.log(this._currentUserEmail)
-
-    console.log(each.approverEmail===this._currentUserEmail)
-
-      if (each.approverEmail===this._currentUserEmail){
-        console.log(each.approverOrder)
-        return each
-      }
-
-    })
-    console.log(order)
-    return [order[0].approverOrder,order[0].approverType]
-    
-
-  }
+    });
+    console.log(order);
+    return [order[0].approverOrder, order[0].approverType];
+  };
 
   private _getFileObj = (data: any): any => {
     const tenantUrl = window.location.protocol + "//" + window.location.host;
@@ -684,12 +693,11 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
     }
   };
 
-
-  private _getAuditTrail =async (status: any) => {
+  private _getAuditTrail = async (status: any) => {
     // console.log(this._currentUserEmail, this._role);
     const profile = await this.props.sp.profiles.myProperties();
     console.log(profile);
-    
+
     const auditLog = [
       {
         Actioner: this._currentUserEmail,
@@ -702,316 +710,283 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       },
     ];
 
-
-
-    return JSON.stringify([...this.state.auditTrail,...auditLog]);
+    return JSON.stringify([...this.state.auditTrail, ...auditLog]);
   };
 
-
-  private _handleApproverButton=async (statusFromEvent:string,statusNumber:string)=>{
-
-    
-
+  private _handleApproverButton = async (
+    statusFromEvent: string,
+    statusNumber: string
+  ) => {
     const modifyApproveDetails = this.state.ApproverDetails.map(
-     
-      (each:any,index:number)=>{
-        console.log(each)
-       
-        if(each.approverEmail === this._currentUserEmail){
-          console.log("ednter")
-         
-          return {...each,status:statusFromEvent}
+      (each: any, index: number) => {
+        console.log(each);
+
+        if (each.approverEmail === this._currentUserEmail) {
+          console.log("ednter");
+
+          return { ...each, status: statusFromEvent };
         }
         // if (each.approverOrder===currentApproverOrder+1){
-        
+
         //   return {...each,status:"pending"}
 
         // }
-        console.log(each.approversOrder)
-        console.log(this.state.ApproverOrder+1)
-        console.log(each.approverOrder === this.state.ApproverOrder+1)
-        if (each.approverOrder === this.state.ApproverOrder+1){
-          console.log("ednter 2")
-          return {...each,status:'pending'}
-          
+        console.log(each.approversOrder);
+        console.log(this.state.ApproverOrder + 1);
+        console.log(each.approverOrder === this.state.ApproverOrder + 1);
+        if (each.approverOrder === this.state.ApproverOrder + 1) {
+          console.log("ednter 2");
+          return { ...each, status: "pending" };
         }
-        return each
+        return each;
       }
-    )
-    console.log(modifyApproveDetails)
+    );
+    console.log(modifyApproveDetails);
 
-    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
-    console.log(updateAuditTrial)
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-        'ApproverDetails': JSON.stringify(modifyApproveDetails),
-        "Status":"pending",
-        "statusNumber":'1500',
-        "AuditTrail":updateAuditTrial,
-        "CommentsLog":JSON.stringify(this.state.commentsData),
-    });
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+        ApproverDetails: JSON.stringify(modifyApproveDetails),
+        Status: "pending",
+        statusNumber: "1500",
+        AuditTrail: updateAuditTrial,
+        CommentsLog: JSON.stringify(this.state.commentsData),
+      });
 
-    console.log(itemToUpdate)
+    console.log(itemToUpdate);
 
-
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
-      this.setState({status:statusFromEvent})
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
+      this.setState({ status: statusFromEvent });
       const itemToUpdateStatusToApproved = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-       
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-       
-    });
+        .getByTitle(this.props.listId)
+        .items.getById(this._itemId)
+        .update({
+          Status: statusFromEvent,
+          statusNumber: statusNumber,
+        });
 
-    console.log(itemToUpdateStatusToApproved)
+      console.log(itemToUpdateStatusToApproved);
     }
-    this._closeDialog()
+    this._closeDialog();
+  };
 
-
-  }
-
-  private handleReject=async (statusFromEvent:string,statusNumber:string)=>{
-    
-
-
+  private handleReject = async (
+    statusFromEvent: string,
+    statusNumber: string
+  ) => {
     const modifyApproveDetails = this.state.ApproverDetails.map(
-     
-      (each:any,index:number)=>{
-       
-        if(each.approverEmail === this._currentUserEmail){
-         
-          return {...each,status:statusFromEvent}
+      (each: any, index: number) => {
+        if (each.approverEmail === this._currentUserEmail) {
+          return { ...each, status: statusFromEvent };
         }
         // if (each.approverOrder===currentApproverOrder+1){
-        
+
         //   return {...each,status:"pending"}
 
         // }
-        if (each.approverOrder === this.state.ApproverOrder+1){
-          return {...each,status:'pending'}
-          
+        if (each.approverOrder === this.state.ApproverOrder + 1) {
+          return { ...each, status: "pending" };
         }
-        return each
+        return each;
       }
-    )
+    );
 
-    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
-    console.log(updateAuditTrial)
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-        'ApproverDetails': JSON.stringify(modifyApproveDetails),
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-        "AuditTrail":updateAuditTrial
-    });
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+        ApproverDetails: JSON.stringify(modifyApproveDetails),
+        Status: statusFromEvent,
+        statusNumber: statusNumber,
+        AuditTrail: updateAuditTrial,
+      });
 
-    console.log(itemToUpdate)
+    console.log(itemToUpdate);
 
-
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
-      this.setState({status:statusFromEvent})
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
+      this.setState({ status: statusFromEvent });
       const itemToUpdateStatusToApproved = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-       
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-       
-    });
+        .getByTitle(this.props.listId)
+        .items.getById(this._itemId)
+        .update({
+          Status: statusFromEvent,
+          statusNumber: statusNumber,
+        });
 
-    console.log(itemToUpdateStatusToApproved)
+      console.log(itemToUpdateStatusToApproved);
     }
 
-    this._closeDialog()
+    this._closeDialog();
+  };
 
-
-  }
-
-  private handleRefer=async (statusFromEvent:string,statusNumber:string)=>{
-    
-
-
+  private handleRefer = async (
+    statusFromEvent: string,
+    statusNumber: string
+  ) => {
     const modifyApproveDetails = this.state.ApproverDetails.map(
-     
-      (each:any,index:number)=>{
-       
-        if(each.approverEmail === this._currentUserEmail){
-         
-          return {...each,status:statusFromEvent}
+      (each: any, index: number) => {
+        if (each.approverEmail === this._currentUserEmail) {
+          return { ...each, status: statusFromEvent };
         }
         // if (each.approverOrder===currentApproverOrder+1){
-        
+
         //   return {...each,status:"pending"}
 
         // }
-        if (each.approverOrder === this.state.ApproverOrder+1){
-          return {...each,status:'pending'}
-          
+        if (each.approverOrder === this.state.ApproverOrder + 1) {
+          return { ...each, status: "pending" };
         }
-        return each
+        return each;
       }
+    );
 
-    )
-
-    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
-    console.log(updateAuditTrial)
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-        'ApproverDetails': JSON.stringify(modifyApproveDetails),
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-        "AuditTrail":updateAuditTrial
-    });
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+        ApproverDetails: JSON.stringify(modifyApproveDetails),
+        Status: statusFromEvent,
+        statusNumber: statusNumber,
+        AuditTrail: updateAuditTrial,
+      });
 
-    console.log(itemToUpdate)
+    console.log(itemToUpdate);
 
-
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
-      this.setState({status:statusFromEvent})
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
+      this.setState({ status: statusFromEvent });
       const itemToUpdateStatusToApproved = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-       
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-       
-    });
+        .getByTitle(this.props.listId)
+        .items.getById(this._itemId)
+        .update({
+          Status: statusFromEvent,
+          statusNumber: statusNumber,
+        });
 
-    console.log(itemToUpdateStatusToApproved)
+      console.log(itemToUpdateStatusToApproved);
     }
-    this._closeDialog()
+    this._closeDialog();
+  };
 
-  }
-
-  private handleReturn=async (statusFromEvent:string,statusNumber:string)=>{
-    
-
-
+  private handleReturn = async (
+    statusFromEvent: string,
+    statusNumber: string
+  ) => {
     const modifyApproveDetails = this.state.ApproverDetails.map(
-     
-      (each:any,index:number)=>{
-       
-        if(each.approverEmail === this._currentUserEmail){
-         
-          return {...each,status:statusFromEvent}
+      (each: any, index: number) => {
+        if (each.approverEmail === this._currentUserEmail) {
+          return { ...each, status: statusFromEvent };
         }
         // if (each.approverOrder===currentApproverOrder+1){
-        
+
         //   return {...each,status:"pending"}
 
         // }
-        if (each.approverOrder === this.state.ApproverOrder+1){
-          return {...each,status:'pending'}
-          
+        if (each.approverOrder === this.state.ApproverOrder + 1) {
+          return { ...each, status: "pending" };
         }
-        return each
+        return each;
       }
-    )
+    );
 
-    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
-    console.log(updateAuditTrial)
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-        'ApproverDetails': JSON.stringify(modifyApproveDetails),
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-        "AuditTrail":updateAuditTrial
-    });
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+        ApproverDetails: JSON.stringify(modifyApproveDetails),
+        Status: statusFromEvent,
+        statusNumber: statusNumber,
+        AuditTrail: updateAuditTrial,
+      });
 
-    console.log(itemToUpdate)
+    console.log(itemToUpdate);
 
-
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder ){
-      this.setState({status:statusFromEvent})
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
+      this.setState({ status: statusFromEvent });
       const itemToUpdateStatusToApproved = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-       
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-       
-    });
+        .getByTitle(this.props.listId)
+        .items.getById(this._itemId)
+        .update({
+          Status: statusFromEvent,
+          statusNumber: statusNumber,
+        });
 
-    console.log(itemToUpdateStatusToApproved)
+      console.log(itemToUpdateStatusToApproved);
     }
-    this._closeDialog()
+    this._closeDialog();
+  };
 
-  }
-
-  private handleCallBack=async (e:any,statusFromEvent:string,statusNumber:string)=>{
-
-
-   
-
-    const updateAuditTrial =await this._getAuditTrail(statusFromEvent)
-    console.log(updateAuditTrial)
+  private handleCallBack = async (
+    e: any,
+    statusFromEvent: string,
+    statusNumber: string
+  ) => {
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(this._itemId)
-    .update({
-       
-        "Status":statusFromEvent,
-        "statusNumber":statusNumber,
-        "AuditTrail":updateAuditTrial
-    });
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+        Status: statusFromEvent,
+        statusNumber: statusNumber,
+        AuditTrail: updateAuditTrial,
+      });
 
-    console.log(itemToUpdate)
-    this._closeDialog()
+    console.log(itemToUpdate);
+    this._closeDialog();
+  };
 
-  }
-
-// private _checkApproveredStatusIsFound= ():any =>{
-//   const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
-//     (accu:any,each:any)=>{
-//       console.log(each)
-//       console.log(each.status)
-//       return accu.concat(each.status) 
-//     },[]
-//   )
-//   console.log(checkApproverdStatusisAvailableInApproverDetails)
-//   console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
-//   return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
-// }
+  // private _checkApproveredStatusIsFound= ():any =>{
+  //   const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
+  //     (accu:any,each:any)=>{
+  //       console.log(each)
+  //       console.log(each.status)
+  //       return accu.concat(each.status)
+  //     },[]
+  //   )
+  //   console.log(checkApproverdStatusisAvailableInApproverDetails)
+  //   console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
+  //   return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
+  // }
 
   private _getApproverAndReviewerStageButton = (): any => {
     return (
-      <div style={{display:'flex',gap:"10px"}}>
+      <div style={{ display: "flex", gap: "10px" }}>
         <PrimaryButton
           styles={{
             root: {
               backgroundColor: "#37b400",
-              border:'none'
+              border: "none",
             },
             rootHovered: {
-              backgroundColor: '#37b400', // Set hover background color
-              border:'none'
-             
+              backgroundColor: "#37b400", // Set hover background color
+              border: "none",
             },
             rootPressed: {
-              backgroundColor: '#37b400', // Set pressed background color
-              border:'none'
-            }
+              backgroundColor: "#37b400", // Set pressed background color
+              border: "none",
+            },
           }}
-          onClick={(e) =>{
-            this._hanldeFluentDialog("Approve","Approved",'2000',"Please check the details filled along with attachment and click on Confirm button to approve request.",this._handleApproverButton,this._closeDialog)
-            this.setState({ status: "Approve",statusNumber:'2000' })
+          onClick={(e) => {
+            this._hanldeFluentDialog(
+              "Approve",
+              "Approved",
+              "2000",
+              "Please check the details filled along with attachment and click on Confirm button to approve request.",
+              this._handleApproverButton,
+              this._closeDialog
+            );
+            this.setState({ status: "Approve", statusNumber: "2000" });
             // this._handleApproverButton(e,"Approved")
-
-          } }
+          }}
         >
           Approve
         </PrimaryButton>
@@ -1019,130 +994,165 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
           styles={{
             root: {
               backgroundColor: "#f31700",
-              border:'none'
+              border: "none",
             },
             rootHovered: {
-              backgroundColor: '#f31700', // Set hover background color
-              border:'none'
-             
+              backgroundColor: "#f31700", // Set hover background color
+              border: "none",
             },
             rootPressed: {
-              backgroundColor: '#f31700', // Set pressed background color
-              border:'none'
-            }
+              backgroundColor: "#f31700", // Set pressed background color
+              border: "none",
+            },
           }}
-          onClick={(e) =>{
-            this._hanldeFluentDialog("Reject","Rejected","4000","click on Confirm button to reject request.",this.handleReject,this._closeDialog)
-            this.setState({ status: "Reject",statusNumber:'4000'}) 
+          onClick={(e) => {
+            this._hanldeFluentDialog(
+              "Reject",
+              "Rejected",
+              "4000",
+              "click on Confirm button to reject request.",
+              this.handleReject,
+              this._closeDialog
+            );
+            this.setState({ status: "Reject", statusNumber: "4000" });
             // this.handleReject(e,"Rejected","4000")
-
-          } }
+          }}
         >
           Reject
         </PrimaryButton>
-        <PrimaryButton onClick={(e) =>{
-          this._hanldeFluentDialog("Refer","Refered","5000","click on Confirm button to Refer request.",this.handleRefer,this._closeDialog)
-          this.setState({ status: "Refer",statusNumber:'5000' })
-          // this.handleRefer(e,"Refered","5000")
-        } }>
+        <PrimaryButton
+          onClick={(e) => {
+            this._hanldeFluentDialog(
+              "Refer",
+              "Refered",
+              "5000",
+              "click on Confirm button to Refer request.",
+              this.handleRefer,
+              this._closeDialog
+            );
+            this.setState({ status: "Refer", statusNumber: "5000" });
+            // this.handleRefer(e,"Refered","5000")
+          }}
+        >
           Refer
         </PrimaryButton>
-        <PrimaryButton onClick={(e) =>{
-          this._hanldeFluentDialog("Return","Returned","3000","click on Confirm button to Return request.",this.handleReturn,this._closeDialog)
-          this.setState({ status: "Return",statusNumber:'3000' })
-          // this.handleReturn(e,"Returned","3000")
-
-        } }>
+        <PrimaryButton
+          onClick={(e) => {
+            this._hanldeFluentDialog(
+              "Return",
+              "Returned",
+              "3000",
+              "click on Confirm button to Return request.",
+              this.handleReturn,
+              this._closeDialog
+            );
+            this.setState({ status: "Return", statusNumber: "3000" });
+            // this.handleReturn(e,"Returned","3000")
+          }}
+        >
           Return
         </PrimaryButton>
       </div>
     );
   };
 
-  private _getPendingStatus = ():any=>{
-    const currentStatusOfApproverDetails =this.state.ApproverDetails.filter(
-      (each:any)=>{
-        console.log(each)
-        console.log(each.status)
-        if (each.status === "pending"){
-          console.log(each.status)
-          return each
+  private _getPendingStatus = (): any => {
+    const currentStatusOfApproverDetails = this.state.ApproverDetails.filter(
+      (each: any) => {
+        console.log(each);
+        console.log(each.status);
+        if (each.status === "pending") {
+          console.log(each.status);
+          return each;
         }
         // return each.status === "pending" && each.approverEmailName
       }
-    )
+    );
 
-    if (currentStatusOfApproverDetails.length > 0){
-      console.log(currentStatusOfApproverDetails[0].approverEmailName,"currentStatusOfApproverDetails")
+    if (currentStatusOfApproverDetails.length > 0) {
+      console.log(
+        currentStatusOfApproverDetails[0].approverEmailName,
+        "currentStatusOfApproverDetails"
+      );
 
-      return currentStatusOfApproverDetails[0].approverEmailName
-
-
+      return currentStatusOfApproverDetails[0].approverEmailName;
     }
-    return ""
+    return "";
+  };
 
-  }
+  private _closeDialog = () => {
+    console.log("close is triggered");
+    this.setState({ dialogFluent: true });
+  };
 
-  private _closeDialog = ()=>{
-    console.log("close is triggered")
-    this.setState({dialogFluent:true})
-  }
+  private _hanldeFluentDialog = (
+    btnType: string,
+    currentStatus: string,
+    currentStatusNumber: string,
+    message: string,
+    functionType: any,
+    closeFunction: any
+  ) => {
+    this.setState({
+      dialogFluent: false,
+      dialogDetails: {
+        type: btnType,
+        status: currentStatus,
+        statusNumber: currentStatusNumber,
+        subText: `Are you sure you want to ${btnType} this request?`,
+        message: message,
+        functionType: functionType,
+        closeFunction: closeFunction,
+      },
+    });
+  };
 
+  public _getCommentData = (
+    commentsData: any,
+    type: string = "",
+    id: string = ""
+  ) => {
+    console.log(commentsData)
+    if (type === "add") {
+      this.setState((prev) =>{
+        console.log(commentsData)
+        console.log(prev.commentsData)
+       return ({
 
-  private _hanldeFluentDialog = (btnType:string,currentStatus:string,currentStatusNumber:string,message:string,functionType:any,closeFunction:any) =>{
-    this.setState({dialogFluent:false,
-      dialogDetails:{
-        type:btnType,
-        status:currentStatus,
-        statusNumber:currentStatusNumber,
-        subText:`Are you sure you want to ${btnType} this request?`,
-        message:message,
-        functionType:functionType,
-        closeFunction:closeFunction
+          commentsData: [...prev.commentsData, commentsData],
+        })
 
-      }
-    })
-
-  }
-
-  public _getCommentData = (commentsData:any,type:string="",id:string="")=>{
-    if (type === "add"){
-      this.setState(prev=>({commentsData:[...prev.commentsData,commentsData]}))
-
-    }else{
-      const filterIdforUpdateState = this.state.commentsData.filter((each:any)=>each.id===id)[0]
-      console.log(filterIdforUpdateState)
-      const returnValue =(rowData:any):any=>{
-        console.log(rowData)
-        const result = rowData.map(
-            (item:any)=>{
-                console.log(item)
-                if (item.id === filterIdforUpdateState.id){
-                    return commentsData
-                }
-                return item
-
-            }
-        )
-        console.log(result)
-       return result
-      }
-      console.log(returnValue(this.state.commentsData))
-      this.setState({commentsData:returnValue(this.state.commentsData)})
-
+      } );
+    } else {
+      const filterIdforUpdateState = this.state.commentsData.filter(
+        (each: any) => each.id === id
+      )[0];
+      console.log(filterIdforUpdateState);
+      const returnValue = (rowData: any): any => {
+        console.log(rowData);
+        const result = rowData.map((item: any) => {
+          console.log(item);
+          if (item.id === filterIdforUpdateState.id) {
+            return commentsData;
+          }
+          return item;
+        });
+        console.log(result);
+        return result;
+      };
+      console.log(returnValue(this.state.commentsData));
+      this.setState({ commentsData: returnValue(this.state.commentsData) });
     }
-    
-  }
+  };
 
-  private handleSupportingFileChange = (files: File[], typeOfDoc: string) => {
+  private handleSupportingFileChangeInViewForm = (
+    files: File[],
+    typeOfDoc: string
+  ) => {
     console.log(typeOfDoc);
     console.log(files);
     for (let i = 0; i < files.length; i++) {
       console.log(files[i]);
-    }
-
-    if (this.state.isWarningSupportingDocumentFiles) {
-      this.setState({ isWarningSupportingDocumentFiles: false });
     }
 
     if (files) {
@@ -1155,15 +1165,24 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
       //     ...filesArray,
       //   ],
       // }));
-      this.setState({ supportingDocumentfiles: [...filesArray] });
+      console.log(files)
+      if (files.length>0){
+        this.setState({
+          supportingFilesInViewForm: [...filesArray],
+          supportingDocumentfiles: [...filesArray],
+        });
+
+      }
+      
     }
   };
- 
+
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
     // this._checkApproveredStatusIsFound()
-    this._checkCurrentUserIsApprovedTheCurrentRequest()
-    console.log(this._checkCurrentUserIsApprovedTheCurrentRequest())
+    this._checkCurrentUserIsApprovedTheCurrentRequest();
+    console.log(this._checkCurrentUserIsApprovedTheCurrentRequest());
+
     const { expandSections } = this.state;
     // console.log(this._getPendingStatus())
     // const data = [
@@ -1196,15 +1215,25 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
         ) : (
           <Stack tokens={{ childrenGap: 10 }} className={styles.viewForm}>
             <div className={`${styles.generalSectionMainContainer}`}>
-            {/* {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
+              {/* {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
                 pending:{this._getPendingStatus()}
               </h1>} */}
-                {<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
-                pending:{this.state.status ==="pending"||"Submitted" && this._getPendingStatus()}
-              </h1>}
-            
-              <h1 style={{alignSelf:'center', textAlign: "center", fontSize: "16px" }}>
-              eCommittee Note - {this.state.title}
+              {
+                <h1 style={{ alignSelf: "left", fontSize: "16px" }}>
+                  pending:
+                  {this.state.status === "pending" ||
+                    ("Submitted" && this._getPendingStatus())}
+                </h1>
+              }
+
+              <h1
+                style={{
+                  alignSelf: "center",
+                  textAlign: "center",
+                  fontSize: "16px",
+                }}
+              >
+                eCommittee Note - {this.state.title}
               </h1>
               <h1 style={{ alignSelf: "right", fontSize: "16px" }}>
                 Status:{this.state.status}
@@ -1319,74 +1348,80 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
                   )}
                 </div>
                 {/*General Comments */}
-                {this._currentUserEmail !== this.state.createdByEmail?<div className={styles.sectionContainer}>
-                  <div
-                    className={styles.header}
-                    onClick={() => this._onToggleSection(`generalComments`)}
-                  >
-                    <Text className={styles.sectionText}>General Comments</Text>
-                    <IconButton
-                      iconProps={{
-                        iconName: expandSections.generalComments
-                          ? "ChevronUp"
-                          : "ChevronDown",
-                      }}
-                      title="Expand/Collapse"
-                      ariaLabel="Expand/Collapse"
-                      className={styles.chevronIcon}
-                    />
-                  </div>
-                  {expandSections.generalComments && (
+
+                {!this._checkCurrentUserIsApprovedTheCurrentRequest() &&
+                this._currentUserEmail !== this.state.createdByEmail ? (
+                  <div className={styles.sectionContainer}>
                     <div
-                    //   style={{ overflowX: "scroll" }}
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`generalComments`)}
                     >
-                      <GeneralCommentsFluentUIGrid
-                        handleCommentDataFuntion={this._getCommentData}
-                        data={this.state.commentsData}
-                        currentUserDetails = {this.props.context.pageContext.user}
-                        type="generalComments"
-                       
+                      <Text className={styles.sectionText}>
+                        General Comments
+                      </Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.generalComments
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
                       />
                     </div>
-                  )}
-                </div>:""}
+                    {expandSections.generalComments && (
+                      <div
+                      //   style={{ overflowX: "scroll" }}
+                      >
+                        <GeneralCommentsFluentUIGrid
+                          handleCommentDataFuntion={this._getCommentData}
+                          data={this.state.commentsData}
+                          currentUserDetails={
+                            this.props.context.pageContext.user
+                          }
+                          type="generalComments"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  ""
+                )}
 
                 {/*ATR Assignees */}
-                {this.state.ApproverType.toString() === "2"?<div className={styles.sectionContainer}>
-                  <div
-                    className={styles.header}
-                    onClick={() => this._onToggleSection(`atrAssignees`)}
-                  >
-                    <Text className={styles.sectionText}>ATR Assignees</Text>
-                    <IconButton
-                      iconProps={{
-                        iconName: expandSections.atrAssignees
-                          ? "ChevronUp"
-                          : "ChevronDown",
-                      }}
-                      title="Expand/Collapse"
-                      ariaLabel="Expand/Collapse"
-                      className={styles.chevronIcon}
-                    />
-                  </div>
-                  {expandSections.atrAssignees && (
+                {this.state.ApproverType.toString() === "2" ? (
+                  <div className={styles.sectionContainer}>
                     <div
-                    //   style={{ overflowX: "scroll" }}
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`atrAssignees`)}
                     >
-                      <GeneralCommentsFluentUIGrid
-                        handleCommentDataFuntion={this._getCommentData}
-                        data={this.state.commentsData}
-                        currentUserDetails = {this.props.context.pageContext.user}
-                        type="generalComments"
-                       
+                      <Text className={styles.sectionText}>ATR Assignees</Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.atrAssignees
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
                       />
                     </div>
-                  )}
-                </div>:""}
-                
+                    {expandSections.atrAssignees && (
+                      <div
+                      //   style={{ overflowX: "scroll" }}
+                      >
+                        {" "}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  ""
+                )}
 
                 {/* Comments Log */}
-                
+
                 <div className={styles.sectionContainer}>
                   <div
                     className={styles.header}
@@ -1409,45 +1444,55 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
                     //   style={{ overflowX: "scroll" }}
                     >
                       <CommentsLogTable
-                        data={this.state.commentsData}//have change data valu
+                        data={this.state.commentsData} //have change data valu
                         type="commentsLog"
                       />
                     </div>
                   )}
                 </div>
-                  {/*Attach Supporting Documents */}
-                  {this._currentUserEmail !== this.state.createdByEmail?<div className={styles.sectionContainer}>
-                  <div
-                    className={styles.header}
-                    onClick={() => this._onToggleSection(`attachSupportingDocuments`)}
-                  >
-                    <Text className={styles.sectionText}>General Comments</Text>
-                    <IconButton
-                      iconProps={{
-                        iconName: expandSections.attachSupportingDocuments
-                          ? "ChevronUp"
-                          : "ChevronDown",
-                      }}
-                      title="Expand/Collapse"
-                      ariaLabel="Expand/Collapse"
-                      className={styles.chevronIcon}
-                    />
+                {/*Attach Supporting Documents */}
+                {!this._checkCurrentUserIsApprovedTheCurrentRequest() &&
+                this._currentUserEmail !== this.state.createdByEmail ? (
+                  <div className={styles.sectionContainer}>
+                    <div
+                      className={styles.header}
+                      onClick={() =>
+                        this._onToggleSection(`attachSupportingDocuments`)
+                      }
+                    >
+                      <Text className={styles.sectionText}>
+                        Attach Supporting Documents
+                      </Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.attachSupportingDocuments
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
+                      />
+                    </div>
+                    {expandSections.attachSupportingDocuments && (
+                      <div style={{ width: "100%", margin: "0px" }}>
+                        <UploadFileComponent
+                          typeOfDoc="supportingDocument"
+                          onChange={this.handleSupportingFileChangeInViewForm}
+                          accept=".xlsx,.pdf,.doc,.docx"
+                          multiple={true}
+                          maxFileSizeMB={25}
+                          maxTotalSizeMB={25}
+                          data={this.state.supportingFilesInViewForm}
+
+                          // value={this.state.supportingDocumentfiles}
+                        />
+                      </div>
+                    )}
                   </div>
-                  {expandSections.attachSupportingDocuments && (
-                    <div style={{ width: "100%", margin: "0px" }}>
-                    <UploadFileComponent
-                      typeOfDoc="supportingDocument"
-                      onChange={this.handleSupportingFileChange}
-                      accept=".xlsx,.pdf,.doc,.docx"
-                      multiple={true}
-                      maxFileSizeMB={25}
-                      maxTotalSizeMB={25}
-                      data={this.state.supportingDocumentfiles}
-                      // value={this.state.supportingDocumentfiles}
-                    />
-                  </div>
-                  )}
-                </div>:""}
+                ) : (
+                  ""
+                )}
                 {/* Workflow Log */}
                 <div className={styles.sectionContainer}>
                   <div
@@ -1507,16 +1552,27 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
                           {this.state.noteTofiles[0].name}
                         </a>
                       </h4>
+                      {/* Word Documents */}
+                      {this.state.wordDocumentfiles.length > 0 && (
+                        <h4>
+                          Word Documents :
+                          <a href={this.state.wordDocumentfiles[0].fileUrl} download>
+                            {" "}
+                            {this.state.wordDocumentfiles[0].name}
+                          </a>
+                        </h4>
+                      )}
+
                       {/* Support Documents */}
                       <h4>Support Documents :</h4>
                       <FileAttatchmentTable
                         data={this.state.supportingDocumentfiles}
                       />
-                      {/* Word Documents */}
-                      <h4>Word Documents :</h4>
+
+                      {/* <h4>Word Documents :</h4>
                       <FileAttatchmentTable
                         data={this.state.wordDocumentfiles}
-                      />
+                      /> */}
                     </div>
                   )}
                 </div>
@@ -1537,16 +1593,19 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
               {this._currentUserEmail === this.state.createdByEmail ? (
                 //  this._checkApproveredStatusIsFound()
                 <PrimaryButton
-                  onClick={(e) =>{
-                    this.handleCallBack(e,"Call Back",'7000')
-                    this.setState({ status: "Call Back" ,statusNumber:'7000'})}
-                  } 
+                  onClick={(e) => {
+                    this.handleCallBack(e, "Call Back", "7000");
+                    this.setState({
+                      status: "Call Back",
+                      statusNumber: "7000",
+                    });
+                  }}
                 >
                   Call Back
                 </PrimaryButton>
               ) : (
+                !this._checkCurrentUserIsApprovedTheCurrentRequest() &&
                 this._getApproverAndReviewerStageButton()
-                
               )}
               {/* {this._getApproverAndReviewerStageButton()} */}
 
@@ -1561,7 +1620,10 @@ export default class ViewForm extends React.Component<IViewFormProps, IViewFormS
             </div>
           </Stack>
         )}
-        <DialogBlockingExample hiddenProp={this.state.dialogFluent} dialogDetails={this.state.dialogDetails}/>
+        <DialogBlockingExample
+          hiddenProp={this.state.dialogFluent}
+          dialogDetails={this.state.dialogDetails}
+        />
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}
         <PdfViewer pdfUrl={this.state.pdfLink} />
