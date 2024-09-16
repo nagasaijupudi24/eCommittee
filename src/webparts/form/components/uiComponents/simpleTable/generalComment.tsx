@@ -66,18 +66,19 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
         )
       );
       return this.props.data.filter(
-        (each: any) =>{
-            console.log(each)
-            console.log(each.commentedBy === this.props.currentUserDetails.displayName)
-            console.log(each.commentedBy)
-            console.log( this.props.currentUserDetails.displayName)
-            if (each.commentedBy === this.props.currentUserDetails.displayName){
-                    console.log(each.commentedBy === this.props.currentUserDetails.displayName)
-                    return each
-            }
+        (each: any) =>each.commentedBy === this.props.currentUserDetails.displayName
+        //     {
+        //     console.log(each)
+        //     console.log(each.commentedBy === this.props.currentUserDetails.displayName)
+        //     console.log(each.commentedBy)
+        //     console.log( this.props.currentUserDetails.displayName)
+        //     // if (each.commentedBy === this.props.currentUserDetails.displayName){
+        //     //         console.log(each.commentedBy === this.props.currentUserDetails.displayName)
+        //     //         return each
+        //     // }
              
 
-        } 
+        // } 
       );
     } else {
       return [];
