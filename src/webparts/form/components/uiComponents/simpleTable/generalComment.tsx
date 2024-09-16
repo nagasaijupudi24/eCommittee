@@ -31,6 +31,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
 > {
   constructor(props: any) {
     super(props);
+    console.log(this.props)
     this.state = {
       pageNumValue: "",
       pageValue: "",
@@ -49,23 +50,34 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     console.log(this.props.data.some(
         (each: any) =>{
             console.log(each.commentedBy)
-            return  each.commentedBy === this.props.displayNamed
+            return  each.commentedBy === this.props.currentUserDetails.displayName
         }
       ))
      
-      console.log(this.props.displayName)
+      console.log(this.props.currentUserDetails.displayName)
     if (
       this.props.data.some(
-        (each: any) => each.commentedBy === this.props.displayName
+        (each: any) => each.commentedBy === this.props.currentUserDetails.displayName
       )
     ) {
       console.log(
         this.props.data.filter(
-          (each: any) => each.commentedBy === this.props.displayname
+          (each: any) => each.commentedBy === this.props.currentUserDetails.displayName
         )
       );
       return this.props.data.filter(
-        (each: any) => each.commentedBy === this.props.displayname
+        (each: any) =>{
+            console.log(each)
+            console.log(each.commentedBy === this.props.currentUserDetails.displayName)
+            console.log(each.commentedBy)
+            console.log( this.props.currentUserDetails.displayName)
+            if (each.commentedBy === this.props.currentUserDetails.displayName){
+                    console.log(each.commentedBy === this.props.currentUserDetails.displayName)
+                    return each
+            }
+             
+
+        } 
       );
     } else {
       return [];
