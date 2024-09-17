@@ -803,9 +803,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(typeof dataRec?.toString());
 
     if (typeof dataRec[0]?.toString() === "undefined") {
-      const newItemsDataNA = items.map((obj: { loginName: any }) => {
+      const newItemsDataNA = items.map((obj: {
+        [x: string]: any; loginName: any 
+}) => {
         console.log(obj)
-        return { ...obj, optionalText: "N/A", approverType: 1 };
+        return { ...obj, optionalText: "N/A", approverType: 1,email:obj.secondaryText };
       });
       console.log(newItemsDataNA);
       this.setState({ reviewerInfo: newItemsDataNA });
@@ -843,9 +845,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(typeof dataRec?.toString());
 
     if (typeof dataRec[0]?.toString() === "undefined") {
-      const newItemsDataNA = items.map((obj: { loginName: any }) => {
+      const newItemsDataNA = items.map((obj: {
+        [x: string]: any; loginName: any 
+}) => {
         console.log(obj)
-        return { ...obj, optionalText: "N/A", approverType: 2 };
+        return { ...obj, optionalText: "N/A", approverType: 2,email:obj.secondaryText  };
       });
       console.log(newItemsDataNA);
       this.setState({ approverInfo: newItemsDataNA });
@@ -1392,7 +1396,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           approverStatus: 1,
           id: each.id,
           status:index===0?"pending":"waiting",
-         
+          email:each.secondaryText,
           designation: each.optionalText,
           approverEmailName: each.text,
           srNo:each.srNo,
