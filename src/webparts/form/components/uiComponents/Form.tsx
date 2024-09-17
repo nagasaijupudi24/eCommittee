@@ -206,6 +206,27 @@ const getFromType = (): any => {
   return formType;
 };
 
+
+// export const PeoplePickerData = (placeholder:any,onChangeFunc:any):any=>{
+//   return (
+//     <PeoplePicker
+//       placeholder="Reviewer Details"
+//       context={this._peopplePicker}
+//       // titleText="People Picker"
+//       personSelectionLimit={1}
+//       groupName={""} // Leave this blank in case you want to filter from all users
+//       showtooltip={true}
+//       defaultSelectedUsers={[""]}
+//       disabled={false}
+//       ensureUser={true}
+//       onChange={this._getPeoplePickerItems}
+//       // showHiddenInUI={false}
+//       principalTypes={[PrincipalType.User]}
+//       resolveDelay={1000}
+//     />
+//   );
+// }
+
 export default class Form extends React.Component<IFormProps, IMainFormState> {
   private _peopplePicker: IPeoplePickerContext;
   private _userName: string;

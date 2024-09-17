@@ -30,6 +30,10 @@ import { format } from "date-fns";
 import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
+import PnPPeoplePicker from "./peoplePicker/peoplePicker";
+import PnPPeoplePicker2 from "./peoplePicker/people";
+// import { WebPartContext } from "@microsoft/sp-webpart-base";
+// import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 export interface IFileDetails {
   name?: string;
@@ -1297,6 +1301,7 @@ export default class ViewForm extends React.Component<
           />
         ) : (
           <Stack tokens={{ childrenGap: 10 }} className={styles.viewForm}>
+            
             <div className={`${styles.generalSectionMainContainer}`}>
               {/* {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
                 pending:{this._getPendingStatus()}
@@ -1321,7 +1326,10 @@ export default class ViewForm extends React.Component<
               <h1 style={{ alignSelf: "right", fontSize: "16px" }}>
                 Status:{this.state.status}
               </h1>
+             
             </div>
+            <PnPPeoplePicker context={this.props.context} />
+            <PnPPeoplePicker2  context={this.props.context}/>
             <div
               style={{
                 display: "flex",
