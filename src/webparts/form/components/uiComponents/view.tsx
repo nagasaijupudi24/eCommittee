@@ -1009,7 +1009,7 @@ export default class ViewForm extends React.Component<
   };
 
   private handleChangeApprover = async (
-    e: any,
+   
     statusFromEvent: string,
     statusNumber: string
   ) => {
@@ -1109,7 +1109,7 @@ export default class ViewForm extends React.Component<
               "Refer",
               "Refered",
               "5000",
-              "click on Confirm button to Refer request.",
+              ["Add Referee","Comments"],
               this.handleRefer,
               this._closeDialog
             );
@@ -1172,7 +1172,7 @@ export default class ViewForm extends React.Component<
     btnType: string,
     currentStatus: string,
     currentStatusNumber: string,
-    message: string,
+    message: any,
     functionType: any,
     closeFunction: any
   ) => {
@@ -1677,7 +1677,15 @@ export default class ViewForm extends React.Component<
                  this._checkApproveredStatusIsFound()?<PrimaryButton
                  onClick={(e) => {
                   console.log("Change Approver btn Triggered")
-                   this.handleChangeApprover(e, "ChangedApprover", "7500");
+                  this._hanldeFluentDialog(
+                    "Change Approver",
+                    "changeApprover",
+                    "7500",
+                    "Change Approver*",
+                    this.handleChangeApprover,
+                    this._closeDialog
+                  );
+                   this.handleChangeApprover( "ChangedApprover", "7500");
                    this.setState({
                      status: "changedApprover",
                      statusNumber: "7500",

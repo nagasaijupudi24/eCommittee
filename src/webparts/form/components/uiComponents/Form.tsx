@@ -804,6 +804,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     if (typeof dataRec[0]?.toString() === "undefined") {
       const newItemsDataNA = items.map((obj: { loginName: any }) => {
+        console.log(obj)
         return { ...obj, optionalText: "N/A", approverType: 1 };
       });
       console.log(newItemsDataNA);
@@ -1396,7 +1397,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           approverEmailName: each.text,
           srNo:each.srNo,
           secretary:'IB Test 1',
-          ...each,
+          
         };
       }
     );
