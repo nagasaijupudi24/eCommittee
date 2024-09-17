@@ -741,6 +741,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           console.log(each)
 
           const newObj = {
+            ...each,
             text: each.Approvers.Title,
             email: each.Approvers.EMail,
             ApproversId: each.ApproversId,
@@ -842,12 +843,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     if (typeof dataRec[0]?.toString() === "undefined") {
       const newItemsDataNA = items.map((obj: { loginName: any }) => {
+        console.log(obj)
         return { ...obj, optionalText: "N/A", approverType: 2 };
       });
       console.log(newItemsDataNA);
       this.setState({ approverInfo: newItemsDataNA });
     } else {
       const newItemsData = items.map((obj: { loginName: any }) => {
+        console.log(obj)
         return {
           ...obj,
           optionalText: dataRec[0],
@@ -1381,6 +1384,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       (each: any, index: number) => {
         console.log(each);
         return {
+          
           approverType: each.approverType,
           approverEmail: each.email,
           approverOrder: index + 1,
@@ -1390,7 +1394,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
          
           designation: each.optionalText,
           approverEmailName: each.text,
-          srNo:each.srNo
+          srNo:each.srNo,
+          secretary:'IB Test 1',
+          ...each,
         };
       }
     );

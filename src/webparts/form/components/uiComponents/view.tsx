@@ -462,7 +462,10 @@ export default class ViewForm extends React.Component<
         item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[1],
 
       title: item.Title,
-      commentsData:typeof item.CommentsLog === "object"? JSON.parse(item.CommentsLog):[],
+      commentsData: JSON.parse(item.CommentsLog)
+    //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string" 
+    // ?  []
+    // : JSON.parse(item.CommentsLog),
 
       //don't use this commentsData:item.CommentsLog !== typeof null||'null' ? JSON.parse(item.CommentsLog):[],
     });
@@ -713,6 +716,63 @@ export default class ViewForm extends React.Component<
     return JSON.stringify([...this.state.auditTrail, ...auditLog]);
   };
 
+
+  private async updateSupportingDocumentFolderItems(
+    libraryName: any[],
+    folderPath: string
+  ) {
+   
+    async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
+      if (file.arrayBuffer) {
+        return await file.arrayBuffer();
+      } else {
+        // Ensure the file is a Blob before reading it
+        let blob: Blob;
+
+        if (file instanceof Blob) {
+          blob = file;
+        } else {
+          // Convert the file to Blob if it's not already
+          blob = new Blob([file]);
+        }
+
+        // Use FileReader to read the file as an ArrayBuffer
+        return new Promise<ArrayBuffer>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (reader.result) {
+              resolve(reader.result as ArrayBuffer);
+            } else {
+              reject(new Error("Failed to read file as ArrayBuffer"));
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(blob);
+        });
+      }
+    }
+
+    try {
+      for (const file of libraryName) {
+        console.log(file);
+
+        // Get the ArrayBuffer of the file
+        const arrayBuffer = await getFileArrayBuffer(file);
+        console.log(arrayBuffer);
+
+        // Upload the file to the SharePoint Library
+        await this.props.sp.web
+          .getFolderByServerRelativePath(folderPath)
+          .files.addUsingPath(file.name, arrayBuffer, {
+            Overwrite: true,
+          });
+      }
+      console.log("updated Supporting document successfully");
+    } catch (error) {
+      console.error(`Error updating folder items: ${error}`);
+    }
+  }
+
   private _handleApproverButton = async (
     statusFromEvent: string,
     statusNumber: string
@@ -757,6 +817,10 @@ export default class ViewForm extends React.Component<
       });
 
     console.log(itemToUpdate);
+    this.updateSupportingDocumentFolderItems(
+      this.state.supportingDocumentfiles,
+      `${this._folderName}/SupportingDocument`
+    );
 
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
@@ -944,18 +1008,37 @@ export default class ViewForm extends React.Component<
     this._closeDialog();
   };
 
-  // private _checkApproveredStatusIsFound= ():any =>{
-  //   const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
-  //     (accu:any,each:any)=>{
-  //       console.log(each)
-  //       console.log(each.status)
-  //       return accu.concat(each.status)
-  //     },[]
-  //   )
-  //   console.log(checkApproverdStatusisAvailableInApproverDetails)
-  //   console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
-  //   return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
-  // }
+  private handleChangeApprover = async (
+    e: any,
+    statusFromEvent: string,
+    statusNumber: string
+  ) => {
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
+    const itemToUpdate = await this.props.sp.web.lists
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+        
+        AuditTrail: updateAuditTrial,
+      });
+
+    console.log(itemToUpdate);
+    
+  };
+
+  private _checkApproveredStatusIsFound= ():any =>{
+    const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
+      (accu:any,each:any)=>{
+        console.log(each)
+        console.log(each.status)
+        return accu.concat(each.status)
+      },[]
+    )
+    console.log(checkApproverdStatusisAvailableInApproverDetails)
+    console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
+    return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
+  }
 
   private _getApproverAndReviewerStageButton = (): any => {
     return (
@@ -1591,9 +1674,21 @@ export default class ViewForm extends React.Component<
               style={{ alignSelf: "center", margin: "10px 0px", gap: "10px" }}
             >
               {this._currentUserEmail === this.state.createdByEmail ? (
-                //  this._checkApproveredStatusIsFound()
+                 this._checkApproveredStatusIsFound()?<PrimaryButton
+                 onClick={(e) => {
+                  console.log("Change Approver btn Triggered")
+                   this.handleChangeApprover(e, "ChangedApprover", "7500");
+                   this.setState({
+                     status: "changedApprover",
+                     statusNumber: "7500",
+                   });
+                 }}
+               >
+                 Change Approver
+               </PrimaryButton>:
                 <PrimaryButton
                   onClick={(e) => {
+                    console.log("Call Back btn Triggered")
                     this.handleCallBack(e, "Call Back", "7000");
                     this.setState({
                       status: "Call Back",
