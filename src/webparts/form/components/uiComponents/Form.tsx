@@ -132,7 +132,7 @@ interface IMainFormState {
   natureOfApprovalOrSanctionFeildValue: string;
   typeOfFinancialNoteFeildValue: string;
   searchTextFeildValue: string | number | readonly string[];
-  amountFeildValue: string | number | readonly string[];
+  amountFeildValue:any;
   puroposeFeildValue: string | number | readonly string[];
   // eslint-disable-next-line @rushstack/no-new-null
   notePdfFile: File | null;
@@ -246,7 +246,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       natureOfApprovalOrSanctionFeildValue: "",
       typeOfFinancialNoteFeildValue: "",
       searchTextFeildValue: "",
-      amountFeildValue: "",
+      amountFeildValue: null,
       puroposeFeildValue: "",
       notePdfFile: null,
       supportingFile: null,
@@ -598,7 +598,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         item.Search_x0020_Keyword !== null
           ? this._extractValueFromHtml(item.Search_x0020_Keyword)
           : "",
-      amountFeildValue: item.Amount !== null ? item.Amount : "",
+      amountFeildValue: item.Amount !== null ? item.Amount : null,
       puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
       // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
       peoplePickerData: this._getJsonifyReviewer(

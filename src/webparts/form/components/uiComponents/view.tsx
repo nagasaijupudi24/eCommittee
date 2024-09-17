@@ -439,7 +439,7 @@ export default class ViewForm extends React.Component<
         item.Search_x0020_Keyword !== null
           ? this._extractValueFromHtml(item.Search_x0020_Keyword)
           : "",
-      amountFeildValue: item.Amount !== null ? item.Amount : "",
+      amountFeildValue: item.Amount !== null ? item.Amount : null,
       puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
       // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
       peoplePickerData: this._getJsonifyReviewer(
