@@ -17,14 +17,15 @@ interface IDialogProps {
   hiddenProp: any;
   dialogDetails: any;
   sp:any;
-  context:any
+  context:any;
+  fetchAnydata:any;
 }
 
 export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   hiddenProp,
   dialogDetails,
   context,
-  sp
+  sp,fetchAnydata
 }) => {
   console.log(dialogDetails);
 
@@ -57,15 +58,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   };
 
 
-  const handleChangeApporver = () => {
-    console.log("Confirm btn triggered");
-    dialogDetails.functionType(
-      dialogDetails.status,
-      dialogDetails.statusNumber,
-      
-    );
-  };
-
+  
   const getGeneralDialogJSX = (): any => {
 
     console.log("General dialog functionality is triggered")
@@ -81,7 +74,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
         >
           <p>{dialogDetails.message}</p>
           <DialogFooter>
-            <PrimaryButton onClick={handleChangeApporver} text="Confirm" />
+            <PrimaryButton onClick={handleConfirmBtn} text="Confirm" />
             <DefaultButton
               onClick={dialogDetails.closeFunction}
               text="Cancel"
@@ -96,7 +89,20 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   const _getDetails = (data:any,typeOFButtonTriggererd:any):any=>{
     console.log("Referrer function is Triggered")
     console.log(data,typeOFButtonTriggererd)
+    fetchAnydata(data)
+    
   }
+
+
+  const handleChangeApporver = () => {
+    console.log("Confirm btn triggered");
+    dialogDetails.functionType(
+      dialogDetails.status,
+      dialogDetails.statusNumber,
+      
+    );
+  };
+
 
   const getChangeApproverJsx = (): any => {
     console.log("Change Approver is triggered")
@@ -111,7 +117,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
           <p>{dialogDetails.message}</p>
           <PnPPeoplePicker context={context} spProp={sp} getDetails={_getDetails} typeOFButton="Change Approver"/>
           <DialogFooter>
-            <PrimaryButton onClick={handleConfirmBtn} text="Submit" />
+            <PrimaryButton onClick={handleChangeApporver} text="Submit" />
             <DefaultButton
               onClick={dialogDetails.closeFunction}
               text="Cancel"

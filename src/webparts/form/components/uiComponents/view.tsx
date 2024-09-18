@@ -1036,14 +1036,21 @@ export default class ViewForm extends React.Component<
     this._closeDialog();
   };
 
+  // private updateCurrentApprover = ()=>{
+  //   this.setState(cur)
+  // }
+
   private handleChangeApprover = async (
    
     statusFromEvent: string,
-    statusNumber: string
+    statusNumber: string,
+    data:any
   ) => {
+    console.log(data)
+    this.setState({currentApprover:data})
     const updateCurrentApprover = ():any=>{
       const upatedCurrentApprover = this.state.ApproverDetails.filter((each:any)=>{
-        if (each.id === this.state.currentApprover.id){
+        if (each.id ===data[0].id){
           return {...each,status:"pending"}
 
         }
@@ -1771,6 +1778,10 @@ export default class ViewForm extends React.Component<
           dialogDetails={this.state.dialogDetails}
           sp={this.props.sp}
           context={this.props.context}
+          fetchAnydata={(data:any)=>{
+            console.log(data)
+            this.setState({currentApprover:data})
+          }}
         />
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}
