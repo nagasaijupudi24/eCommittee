@@ -30,7 +30,7 @@ import { format } from "date-fns";
 import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
-import PnPPeoplePicker from "./peoplePicker/peoplePicker";
+// import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
 // import { WebPartContext } from "@microsoft/sp-webpart-base";
 // import { WebPartContext } from "@microsoft/sp-webpart-base";
@@ -127,6 +127,10 @@ export interface IViewFormState {
   dialogDetails: any;
 
   commentsData: any;
+  currentApprover:any;
+  pastApprover:any;
+  referredFromDetails:any,
+  refferredToDetails:any
 }
 
 const getIdFromUrl = (): any => {
@@ -231,6 +235,7 @@ export default class ViewForm extends React.Component<
       expandSections: {}, // Keeps track of expanded sections
       pdfLink: "",
 
+
       // "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/Pdf/E0300SBIBZ.pdf",
       //   "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/SupportingDocument/Export.xlsx?d=w5597c83c4c7744daab598c33704569bc"
       // "https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB", // Link to the PDF
@@ -239,6 +244,10 @@ export default class ViewForm extends React.Component<
       dialogFluent: true,
       dialogDetails: {},
       commentsData: [],
+      currentApprover:[],
+      pastApprover:[],
+      referredFromDetails:[],
+      refferredToDetails:[]
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -460,13 +469,14 @@ export default class ViewForm extends React.Component<
       status: item.Status,
       statusNumber: item.statusNumber,
       ApproverDetails: JSON.parse(item.ApproverDetails),
+      currentApprover:JSON.parse(item.currentApprover),
       ApproverOrder:
         item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[0],
       ApproverType:
         item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[1],
 
       title: item.Title,
-      commentsData: JSON.parse(item.CommentsLog)
+      commentsData:item.CommentsLog !== null ? JSON.parse(item.CommentsLog):[]
     //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string" 
     // ?  []
     // : JSON.parse(item.CommentsLog),
@@ -1028,6 +1038,7 @@ export default class ViewForm extends React.Component<
       });
 
     console.log(itemToUpdate);
+    this._closeDialog();
     
   };
 
@@ -1328,7 +1339,7 @@ export default class ViewForm extends React.Component<
               </h1>
              
             </div>
-            <PnPPeoplePicker context={this.props.context} spProp={this.props.sp}/>
+            {/* <PnPPeoplePicker context={this.props.context} spProp={this.props.sp}/> */}
             {/* <PnPPeoplePicker2  context={this.props.context}/> */}
             <div
               style={{
@@ -1693,7 +1704,7 @@ export default class ViewForm extends React.Component<
                     this.handleChangeApprover,
                     this._closeDialog
                   );
-                   this.handleChangeApprover( "ChangedApprover", "7500");
+                  //  this.handleChangeApprover( "ChangedApprover", "7500");
                    this.setState({
                      status: "changedApprover",
                      statusNumber: "7500",
@@ -1734,6 +1745,8 @@ export default class ViewForm extends React.Component<
         <DialogBlockingExample
           hiddenProp={this.state.dialogFluent}
           dialogDetails={this.state.dialogDetails}
+          sp={this.props.sp}
+          context={this.props.context}
         />
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}

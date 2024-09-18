@@ -11,6 +11,9 @@ import styles from "../../Form.module.scss";
 export interface IPnPPeoplePickerProps {
   context: WebPartContext;
   spProp: any;
+  getDetails:any;
+  typeOFButton:any;
+
 }
 
 export interface IPnPPeoplePickerState {
@@ -31,6 +34,8 @@ export default class PnPPeoplePicker extends React.Component<
       key: 0, // Add a key to force re-render
     };
   }
+
+  
 
   private _clearPeoplePicker = () => {
     this.setState({ selectedPeople: [], key: this.state.key + 1 }); // Update the key to force re-render
@@ -66,12 +71,14 @@ export default class PnPPeoplePicker extends React.Component<
   };
 
   private handleOnAdd = (event: any, type: string): void => {
+    this.props.getDetails(this.state.selectedPeople,this.props.typeOFButton)
     this.setState((prev) => ({
       peoplePickerData: [
-        ...prev.peoplePickerData,
+       
         ...this.state.selectedPeople,
       ],
     }));
+
   };
 
   private _getPeoplePickerItems = async (items: any[]) => {
@@ -123,18 +130,21 @@ export default class PnPPeoplePicker extends React.Component<
 
   public render(): React.ReactElement<IPnPPeoplePickerProps> {
     console.log(this.state);
+    console.log(this.props)
     const peoplePickerContext = {
       absoluteUrl: this.props.context.pageContext.web.absoluteUrl,
       msGraphClientFactory: this.props.context.msGraphClientFactory,
       spHttpClient: this.props.context.spHttpClient,
     };
 
+    
+
     return (
-      <div>
+      <div style={{ display: "flex" }}>
         <PeoplePicker
           key={this.state.key}
           context={peoplePickerContext}
-          titleText="People Picker"
+        
           personSelectionLimit={1}
           groupName={""}
           showtooltip={true}
@@ -155,7 +165,7 @@ export default class PnPPeoplePicker extends React.Component<
         >
           Add
         </DefaultButton>
-        <button onClick={this._clearPeoplePicker}>Clear People Picker</button>
+        {/* <button onClick={this._clearPeoplePicker}>Clear People Picker</button> */}
       </div>
     );
   }

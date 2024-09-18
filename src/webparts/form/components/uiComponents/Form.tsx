@@ -174,6 +174,10 @@ interface IMainFormState {
   statusNumber: any;
   filesClear: any;
   auditTrail:any;
+  currentApprover:any;
+  pastApprover:any;
+  referredFromDetails:any,
+  refferredToDetails:any
 }
 
 // let fetchedData:any[];
@@ -300,7 +304,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       status: "",
       statusNumber: null,
       filesClear: [],
-      auditTrail:[]
+      auditTrail:[],
+      currentApprover:[],
+      pastApprover:[],
+      referredFromDetails:[],
+      refferredToDetails:[]
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -1403,7 +1411,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //     });
   //   }
 
-  private _getApproverDetails = (reveiwerData: any, apporverData: any): any => {
+  private _getApproverDetails = (reveiwerData: any, apporverData: any,typeOfParameter:any): any => {
     const dataOfReveiwerAndApprover = [...reveiwerData, ...apporverData];
     console.log(dataOfReveiwerAndApprover)
     const finalData = dataOfReveiwerAndApprover.map(
@@ -1428,9 +1436,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     );
     console.log(finalData)
 
+
+
     console.log(JSON.stringify(finalData));
 
-    return JSON.stringify(finalData);
+    if (typeOfParameter==='intialOrderApproverDetails'){
+      return JSON.stringify([finalData[0]]);
+
+    }else{
+      return JSON.stringify(finalData);
+
+    }
+
+    
   };
 
   private _getAuditTrail = (status: any): any => {
@@ -1501,13 +1519,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       Purpose: this.state.puroposeFeildValue,
       ApproverDetails: this._getApproverDetails(
         this.state.peoplePickerData,
-        this.state.peoplePickerApproverData
+        this.state.peoplePickerApproverData,"allDetails"
       ),
       Status: status,
       statusNumber: status === "Submitted" ? statusNumber : "3000",
       AuditTrail:this.state.status === "Call Back"?this._getAuditTrail("Re-submitted"): this._getAuditTrail(status),
       ReviewerId: this._getReviewerId(),
       ApproverId: this._getApproverId(),
+      currentApprover:this._getApproverDetails(
+        this.state.peoplePickerData,
+        this.state.peoplePickerApproverData
+        ,"intialOrderApproverDetails"
+      ),
     };
     console.log(ecommitteObject);
     return ecommitteObject;
@@ -2067,7 +2090,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     Purpose: this.state.puroposeFeildValue,
     ApproverDetails: this._getApproverDetails(
       this.state.peoplePickerData,
-      this.state.peoplePickerApproverData
+      this.state.peoplePickerApproverData,"allDetails"
     ),
     Status: "ReSubmitted",
     statusNumber: "2500",
@@ -2075,6 +2098,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // Reviewer:{result:this._getReviewerId()}
     ReviewerId: this._getReviewerId(),
     ApproverId: this._getApproverId(),
+    currentApprover:this._getApproverDetails(
+      this.state.peoplePickerData,
+      this.state.peoplePickerApproverData
+      ,"intialOrderApproverDetails"
+    ),
   });
 
   public async clearFolder(

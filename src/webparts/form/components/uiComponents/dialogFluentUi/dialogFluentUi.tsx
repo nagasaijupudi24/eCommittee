@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
-import { Stack } from "@fluentui/react";
+import { Stack, TextField } from "@fluentui/react";
+import PnPPeoplePicker from "../peoplePicker/peoplePicker";
 // import { ContextualMenu } from '@fluentui/react/lib/ContextualMenu';
 // import { Toggle } from '@fluentui/react/lib/Toggle';
 // import { useBoolean } from '@fluentui/react-hooks';
@@ -15,11 +16,15 @@ import { Stack } from "@fluentui/react";
 interface IDialogProps {
   hiddenProp: any;
   dialogDetails: any;
+  sp:any;
+  context:any
 }
 
 export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   hiddenProp,
   dialogDetails,
+  context,
+  sp
 }) => {
   console.log(dialogDetails);
 
@@ -51,7 +56,19 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
     );
   };
 
+
+  const handleChangeApporver = () => {
+    console.log("Confirm btn triggered");
+    dialogDetails.functionType(
+      dialogDetails.status,
+      dialogDetails.statusNumber,
+      
+    );
+  };
+
   const getGeneralDialogJSX = (): any => {
+
+    console.log("General dialog functionality is triggered")
     return (
       <>
         {/* <Toggle label="Is draggable" onChange={toggleIsDraggable} checked={isDraggable} /> */}
@@ -64,7 +81,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
         >
           <p>{dialogDetails.message}</p>
           <DialogFooter>
-            <PrimaryButton onClick={handleConfirmBtn} text="Confirm" />
+            <PrimaryButton onClick={handleChangeApporver} text="Confirm" />
             <DefaultButton
               onClick={dialogDetails.closeFunction}
               text="Cancel"
@@ -75,7 +92,14 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
     );
   };
 
+ 
+  const _getDetails = (data:any,typeOFButtonTriggererd:any):any=>{
+    console.log("Referrer function is Triggered")
+    console.log(data,typeOFButtonTriggererd)
+  }
+
   const getChangeApproverJsx = (): any => {
+    console.log("Change Approver is triggered")
     return (
       <Stack>
         <Dialog
@@ -85,6 +109,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
           modalProps={modalProps}
         >
           <p>{dialogDetails.message}</p>
+          <PnPPeoplePicker context={context} spProp={sp} getDetails={_getDetails} typeOFButton="Change Approver"/>
           <DialogFooter>
             <PrimaryButton onClick={handleConfirmBtn} text="Submit" />
             <DefaultButton
@@ -96,8 +121,11 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
       </Stack>
     );
   };
+
+  
 
   const getReferJSX = (): any => {
+    console.log("Refered is triggered")
     return (
       <Stack>
         <Dialog
@@ -106,7 +134,18 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
           dialogContentProps={dialogContentProps}
           modalProps={modalProps}
         >
-          <p>{dialogDetails.message}</p>
+          <div>
+            <p>{dialogDetails.message[0]}</p>
+            <PnPPeoplePicker context={context} spProp={sp} getDetails={_getDetails} typeOFButton="Refer"/>
+            {/* <p>{dialogDetails.message[1]}</p> */}
+            <TextField label={dialogDetails.message[1]} multiline rows={3}  onChange={
+               (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newText: string): void => {
+                console.log(newText)
+              }
+            }/>
+            
+          </div>
+          
           <DialogFooter>
             <PrimaryButton onClick={handleConfirmBtn} text="Submit" />
             <DefaultButton
@@ -119,7 +158,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
     );
   };
 
-  switch (dialogDetails.btnType) {
+  switch (dialogDetails.type) {
     case "Change Approver":
       return getChangeApproverJsx();
     case "Refer":
