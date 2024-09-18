@@ -27,7 +27,7 @@ import { Spinner } from "@fluentui/react/lib/Spinner";
 import AdobePdfViewer from "../adobe/adobepdf";
 import { DialogBlockingExample } from "./dialogFluentUi/dialogFluentUi";
 import { format } from "date-fns";
-import PdfViewer from "../pdfVeiwer/pdfreact";
+// import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
@@ -797,7 +797,7 @@ export default class ViewForm extends React.Component<
 
         if (each.approverEmail === this._currentUserEmail) {
           console.log("ednter");
-
+        
           return { ...each, status: statusFromEvent };
         }
         // if (each.approverOrder===currentApproverOrder+1){
@@ -817,6 +817,18 @@ export default class ViewForm extends React.Component<
     );
     console.log(modifyApproveDetails);
 
+    const _getCurrentApproverDetails = ():any=>{
+      const currentApproverdata = modifyApproveDetails.filter((each:any)=>{
+        if (each.status === 'pending'){
+            return each
+        }
+        
+
+      })
+      console.log(currentApproverdata)
+      return currentApproverdata[0]
+    }
+
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
@@ -828,6 +840,8 @@ export default class ViewForm extends React.Component<
         statusNumber: "1500",
         AuditTrail: updateAuditTrial,
         CommentsLog: JSON.stringify(this.state.commentsData),
+        currentApprover:JSON.stringify([_getCurrentApproverDetails()])
+        
       });
 
     console.log(itemToUpdate);
@@ -1027,13 +1041,23 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+    const updateCurrentApprover = ():any=>{
+      const upatedCurrentApprover = this.state.ApproverDetails.filter((each:any)=>{
+        if (each.id === this.state.currentApprover.id){
+          return {...each,status:"pending"}
+
+        }
+      })
+      return upatedCurrentApprover[0]
+      
+    }
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
-        
+        currentApprover:JSON.stringify([updateCurrentApprover()]),
         AuditTrail: updateAuditTrial,
       });
 
@@ -1750,7 +1774,7 @@ export default class ViewForm extends React.Component<
         />
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}
-        <PdfViewer pdfUrl={this.state.pdfLink} />
+        {/* <PdfViewer pdfUrl={this.state.pdfLink} /> */}
         {/* //working code throught canvas  */}
         {/* <AdobePdfWebPart/> */}
         {/* <AdobePdfViewer clientId={"825473e9e1184eL459736428fd30f8b99"} fileUrl={this.state.pdfLink} height={800} defaultViewMode={"FIT_WIDTH"}/> */}
