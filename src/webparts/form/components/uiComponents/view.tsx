@@ -31,7 +31,7 @@ import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
 import PnPPeoplePicker from "./peoplePicker/peoplePicker";
-import PnPPeoplePicker2 from "./peoplePicker/people";
+// import PnPPeoplePicker2 from "./peoplePicker/people";
 // import { WebPartContext } from "@microsoft/sp-webpart-base";
 // import { WebPartContext } from "@microsoft/sp-webpart-base";
 
@@ -1328,8 +1328,8 @@ export default class ViewForm extends React.Component<
               </h1>
              
             </div>
-            <PnPPeoplePicker context={this.props.context} />
-            <PnPPeoplePicker2  context={this.props.context}/>
+            <PnPPeoplePicker context={this.props.context} spProp={this.props.sp}/>
+            {/* <PnPPeoplePicker2  context={this.props.context}/> */}
             <div
               style={{
                 display: "flex",
