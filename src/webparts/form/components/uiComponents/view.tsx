@@ -1046,16 +1046,30 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     data:any
   ) => {
-    console.log(data)
-    this.setState({currentApprover:data})
+    // console.log(data)
+    // this.setState({currentApprover:data})
     const updateCurrentApprover = ():any=>{
       const upatedCurrentApprover = this.state.ApproverDetails.filter((each:any)=>{
-        if (each.id ===data[0].id){
-          return {...each,status:"pending"}
+        console.log(each)
+        console.log(this.state.currentApprover)
+        // console.log(each.id)
+        // console.log(each.id ===this.state.currentApprover.id)
+        // console.log(each.approverOrder)
+        // console.log(this._getApproverOrder(this.state.ApproverDetails))
+        // console.log(this._getApproverOrder(this.state.ApproverDetails)[0])
+        console.log(each.status)
+        console.log(each.status ==='pending')
+
+
+        // console.log(each.approverOrder ===this._getApproverOrder(this.state.ApproverDetails)[0])
+        if (each.status ==='pending'){
+          return {...this.state.currentApprover,status:'pending'}
 
         }
       })
-      return upatedCurrentApprover[0]
+      console.log(upatedCurrentApprover)
+      console.log([{...this.state.currentApprover,status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,}])
+      return [{...this.state.currentApprover[0],status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,}]
       
     }
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
@@ -1064,7 +1078,7 @@ export default class ViewForm extends React.Component<
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
-        currentApprover:JSON.stringify([updateCurrentApprover()]),
+        currentApprover:JSON.stringify(updateCurrentApprover()),
         AuditTrail: updateAuditTrial,
       });
 
