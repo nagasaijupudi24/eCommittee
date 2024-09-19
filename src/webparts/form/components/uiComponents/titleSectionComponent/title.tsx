@@ -16,14 +16,17 @@ const Title: React.FC<TitleProps> = ({ formType='',statusOfRequest='' }) => {
         className={`${styles.noteTitle} 
         ${styles.commonProperties}`}
       >
-        <h1 className={`${styles.responsiveTitle}`}>
+        <p  className={`${styles.status}`}>Status: {statusOfRequest}</p>
+        <h1 className={`${styles.title}`} >
           eCommittee Note - {formType}
         </h1>
-      </div>
-      <p>Status: {statusOfRequest}</p>
-      <p className={`${styles.responsiveTitle}`} style={{ textAlign: 'right' }}>
+        <p  className={`${styles.title}`} style={{ textAlign: 'right' }}>
         Date : {formattedDate}
       </p>
+      </div>
+      <span className={`${styles.field}`}>All fields marked "*" are mandatory</span>
+      
+     
     </div>
   );
 };

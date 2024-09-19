@@ -1374,7 +1374,7 @@ export default class ViewForm extends React.Component<
         ) : (
           <Stack tokens={{ childrenGap: 10 }} className={styles.viewForm}>
             
-            <div className={`${styles.generalSectionMainContainer}`}>
+            <div className={`${styles.generalSectionMainContainer}`} style={{justifyContent:'space-between',paddingLeft:'5px',paddingRight:'5px'}}>
               {/* {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
                 pending:{this._getPendingStatus()}
               </h1>} */}
@@ -1439,9 +1439,9 @@ export default class ViewForm extends React.Component<
                     />
                   </div>
                   {expandSections.generalSection && (
-                    <>
+                    <div className={`${styles.expansionPanelInside}`}>
                       {this._renderTable(this.state.eCommitteData[0].tableData)}
-                    </>
+                    </div>
                   )}
                 </div>
                 {/* Reviewers Section */}
@@ -1466,6 +1466,7 @@ export default class ViewForm extends React.Component<
                   </div>
                   {expandSections.reviewersSection && (
                     <div
+                    className={`${styles.expansionPanelInside}`}
                     //   style={{ overflowX: "scroll" }}
                     >
                       <ApproverAndReviewerTableInViewForm
@@ -1499,6 +1500,7 @@ export default class ViewForm extends React.Component<
                   </div>
                   {expandSections.approversSection && (
                     <div
+                    className={`${styles.expansionPanelInside}`}
                     //   style={{ overflowX: "scroll" }}
                     >
                       <ApproverAndReviewerTableInViewForm
@@ -1535,6 +1537,7 @@ export default class ViewForm extends React.Component<
                     </div>
                     {expandSections.generalComments && (
                       <div
+                      className={`${styles.expansionPanelInside}`}
                       //   style={{ overflowX: "scroll" }}
                       >
                         <GeneralCommentsFluentUIGrid
@@ -1572,7 +1575,7 @@ export default class ViewForm extends React.Component<
                       />
                     </div>
                     {expandSections.atrAssignees && (
-                      <div
+                      <div className={`${styles.expansionPanelInside}`}
                       //   style={{ overflowX: "scroll" }}
                       >
                         {" "}
@@ -1603,7 +1606,7 @@ export default class ViewForm extends React.Component<
                     />
                   </div>
                   {expandSections.commentsLog && (
-                    <div
+                    <div className={`${styles.expansionPanelInside}`}
                     //   style={{ overflowX: "scroll" }}
                     >
                       <CommentsLogTable
@@ -1638,7 +1641,7 @@ export default class ViewForm extends React.Component<
                       />
                     </div>
                     {expandSections.attachSupportingDocuments && (
-                      <div style={{ width: "100%", margin: "0px" }}>
+                      <div className={`${styles.expansionPanelInside}`} style={{ width: "100%", margin: "0px" }}>
                         <UploadFileComponent
                           typeOfDoc="supportingDocument"
                           onChange={this.handleSupportingFileChangeInViewForm}
@@ -1675,7 +1678,7 @@ export default class ViewForm extends React.Component<
                     />
                   </div>
                   {expandSections.workflowLog && (
-                    <div
+                    <div className={`${styles.expansionPanelInside}`}
                     //   style={{ overflowX: "scroll" }}
                     >
                       <WorkFlowLogsTable

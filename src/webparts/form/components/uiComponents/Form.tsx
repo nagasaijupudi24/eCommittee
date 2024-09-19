@@ -2073,6 +2073,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           });
         }
       }
+      this.setState({status:''})
     } catch (error) {
       console.error("Error adding item: ", error);
     }
