@@ -127,10 +127,10 @@ export interface IViewFormState {
   dialogDetails: any;
 
   commentsData: any;
-  currentApprover:any;
-  pastApprover:any;
-  referredFromDetails:any,
-  refferredToDetails:any
+  currentApprover: any;
+  pastApprover: any;
+  referredFromDetails: any;
+  refferredToDetails: any;
 }
 
 const getIdFromUrl = (): any => {
@@ -235,7 +235,6 @@ export default class ViewForm extends React.Component<
       expandSections: {}, // Keeps track of expanded sections
       pdfLink: "",
 
-
       // "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/Pdf/E0300SBIBZ.pdf",
       //   "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/SupportingDocument/Export.xlsx?d=w5597c83c4c7744daab598c33704569bc"
       // "https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB", // Link to the PDF
@@ -244,10 +243,10 @@ export default class ViewForm extends React.Component<
       dialogFluent: true,
       dialogDetails: {},
       commentsData: [],
-      currentApprover:[],
-      pastApprover:[],
-      referredFromDetails:[],
-      refferredToDetails:[]
+      currentApprover: [],
+      pastApprover: [],
+      referredFromDetails: [],
+      refferredToDetails: [],
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -304,8 +303,8 @@ export default class ViewForm extends React.Component<
       }
     });
     console.log(approverfilterData);
-    const approverData = approverfilterData.map((each: any) =>{
-      console.log(each)
+    const approverData = approverfilterData.map((each: any) => {
+      console.log(each);
       return {
         text: each.approverEmailName,
         srNo: each.approverEmailName.split("@")[0],
@@ -313,8 +312,8 @@ export default class ViewForm extends React.Component<
         id: each.id,
         approverType: 1,
         ...each,
-      }
-    } );
+      };
+    });
     console.log(approverData);
     // this.setState(()=>{
     //   console.log("State updated")
@@ -435,8 +434,8 @@ export default class ViewForm extends React.Component<
       item.Author.EMail !== this._currentUserEmail &&
       this._getApproverOrder(JSON.parse(item.ApproverDetails));
     console.log(dataApproverInfo);
-    console.log(item.CommentsLog)
-    console.log(typeof item.CommentsLog)
+    console.log(item.CommentsLog);
+    console.log(typeof item.CommentsLog);
 
     this.setState({
       committeeNameFeildValue:
@@ -472,17 +471,18 @@ export default class ViewForm extends React.Component<
       status: item.Status,
       statusNumber: item.statusNumber,
       ApproverDetails: JSON.parse(item.ApproverDetails),
-      currentApprover:JSON.parse(item.currentApprover),
+      currentApprover: JSON.parse(item.currentApprover),
       ApproverOrder:
         item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[0],
       ApproverType:
         item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[1],
 
       title: item.Title,
-      commentsData:item.CommentsLog !== null ? JSON.parse(item.CommentsLog):[]
-    //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string" 
-    // ?  []
-    // : JSON.parse(item.CommentsLog),
+      commentsData:
+        item.CommentsLog !== null ? JSON.parse(item.CommentsLog) : [],
+      //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
+      // ?  []
+      // : JSON.parse(item.CommentsLog),
 
       //don't use this commentsData:item.CommentsLog !== typeof null||'null' ? JSON.parse(item.CommentsLog):[],
     });
@@ -733,12 +733,10 @@ export default class ViewForm extends React.Component<
     return JSON.stringify([...this.state.auditTrail, ...auditLog]);
   };
 
-
   private async updateSupportingDocumentFolderItems(
     libraryName: any[],
     folderPath: string
   ) {
-   
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
         return await file.arrayBuffer();
@@ -800,7 +798,7 @@ export default class ViewForm extends React.Component<
 
         if (each.approverEmail === this._currentUserEmail) {
           console.log("ednter");
-        
+
           return { ...each, status: statusFromEvent };
         }
         // if (each.approverOrder===currentApproverOrder+1){
@@ -820,17 +818,15 @@ export default class ViewForm extends React.Component<
     );
     console.log(modifyApproveDetails);
 
-    const _getCurrentApproverDetails = ():any=>{
-      const currentApproverdata = modifyApproveDetails.filter((each:any)=>{
-        if (each.status === 'pending'){
-            return each
+    const _getCurrentApproverDetails = (): any => {
+      const currentApproverdata = modifyApproveDetails.filter((each: any) => {
+        if (each.status === "pending") {
+          return each;
         }
-        
-
-      })
-      console.log(currentApproverdata)
-      return currentApproverdata[0]
-    }
+      });
+      console.log(currentApproverdata);
+      return currentApproverdata[0];
+    };
 
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
@@ -843,8 +839,7 @@ export default class ViewForm extends React.Component<
         statusNumber: "1500",
         AuditTrail: updateAuditTrial,
         CommentsLog: JSON.stringify(this.state.commentsData),
-        currentApprover:JSON.stringify([_getCurrentApproverDetails()])
-        
+        currentApprover: JSON.stringify([_getCurrentApproverDetails()]),
       });
 
     console.log(itemToUpdate);
@@ -1044,77 +1039,94 @@ export default class ViewForm extends React.Component<
   // }
 
   private handleChangeApprover = async (
-   
     statusFromEvent: string,
     statusNumber: string,
-    data:any
+    data: any
   ) => {
     // console.log(data)
     // this.setState({currentApprover:data})
-    const updateCurrentApprover = ():any=>{
-      const upatedCurrentApprover = this.state.ApproverDetails.filter((each:any)=>{
-        console.log(each)
-        console.log(this.state.currentApprover)
-        // console.log(each.id)
-        // console.log(each.id ===this.state.currentApprover.id)
-        // console.log(each.approverOrder)
-        // console.log(this._getApproverOrder(this.state.ApproverDetails))
-        // console.log(this._getApproverOrder(this.state.ApproverDetails)[0])
-        console.log(each.status)
-        console.log(each.status ==='pending')
+    const updateCurrentApprover = (): any => {
+      const upatedCurrentApprover = this.state.ApproverDetails.filter(
+        (each: any) => {
+          console.log(each);
+          console.log(this.state.currentApprover);
+          // console.log(each.id)
+          // console.log(each.id ===this.state.currentApprover.id)
+          // console.log(each.approverOrder)
+          // console.log(this._getApproverOrder(this.state.ApproverDetails))
+          // console.log(this._getApproverOrder(this.state.ApproverDetails)[0])
+          console.log(each.status);
+          console.log(each.status === "pending");
 
-
-        // console.log(each.approverOrder ===this._getApproverOrder(this.state.ApproverDetails)[0])
-        if (each.status ==='pending'){
-          return {...this.state.currentApprover,status:'pending'}
-
+          // console.log(each.approverOrder ===this._getApproverOrder(this.state.ApproverDetails)[0])
+          if (each.status === "pending") {
+            return { ...this.state.currentApprover, status: "pending" };
+          }
         }
-      })
-      console.log(upatedCurrentApprover)
-      console.log([{...this.state.currentApprover,status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,approverEmailName:upatedCurrentApprover[0].email}])
-      return [{...this.state.currentApprover[0],status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,approverEmailName:upatedCurrentApprover[0].email}]
-      
-    }
-    const modifyApproverDetails =this.state.ApproverDetails.map(
-      (each:any)=>{
-        console.log(each)
-        if (each.status === 'pending'){
-          return {...updateCurrentApprover()[0]}
-        }
-        else{
-          return each 
+      );
+      console.log(upatedCurrentApprover);
+      console.log([
+        {
+          ...this.state.currentApprover,
+          status: "pending",
+          approverOrder: upatedCurrentApprover[0].approverOrder,
+          approverStatus: upatedCurrentApprover[0].approverStatus,
+          approverType: upatedCurrentApprover[0].approverType,
+          approverEmailName: upatedCurrentApprover[0].email,
+        },
+      ]);
+      return [
+        {
+          ...this.state.currentApprover[0],
+          status: "pending",
+          approverOrder: upatedCurrentApprover[0].approverOrder,
+          approverStatus: upatedCurrentApprover[0].approverStatus,
+          approverType: upatedCurrentApprover[0].approverType,
+          approverEmailName: upatedCurrentApprover[0].email,
+        },
+      ];
+    };
+    const modifyApproverDetails = this.state.ApproverDetails.map(
+      (each: any) => {
+        console.log(each);
+        if (each.status === "pending") {
+          return { ...updateCurrentApprover()[0] };
+        } else {
+          return each;
         }
       }
-    )
-    console.log(modifyApproverDetails)
+    );
+    console.log(modifyApproverDetails);
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
-        currentApprover:JSON.stringify(updateCurrentApprover()),
+        currentApprover: JSON.stringify(updateCurrentApprover()),
         AuditTrail: updateAuditTrial,
         ApproverDetails: JSON.stringify(modifyApproverDetails),
       });
 
     console.log(itemToUpdate);
     this._closeDialog();
-    
   };
 
-  private _checkApproveredStatusIsFound= ():any =>{
-    const checkApproverdStatusisAvailableInApproverDetails = this.state.ApproverDetails.reduce(
-      (accu:any,each:any)=>{
-        console.log(each)
-        console.log(each.status)
-        return accu.concat(each.status)
-      },[]
-    )
-    console.log(checkApproverdStatusisAvailableInApproverDetails)
-    console.log(checkApproverdStatusisAvailableInApproverDetails.includes("Approved"))
-    return checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
-  }
+  private _checkApproveredStatusIsFound = (): any => {
+    const checkApproverdStatusisAvailableInApproverDetails =
+      this.state.ApproverDetails.reduce((accu: any, each: any) => {
+        console.log(each);
+        console.log(each.status);
+        return accu.concat(each.status);
+      }, []);
+    console.log(checkApproverdStatusisAvailableInApproverDetails);
+    console.log(
+      checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
+    );
+    return checkApproverdStatusisAvailableInApproverDetails.includes(
+      "Approved"
+    );
+  };
 
   private _getApproverAndReviewerStageButton = (): any => {
     return (
@@ -1185,7 +1197,7 @@ export default class ViewForm extends React.Component<
               "Refer",
               "Refered",
               "5000",
-              ["Add Referee","Comments"],
+              ["Add Referee", "Comments"],
               this.handleRefer,
               this._closeDialog
             );
@@ -1271,17 +1283,15 @@ export default class ViewForm extends React.Component<
     type: string = "",
     id: string = ""
   ) => {
-    console.log(commentsData)
+    console.log(commentsData);
     if (type === "add") {
-      this.setState((prev) =>{
-        console.log(commentsData)
-        console.log(prev.commentsData)
-       return ({
-
+      this.setState((prev) => {
+        console.log(commentsData);
+        console.log(prev.commentsData);
+        return {
           commentsData: [...prev.commentsData, commentsData],
-        })
-
-      } );
+        };
+      });
     } else {
       const filterIdforUpdateState = this.state.commentsData.filter(
         (each: any) => each.id === id
@@ -1324,15 +1334,13 @@ export default class ViewForm extends React.Component<
       //     ...filesArray,
       //   ],
       // }));
-      console.log(files)
-      if (files.length>0){
+      console.log(files);
+      if (files.length > 0) {
         this.setState({
           supportingFilesInViewForm: [...filesArray],
           supportingDocumentfiles: [...filesArray],
         });
-
       }
-      
     }
   };
 
@@ -1373,8 +1381,14 @@ export default class ViewForm extends React.Component<
           />
         ) : (
           <Stack tokens={{ childrenGap: 10 }} className={styles.viewForm}>
-            
-            <div className={`${styles.generalSectionMainContainer}`} style={{justifyContent:'space-between',paddingLeft:'5px',paddingRight:'5px'}}>
+            <div
+              className={`${styles.generalSectionMainContainer}`}
+              style={{
+                justifyContent: "space-between",
+                paddingLeft: "5px",
+                paddingRight: "5px",
+              }}
+            >
               {/* {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
                 pending:{this._getPendingStatus()}
               </h1>} */}
@@ -1398,7 +1412,6 @@ export default class ViewForm extends React.Component<
               <h1 style={{ alignSelf: "right", fontSize: "16px" }}>
                 Status:{this.state.status}
               </h1>
-             
             </div>
             {/* <PnPPeoplePicker context={this.props.context} spProp={this.props.sp}/> */}
             {/* <PnPPeoplePicker2  context={this.props.context}/> */}
@@ -1440,7 +1453,11 @@ export default class ViewForm extends React.Component<
                   </div>
                   {expandSections.generalSection && (
                     <div className={`${styles.expansionPanelInside}`}>
-                      {this._renderTable(this.state.eCommitteData[0].tableData)}
+                      <div style={{ padding: "15px" }}>
+                        {this._renderTable(
+                          this.state.eCommitteData[0].tableData
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1466,15 +1483,17 @@ export default class ViewForm extends React.Component<
                   </div>
                   {expandSections.reviewersSection && (
                     <div
-                    className={`${styles.expansionPanelInside}`}
-                    //   style={{ overflowX: "scroll" }}
+                      className={`${styles.expansionPanelInside}`}
+                      //   style={{ overflowX: "scroll" }}
                     >
-                      <ApproverAndReviewerTableInViewForm
-                        data={this.state.peoplePickerData}
-                        reOrderData={this.reOrderData}
-                        removeDataFromGrid={this.removeDataFromGrid}
-                        type="Reviewer"
-                      />
+                      <div style={{ padding: "15px" }}>
+                        <ApproverAndReviewerTableInViewForm
+                          data={this.state.peoplePickerData}
+                          reOrderData={this.reOrderData}
+                          removeDataFromGrid={this.removeDataFromGrid}
+                          type="Reviewer"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1500,15 +1519,17 @@ export default class ViewForm extends React.Component<
                   </div>
                   {expandSections.approversSection && (
                     <div
-                    className={`${styles.expansionPanelInside}`}
-                    //   style={{ overflowX: "scroll" }}
+                      className={`${styles.expansionPanelInside}`}
+                      //   style={{ overflowX: "scroll" }}
                     >
-                      <ApproverAndReviewerTableInViewForm
-                        data={this.state.peoplePickerApproverData}
-                        reOrderData={this.reOrderData}
-                        removeDataFromGrid={this.removeDataFromGrid}
-                        type="Approver"
-                      />
+                      <div style={{ padding: "15px" }}>
+                        <ApproverAndReviewerTableInViewForm
+                          data={this.state.peoplePickerApproverData}
+                          reOrderData={this.reOrderData}
+                          removeDataFromGrid={this.removeDataFromGrid}
+                          type="Approver"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1535,19 +1556,22 @@ export default class ViewForm extends React.Component<
                         className={styles.chevronIcon}
                       />
                     </div>
+
                     {expandSections.generalComments && (
                       <div
-                      className={`${styles.expansionPanelInside}`}
-                      //   style={{ overflowX: "scroll" }}
+                        className={`${styles.expansionPanelInside}`}
+                        //   style={{ overflowX: "scroll" }}
                       >
-                        <GeneralCommentsFluentUIGrid
-                          handleCommentDataFuntion={this._getCommentData}
-                          data={this.state.commentsData}
-                          currentUserDetails={
-                            this.props.context.pageContext.user
-                          }
-                          type="generalComments"
-                        />
+                        <div style={{ padding: "15px" }}>
+                          <GeneralCommentsFluentUIGrid
+                            handleCommentDataFuntion={this._getCommentData}
+                            data={this.state.commentsData}
+                            currentUserDetails={
+                              this.props.context.pageContext.user
+                            }
+                            type="generalComments"
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1575,8 +1599,9 @@ export default class ViewForm extends React.Component<
                       />
                     </div>
                     {expandSections.atrAssignees && (
-                      <div className={`${styles.expansionPanelInside}`}
-                      //   style={{ overflowX: "scroll" }}
+                      <div
+                        className={`${styles.expansionPanelInside}`}
+                        //   style={{ overflowX: "scroll" }}
                       >
                         {" "}
                       </div>
@@ -1606,13 +1631,16 @@ export default class ViewForm extends React.Component<
                     />
                   </div>
                   {expandSections.commentsLog && (
-                    <div className={`${styles.expansionPanelInside}`}
-                    //   style={{ overflowX: "scroll" }}
+                    <div
+                      className={`${styles.expansionPanelInside}`}
+                      //   style={{ overflowX: "scroll" }}
                     >
-                      <CommentsLogTable
-                        data={this.state.commentsData} //have change data valu
-                        type="commentsLog"
-                      />
+                      <div style={{ padding: "15px" }}>
+                        <CommentsLogTable
+                          data={this.state.commentsData} //have change data valu
+                          type="commentsLog"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1641,18 +1669,23 @@ export default class ViewForm extends React.Component<
                       />
                     </div>
                     {expandSections.attachSupportingDocuments && (
-                      <div className={`${styles.expansionPanelInside}`} style={{ width: "100%", margin: "0px" }}>
-                        <UploadFileComponent
-                          typeOfDoc="supportingDocument"
-                          onChange={this.handleSupportingFileChangeInViewForm}
-                          accept=".xlsx,.pdf,.doc,.docx"
-                          multiple={true}
-                          maxFileSizeMB={25}
-                          maxTotalSizeMB={25}
-                          data={this.state.supportingFilesInViewForm}
+                      <div
+                        className={`${styles.expansionPanelInside}`}
+                        style={{ width: "100%", margin: "0px" }}
+                      >
+                        <div style={{ padding: "15px" }}>
+                          <UploadFileComponent
+                            typeOfDoc="supportingDocument"
+                            onChange={this.handleSupportingFileChangeInViewForm}
+                            accept=".xlsx,.pdf,.doc,.docx"
+                            multiple={true}
+                            maxFileSizeMB={25}
+                            maxTotalSizeMB={25}
+                            data={this.state.supportingFilesInViewForm}
 
-                          // value={this.state.supportingDocumentfiles}
-                        />
+                            // value={this.state.supportingDocumentfiles}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1678,18 +1711,21 @@ export default class ViewForm extends React.Component<
                     />
                   </div>
                   {expandSections.workflowLog && (
-                    <div className={`${styles.expansionPanelInside}`}
-                    //   style={{ overflowX: "scroll" }}
+                    <div
+                      className={`${styles.expansionPanelInside}`}
+                      //   style={{ overflowX: "scroll" }}
                     >
-                      <WorkFlowLogsTable
-                        data={this.state.auditTrail}
-                        type="Approver"
-                      />
+                      <div style={{ padding: "15px" }}>
+                        <WorkFlowLogsTable
+                          data={this.state.auditTrail}
+                          type="Approver"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
                 {/* File Attachments*/}
-                <div className={styles.sectionContainer}>
+                <div className={styles.sectionContainer} >
                   <div
                     className={styles.header}
                     onClick={() => this._onToggleSection(`fileAttachments`)}
@@ -1708,37 +1744,44 @@ export default class ViewForm extends React.Component<
                   </div>
                   {expandSections.fileAttachments && (
                     <div
-                    //   style={{ overflowX: "scroll" }}
+                      className={`${styles.expansionPanelInside}`}
+                      
+                      //   style={{ overflowX: "scroll" }}
                     >
                       {/* Note Files */}
-                      <h4>
-                        Main Note Link:
-                        <a href={this.state.noteTofiles[0].fileUrl} download>
-                          {" "}
-                          {this.state.noteTofiles[0].name}
-                        </a>
-                      </h4>
-                      {/* Word Documents */}
-                      {this.state.wordDocumentfiles.length > 0 && (
+                      <div style={{ padding: "15px" }}>
                         <h4>
-                          Word Documents :
-                          <a href={this.state.wordDocumentfiles[0].fileUrl} download>
+                          Main Note Link:
+                          <a href={this.state.noteTofiles[0].fileUrl} download>
                             {" "}
-                            {this.state.wordDocumentfiles[0].name}
+                            {this.state.noteTofiles[0].name}
                           </a>
                         </h4>
-                      )}
+                        {/* Word Documents */}
+                        {this.state.wordDocumentfiles.length > 0 && (
+                          <h4 style={{minWidth:'150px'}}>
+                            Word Documents :
+                            <a
+                              href={this.state.wordDocumentfiles[0].fileUrl}
+                              download
+                            >
+                              {" "}
+                              {this.state.wordDocumentfiles[0].name}
+                            </a>
+                          </h4>
+                        )}
 
-                      {/* Support Documents */}
-                      <h4>Support Documents :</h4>
-                      <FileAttatchmentTable
-                        data={this.state.supportingDocumentfiles}
-                      />
+                        {/* Support Documents */}
+                        <h4>Support Documents :</h4>
+                        <FileAttatchmentTable
+                          data={this.state.supportingDocumentfiles}
+                        />
 
-                      {/* <h4>Word Documents :</h4>
+                        {/* <h4>Word Documents :</h4>
                       <FileAttatchmentTable
                         data={this.state.wordDocumentfiles}
                       /> */}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1757,38 +1800,41 @@ export default class ViewForm extends React.Component<
               style={{ alignSelf: "center", margin: "10px 0px", gap: "10px" }}
             >
               {this._currentUserEmail === this.state.createdByEmail ? (
-                 this._checkApproveredStatusIsFound()?<PrimaryButton
-                 onClick={(e) => {
-                  console.log("Change Approver btn Triggered")
-                  this._hanldeFluentDialog(
-                    "Change Approver",
-                    "changeApprover",
-                    "7500",
-                    "Change Approver*",
-                    this.handleChangeApprover,
-                    this._closeDialog
-                  );
-                  //  this.handleChangeApprover( "ChangedApprover", "7500");
-                   this.setState({
-                     status: "changedApprover",
-                     statusNumber: "7500",
-                   });
-                 }}
-               >
-                 Change Approver
-               </PrimaryButton>:
-                <PrimaryButton
-                  onClick={(e) => {
-                    console.log("Call Back btn Triggered")
-                    this.handleCallBack(e, "Call Back", "7000");
-                    this.setState({
-                      status: "Call Back",
-                      statusNumber: "7000",
-                    });
-                  }}
-                >
-                  Call Back
-                </PrimaryButton>
+                this._checkApproveredStatusIsFound() ? (
+                  <PrimaryButton
+                    onClick={(e) => {
+                      console.log("Change Approver btn Triggered");
+                      this._hanldeFluentDialog(
+                        "Change Approver",
+                        "changeApprover",
+                        "7500",
+                        "Change Approver*",
+                        this.handleChangeApprover,
+                        this._closeDialog
+                      );
+                      //  this.handleChangeApprover( "ChangedApprover", "7500");
+                      this.setState({
+                        status: "changedApprover",
+                        statusNumber: "7500",
+                      });
+                    }}
+                  >
+                    Change Approver
+                  </PrimaryButton>
+                ) : (
+                  <PrimaryButton
+                    onClick={(e) => {
+                      console.log("Call Back btn Triggered");
+                      this.handleCallBack(e, "Call Back", "7000");
+                      this.setState({
+                        status: "Call Back",
+                        statusNumber: "7000",
+                      });
+                    }}
+                  >
+                    Call Back
+                  </PrimaryButton>
+                )
               ) : (
                 !this._checkCurrentUserIsApprovedTheCurrentRequest() &&
                 this._getApproverAndReviewerStageButton()
@@ -1811,9 +1857,10 @@ export default class ViewForm extends React.Component<
           dialogDetails={this.state.dialogDetails}
           sp={this.props.sp}
           context={this.props.context}
-          fetchAnydata={(data:any)=>{
-            console.log(data)
-            this.setState({currentApprover:data})
+          fetchAnydata={(data: any,typeOfBtnTriggered:any) => {
+            console.log(data);
+            console.log(typeOfBtnTriggered)
+            this.setState({ currentApprover: data });
           }}
         />
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}

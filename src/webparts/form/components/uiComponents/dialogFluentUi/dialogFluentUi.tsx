@@ -55,6 +55,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
       dialogDetails.status,
       dialogDetails.statusNumber
     );
+    
   };
 
 
@@ -89,7 +90,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   const _getDetails = (data:any,typeOFButtonTriggererd:any):any=>{
     console.log("Referrer function is Triggered")
     console.log(data,typeOFButtonTriggererd)
-    fetchAnydata(data)
+    fetchAnydata(data,typeOFButtonTriggererd)
     
   }
 
@@ -102,6 +103,16 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
       
     );
   };
+
+  const handleReferData = () => {
+    console.log("Confirm btn triggered");
+    dialogDetails.functionType(
+      dialogDetails.status,
+      dialogDetails.statusNumber,
+      
+    );
+  };
+
 
 
   const getChangeApproverJsx = (): any => {
@@ -153,7 +164,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
           </div>
           
           <DialogFooter>
-            <PrimaryButton onClick={handleConfirmBtn} text="Submit" />
+            <PrimaryButton onClick={handleReferData} text="Submit" />
             <DefaultButton
               onClick={dialogDetails.closeFunction}
               text="Cancel"
