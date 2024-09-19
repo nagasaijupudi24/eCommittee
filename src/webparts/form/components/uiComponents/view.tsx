@@ -304,14 +304,17 @@ export default class ViewForm extends React.Component<
       }
     });
     console.log(approverfilterData);
-    const approverData = approverfilterData.map((each: any) => ({
-      text: each.approverEmailName,
-      srNo: each.approverEmailName.split("@")[0],
-      optionalText: each.designation,
-      id: each.id,
-      approverType: 1,
-      ...each,
-    }));
+    const approverData = approverfilterData.map((each: any) =>{
+      console.log(each)
+      return {
+        text: each.approverEmailName,
+        srNo: each.approverEmailName.split("@")[0],
+        optionalText: each.designation,
+        id: each.id,
+        approverType: 1,
+        ...each,
+      }
+    } );
     console.log(approverData);
     // this.setState(()=>{
     //   console.log("State updated")
@@ -1068,10 +1071,22 @@ export default class ViewForm extends React.Component<
         }
       })
       console.log(upatedCurrentApprover)
-      console.log([{...this.state.currentApprover,status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,}])
-      return [{...this.state.currentApprover[0],status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,}]
+      console.log([{...this.state.currentApprover,status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,approverEmailName:upatedCurrentApprover[0].email}])
+      return [{...this.state.currentApprover[0],status:'pending',approverOrder:upatedCurrentApprover[0].approverOrder,approverStatus:upatedCurrentApprover[0].approverStatus,approverType:upatedCurrentApprover[0].approverType,approverEmailName:upatedCurrentApprover[0].email}]
       
     }
+    const modifyApproverDetails =this.state.ApproverDetails.map(
+      (each:any)=>{
+        console.log(each)
+        if (each.status === 'pending'){
+          return {...updateCurrentApprover()[0]}
+        }
+        else{
+          return each 
+        }
+      }
+    )
+    console.log(modifyApproverDetails)
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
@@ -1080,6 +1095,7 @@ export default class ViewForm extends React.Component<
       .update({
         currentApprover:JSON.stringify(updateCurrentApprover()),
         AuditTrail: updateAuditTrial,
+        ApproverDetails: JSON.stringify(modifyApproverDetails),
       });
 
     console.log(itemToUpdate);
