@@ -120,6 +120,7 @@ interface IMainFormState {
   typeOfFinancialNote: string[];
   noteType: string[];
   purpose: any;
+  othersFieldValue:any;
   isPuroposeVisable: boolean;
   isAmountVisable: boolean;
   isTypeOfFinacialNote: boolean;
@@ -260,6 +261,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       typeOfFinancialNote: [],
       noteType: [],
       purpose: [],
+      othersFieldValue:'',
       isPuroposeVisable: false,
       isAmountVisable: false,
       isTypeOfFinacialNote: false,
@@ -1177,6 +1179,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         isPuroposeVisable: false,
       });
     }
+    this.setState({puroposeFeildValue:''})
   };
 
   private handleNatureOfNoteRed = (event: any): void => {
@@ -1344,6 +1347,24 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(value);
     this.setState({
       puroposeFeildValue: value,
+    });
+  };
+
+  private handleOthers = (event: TextBoxChangeEvent) => {
+    // const value = event.target.value ?? ''; // Handle undefined values
+    // console.log(value);
+    // this.setState({ subjectFeildValue: value });
+    const value: string | number | readonly string[] = event.target.value ?? "";
+    console.log(value, "-----------handle Purpose");
+    this.setState({ othersFieldValue:value });
+  };
+
+  private handleOthersRed = (event: any): void => {
+    const value = event.value;
+    console.log(value);
+    this.setState({
+      
+      othersFieldValue:value
     });
   };
 
@@ -1608,7 +1629,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       TypeOfFinancialNote: this.state.typeOfFinancialNoteFeildValue,
       Amount: this.state.amountFeildValue,
       Search_x0020_Keyword: this.state.searchTextFeildValue,
-      Purpose: this.state.puroposeFeildValue,
+      Purpose:this.state.puroposeFeildValue==='Others'? this.state.othersFieldValue:this.state.puroposeFeildValue,
       ApproverDetails: this._getApproverDetails(
         this.state.peoplePickerData,
         this.state.peoplePickerApproverData,
@@ -3188,6 +3209,45 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   )}
                 </div>
               )}
+              {(this.state.natureOfNoteFeildValue === 'Approval' &&this.state.puroposeFeildValue === 'Others')?
+               (<div
+                  className={styles.halfWidth}
+                  style={{ margin: "4px", marginTop: "18px" }}
+                >
+                  <label style={{ fontWeight: "600" }}>
+                    others
+                    <SpanComponent />
+                  </label>
+                  {this.state.isWarningPurposeField ? (
+                    this.state.othersFieldValue !== "" ? (
+                      <TextBox
+                        onChange={this.handleOthers}
+                       
+                        style={{
+                          borderRadius: "8px",
+                        }}
+                        value={this.state.othersFieldValue}
+                      />
+                    ) : (
+                      <TextBox
+                        onChange={this.handleOthersRed}
+                        style={{
+                          border: "1px solid red",
+                          borderRadius: "8px",
+                        }}
+                        value={this.state.othersFieldValue}
+                      />
+                    )
+                  ) : (
+                    <TextBox
+                      onChange={this.handleOthers}
+                      style={{
+                        borderRadius: "8px",
+                      }}
+                      value={this.state.othersFieldValue}
+                    />
+                  )}
+                </div>):''}
 
               {/* </div> */}
             </div>
