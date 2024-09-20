@@ -1067,12 +1067,12 @@ export default class ViewForm extends React.Component<
       console.log(upatedCurrentApprover);
       console.log([
         {
-          ...this.state.currentApprover,
+          ...this.state.currentApprover[0],
           status: "pending",
           approverOrder: upatedCurrentApprover[0].approverOrder,
           approverStatus: upatedCurrentApprover[0].approverStatus,
           approverType: upatedCurrentApprover[0].approverType,
-          approverEmailName: upatedCurrentApprover[0].email,
+          approverEmailName: this.state.currentApprover[0].email,
         },
       ]);
       return [
@@ -1228,6 +1228,7 @@ export default class ViewForm extends React.Component<
   };
 
   private _getPendingStatus = (): any => {
+    console.log(this.state.ApproverDetails)
     const currentStatusOfApproverDetails = this.state.ApproverDetails.filter(
       (each: any) => {
         console.log(each);
@@ -1242,11 +1243,11 @@ export default class ViewForm extends React.Component<
 
     if (currentStatusOfApproverDetails.length > 0) {
       console.log(
-        currentStatusOfApproverDetails[0].approverEmailName,
+        currentStatusOfApproverDetails[0].approverEmailName.split("@")[0],
         "currentStatusOfApproverDetails"
       );
 
-      return currentStatusOfApproverDetails[0].approverEmailName;
+      return currentStatusOfApproverDetails[0].approverEmailName.split("@")[0];
     }
     return "";
   };
