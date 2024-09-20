@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable react/self-closing-comp */
 import * as React from 'react';
 import { useEffect } from 'react';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/PeoplePicker.tsx
 import * as React from 'react';
 import { MultiSelect } from '@progress/kendo-react-dropdowns';

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { MultiColumnComboBox } from '@progress/kendo-react-dropdowns';
 import { Button } from '@progress/kendo-react-buttons';

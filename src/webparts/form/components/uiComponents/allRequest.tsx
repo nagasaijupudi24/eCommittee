@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DetailsList } from '@fluentui/react';
 import * as React from 'react';
 // import { IFormProps } from '../IFormProps';

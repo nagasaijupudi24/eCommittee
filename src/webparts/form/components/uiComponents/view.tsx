@@ -500,7 +500,7 @@ export default class ViewForm extends React.Component<
 
     if (checkItem) {
       console.log(checkItem);
-      console.log(checkItem["approverEmail"]);
+      console.log(checkItem.approverEmail);
       console.log(this._currentUserEmail);
       // Return or perform actions based on checkItem
       return checkItem.approverEmail === this._currentUserEmail;
@@ -1229,7 +1229,7 @@ export default class ViewForm extends React.Component<
   };
 
   private _getPendingStatus = (): any => {
-    console.log(this.state.ApproverDetails)
+    console.log(this.state.ApproverDetails);
     const currentStatusOfApproverDetails = this.state.ApproverDetails.filter(
       (each: any) => {
         console.log(each);
@@ -1727,7 +1727,7 @@ export default class ViewForm extends React.Component<
                   )}
                 </div>
                 {/* File Attachments*/}
-                <div className={styles.sectionContainer} >
+                <div className={styles.sectionContainer}>
                   <div
                     className={styles.header}
                     onClick={() => this._onToggleSection(`fileAttachments`)}
@@ -1747,7 +1747,7 @@ export default class ViewForm extends React.Component<
                   {expandSections.fileAttachments && (
                     <div
                       className={`${styles.expansionPanelInside}`}
-                      
+
                       //   style={{ overflowX: "scroll" }}
                     >
                       {/* Note Files */}
@@ -1761,7 +1761,7 @@ export default class ViewForm extends React.Component<
                         </h4>
                         {/* Word Documents */}
                         {this.state.wordDocumentfiles.length > 0 && (
-                          <h4 style={{minWidth:'150px'}}>
+                          <h4 style={{ minWidth: "150px" }}>
                             Word Documents :
                             <a
                               href={this.state.wordDocumentfiles[0].fileUrl}
@@ -1859,9 +1859,9 @@ export default class ViewForm extends React.Component<
           dialogDetails={this.state.dialogDetails}
           sp={this.props.sp}
           context={this.props.context}
-          fetchAnydata={(data: any,typeOfBtnTriggered:any) => {
+          fetchAnydata={(data: any, typeOfBtnTriggered: any) => {
             console.log(data);
-            console.log(typeOfBtnTriggered)
+            console.log(typeOfBtnTriggered);
             this.setState({ currentApprover: data });
           }}
         />

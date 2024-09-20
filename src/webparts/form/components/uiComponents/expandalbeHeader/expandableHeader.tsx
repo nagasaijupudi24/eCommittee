@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React, { useState } from 'react';
 import { IconButton, Stack, Text, IStackTokens, DetailsList, DetailsListLayoutMode, IColumn, IDetailsListStyles } from '@fluentui/react';
 

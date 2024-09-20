@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from 'react';
 import { createListItems, IExampleItem } from '@fluentui/example-data';
 import { Link } from '@fluentui/react/lib/Link';
