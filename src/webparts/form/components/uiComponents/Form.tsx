@@ -983,8 +983,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
-  public reOrderData = (reOrderData: any[]): void => {
-    this.setState({ peoplePickerData: reOrderData });
+  public reOrderData = (reOrderData: any[],type:string): void => {
+    console.log(reOrderData)
+    if (type==="Reviewer"){
+      this.setState({ peoplePickerData: reOrderData });
+
+    }else{
+      this.setState({ peoplePickerApproverData: reOrderData });
+    }
+    
   };
 
   public removeDataFromGrid = (dataItem: any, typeOfTable: string): void => {

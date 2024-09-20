@@ -346,7 +346,7 @@ export default class ViewForm extends React.Component<
     console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
-      srNo: each.approverEmailName.split("@")[0],
+      // srNo: each.approverEmailName.split("@")[0],
       optionalText: each.designation,
       id: each.id,
       approverType: 2,
@@ -1244,11 +1244,11 @@ export default class ViewForm extends React.Component<
 
     if (currentStatusOfApproverDetails.length > 0) {
       console.log(
-        currentStatusOfApproverDetails[0].approverEmailName.split("@")[0],
+        currentStatusOfApproverDetails[0].approverEmailName,
         "currentStatusOfApproverDetails"
       );
 
-      return currentStatusOfApproverDetails[0].approverEmailName.split("@")[0];
+      return currentStatusOfApproverDetails[0].approverEmailName;
     }
     return "";
   };

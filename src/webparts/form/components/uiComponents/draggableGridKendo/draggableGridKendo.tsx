@@ -63,8 +63,8 @@ const DraggableTable = (props:any) => {
         // Move the active item to the new position
         reorderedData.splice(prevIndex, 1); // Remove from the old position
         reorderedData.splice(nextIndex, 0, activeItem); // Insert at the new position
-
-        reOrderData(reorderedData)
+        console.log(reOrderData)
+        reOrderData(reorderedData,type)
         // setGridData(reorderedData); // Update the grid data state
         setActiveItem(null); // Clear the active item after drop
     };

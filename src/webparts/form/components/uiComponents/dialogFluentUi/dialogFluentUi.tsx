@@ -98,7 +98,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
 
 
   const handleChangeApporver = () => {
-    console.log("Confirm btn triggered");
+    console.log("change approver btn triggered");
     dialogDetails.functionType(
       dialogDetails.status,
       dialogDetails.statusNumber,
@@ -107,7 +107,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   };
 
   const handleReferData = () => {
-    console.log("Confirm btn triggered");
+    console.log("Refer btn triggered");
     dialogDetails.functionType(
       dialogDetails.status,
       dialogDetails.statusNumber,
