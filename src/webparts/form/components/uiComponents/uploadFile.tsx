@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @rushstack/no-new-null */
+/* eslint-disable prefer-const */
 import React, { useEffect,useRef, useState } from "react";
 import { IconButton, Icon } from "@fluentui/react";
 import styles from "../Form.module.scss";

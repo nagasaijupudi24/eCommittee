@@ -132,7 +132,7 @@ interface IMainFormState {
   natureOfApprovalOrSanctionFeildValue: string;
   typeOfFinancialNoteFeildValue: string;
   searchTextFeildValue: string | number | readonly string[];
-  amountFeildValue:any;
+  amountFeildValue: any;
   puroposeFeildValue: string | number | readonly string[];
   // eslint-disable-next-line @rushstack/no-new-null
   notePdfFile: File | null;
@@ -151,7 +151,7 @@ interface IMainFormState {
   isWarningAmountField: boolean;
   isWarningPurposeField: boolean;
   eCommitteData: any;
-  
+
   noteTofiles: any[];
   isWarningNoteToFiles: boolean;
 
@@ -173,11 +173,11 @@ interface IMainFormState {
   status: string;
   statusNumber: any;
   filesClear: any;
-  auditTrail:any;
-  currentApprover:any;
-  pastApprover:any;
-  referredFromDetails:any,
-  refferredToDetails:any
+  auditTrail: any;
+  currentApprover: any;
+  pastApprover: any;
+  referredFromDetails: any;
+  refferredToDetails: any;
 }
 
 // let fetchedData:any[];
@@ -209,7 +209,6 @@ const getFromType = (): any => {
   // console.log(Id);
   return formType;
 };
-
 
 // export const PeoplePickerData = (placeholder:any,onChangeFunc:any):any=>{
 //   return (
@@ -304,11 +303,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       status: "",
       statusNumber: null,
       filesClear: [],
-      auditTrail:[],
-      currentApprover:[],
-      pastApprover:[],
-      referredFromDetails:[],
-      refferredToDetails:[]
+      auditTrail: [],
+      currentApprover: [],
+      pastApprover: [],
+      referredFromDetails: [],
+      refferredToDetails: [],
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -454,7 +453,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       optionalText: each.designation,
       id: each.id,
       approverType: 1,
-      ...each
+      ...each,
     }));
     console.log(approverData);
     // this.setState(()=>{
@@ -491,7 +490,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       optionalText: each.designation,
       id: each.id,
       approverType: 2,
-      ...each
+      ...each,
     }));
     console.log(approverData);
     // this.setState(()=>{
@@ -638,8 +637,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         item.ApproverDetails,
         "Approver"
       ),
-      status:item.Status,
-      auditTrail:JSON.parse(item.AuditTrail)
+      status: item.Status,
+      auditTrail: JSON.parse(item.AuditTrail),
     });
   };
 
@@ -687,7 +686,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           each.length > 1 &&
           Array.isArray(each[1])
         ) {
-          if (each[0] === "natureOfNote") {
+          if (each[0] === "NatureOfNote") {
             // console.log(each[1]);
             const natureOfNoteArray = each[1].map((item, index) => {
               return item;
@@ -703,7 +702,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // console.log(noteTypeArray);
 
             this.setState({ noteType: noteTypeArray });
-          } else if (each[0] === "NatuerOfApprovalSanction") {
+          } else if (each[0] === "NatureOfApprovalOrSanction") {
             // console.log(each[1]);
             const typeOfNatureOfApprovalSancation = each[1].map(
               (item, index) => {
@@ -714,7 +713,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.setState({
               natureOfApprovalSancation: typeOfNatureOfApprovalSancation,
             });
-          } else if (each[0] === "TypeOfFinancialNote") {
+          } else if (each[0] === "FinancialType") {
             // console.log(each[1]);
             const typeOfFinancialNoteArray = each[1].map((item, index) => {
               return item;
@@ -763,11 +762,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       const items: any[] = await (
         await this.props.sp.web.lists
           .getByTitle("ApprovalConfiguration")
-          .items.select("*", "Approvers/Title", "Approvers/EMail","Secretaries/Title","Secretaries/EMail")
-          .expand("Approvers","Secretaries")()
+          .items.select(
+            "*",
+            "Approvers/Title",
+            "Approvers/EMail",
+            "Secretaries/Title",
+            "Secretaries/EMail"
+          )
+          .expand("Approvers", "Secretaries")()
       )
         .map((each: any) => {
-          console.log(each)
+          console.log(each);
 
           const newObj = {
             ...each,
@@ -778,10 +783,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approversOrder: each.approversOrder,
             Title: each.Title,
             id: each.ApproversId,
-            secretary:each.Secretaries[0].Title,
-
+            secretary: each.Secretaries[0].Title,
           };
-          console.log(newObj)
+          console.log(newObj);
           return newObj;
         })
         .filter((each: any) => each.Title === "Development");
@@ -832,12 +836,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(typeof dataRec?.toString());
 
     if (typeof dataRec[0]?.toString() === "undefined") {
-      const newItemsDataNA = items.map((obj: {
-        [x: string]: any; loginName: any 
-}) => {
-        console.log(obj)
-        return { ...obj, optionalText: "N/A", approverType: 1,email:obj.secondaryText };
-      });
+      const newItemsDataNA = items.map(
+        (obj: { [x: string]: any; loginName: any }) => {
+          console.log(obj);
+          return {
+            ...obj,
+            optionalText: "N/A",
+            approverType: 1,
+            email: obj.secondaryText,
+          };
+        }
+      );
       console.log(newItemsDataNA);
       this.setState({ reviewerInfo: newItemsDataNA });
     } else {
@@ -874,17 +883,22 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(typeof dataRec?.toString());
 
     if (typeof dataRec[0]?.toString() === "undefined") {
-      const newItemsDataNA = items.map((obj: {
-        [x: string]: any; loginName: any 
-}) => {
-        console.log(obj)
-        return { ...obj, optionalText: "N/A", approverType: 2,email:obj.secondaryText  };
-      });
+      const newItemsDataNA = items.map(
+        (obj: { [x: string]: any; loginName: any }) => {
+          console.log(obj);
+          return {
+            ...obj,
+            optionalText: "N/A",
+            approverType: 2,
+            email: obj.secondaryText,
+          };
+        }
+      );
       console.log(newItemsDataNA);
       this.setState({ approverInfo: newItemsDataNA });
     } else {
       const newItemsData = items.map((obj: { loginName: any }) => {
-        console.log(obj)
+        console.log(obj);
         return {
           ...obj,
           optionalText: dataRec[0],
@@ -1135,7 +1149,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const item = event.value; // Kendo UI passes the selected value directly
     console.log(item);
     this.setState({ noteTypeFeildValue: item });
-    // if (item === "Finanical") {
+    // if (item === "Financial") {
     //   console.log(item);
     //   this.setState({
     //     noteTypeFeildValue: item,
@@ -1163,7 +1177,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // private handleNoteType(event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void {
   //   // console.log(item.text);
 
-  //   if (item.text === "Finanical" ){
+  //   if (item.text === "Financial" ){
   //     console.log(item.text);
   //     this.setState({ noteTypeFeildValue: item.text ,isTypeOfFinacialNote:true,isAmountVisable:true});
 
@@ -1181,13 +1195,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       },
     }));
   };
-  private handleTypeOfFinanicalNote = (event: any): void => {
+  private handleTypeOfFinancialNote = (event: any): void => {
     const value = event.value;
     console.log(value);
     this.setState({ typeOfFinancialNoteFeildValue: value });
   };
 
-  private handleTypeOfFinanicalNoteRed = (event: any): void => {
+  private handleTypeOfFinancialNoteRed = (event: any): void => {
     const value = event.value;
     console.log(value);
     this.setState({
@@ -1200,7 +1214,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // const value = event.target.value ?? ''; // Handle undefined values
     // console.log(value);
     // this.setState({ subjectFeildValue: value });
-    const value:any = event.target.value ?? "";
+    const value: any = event.target.value ?? "";
     console.log(value, "----------handleSearchText");
     this.setState({ searchTextFeildValue: value });
   };
@@ -1245,7 +1259,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const value = event.value;
     console.log(value);
     this.setState({
-     
       puroposeFeildValue: value,
     });
   };
@@ -1411,45 +1424,40 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //     });
   //   }
 
-  private _getApproverDetails = (reveiwerData: any, apporverData: any,typeOfParameter:any): any => {
+  private _getApproverDetails = (
+    reveiwerData: any,
+    apporverData: any,
+    typeOfParameter: any
+  ): any => {
     const dataOfReveiwerAndApprover = [...reveiwerData, ...apporverData];
-    console.log(dataOfReveiwerAndApprover)
+    console.log(dataOfReveiwerAndApprover);
     const finalData = dataOfReveiwerAndApprover.map(
       (each: any, index: number) => {
         console.log(each);
         return {
-          
           approverType: each.approverType,
           approverEmail: each.email,
           approverOrder: index + 1,
           approverStatus: 1,
           id: each.id,
-          status:index===0?"pending":"waiting",
-          email:each.secondaryText,
+          status: index === 0 ? "pending" : "waiting",
+          email: each.secondaryText,
           designation: each.optionalText,
           approverEmailName: each.text,
-          srNo:each.srNo,
-          secretary:'IB Test 1',
-          
-          
+          srNo: each.srNo,
+          secretary: "IB Test 1",
         };
       }
     );
-    console.log(finalData)
-
-
+    console.log(finalData);
 
     console.log(JSON.stringify(finalData));
 
-    if (typeOfParameter==='intialOrderApproverDetails'){
+    if (typeOfParameter === "intialOrderApproverDetails") {
       return JSON.stringify([finalData[0]]);
-
-    }else{
+    } else {
       return JSON.stringify(finalData);
-
     }
-
-    
   };
 
   private _getAuditTrail = (status: any): any => {
@@ -1457,7 +1465,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const auditLog = [
       {
         Actioner: this._userName,
-        
+
         ActionTaken: status,
         Role: this._role,
         ActionTakenOn:
@@ -1465,10 +1473,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         Comments: "No Comments",
       },
     ];
-    console.log(this.state.auditTrail)
-  
+    console.log(this.state.auditTrail);
 
-    return JSON.stringify([...this.state.auditTrail,...auditLog]);
+    return JSON.stringify([...this.state.auditTrail, ...auditLog]);
   };
 
   private _getReviewerId = () => {
@@ -1520,17 +1527,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       Purpose: this.state.puroposeFeildValue,
       ApproverDetails: this._getApproverDetails(
         this.state.peoplePickerData,
-        this.state.peoplePickerApproverData,"allDetails"
+        this.state.peoplePickerApproverData,
+        "allDetails"
       ),
       Status: status,
       statusNumber: status === "Submitted" ? statusNumber : "3000",
-      AuditTrail:this.state.status === "Call Back"?this._getAuditTrail("Re-submitted"): this._getAuditTrail(status),
+      AuditTrail:
+        this.state.status === "Call Back"
+          ? this._getAuditTrail("Re-submitted")
+          : this._getAuditTrail(status),
       ReviewerId: this._getReviewerId(),
       ApproverId: this._getApproverId(),
-      currentApprover:this._getApproverDetails(
+      currentApprover: this._getApproverDetails(
         this.state.peoplePickerData,
-        this.state.peoplePickerApproverData
-        ,"intialOrderApproverDetails"
+        this.state.peoplePickerApproverData,
+        "intialOrderApproverDetails"
       ),
     };
     console.log(ecommitteObject);
@@ -1579,14 +1590,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(amountFeildValue, "-----------amountFeildValue");
     console.log(puroposeFeildValue, "-----------puroposeFeildValue");
     console.log(
-      this.state.noteTypeFeildValue === "Finanical" &&
+      this.state.noteTypeFeildValue === "Financial" &&
         (this.state.natureOfNoteFeildValue === "Information" || "Ratification"),
       ",check.........................."
     );
     try {
       // eslint-disable-next-line no-constant-condition
       if (
-        this.state.noteTypeFeildValue === "Finanical" &&
+        this.state.noteTypeFeildValue === "Financial" &&
         (this.state.natureOfNoteFeildValue === "Information" ||
           this.state.natureOfNoteFeildValue === "Ratification")
       ) {
@@ -1611,22 +1622,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           let id;
           let status;
-          if (this.state.status==='Call Back'){
-            status = "Re-Submitted"
+          if (this.state.status === "Call Back") {
+            status = "Re-Submitted";
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(status, "2500"));
-
-          }
-          else{
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(status, "2500"));
+          } else {
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
             console.log(id.Id, "id");
-
           }
-          console.log(id.Id, "id -----",status,"Status");
-         
+          console.log(id.Id, "id -----", status, "Status");
+
           this.state.peoplePickerData.map(async (each: any) => {
             console.log(each);
             // const listItem = await this.props.sp.web.lists
@@ -1667,7 +1675,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             // isWarningS
             isWarningAmountField: false,
-            isWarningPurposeField:false,
+            isWarningPurposeField: false,
             isWarningSearchText: false,
             isWarningNoteToFiles: false,
             isWarningWordDocumentFiles: false,
@@ -1685,7 +1693,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             isWarningNoteType: true,
             isWarningTypeOfFinancialNote: true,
             isWarningAmountField: true,
-            isWarningPurposeField:true,
+            isWarningPurposeField: true,
             isWarningSearchText: true,
             isWarningNoteToFiles: true,
             isWarningWordDocumentFiles: true,
@@ -1702,10 +1710,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               typeOfFinancialNoteFeildValue:
                 this.state.typeOfFinancialNoteFeildValue,
               amountFeildValue: this.state.amountFeildValue,
-              puroposeFeildValue:this.state.puroposeFeildValue,
+              puroposeFeildValue: this.state.puroposeFeildValue,
               searchTextFeildValue: this.state.searchTextFeildValue,
               noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles:this.state.wordDocumentfiles,
+              wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
               peoplePickerData: this.state.peoplePickerData,
             },
@@ -1731,21 +1739,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.setState({ status: "Submitted", statusNumber: "1000" });
           let id;
           let status;
-          if (this.state.status==='Call Back'){
-            status = "Re-Submitted"
+          if (this.state.status === "Call Back") {
+            status = "Re-Submitted";
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(status, "2500"));
-
-          }
-          else{
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(status, "2500"));
+          } else {
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
             console.log(id.Id, "id");
-
           }
-          console.log(id.Id, "id -----",status,"Status");
+          console.log(id.Id, "id -----", status, "Status");
           this.state.peoplePickerData.map(async (each: any) => {
             console.log(each);
             // const listItem = await this.props.sp.web.lists
@@ -1819,7 +1824,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               searchTextFeildValue: this.state.searchTextFeildValue,
 
               noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles:this.state.wordDocumentfiles,
+              wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
               peoplePickerData: this.state.peoplePickerData,
             },
@@ -1828,7 +1833,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       } else if (
         (this.state.natureOfNoteFeildValue === "Sanction" ||
           this.state.natureOfNoteFeildValue === "Approval") &&
-        this.state.noteTypeFeildValue === "Finanical"
+        this.state.noteTypeFeildValue === "Financial"
       ) {
         console.log("else entered", "sanction,approval", "financial");
         if (
@@ -1848,21 +1853,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.setState({ status: "Submitted", statusNumber: "1000" });
           let id;
           let status;
-          if (this.state.status==='Call Back'){
-            status = "Re-Submitted"
+          if (this.state.status === "Call Back") {
+            status = "Re-Submitted";
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(status, "2500"));
-
-          }
-          else{
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(status, "2500"));
+          } else {
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
             console.log(id.Id, "id");
-
           }
-          console.log(id.Id, "id -----",status,"Status");
+          console.log(id.Id, "id -----", status, "Status");
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           await this._generateRequsterNumber(id.Id);
           this.state.peoplePickerData.map(async (each: any) => {
@@ -1944,7 +1946,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               searchTextFeildValue: this.state.searchTextFeildValue,
               puroposeFeildValue: this.state.puroposeFeildValue,
               noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles:this.state.wordDocumentfiles,
+              wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
               peoplePickerData: this.state.peoplePickerData,
             },
@@ -1954,12 +1956,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         console.log("final else");
         this.setState({ status: "Submitted", statusNumber: "1000" });
         // eslint-disable-next-line no-constant-condition
-        if ((this.state.natureOfNoteFeildValue === "Approval" || "Sanction") || this.state.noteTypeFeildValue === "Finanical") {
+        if (
+          this.state.natureOfNoteFeildValue === "Approval" ||
+          "Sanction" ||
+          this.state.noteTypeFeildValue === "Financial"
+        ) {
           this.setState({
             isWarningNatureOfApporvalOrSanction: true,
             isWarningPurposeField: true,
-            isWarningAmountField:true,
-            isWarningTypeOfFinancialNote:true
+            isWarningAmountField: true,
+            isWarningTypeOfFinancialNote: true,
           });
         }
         if (
@@ -1975,21 +1981,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           console.log("else entered");
           let id;
           let status;
-          if (this.state.status==='Call Back'){
-            status = "Re-Submitted"
+          if (this.state.status === "Call Back") {
+            status = "Re-Submitted";
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(status, "2500"));
-
-          }
-          else{
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(status, "2500"));
+          } else {
             id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+              .getByTitle(this.props.listId)
+              .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
             console.log(id.Id, "id");
-
           }
-          console.log(id.Id, "id -----",status,"Status");
+          console.log(id.Id, "id -----", status, "Status");
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           await this._generateRequsterNumber(id.Id);
           this.state.peoplePickerData.map(async (each: any) => {
@@ -2031,7 +2034,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             isWarningSearchText: false,
             isWarningNoteToFiles: false,
             // isWarningSupportingDocumentFiles: false,no warning required
-            isWarningWordDocumentFiles:false,
+            isWarningWordDocumentFiles: false,
             isWarningPeoplePicker: false,
           });
           console.log(
@@ -2052,7 +2055,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             isDialogHidden: false,
             isWarningNoteToFiles: true,
             // isWarningSupportingDocumentFiles: true, no warning required
-            isWarningWordDocumentFiles:true,
+            isWarningWordDocumentFiles: true,
             isWarningPeoplePicker: true,
           });
           this.setState({
@@ -2066,14 +2069,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               searchTextFeildValue: this.state.searchTextFeildValue,
 
               noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles:this.state.wordDocumentfiles,
+              wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
               peoplePickerData: this.state.peoplePickerData,
             },
           });
         }
       }
-      this.setState({status:''})
+      this.setState({ status: "" });
     } catch (error) {
       console.error("Error adding item: ", error);
     }
@@ -2092,7 +2095,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     Purpose: this.state.puroposeFeildValue,
     ApproverDetails: this._getApproverDetails(
       this.state.peoplePickerData,
-      this.state.peoplePickerApproverData,"allDetails"
+      this.state.peoplePickerApproverData,
+      "allDetails"
     ),
     Status: "ReSubmitted",
     statusNumber: "2500",
@@ -2100,10 +2104,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // Reviewer:{result:this._getReviewerId()}
     ReviewerId: this._getReviewerId(),
     ApproverId: this._getApproverId(),
-    currentApprover:this._getApproverDetails(
+    currentApprover: this._getApproverDetails(
       this.state.peoplePickerData,
-      this.state.peoplePickerApproverData
-      ,"intialOrderApproverDetails"
+      this.state.peoplePickerApproverData,
+      "intialOrderApproverDetails"
     ),
   });
 
@@ -2481,7 +2485,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(peoplePickerData)
     const allData = [...peoplePickerData, ...peoplePickerApproverData];
     const booleanCheck = allData?.some((each: any) => {
-      if (each.text === "IB Test1"||"IB Test3") {
+      if (each.text === "IB Test1" || "IB Test3") {
         return true;
       }
     });
@@ -2533,7 +2537,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // </Stack>
           <div className={styles.form}>
             {/* <Header /> */}
-            <Title formType={this._formType} statusOfRequest={this.state.status}/>
+            <Title
+              formType={this._formType}
+              statusOfRequest={this.state.status}
+            />
             {/* {this.state.isDialogHidden&&<MyDialog  />} */}
             <MyDialog
               hidden={this.state.isDialogHidden}
@@ -2785,7 +2792,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 )}
               </div>
-              {this.state.noteTypeFeildValue === "Finanical" && (
+              {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
@@ -2800,7 +2807,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         data={this.state.typeOfFinancialNote} // This should be an array of objects with `text` and `value` properties
                         // textField="text"  // The field from data items to display in the dropdown
                         // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handleTypeOfFinanicalNote}
+                        onChange={this.handleTypeOfFinancialNote}
                         // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
                         style={{
                           border: "1px solid rgb(211, 211, 211)",
@@ -2813,7 +2820,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         data={this.state.typeOfFinancialNote} // This should be an array of objects with `text` and `value` properties
                         // textField="text"  // The field from data items to display in the dropdown
                         // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handleTypeOfFinanicalNoteRed}
+                        onChange={this.handleTypeOfFinancialNoteRed}
                         value={this.state.typeOfFinancialNoteFeildValue}
                         // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
                         style={{
@@ -2827,7 +2834,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       data={this.state.typeOfFinancialNote} // This should be an array of objects with `text` and `value` properties
                       // textField="text"  // The field from data items to display in the dropdown
                       // dataItemKey="value"  // The field from data items to use as the key
-                      onChange={this.handleTypeOfFinanicalNote}
+                      onChange={this.handleTypeOfFinancialNote}
                       // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
                       style={{
                         border: "1px solid rgb(211, 211, 211)",
@@ -2847,7 +2854,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                      data={this.state.typeOfFinancialNote} // This should be an array of objects with `text` and `value` properties
                 // textField="text"  // The field from data items to display in the dropdown
                 // dataItemKey="value"  // The field from data items to use as the key
-                onChange={this.handleTypeOfFinanicalNote}
+                onChange={this.handleTypeOfFinancialNote}
                 // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
                 style={{ border: '1px solid rgb(211, 211, 211)', borderRadius: '8px' }}  // Inline styles
               />
@@ -2892,7 +2899,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 )}
               </div>
-              {this.state.noteTypeFeildValue === "Finanical" && (
+              {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
@@ -2948,58 +2955,57 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             ""
           )} */}
 
-              {this.state.noteTypeFeildValue === "Finanical" ? (
-                // (this.state.natureOfNoteFeildValue === 'Approval' || 'Information'?
-                //   <div
-                //   className={styles.halfWidth}
-                //   style={{ margin: "4px", marginTop: "18px" }}
-                // >
-                //   <label>
-                //     Note Type
-                //     <SpanComponent />
-                //   </label>
-                //   {this.state.isWarningNoteType ? (
-                //     this.state.noteTypeFeildValue ? (
-                //       <DropDownList
-                //         data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
-                //         // textField="text"  // The field from data items to display in the dropdown
-                //         // dataItemKey="value"  // The field from data items to use as the key
-                //         onChange={this.handleNoteType}
-                //         // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                //         style={{
-                //           border: "1px solid rgb(211, 211, 211)",
-                //           borderRadius: "8px",
-                //         }} // Inline styles
-                //       />
-                //     ) : (
-                //       <DropDownList
-                //         data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
-                //         // textField="text"  // The field from data items to display in the dropdown
-                //         // dataItemKey="value"  // The field from data items to use as the key
-                //         onChange={this.handleNoteTypeRed}
-                //         // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                //         style={{
-                //           border: "1px solid red",
-                //           borderRadius: "8px",
-                //         }} // Inline styles
-                //       />
-                //     )
-                //   ) : (
-                //     <DropDownList
-                //       data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
-                //       // textField="text"  // The field from data items to display in the dropdown
-                //       // dataItemKey="value"  // The field from data items to use as the key
-                //       onChange={this.handleNoteType}
-                //       // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                //       style={{
-                //         border: "1px solid rgb(211, 211, 211)",
-                //         borderRadius: "8px",
-                //       }} // Inline styles
-                //     />
-                //   )}
-                // </div>:
-
-                // )
+              {this.state.natureOfNoteFeildValue === "Approval" ||
+              this.state.natureOfNoteFeildValue === "Information" ? (
+                <div
+                  className={styles.halfWidth}
+                  style={{ margin: "4px", marginTop: "18px" }}
+                >
+                  <label>
+                    Purpose
+                    <SpanComponent />
+                  </label>
+                  {this.state.isWarningNoteType ? (
+                    this.state.noteTypeFeildValue ? (
+                      <DropDownList
+                        data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
+                        // textField="text"  // The field from data items to display in the dropdown
+                        // dataItemKey="value"  // The field from data items to use as the key
+                        onChange={this.handleNoteType}
+                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
+                        style={{
+                          border: "1px solid rgb(211, 211, 211)",
+                          borderRadius: "8px",
+                        }} // Inline styles
+                      />
+                    ) : (
+                      <DropDownList
+                        data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
+                        // textField="text"  // The field from data items to display in the dropdown
+                        // dataItemKey="value"  // The field from data items to use as the key
+                        onChange={this.handleNoteTypeRed}
+                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
+                        style={{
+                          border: "1px solid red",
+                          borderRadius: "8px",
+                        }} // Inline styles
+                      />
+                    )
+                  ) : (
+                    <DropDownList
+                      data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
+                      // textField="text"  // The field from data items to display in the dropdown
+                      // dataItemKey="value"  // The field from data items to use as the key
+                      onChange={this.handleNoteType}
+                      // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
+                      style={{
+                        border: "1px solid rgb(211, 211, 211)",
+                        borderRadius: "8px",
+                      }} // Inline styles
+                    />
+                  )}
+                </div>
+              ) : (
                 <div
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
@@ -3037,8 +3043,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     />
                   )}
                 </div>
-              ) : (
-                ""
               )}
 
               {/* </div> */}
@@ -3222,39 +3226,39 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   Note PDF<span className={styles.warning}>*</span>
                 </p>
                 {this.state.isWarningNoteToFiles ? (
-                  this.state.noteTofiles.length > 0 ?
-                  <div style={{ width: "100%", margin: "0px" }}>
-                    <UploadFileComponent
-                      typeOfDoc="notePdF"
-                      onChange={this.handleNoteToFileChange}
-                      accept=".pdf"
-                      multiple={false}
-                      maxFileSizeMB={10}
-                      maxTotalSizeMB={10}
-                      data={this.state.noteTofiles}
-                      // value={this.state.noteTofiles}
-                    />
-                  </div>:
-                  
-                  <div
-                    style={{
-                      width: "100%",
-                      border: "1px solid red",
-                      margin: "0px",
-                    }}
-                  >
-                    <UploadFileComponent
-                      typeOfDoc="notePdF"
-                      onChange={this.handleNoteToFileChange}
-                      accept=".pdf"
-                      multiple={false}
-                      maxFileSizeMB={10}
-                      maxTotalSizeMB={10}
-                      data={this.state.noteTofiles}
-                      // value={this.state.noteTofiles}
-                    />
-                  </div>
-
+                  this.state.noteTofiles.length > 0 ? (
+                    <div style={{ width: "100%", margin: "0px" }}>
+                      <UploadFileComponent
+                        typeOfDoc="notePdF"
+                        onChange={this.handleNoteToFileChange}
+                        accept=".pdf"
+                        multiple={false}
+                        maxFileSizeMB={10}
+                        maxTotalSizeMB={10}
+                        data={this.state.noteTofiles}
+                        // value={this.state.noteTofiles}
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        width: "100%",
+                        border: "1px solid red",
+                        margin: "0px",
+                      }}
+                    >
+                      <UploadFileComponent
+                        typeOfDoc="notePdF"
+                        onChange={this.handleNoteToFileChange}
+                        accept=".pdf"
+                        multiple={false}
+                        maxFileSizeMB={10}
+                        maxTotalSizeMB={10}
+                        data={this.state.noteTofiles}
+                        // value={this.state.noteTofiles}
+                      />
+                    </div>
+                  )
                 ) : (
                   <div style={{ width: "100%", margin: "0px" }}>
                     <UploadFileComponent
@@ -3287,37 +3291,39 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     Word Document <span className={styles.warning}>*</span>
                   </p>
                   {this.state.isWarningWordDocumentFiles ? (
-                    this.state.wordDocumentfiles.length > 0?
-                    <div style={{ width: "100%", margin: "0px" }}>
-                      <UploadFileComponent
-                        typeOfDoc="Word Document"
-                        onChange={this.handleWordDocumentFileChange}
-                        accept=".doc,.docx"
-                        multiple={false}
-                        maxFileSizeMB={10}
-                        maxTotalSizeMB={10}
-                        data={this.state.wordDocumentfiles}
-                        // value={this.state.wordDocumentfiles}
-                      />
-                    </div>:
-                    <div
-                      style={{
-                        width: "100%",
-                        border: "1px solid red",
-                        margin: "0px",
-                      }}
-                    >
-                     <UploadFileComponent
-                        typeOfDoc="Word Document"
-                        onChange={this.handleWordDocumentFileChange}
-                        accept=".doc,.docx"
-                        multiple={false}
-                        maxFileSizeMB={10}
-                        maxTotalSizeMB={10}
-                        data={this.state.wordDocumentfiles}
-                        // value={this.state.wordDocumentfiles}
-                      />
-                    </div>
+                    this.state.wordDocumentfiles.length > 0 ? (
+                      <div style={{ width: "100%", margin: "0px" }}>
+                        <UploadFileComponent
+                          typeOfDoc="Word Document"
+                          onChange={this.handleWordDocumentFileChange}
+                          accept=".doc,.docx"
+                          multiple={false}
+                          maxFileSizeMB={10}
+                          maxTotalSizeMB={10}
+                          data={this.state.wordDocumentfiles}
+                          // value={this.state.wordDocumentfiles}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          border: "1px solid red",
+                          margin: "0px",
+                        }}
+                      >
+                        <UploadFileComponent
+                          typeOfDoc="Word Document"
+                          onChange={this.handleWordDocumentFileChange}
+                          accept=".doc,.docx"
+                          multiple={false}
+                          maxFileSizeMB={10}
+                          maxTotalSizeMB={10}
+                          data={this.state.wordDocumentfiles}
+                          // value={this.state.wordDocumentfiles}
+                        />
+                      </div>
+                    )
                   ) : (
                     <div style={{ width: "100%", margin: "0px" }}>
                       <UploadFileComponent

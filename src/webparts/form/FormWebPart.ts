@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @microsoft/spfx/pair-react-dom-render-unmount */
 import * as React from 'react';
 import * as ReactDom from 'react-dom';

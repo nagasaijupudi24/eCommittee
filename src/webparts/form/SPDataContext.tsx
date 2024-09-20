@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable no-void */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { SPFI } from "@pnp/sp";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
