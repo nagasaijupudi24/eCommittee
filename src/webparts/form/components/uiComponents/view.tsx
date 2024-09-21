@@ -515,10 +515,11 @@ export default class ViewForm extends React.Component<
       console.log(each);
       console.log(each.approverEmail);
       console.log(this._currentUserEmail);
+      console.log(each.approverEmail ||each.email)
 
       console.log(each.approverEmail === this._currentUserEmail);
 
-      if (each.approverEmail === this._currentUserEmail) {
+      if (each.approverEmail ||each.email === this._currentUserEmail) {
         console.log(each.approverOrder);
         return each;
       }
@@ -1245,10 +1246,12 @@ export default class ViewForm extends React.Component<
     if (currentStatusOfApproverDetails.length > 0) {
       console.log(
         currentStatusOfApproverDetails[0].approverEmailName,
+        currentStatusOfApproverDetails[0].text,"---",
+        currentStatusOfApproverDetails[0].approverEmailName ||currentStatusOfApproverDetails[0].text,
         "currentStatusOfApproverDetails"
       );
 
-      return currentStatusOfApproverDetails[0].approverEmailName;
+      return currentStatusOfApproverDetails[0].text;
     }
     return "";
   };
@@ -1397,8 +1400,8 @@ export default class ViewForm extends React.Component<
               {
                 <h1 style={{ alignSelf: "left", fontSize: "16px" }}>
                   pending:
-                  {this.state.status === "pending" ||
-                    ("Submitted" && this._getPendingStatus())}
+                  {(this.state.status === "pending" ||
+                    this.state.status ==="Submitted") && this._getPendingStatus()}
                 </h1>
               }
 
