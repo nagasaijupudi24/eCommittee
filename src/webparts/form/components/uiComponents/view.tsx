@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-floating-promises */
@@ -481,8 +482,8 @@ export default class ViewForm extends React.Component<
       title: item.Title,
       commentsData:
         item.CommentsLog !== null ? JSON.parse(item.CommentsLog) : [],
-      referredFromDetails: JSON.parse(item.referredFrom),
-      refferredToDetails: JSON.parse(item.referredTo),
+      referredFromDetails:item.referredFrom!==null? JSON.parse(item.referredFrom):[],
+      refferredToDetails:item.referredTo!==null? JSON.parse(item.referredTo):[] 
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
       // ?  []
       // : JSON.parse(item.CommentsLog),
@@ -507,10 +508,10 @@ export default class ViewForm extends React.Component<
         // ))
         return (
           (each.approverEmail || each.approverEmailName) ===
-            this._currentUserEmail &&
-          (each.status === "Approved" ||
-            each.status === "Refered" ||
-            each.status === "Rejected")
+            this._currentUserEmail && each.status === 'pending'
+          // (each.status === "Approved" ||
+          //   each.status === "Refered" ||
+          //   each.status === "Rejected")
         );
       });
       console.log(checkItem);
@@ -959,7 +960,7 @@ export default class ViewForm extends React.Component<
           return { ...each, status: statusFromEvent };
         }
         if (each.approverOrder === this.state.ApproverOrder + 1) {
-          return { ...each, status: "pending" };
+          return { ...each, status: "waiting" };
         }
 
         return each;
@@ -1626,7 +1627,7 @@ export default class ViewForm extends React.Component<
                 </div>
                 {/*General Comments */}
 
-                {!this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
                 this._currentUserEmail !== this.state.createdByEmail ? (
                   <div className={styles.sectionContainer}>
                     <div
@@ -1736,7 +1737,7 @@ export default class ViewForm extends React.Component<
                   )}
                 </div>
                 {/*Attach Supporting Documents */}
-                {!this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
                 this._currentUserEmail !== this.state.createdByEmail ? (
                   <div className={styles.sectionContainer}>
                     <div
@@ -1926,8 +1927,8 @@ export default class ViewForm extends React.Component<
                     Call Back
                   </PrimaryButton>
                 )
-              ) : (this.state.refferredToDetails[0].email ===
-                this._currentUserEmail) && (this.state.refferredToDetails[0].status==="Refered")? (
+              ) : ((this.state.refferredToDetails.length> 0 &&((this.state.refferredToDetails[0]?.email ===
+                this._currentUserEmail) && (this.state.refferredToDetails[0]?.status==="Refered"))))? (
                 <PrimaryButton
                   styles={{
                     root: {
@@ -1959,7 +1960,7 @@ export default class ViewForm extends React.Component<
                   Refer Back
                 </PrimaryButton>
               ) : (
-                !this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
                 this._getApproverAndReviewerStageButton()
               )}
               {/* {this._getApproverAndReviewerStageButton()} */}
