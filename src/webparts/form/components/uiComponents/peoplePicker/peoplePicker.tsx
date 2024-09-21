@@ -108,7 +108,7 @@ export default class PnPPeoplePicker extends React.Component<
           return {
             ...obj,
             optionalText: "N/A",
-            approverType: 1,
+            
             email: obj.secondaryText,
           };
         }
@@ -120,7 +120,7 @@ export default class PnPPeoplePicker extends React.Component<
         return {
           ...obj,
           optionalText: dataRec[0],
-          approverType: 1,
+          
           email: dataRec[1],
           srNo: dataRec[1].split("@")[0],
         };

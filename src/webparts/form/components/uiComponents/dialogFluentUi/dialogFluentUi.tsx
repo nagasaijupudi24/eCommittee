@@ -5,6 +5,7 @@ import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
 import { Stack, TextField } from "@fluentui/react";
 import PnPPeoplePicker from "../peoplePicker/peoplePicker";
+import { v4 } from "uuid";
 // import { ContextualMenu } from '@fluentui/react/lib/ContextualMenu';
 // import { Toggle } from '@fluentui/react/lib/Toggle';
 // import { useBoolean } from '@fluentui/react-hooks';
@@ -37,6 +38,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
     title: "Confirmation",
     subText: dialogDetails.subText,
   };
+  const [referredCommentTextBoxValue, setReferredCommentTextBoxValue] = React.useState<any>({});
 
   //   const [hideDialog, { toggle: toggleHideDialog }] = useBoolean(hiddenProp);
   //   const [isDraggable, { toggle: toggleIsDraggable }] = useBoolean(false);
@@ -92,7 +94,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   const _getDetails = (data:any,typeOFButtonTriggererd:any):any=>{
     console.log("Referrer function is Triggered")
     console.log(data,typeOFButtonTriggererd)
-    fetchAnydata(data,typeOFButtonTriggererd)
+    fetchAnydata(data,typeOFButtonTriggererd,dialogDetails.status)
     
   }
 
@@ -111,6 +113,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
     dialogDetails.functionType(
       dialogDetails.status,
       dialogDetails.statusNumber,
+      referredCommentTextBoxValue
       
     );
   };
@@ -160,6 +163,20 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
             <TextField label={dialogDetails.message[1]} multiline rows={3}  onChange={
                (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newText: string): void => {
                 console.log(newText)
+                setReferredCommentTextBoxValue(
+                  ()=>{
+                    console.log(context.pageContext.user)
+                    const commentsObj = {
+                      id: v4(),
+                      pageNum: 'NA',
+                      page: 'NA',
+                      comment: newText,
+                      commentedBy: context.pageContext.user.displayName,
+                    };
+                    console.log(commentsObj);
+                    return commentsObj
+                  }
+                )
               }
             }/>
             

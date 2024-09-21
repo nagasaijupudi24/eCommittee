@@ -722,7 +722,8 @@ export default class ViewForm extends React.Component<
 
     const auditLog = [
       {
-        Actioner: this._currentUserEmail,
+        Actioner: this.props.context.pageContext.user.displayName, 
+        ActionerEmail:this._currentUserEmail,
         ActionTaken: status,
         Role: profile.Title,
         // Role: this.props.context.pageContext.user.,
@@ -918,7 +919,8 @@ export default class ViewForm extends React.Component<
 
   private handleRefer = async (
     statusFromEvent: string,
-    statusNumber: string
+    statusNumber: string,
+    commentsObj:any
   ) => {
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -931,23 +933,35 @@ export default class ViewForm extends React.Component<
 
         // }
         if (each.approverOrder === this.state.ApproverOrder + 1) {
-          return { ...each, status: "pending" };
+          return { ...each, status: "waiting" };
         }
         return each;
       }
     );
 
+
+    
+
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
+
+
+    const obj =  {
+      ApproverDetails: JSON.stringify(modifyApproveDetails),
+      Status: statusFromEvent,
+      statusNumber: statusNumber,
+      AuditTrail: updateAuditTrial,
+      CommentsLog: JSON.stringify([...this.state.commentsData,commentsObj]),
+      referredTo:JSON.stringify(this.state.refferredToDetails),
+      referredFrom:JSON.stringify(this.state.referredFromDetails),
+      
+    }
+    console.log(obj)
+
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
-      .update({
-        ApproverDetails: JSON.stringify(modifyApproveDetails),
-        Status: statusFromEvent,
-        statusNumber: statusNumber,
-        AuditTrail: updateAuditTrial,
-      });
+      .update(obj).then((resu=>console.log(resu)));
 
     console.log(itemToUpdate);
 
@@ -1352,8 +1366,8 @@ export default class ViewForm extends React.Component<
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
     // this._checkApproveredStatusIsFound()
-    this._checkCurrentUserIsApprovedTheCurrentRequest();
-    console.log(this._checkCurrentUserIsApprovedTheCurrentRequest());
+    // this._checkCurrentUserIsApprovedTheCurrentRequest();
+    // console.log(this._checkCurrentUserIsApprovedTheCurrentRequest());
 
     const { expandSections } = this.state;
     // console.log(this._getPendingStatus())
@@ -1862,10 +1876,17 @@ export default class ViewForm extends React.Component<
           dialogDetails={this.state.dialogDetails}
           sp={this.props.sp}
           context={this.props.context}
-          fetchAnydata={(data: any, typeOfBtnTriggered: any) => {
+          fetchAnydata={(data: any, typeOfBtnTriggered: any,status:any) => {
             console.log(data);
             console.log(typeOfBtnTriggered);
-            this.setState({ currentApprover: data });
+            if (typeOfBtnTriggered ==='Refer'){
+              this.setState({ refferredToDetails: [{...data[0],status:status}],referredFromDetails:this.state.currentApprover });
+
+            }else{
+              this.setState({ currentApprover: data });
+
+            }
+            
           }}
         />
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}

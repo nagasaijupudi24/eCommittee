@@ -238,6 +238,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private _role: string;
   private _itemId: number = Number(getIdFromUrl());
   private _formType: string = getFromType();
+  private _currentUserEmail = this.props.context.pageContext.user.email;
 
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: string = `${this._absUrl}/${
@@ -1577,6 +1578,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const auditLog = [
       {
         Actioner: this._userName,
+        ActionerEmail:this._currentUserEmail,
 
         ActionTaken: status,
         Role: this._role,
