@@ -502,31 +502,62 @@ export default class ViewForm extends React.Component<
        
         (each:any)=>{
           console.log(each)
-          if ((each.approverEmail || each.approverEmailName) ===      (this._currentUserEmail)){
-            switch(each.status ){
-              case 'Approved':
-                console.log(each.status)
-                return false
-              case 'Rejected':
-                console.log(each.status)
-                return false
-              case 'Refered':
-                console.log(each.status)
-                return false 
-              case 'pending':
-                console.log(each.status)
-                return true 
-              case 'Referred Back':
-                console.log(each.status)
-                return true
-              default:
-                console.log("default")
-                return false
+          if ((each.approverEmail || each.approverEmailName||each.email) ===      (this._currentUserEmail)){
+            if (each.status==='Refered' && this.state.refferredToDetails[0]?.status ==='Referred Back'){
+              switch(each.status ){
+                case 'Approved':
+                  console.log(each.status)
+                  return false
+                case 'Rejected':
+                  console.log(each.status)
+                  return false
+                case 'Refered':
+                  console.log(each.status)
+                  return true 
+                case 'pending':
+                  console.log(each.status)
+                  return true 
+                case 'Referred Back':
+                  console.log(each.status)
+                  return true
+                default:
+                  console.log("default")
+                  return false
+              }
+            }else{
+             
+                switch(each.status ){
+                  case 'Approved':
+                    console.log(each.status)
+                    return false
+                  case 'Rejected':
+                    console.log(each.status)
+                    return false
+                  case 'Refered':
+                    console.log(each.status)
+                    return false 
+                  case 'pending':
+                    console.log(each.status)
+                    return true 
+                  case 'Referred Back':
+                    console.log(each.status)
+                    return true
+                  default:
+                    console.log("default")
+                    return false
+               
+              }
+  
             }
-          
+
           }
         
+        
+      
+        
         }
+
+        
       )[0]
 
 
