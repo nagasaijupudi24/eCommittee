@@ -443,6 +443,38 @@
   padding: 10px;
   // background-color: #f4f4f4;
   min-height: 100vh;
+  border:1px solid green;
+}
+
+.viewFormMainContainer{
+  border:1px solid red;
+  // height: 100%;
+  display: flex;
+  // justify-content: flex-start;
+  // align-items: ;
+
+}
+
+
+.viewFormContentContainer{
+  border:1px solid blue;
+  
+
+
+}
+
+.btnsContainer{
+
+  border: 1px solid red;
+  height: '100px';
+  gap:'10px';
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  padding-top:15px;
+
+  
+ 
 }
 
 .table {
@@ -467,8 +499,8 @@
   max-width: 100%; // Ensure iframe doesn't exceed container width
   overflow: hidden; // Prevent content overflow
   position: relative; // Contain iframe within the container
-  padding-bottom: 56.25%; // Aspect ratio for responsive design (16:9 ratio)
-  height: 100%; // Initialize height to zero
+  // padding-bottom: 56.25%; // Aspect ratio for responsive design (16:9 ratio)
+  // height: 100%; // Initialize height to zero
 }
 
 // .pdfViewer iframe {

@@ -6,11 +6,13 @@ import { useEffect } from 'react';
 interface IAdobePdfViewerProps {
   clientId: string;
   fileUrl: string;
-  height: number;
+  // height: number;
   defaultViewMode: string;
 }
 
-const AdobePdfViewer: React.FC<IAdobePdfViewerProps> = ({ clientId, fileUrl, height, defaultViewMode }) => {
+const AdobePdfViewer: React.FC<IAdobePdfViewerProps> = ({ clientId, fileUrl, 
+  // height,
+   defaultViewMode }) => {
   useEffect(() => {
     const loadAdobeScript = () => {
       return new Promise<void>((resolve, reject) => {
@@ -47,19 +49,8 @@ const AdobePdfViewer: React.FC<IAdobePdfViewerProps> = ({ clientId, fileUrl, hei
           mutations.forEach((mutation) => {
             if (mutation.type === 'childList') {
               // Hide Adobe logo
-              const adobeLogo = document.querySelector('.adobe-logo-selector') as HTMLElement;
-              if (adobeLogo) {
-                adobeLogo.style.display = 'none';
-              }
-              
-              // Move right bar to top
-              const rightBar = document.querySelector('.adobe-right-bar-selector') as HTMLElement;
-              if (rightBar) {
-                rightBar.style.position = 'absolute';
-                rightBar.style.top = '0';
-                rightBar.style.right = '0';
-                rightBar.style.zIndex = '9999'; // Ensure it's above other elements
-              }
+              document.querySelector('.adobe-logo-selector') as HTMLElement;
+             
             }
           });
         });
@@ -90,7 +81,10 @@ const AdobePdfViewer: React.FC<IAdobePdfViewerProps> = ({ clientId, fileUrl, hei
   }, [clientId, fileUrl, defaultViewMode]);
 
   return (
-    <div id="adobe-pdf-viewer" style={{ height: `${height}px`, position: 'relative', boxShadow: '2px 2px 6px 2px #dadada' }}></div>
+    <div id="adobe-pdf-viewer" 
+    style={{
+        height: "600px",
+        position: 'relative', boxShadow: '2px 2px 6px 2px #dadada' }}></div>
   );
 };
 
