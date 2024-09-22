@@ -495,7 +495,7 @@ export default class ViewForm extends React.Component<
   private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest =
     (): any => {
       const checkItem = this.state.ApproverDetails.find((each: any) => {
-        // console.log(each);
+        console.log(each);
         // console.log( each.approverEmailName)
         // console.log(each.approverEmail)
         // console.log(each.approverEmail || each.approverEmailName)
@@ -508,10 +508,10 @@ export default class ViewForm extends React.Component<
         // ))
         return (
           (each.approverEmail || each.approverEmailName) ===
-            this._currentUserEmail && each.status === 'pending'
-          // (each.status === "Approved" ||
-          //   each.status === "Refered" ||
-          //   each.status === "Rejected")
+            this._currentUserEmail && 
+          (each.status === "Approved" ||
+            (each.status === "Referred Back"|| this.state.refferredToDetails[0].status ==="Referred Back") ||
+            each.status === "pending")
         );
       });
       console.log(checkItem);
