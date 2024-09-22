@@ -14,7 +14,6 @@ import { IDropdownOption } from "office-ui-fabric-react";
 // import {  InputChangeEvent } from '@progress/kendo-react-inputs';
 import { TextBox, TextBoxChangeEvent } from "@progress/kendo-react-inputs";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
-import ExpandableList from "./expandalbeHeader/expandableHeader";
 // import PdfViewer from "../pdfVeiwer/pdfVeiwer";
 import { PrimaryButton } from "@fluentui/react/lib/Button";
 
@@ -36,6 +35,7 @@ import ApproverOrReviewerDialog from "./ApproverOrReviewerDialog/approverOrRevie
 // import MultiComboBoxTable from "./comboBoxTable/comboBoxTable";
 // import AlertComponent from "./alter/alter";
 import DraggableTable from "./draggableGridKendo/draggableGridKendo";
+import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 
 import { format } from "date-fns";
 import "@progress/kendo-theme-default/dist/all.css";
@@ -59,22 +59,22 @@ import {
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 // import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 
-const data: any = [
-  {
-    title: "Section 1",
-    content: [
-      { key: "Item 1.1", value: "Description 1.1" },
-      { key: "Item 1.2", value: "Description 1.2" },
-    ],
-  },
-  {
-    title: "Section 2",
-    content: [
-      { key: "Item 2.1", value: "Description 2.1" },
-      { key: "Item 2.2", value: "Description 2.2" },
-    ],
-  },
-];
+// const data: any = [
+//   {
+//     title: "Section 1",
+//     content: [
+//       { key: "Item 1.1", value: "Description 1.1" },
+//       { key: "Item 1.2", value: "Description 1.2" },
+//     ],
+//   },
+//   {
+//     title: "Section 2",
+//     content: [
+//       { key: "Item 2.1", value: "Description 2.1" },
+//       { key: "Item 2.2", value: "Description 2.2" },
+//     ],
+//   },
+// ];
 
 interface INoteObject {
   Department: string;
@@ -120,7 +120,7 @@ interface IMainFormState {
   typeOfFinancialNote: string[];
   noteType: string[];
   purpose: any;
-  othersFieldValue:any;
+  othersFieldValue: any;
   isPuroposeVisable: boolean;
   isAmountVisable: boolean;
   isTypeOfFinacialNote: boolean;
@@ -180,6 +180,8 @@ interface IMainFormState {
   pastApprover: any;
   referredFromDetails: any;
   refferredToDetails: any;
+
+  draftResoultionFieldValue: any;
 }
 
 // let fetchedData:any[];
@@ -262,7 +264,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       typeOfFinancialNote: [],
       noteType: [],
       purpose: [],
-      othersFieldValue:'',
+      othersFieldValue: "",
       isPuroposeVisable: false,
       isAmountVisable: false,
       isTypeOfFinacialNote: false,
@@ -313,6 +315,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       pastApprover: [],
       referredFromDetails: [],
       refferredToDetails: [],
+      draftResoultionFieldValue: "",
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -644,6 +647,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       ),
       status: item.Status,
       auditTrail: JSON.parse(item.AuditTrail),
+      draftResoultionFieldValue:item.DraftResoultion
     });
   };
 
@@ -984,15 +988,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
-  public reOrderData = (reOrderData: any[],type:string): void => {
-    console.log(reOrderData)
-    if (type==="Reviewer"){
+  public reOrderData = (reOrderData: any[], type: string): void => {
+    console.log(reOrderData);
+    if (type === "Reviewer") {
       this.setState({ peoplePickerData: reOrderData });
-
-    }else{
+    } else {
       this.setState({ peoplePickerApproverData: reOrderData });
     }
-    
   };
 
   public removeDataFromGrid = (dataItem: any, typeOfTable: string): void => {
@@ -1187,7 +1189,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         isPuroposeVisable: false,
       });
     }
-    this.setState({puroposeFeildValue:''})
+    this.setState({ puroposeFeildValue: "" });
   };
 
   private handleNatureOfNoteRed = (event: any): void => {
@@ -1364,15 +1366,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // this.setState({ subjectFeildValue: value });
     const value: string | number | readonly string[] = event.target.value ?? "";
     console.log(value, "-----------handle Purpose");
-    this.setState({ othersFieldValue:value });
+    this.setState({ othersFieldValue: value });
   };
 
   private handleOthersRed = (event: any): void => {
     const value = event.value;
     console.log(value);
     this.setState({
-      
-      othersFieldValue:value
+      othersFieldValue: value,
     });
   };
 
@@ -1578,7 +1579,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const auditLog = [
       {
         Actioner: this._userName,
-        ActionerEmail:this._currentUserEmail,
+        ActionerEmail: this._currentUserEmail,
 
         ActionTaken: status,
         Role: this._role,
@@ -1638,7 +1639,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       TypeOfFinancialNote: this.state.typeOfFinancialNoteFeildValue,
       Amount: this.state.amountFeildValue,
       Search_x0020_Keyword: this.state.searchTextFeildValue,
-      Purpose:this.state.puroposeFeildValue==='Others'? this.state.othersFieldValue:this.state.puroposeFeildValue,
+      Purpose:
+        this.state.puroposeFeildValue === "Others"
+          ? this.state.othersFieldValue
+          : this.state.puroposeFeildValue,
       ApproverDetails: this._getApproverDetails(
         this.state.peoplePickerData,
         this.state.peoplePickerApproverData,
@@ -1657,6 +1661,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.peoplePickerApproverData,
         "intialOrderApproverDetails"
       ),
+      DraftResoultion:this.state.draftResoultionFieldValue
     };
     console.log(ecommitteObject);
     return ecommitteObject;
@@ -2607,8 +2612,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return booleanCheck;
   };
 
+  private onTextChange = (newText: string) => {
+    // this.properties.myRichText = newText;
+    console.log(newText);
+    this.setState({draftResoultionFieldValue:newText})
+    return newText;
+  };
+
   public render(): React.ReactElement<IFormProps> {
     console.log(this.state);
+    console.log(this.props.formType, "Type of Form");
     console.log(this._formType === "view");
     // console.log(this.state.peoplePickerData, "Data..........PeoplePicker");
     // console.log(this.checkUserIsIBTes2(this.state.peoplePickerData))
@@ -2653,6 +2666,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             {/* <Header /> */}
             <Title
               formType={this._formType}
+              propPaneformType={this.props.formType}
               statusOfRequest={this.state.status}
             />
             {/* {this.state.isDialogHidden&&<MyDialog  />} */}
@@ -2666,6 +2680,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               handleDialogBox={this.handleApproverOrReviewerDialogBox}
             />
 
+            {/* General Section */}
+
             <div className={`${styles.generalSectionMainContainer}`}>
               <h1 style={{ textAlign: "center", fontSize: "16px" }}>
                 General Section
@@ -2673,10 +2689,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             </div>
             <div className={`${styles.generalSection}`}>
               {/* <div className={`${styles.generalSectionContainer1}`}> */}
+              {/* Department Sub Section */}
               <div className={styles.halfWidth}>
                 Department<span className={styles.warning}>*</span>
                 <h4 style={{ marginLeft: "20px" }}>{this.state.department}</h4>
               </div>
+              {/* Committee Name Sub Section */}
               <div
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
@@ -2722,6 +2740,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 )}
               </div>
+              {/* Subject Sub Section */}
 
               <div
                 className={styles.halfWidth}
@@ -2760,6 +2779,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 )}
               </div>
+              {/* Nature of Note Sub Section */}
 
               <div
                 className={styles.halfWidth}
@@ -2799,6 +2819,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 )}
               </div>
+
+              {/* Nature of Approval/Sanction Sub Section */}
               {this.state.natureOfNoteFeildValue === "Approval" ||
               this.state.natureOfNoteFeildValue === "Sanction" ? (
                 <div
@@ -2855,6 +2877,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               ) : (
                 ""
               )}
+              {/*  Note Type Sub Section */}
               <div
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
@@ -2906,6 +2929,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 )}
               </div>
+              {/*  Type of Financial Note Sub Section */}
               {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
@@ -2975,6 +2999,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                {this.state.isWarning?<AlertComponent/>:''}
             </div>:""} */}
 
+              {/*  Search Text Sub Section */}
+
               <div
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
@@ -3013,6 +3039,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 )}
               </div>
+
+              {/* Amount Sub Section */}
               {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
@@ -3068,6 +3096,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ) : (
             ""
           )} */}
+
+              {/* Purpose Sub Section */}
 
               {this.state.natureOfNoteFeildValue === "Approval" ||
               this.state.natureOfNoteFeildValue === "Information" ? (
@@ -3218,8 +3248,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   )}
                 </div>
               )}
-              {(this.state.natureOfNoteFeildValue === 'Approval' &&this.state.puroposeFeildValue === 'Others')?
-               (<div
+              {this.state.natureOfNoteFeildValue === "Approval" &&
+              this.state.puroposeFeildValue === "Others" ? (
+                <div
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
                 >
@@ -3231,7 +3262,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     this.state.othersFieldValue !== "" ? (
                       <TextBox
                         onChange={this.handleOthers}
-                       
                         style={{
                           borderRadius: "8px",
                         }}
@@ -3256,10 +3286,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       value={this.state.othersFieldValue}
                     />
                   )}
-                </div>):''}
+                </div>
+              ) : (
+                ""
+              )}
 
               {/* </div> */}
             </div>
+
+            {/* Approver Details Section */}
             <div className={`${styles.generalSectionMainContainer}`}>
               <h1 style={{ textAlign: "center", fontSize: "16px" }}>
                 Approver Details
@@ -3419,6 +3454,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 </div>
               </div>
             </div>
+
+            {/* Draft Resoultion Section */}
+            {this.props.formType === "BoardNoteNew" && (
+              <div>
+                <div className={`${styles.generalSectionMainContainer}`}>
+                  <h1 style={{ textAlign: "center", fontSize: "16px" }}>
+                    Draft Resoultion
+                  </h1>
+                </div>
+                <div className={`${styles.generalSectionApproverDetails}`}>
+                  <div className={styles.richTextContainer}>
+                    <RichText
+                      value={this.state.draftResoultionFieldValue}
+                      onChange={(text) => this.onTextChange(text)}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/*  File Attachments Section */}
             <div className={`${styles.generalSectionMainContainer}`}>
               <h1 style={{ textAlign: "center", fontSize: "16px" }}>
                 File Attachments
@@ -3603,6 +3659,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 </p>
               </div>
             </div>
+            {/*  Buttons Section */}
 
             <div
               style={{
@@ -3664,7 +3721,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           </ul> */}
           </div>
         )}
-        <div>
+        {/* <div>
           {data.map((section: any, index: any) => (
             <ExpandableList
               key={index}
@@ -3672,7 +3729,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               content={section.content}
             />
           ))}
-        </div>
+        </div> */}
         {/* <PdfViewer pdfUrl="https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB"/> */}
       </div>
     );

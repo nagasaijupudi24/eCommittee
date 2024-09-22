@@ -494,41 +494,105 @@ export default class ViewForm extends React.Component<
 
   private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest =
     (): any => {
-      const checkItem = this.state.ApproverDetails.find((each: any) => {
-        console.log(each);
-        // console.log( each.approverEmailName)
-        // console.log(each.approverEmail)
-        // console.log(each.approverEmail || each.approverEmailName)
-        // console.log( this._currentUserEmail)
-        // console.log((each.approverEmail || each.approverEmailName) === this._currentUserEmail)
-        // console.log(each.status)
-        // console.log((
-        //   (each.approverEmail || each.approverEmailName) === this._currentUserEmail &&
-        //   (each.status === "Approved"||each.status === "Refered"||each.status === "Rejected")
-        // ))
-        return (
-          (each.approverEmail || each.approverEmailName) ===
-            this._currentUserEmail && 
-          (each.status === "Approved" ||
-            (each.status === "Referred Back"|| this.state.refferredToDetails[0].status ==="Referred Back") ||
-            each.status === "pending")
-        );
-      });
-      console.log(checkItem);
 
-      if (checkItem) {
-        // console.log(checkItem);
-        // console.log(checkItem.approverEmail);
-        // console.log(this._currentUserEmail);
-        // Return or perform actions based on checkItem
-        return (
-          (checkItem.approverEmail || checkItem.approverEmailName) ===
-          this._currentUserEmail
-        );
-      } else {
-        // console.log("No matching approver found.");
-        return null; // Or handle it appropriately
-      }
+
+      
+      return this.state.ApproverDetails.filter(
+        
+       
+        (each:any)=>{
+          console.log(each)
+          if ((each.approverEmail || each.approverEmailName) ===      (this._currentUserEmail)){
+            switch(each.status ){
+              case 'Approved':
+                console.log(each.status)
+                return false
+              case 'Rejected':
+                console.log(each.status)
+                return false
+              case 'Refered':
+                console.log(each.status)
+                return false 
+              case 'pending':
+                console.log(each.status)
+                return true 
+              case 'Referred Back':
+                console.log(each.status)
+                return true
+              default:
+                console.log("default")
+                return false
+            }
+          
+          }
+        
+        }
+      )[0]
+
+
+
+
+      // const checkItem = this.state.ApproverDetails.filter((each: any) => {
+      //   console.log(each);
+      //   // console.log( each.approverEmailName)
+      //   // console.log(each.approverEmail)
+      //   // console.log(each.approverEmail || each.approverEmailName)
+      //   // console.log( this._currentUserEmail)
+      //   // console.log((each.approverEmail || each.approverEmailName) === this._currentUserEmail)
+      //   // console.log(each.status)
+      //   // console.log((
+      //   //   (each.approverEmail || each.approverEmailName) === this._currentUserEmail &&
+      //   //   (each.status === "Approved"||each.status === "Refered"||each.status === "Rejected")
+      //   // ))
+      //   console.log(each.status === "Approved","Approved" )
+      //   console.log(each.status === "Returned" ,"Returned")
+      //   console.log(each.status === "Referred Back","Referred Back" )
+      //   console.log(each.status === "pending" ,"pending")
+      //   console.log(each.status === "Refered","Refered" )
+      //   console.log(  (each.status === "Approved" ||each.status === "Returned" ||
+      //     (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
+      //     each.status === "pending" || each.status === 'Refered' ))
+
+      //     console.log(
+      //       (each.approverEmail || each.approverEmailName) ===
+      //       (this._currentUserEmail && 
+      //     (each.status === "Approved" ||each.status === "Returned" ||
+      //       (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
+      //       each.status === "pending" || each.status === 'Refered' ))
+
+      //     )
+      //     if (
+      //       (each.approverEmail || each.approverEmailName) ===
+      //       (this._currentUserEmail && 
+      //     (each.status === "Approved" ||each.status === "Returned" ||
+      //       (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
+      //       each.status === "pending" || each.status === 'Refered' ))
+      //     ){
+      //       return each
+      //     }
+      //   // return (
+      //   //   (each.approverEmail || each.approverEmailName) ===
+      //   //     (this._currentUserEmail && 
+      //   //   (each.status === "Approved" ||each.status === "Returned" ||
+      //   //     (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
+      //   //     each.status === "pending" || each.status === 'Refered' ))
+      //   // );
+      // });
+      // console.log(checkItem);
+
+      // if (checkItem) {
+      //   console.log(checkItem);
+      //   // console.log(checkItem.approverEmail);
+      //   // console.log(this._currentUserEmail);
+      //   // Return or perform actions based on checkItem
+      //   return (
+      //     (checkItem.approverEmail || checkItem.approverEmailName) ===
+      //     this._currentUserEmail
+      //   );
+      // } else {
+      //   // console.log("No matching approver found.");
+      //   return null; // Or handle it appropriately
+      // }
     };
 
   private _getApproverOrder = (data: any): any => {

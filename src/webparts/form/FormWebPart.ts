@@ -86,6 +86,43 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
       );
      
     }
+    else if (this.properties.FormType === "BoardNoteView") {
+      element = React.createElement(
+        ViewForm,
+        {
+          description: this.properties.description,
+          isDarkTheme: this._isDarkTheme,
+          environmentMessage: this._environmentMessage,
+          hasTeamsContext: !!this.context.sdks.microsoftTeams,
+          userDisplayName: this.context.pageContext.user.displayName,
+          sp: this.sp, // Pass the configured sp object
+          context: this.context, // Pass the WebPartContext
+          listId:this.properties.listId,
+          libraryId:this.properties.libraryId
+        }
+      );
+     
+    }
+    else if (this.properties.FormType === "BoardNoteNew") {
+      element = React.createElement(
+        Form,
+        {
+          
+
+          description: this.properties.description,
+          isDarkTheme: this._isDarkTheme,
+          environmentMessage: this._environmentMessage,
+          hasTeamsContext: !!this.context.sdks.microsoftTeams,
+          userDisplayName: this.context.pageContext.user.displayName,
+          sp: this.sp, // Pass the configured sp object
+          context: this.context, // Pass the WebPartContext
+          listId:this.properties.listId,
+          libraryId:this.properties.libraryId,
+          formType:this.properties.FormType
+        }
+      );
+     
+    }
     else if (this.properties.FormType === "allRequest") {
       element = React.createElement(
         AllRequest,
@@ -225,7 +262,10 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
                     { key: 'New', text: 'New' },
                     { key: 'View', text: 'View' },
                     { key: 'Edit', text: 'Edit' },
-                    { key: 'allRequest', text: 'All Request' }
+                    { key: 'allRequest', text: 'All Request' },
+                    { key: 'BoardNoteNew', text: 'BoardNote New' },
+                    { key: 'BoardNoteView', text: 'BoardNote View' }
+
 
                   ]
                 }),
