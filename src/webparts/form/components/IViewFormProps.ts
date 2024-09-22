@@ -14,6 +14,7 @@ export interface IViewFormProps {
     context: WebPartContext; // Pass the WebPartContext
     listId:any;
     libraryId:any;
+    formType:any;
   }
 
 

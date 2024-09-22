@@ -3,46 +3,36 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
-import { Grid, GridColumn as Column } from '@progress/kendo-react-grid';
-// import { Button } from "@progress/kendo-react-buttons";
-
-
+import { DetailsList, DetailsListLayoutMode, IColumn, SelectionMode } from '@fluentui/react/lib/DetailsList';
 
 const CommentsLogTable = (props: any) => {
-//    const {fieldData} = props
-    
     const gridData = props.data;
 
-    // Function to handle removing a data item from the grid
-   
+    // Define the columns for the DetailsList
+    const columns: IColumn[] = [
+        { key: 'pageNum', name: 'Page#', fieldName: 'pageNum', minWidth: 120, maxWidth: 150, isResizable: true },
+        { key: 'page', name: 'Doc Reference', fieldName: 'page', minWidth: 120, maxWidth: 150, isResizable: true },
+        { key: 'comment', name: 'Comments', fieldName: 'comment', minWidth: 120, maxWidth: 250, isResizable: true, isMultiline: true },
+        { key: 'commentedBy', name: 'Comment By', fieldName: 'commentedBy', minWidth: 120, maxWidth: 150, isResizable: true }
+    ];
 
-   
-
-    switch(props.type){
+    switch (props.type) {
         case "generalComments":
-            return <div>{" "}</div>
+            return <div>{" "}</div>;
         case "commentsLog":
             return (
-                <div style={{ overflow: 'auto' }}>
-                    <Grid
-                        style={{ minWidth: '800px' }} // Sets minimum width for scrolling
-                        data={gridData}
-                        dataItemKey={"ProductID"}
-                    >
-        
-                       
-                        <Column field='pageNum' title="Page#" width="60px" />
-                        <Column field='page' title="Doc Reference" width="90px" />
-                        <Column field='comment'  title="Comments" width="90px" />
-                        <Column field='commentedBy'  title="Comment By" />
-                       
-                    </Grid>
+                <div style={{ overflowX: 'auto' }}>
+                    <DetailsList
+                        items={gridData} // Data for the table
+                        columns={columns} // Column definitions
+                        layoutMode={DetailsListLayoutMode.fixedColumns} // Fixed column layout
+                        selectionMode={SelectionMode.none} // Disable row selection
+                        isHeaderVisible={true} // Show header
+                    />
                 </div>
             );
-            default:
-                return <div>{" "}</div>
-        
-
+        default:
+            return <div>{" "}</div>;
     }
 };
 

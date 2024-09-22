@@ -1,5 +1,9 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
+
+
+
+
 .form {
   // overflow: hidden;
   // padding: 1em;
@@ -38,7 +42,6 @@
 
 
 .generalSectionMainContainer {
-  // border:1px solid green;
   margin-top: 10px;
   text-align: center;
   font-size: 16px;
@@ -47,11 +50,16 @@
   background-color: #034ea1;
   font-weight: 300;
   display: flex;
-  align-items: 'center';
-  justify-content: 'center';
-  padding: '10px';
+  align-items: center; // Remove quotes for valid CSS
+  justify-content: center; // Remove quotes for valid CSS
+  padding: 10px; // Remove quotes for valid CSS
 
+  // Flex direction
+  flex-direction: row; // Default to row for desktop and tablet
 
+  @media (max-width: 768px) { // Mobile and smaller
+    flex-direction: column; // Stack items vertically on small screens
+  }
 }
 
 .generalSection {
@@ -147,7 +155,7 @@
 
 
 .approverDetailsSection {
-  border: 1px solid pink
+  // border: 1px solid pink
 }
 
 .headerContainer {
@@ -156,8 +164,102 @@
   align-items: center;
   background-color: #034ea1;
   color: white;
+  font-size: 14px;
 
 }
+
+
+
+
+
+/* Container holding both expanding and PDF sections */
+.expansionAndPdfContainer {
+  display: flex;
+  justify-content: flex-start; /* Default alignment for larger screens */
+  align-items: flex-start; /* Default alignment for larger screens */
+  gap: 10px;
+  // border: 1px solid yellow;
+  /* Uncomment the height if needed */
+  /* height: 100%; */
+}
+
+/* Expanding Container */
+.expandingContainer {
+  width: 40%; /* Default width for larger screens */
+  height: 100%;
+  /* Uncomment the border if needed */
+  /* border: 1px solid red; */
+  gap: 0px;
+}
+
+/* PDF Container */
+.pdfContainer {
+  width: 60%; /* Default width for larger screens */
+  // border: 1px solid pink;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) { /* Medium to large devices (tablets) */
+  .expansionAndPdfContainer {
+    flex-direction: row; /* Keep them side by side */
+  }
+}
+
+@media (max-width: 990px) { /* Smaller tablets */
+  .expansionAndPdfContainer {
+    flex-direction: row; /* Keep them side by side */
+  }
+}
+
+@media (max-width: 768px) { /* Mobile and small tablets */
+  .expansionAndPdfContainer {
+    flex-direction: column; /* Change direction to column */
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+  }
+
+  .pdfContainer {
+    order: 1; /* Make pdfContainer appear first */
+    width: 100%; /* Full width */
+  }
+
+  .expandingContainer {
+    order: 2; /* Make expandingContainer appear second */
+    width: 100%; /* Full width */
+  }
+}
+
+@media (max-width: 850px) { /* Extra small tablets */
+  .expansionAndPdfContainer {
+    flex-direction: column; /* Change direction to column */
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+  }
+
+  .pdfContainer {
+    order: 1; /* Ensure pdfContainer remains first */
+    width: 100%; /* Full width */
+  }
+
+  .expandingContainer {
+    order: 2; /* Make expandingContainer appear second */
+    width: 100%; /* Full width */
+  }
+}
+
+@media (max-width: 480px) { /* Extra small devices (phones) */
+  .expansionAndPdfContainer {
+    gap: 5px; /* Reduce gap for smaller screens */
+  }
+
+  .pdfContainer,
+  .expandingContainer {
+    padding: 5px; /* Add some padding for better touch targets */
+    border-radius: 4px; /* Optional: Rounded corners */
+  }
+}
+
+
 
 .headers {
   font-weight: 500;
@@ -199,12 +301,13 @@
 
 
 .responsiveTitle {
+  // margin-top: 6px;
   color: "[theme: themePrimary, default: #0078d7]";
   text-align: center;
   font-size: 14px;
   /* Default for desktop */
   flex-grow: 1;
-  border: 1px solid red;
+  // border: 1px solid red;
 }
 
 @media (max-width: 750px) {
@@ -283,7 +386,7 @@
 
 
 .addBtn {
-  border: 1px solid green;
+  // border: 1px solid green;
   margin: 0px;
   height: 30px;
   border-radius: 8px;
@@ -418,7 +521,7 @@
   font-size: 14px;
   border-radius: 4px;
   text-align: center;
-  border: 1px solid #0078d4;
+  // border: 1px solid #0078d4;
   /* Same color as background for consistent styling */
   transition: background-color 0.3s ease;
 
@@ -444,10 +547,43 @@
   // background-color: #f4f4f4;
   min-height: 100vh;
   border:1px solid green;
+  font-size: 16px;
 }
 
+
+.viewFormHeaderSection{
+  justify-content: 'space-between';
+  padding-left: '5px';
+  padding-right: '5px';
+}
+
+
+.generalHeader {
+  font-size: 16px; // Default font size for desktop
+  font-weight: 500; // Default font weight for desktop
+  margin: 0; // Remove default margin for better control
+
+  // Responsive styles
+  @media (max-width: 1024px) { // Tablet
+    font-size: 14px; // Adjust font size for tablets
+    font-weight: 400; // Adjust font weight for tablets
+  }
+
+  @media (max-width: 768px) { // Mobile
+    font-size: 12px; // Adjust font size for mobile
+    font-weight: 300; // Adjust font weight for mobile
+    text-align: left; // Optional: Change alignment for mobile
+  }
+
+  @media (max-width: 480px) { // Small mobile
+    font-size: 10px; // Further adjustments for very small screens
+    font-weight: 300; // Keep font weight light for small mobile
+  }
+}
+
+
 .viewFormMainContainer{
-  border:1px solid red;
+  // border:1px solid red;
   // height: 100%;
   display: flex;
   // justify-content: flex-start;
@@ -457,7 +593,8 @@
 
 
 .viewFormContentContainer{
-  border:1px solid blue;
+  // border:1px solid blue;
+  border: none;
   
 
 
@@ -465,10 +602,11 @@
 
 .btnsContainer{
 
-  border: 1px solid red;
-  height: '100px';
+  // border: 1px solid red;
+  
   gap:'10px';
   display:flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   padding-top:15px;
@@ -544,6 +682,47 @@
 
 }
 
+.responsiveHeading {
+  font-size: 14px; /* Default font size */
+  
+  @media (max-width: 1200px) { /* Large tablets */
+    font-size: 14px;
+  }
+  
+  @media (max-width: 992px) { /* Medium tablets */
+    font-size: 14px;
+  }
+  
+  @media (max-width: 768px) { /* Small tablets */
+    font-size: 14px;
+  }
+  
+  @media (max-width: 576px) { /* Mobile */
+    font-size: 12px;
+  }
+}
+
+.responsiveContainerheaderForFileAttachment {
+  width: 100%; /* Full width */
+  padding: 15px; /* Default padding */
+  
+  @media (max-width: 1200px) { /* Large tablets */
+    padding: 12px;
+  }
+  
+  @media (max-width: 992px) { /* Medium tablets */
+    padding: 10px;
+  }
+  
+  @media (max-width: 768px) { /* Small tablets */
+    padding: 8px;
+  }
+  
+  @media (max-width: 576px) { /* Mobile */
+    padding: 5px;
+  }
+}
+
 
 // 
 
@@ -567,3 +746,50 @@
     overflow-y: auto; /* Allow vertical scrolling */
   }
 }
+
+/* File: ButtonStyles.module.scss */
+
+.responsiveButton {
+  /* Default styles for desktop */
+  width: 100px; 
+  height: 32px; 
+  font-size: 12px; 
+  margin-top: 6px;  
+  padding-left: 10px;
+  padding-right: 10px; 
+  display: flex; /* Enable flexbox for alignment */
+  align-items: center; /* Center content vertically */
+  justify-content: center; /* Center content horizontally */
+  
+  /* Icon padding */
+  svg {
+    margin-right: 4px; /* Space between icon and text */
+  }
+
+  @media (max-width: 1024px) { /* Tablet */
+    font-size: 12px; 
+    width: 80px; 
+    
+  }
+
+  @media (max-width: 768px) { /* Smaller tablets / larger phones */
+    font-size: 12px; 
+    width: 80px; 
+    padding-left: 6px;
+    padding-right: 6px;
+    
+  }
+
+  @media (max-width: 480px) { /* Mobile devices */
+    font-size: 12px; 
+    width: 70px; 
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
+
+
+
+
+
+

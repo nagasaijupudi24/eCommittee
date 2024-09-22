@@ -3329,7 +3329,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     {/* <PeoplePicker /> */}
                     <DefaultButton
                       type="button"
-                      className={`${styles.commonBtn2} ${styles.addBtn}`}
+                      className={`${styles.responsiveButton}`}
                       onClick={(e) => this.handleOnAdd(e, "reveiwer")}
                       iconProps={{ iconName: "Add" }}
                     >
@@ -3404,7 +3404,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     {/* <PeoplePicker /> */}
                     <DefaultButton
                       type="button"
-                      className={`${styles.commonBtn2} ${styles.addBtn}`}
+                      className={`${styles.responsiveButton}`}
                       onClick={(e) => this.handleOnAdd(e, "approver")}
                       iconProps={{ iconName: "Add" }}
                     >
@@ -3674,7 +3674,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               ) : (
                 <PrimaryButton
                   type="button"
-                  // className={`${styles.commonBtn1} ${styles.commonBtn}`}
+                  className={`${styles.responsiveButton}`}
                   iconProps={{ iconName: "Save" }}
                   onClick={(
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -3687,7 +3687,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 (this._itemId > 0 ? (
                   <PrimaryButton
                     type="button"
-                    // className={`${styles.commonBtn1} ${styles.commonBtn}`}
+                    className={`${styles.responsiveButton}`}
                     onClick={this.handleUpdate}
                     iconProps={{ iconName: "Send" }}
                   >
@@ -3696,7 +3696,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 ) : (
                   <PrimaryButton
                     type="button"
-                    // className={`${styles.commonBtn1} ${styles.commonBtn}`}
+                    className={`${styles.responsiveButton}`}
                     onClick={(
                       e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                     ) => this.handleSubmit(e, "Submitted")}
@@ -3706,13 +3706,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   </PrimaryButton>
                 ))}
 
-              <PrimaryButton
+              <DefaultButton
                 // type="button"
-                // className={`${styles.commonBtn2} ${styles.commonBtn}`}
+                className={`${styles.responsiveButton} `}
                 iconProps={{ iconName: "Cancel" }}
               >
                 Exit
-              </PrimaryButton>
+              </DefaultButton>
             </div>
             {/* <ul>
             {this.state.files.map((file, index) => (

@@ -12,6 +12,10 @@ import {
   Text,
   PrimaryButton,
   DefaultButton,
+  IColumn,
+  DetailsList,
+  SelectionMode,
+ 
 } from "@fluentui/react";
 import styles from "../Form.module.scss";
 // import DraggableTable from "./draggableGridKendo/draggableGridKendo";
@@ -32,6 +36,7 @@ import { format } from "date-fns";
 // import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
+import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
 // import { WebPartContext } from "@microsoft/sp-webpart-base";
@@ -133,6 +138,8 @@ export interface IViewFormState {
   pastApprover: any;
   referredFromDetails: any;
   refferredToDetails: any;
+
+  draftResoultionFieldValue: any;
 }
 
 const getIdFromUrl = (): any => {
@@ -249,6 +256,10 @@ export default class ViewForm extends React.Component<
       pastApprover: [],
       referredFromDetails: [],
       refferredToDetails: [],
+
+      draftResoultionFieldValue: "",
+
+
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -390,6 +401,33 @@ export default class ViewForm extends React.Component<
         {
           tableData: [
             item.CommitteeName !== null && {
+              column1: "Note Number",
+              column2: `${item.Title}`,
+            },
+            item.CommitteeName !== null && {
+              column1: "Requester",
+              column2: `${item.Author.Title}`,
+            },
+            item.Created !== null && {
+              column1: "Request Date",
+              column2: `${this._formatDateTime(item.Created)}`,
+            },
+            item.Status !== null && {
+              column1: "Status",
+              column2: `${item.Status}`,
+            },
+            item.ApproverDetails !== null && {
+              column1: "Current Approver",
+              column2: `${this._getPendingStatus(JSON.parse(item.ApproverDetails))}`,
+            },
+            item.Department !== null && {
+              column1: "Department",
+              column2: `${item.Department}`,
+            },
+
+            
+
+            item.CommitteeName !== null && {
               column1: "CommitteeName",
               column2: `${item.CommitteeName}`,
             },
@@ -482,8 +520,12 @@ export default class ViewForm extends React.Component<
       title: item.Title,
       commentsData:
         item.CommentsLog !== null ? JSON.parse(item.CommentsLog) : [],
-      referredFromDetails:item.referredFrom!==null? JSON.parse(item.referredFrom):[],
-      refferredToDetails:item.referredTo!==null? JSON.parse(item.referredTo):[] 
+      referredFromDetails:
+        item.referredFrom !== null ? JSON.parse(item.referredFrom) : [],
+      refferredToDetails:
+        item.referredTo !== null ? JSON.parse(item.referredTo) : [],
+
+        draftResoultionFieldValue:item.DraftResoultion
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
       // ?  []
       // : JSON.parse(item.CommentsLog),
@@ -492,76 +534,68 @@ export default class ViewForm extends React.Component<
     });
   };
 
+  private _formatDateTime = (date: string | number | Date) => {
+    const formattedDate = format(new Date(date), 'dd-MMM-yyyy');
+    const formattedTime = format(new Date(date), 'hh:mm a');
+    return `${formattedDate} ${formattedTime}`;
+};
+
   private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest =
     (): any => {
-
-
-      
-      return this.state.ApproverDetails.filter(
-        
-       
-        (each:any)=>{
-          console.log(each)
-          if ((each.approverEmail || each.approverEmailName||each.email) ===      (this._currentUserEmail)){
-            if (each.status==='Refered' && this.state.refferredToDetails[0]?.status ==='Referred Back'){
-              switch(each.status ){
-                case 'Approved':
-                  console.log(each.status)
-                  return false
-                case 'Rejected':
-                  console.log(each.status)
-                  return false
-                case 'Refered':
-                  console.log(each.status)
-                  return true 
-                case 'pending':
-                  console.log(each.status)
-                  return true 
-                case 'Referred Back':
-                  console.log(each.status)
-                  return true
-                default:
-                  console.log("default")
-                  return false
-              }
-            }else{
-             
-                switch(each.status ){
-                  case 'Approved':
-                    console.log(each.status)
-                    return false
-                  case 'Rejected':
-                    console.log(each.status)
-                    return false
-                  case 'Refered':
-                    console.log(each.status)
-                    return false 
-                  case 'pending':
-                    console.log(each.status)
-                    return true 
-                  case 'Referred Back':
-                    console.log(each.status)
-                    return true
-                  default:
-                    console.log("default")
-                    return false
-               
-              }
-  
+      return this.state.ApproverDetails.filter((each: any) => {
+        console.log(each);
+        if (
+          (each.approverEmail || each.approverEmailName || each.email) ===
+          this._currentUserEmail
+        ) {
+          if (
+            each.status === "Refered" &&
+            this.state.refferredToDetails[0]?.status === "Referred Back"
+          ) {
+            switch (each.status) {
+              case "Approved":
+                console.log(each.status);
+                return false;
+              case "Rejected":
+                console.log(each.status);
+                return false;
+              case "Refered":
+                console.log(each.status);
+                return true;
+              case "pending":
+                console.log(each.status);
+                return true;
+              case "Referred Back":
+                console.log(each.status);
+                return true;
+              default:
+                console.log("default");
+                return false;
             }
-
+          } else {
+            switch (each.status) {
+              case "Approved":
+                console.log(each.status);
+                return false;
+              case "Rejected":
+                console.log(each.status);
+                return false;
+              case "Refered":
+                console.log(each.status);
+                return false;
+              case "pending":
+                console.log(each.status);
+                return true;
+              case "Referred Back":
+                console.log(each.status);
+                return true;
+              default:
+                console.log("default");
+                return false;
+            }
           }
-        
-        
-      
-        
         }
-
-        
-      )[0]
-
-
-
+      })[0];
 
       // const checkItem = this.state.ApproverDetails.filter((each: any) => {
       //   console.log(each);
@@ -586,7 +620,7 @@ export default class ViewForm extends React.Component<
 
       //     console.log(
       //       (each.approverEmail || each.approverEmailName) ===
-      //       (this._currentUserEmail && 
+      //       (this._currentUserEmail &&
       //     (each.status === "Approved" ||each.status === "Returned" ||
       //       (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
       //       each.status === "pending" || each.status === 'Refered' ))
@@ -594,7 +628,7 @@ export default class ViewForm extends React.Component<
       //     )
       //     if (
       //       (each.approverEmail || each.approverEmailName) ===
-      //       (this._currentUserEmail && 
+      //       (this._currentUserEmail &&
       //     (each.status === "Approved" ||each.status === "Returned" ||
       //       (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
       //       each.status === "pending" || each.status === 'Refered' ))
@@ -603,7 +637,7 @@ export default class ViewForm extends React.Component<
       //     }
       //   // return (
       //   //   (each.approverEmail || each.approverEmailName) ===
-      //   //     (this._currentUserEmail && 
+      //   //     (this._currentUserEmail &&
       //   //   (each.status === "Approved" ||each.status === "Returned" ||
       //   //     (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
       //   //     each.status === "pending" || each.status === 'Refered' ))
@@ -762,28 +796,39 @@ export default class ViewForm extends React.Component<
 
   private _renderTable = (tableData: any[]): JSX.Element => {
     console.log(tableData);
+
+    // Define columns for the Fluent UI table
+    const columns: IColumn[] = [
+      {
+        key: "column1",
+        name: "Column 1",
+        fieldName: "column1",
+        minWidth: 120,
+        maxWidth: 200,
+        onRender: (item: any) => <strong>{item.column1}</strong>,
+      },
+      {
+        key: "column2",
+        name: "Column 2",
+        fieldName: "column2",
+        minWidth: 120,
+        maxWidth: 200,
+        onRender: (item: any) => <span>{item.column2}</span>,
+      },
+    ];
+
     return (
       <div style={{ overflow: "auto" }}>
-        <table className={styles.table}>
-          <tbody>
-            {tableData.map((row, index) => {
-              // console.log("-------------------------");
-              // console.log(row.column1);
-              // console.log(row.column2 !== null);
-              // console.log("-------------------------");
-              return (
-                row.column2 !== undefined && (
-                  <tr key={index}>
-                    <td>
-                      <strong>{row.column1}</strong>
-                    </td>
-                    <td>{row.column2}</td>
-                  </tr>
-                )
-              );
-            })}
-          </tbody>
-        </table>
+        <DetailsList
+          items={tableData.filter((row) => row.column2 !== undefined)} // Filter out rows with undefined column2
+          columns={columns}
+          setKey="set"
+          selectionMode={SelectionMode.none}
+          layoutMode={0} // Use detailsListLayoutMode.fixedColumns
+          styles={{
+            root: { minWidth: "400px" },
+          }}
+        />
       </div>
     );
   };
@@ -1314,17 +1359,19 @@ export default class ViewForm extends React.Component<
     return (
       <div style={{ display: "flex", gap: "10px" }}>
         <PrimaryButton
+          className={`${styles.responsiveButton}`}
+          iconProps={{ iconName: "CheckMark" }} // Icon for Approve
           styles={{
             root: {
               backgroundColor: "#37b400",
               border: "none",
             },
             rootHovered: {
-              backgroundColor: "#37b400", // Set hover background color
+              backgroundColor: "#37b400",
               border: "none",
             },
             rootPressed: {
-              backgroundColor: "#37b400", // Set pressed background color
+              backgroundColor: "#37b400",
               border: "none",
             },
           }}
@@ -1338,23 +1385,25 @@ export default class ViewForm extends React.Component<
               this._closeDialog
             );
             this.setState({ status: "Approve", statusNumber: "2000" });
-            // this._handleApproverButton(e,"Approved")
           }}
         >
           Approve
         </PrimaryButton>
+
         <PrimaryButton
+          className={`${styles.responsiveButton}`}
+          iconProps={{ iconName: "Remove" }} // Icon for Reject
           styles={{
             root: {
               backgroundColor: "#f31700",
               border: "none",
             },
             rootHovered: {
-              backgroundColor: "#f31700", // Set hover background color
+              backgroundColor: "#f31700",
               border: "none",
             },
             rootPressed: {
-              backgroundColor: "#f31700", // Set pressed background color
+              backgroundColor: "#f31700",
               border: "none",
             },
           }}
@@ -1368,28 +1417,32 @@ export default class ViewForm extends React.Component<
               this._closeDialog
             );
             this.setState({ status: "Reject", statusNumber: "4000" });
-            // this.handleReject(e,"Rejected","4000")
           }}
         >
           Reject
         </PrimaryButton>
+
         <PrimaryButton
+          className={`${styles.responsiveButton}`}
+          iconProps={{ iconName: "People" }} // Icon for Refer
           onClick={(e) => {
             this._hanldeFluentDialog(
               "Refer",
-              "Refered",
+              "Referred",
               "5000",
               ["Add Referee", "Comments"],
               this.handleRefer,
               this._closeDialog
             );
             this.setState({ status: "Refer", statusNumber: "5000" });
-            // this.handleRefer(e,"Refered","5000")
           }}
         >
           Refer
         </PrimaryButton>
+
         <PrimaryButton
+          className={`${styles.responsiveButton}`}
+          iconProps={{ iconName: "Back" }} // Icon for Return
           onClick={(e) => {
             this._hanldeFluentDialog(
               "Return",
@@ -1400,7 +1453,6 @@ export default class ViewForm extends React.Component<
               this._closeDialog
             );
             this.setState({ status: "Return", statusNumber: "3000" });
-            // this.handleReturn(e,"Returned","3000")
           }}
         >
           Return
@@ -1409,9 +1461,10 @@ export default class ViewForm extends React.Component<
     );
   };
 
-  private _getPendingStatus = (): any => {
+  private _getPendingStatus = (data:any): any => {
     // console.log(this.state.ApproverDetails);
-    const currentStatusOfApproverDetails = this.state.ApproverDetails.filter(
+    
+    const currentStatusOfApproverDetails = data.filter(
       (each: any) => {
         // console.log(each);
         // console.log(each.status);
@@ -1568,516 +1621,530 @@ export default class ViewForm extends React.Component<
             // labelPosition="right"
           />
         ) : (
-          <Stack tokens={{ childrenGap: 10 }} className={styles.viewFormMainContainer}>
+          <Stack
+            tokens={{ childrenGap: 10 }}
+            className={styles.viewFormMainContainer}
+          >
             {/* Header section */}
             <div
-              className={`${styles.generalSectionMainContainer}`}
-              style={{
-                justifyContent: "space-between",
-                paddingLeft: "5px",
-                paddingRight: "5px",
-              }}
+              className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
             >
-              {/* {!this.state.ApproverOrder === this.state.ApproverDetails.length &&<h1 style={{ alignSelf: "left", fontSize: "16px" }}>
-                pending:{this._getPendingStatus()}
-              </h1>} */}
-              {
-                <h1 style={{ alignSelf: "left", fontSize: "16px" }}>
-                  pending:
-                  {this._getPendingStatus()}
+              {this.state.ApproverOrder !==
+                this.state.ApproverDetails.length && (
+                <h1 className={`${styles.generalHeader} `}>
+                  pending: {this._getPendingStatus(this.state.ApproverDetails)}
                 </h1>
-              }
+              )}
 
-              <h1
-                style={{
-                  alignSelf: "center",
-                  textAlign: "center",
-                  fontSize: "16px",
-                }}
-              >
+              <h1 className={`${styles.generalHeader} `}>
                 eCommittee Note - {this.state.title}
               </h1>
-              <h1 style={{ alignSelf: "right", fontSize: "16px" }}>
-                Status:{this.state.status}
+
+              <h1 className={`${styles.generalHeader} `}>
+                Status: {this.state.status}
               </h1>
             </div>
+
             {/* Content Container */}
             <div className={`${styles.viewFormContentContainer}`}>
-                      {/* Content && Pdf container */}
+              {/* Content && Pdf container */}
+              <div className={styles.expansionAndPdfContainer}>
+                {/* expanding sections */}
+                <div className={styles.expandingContainer}>
+                  {/* General Section */}
+                  <div className={styles.sectionContainer}>
                     <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        alignItems: "flex-start",
-                        gap: "10px",
-                        // height: "100%",
-                        border: "1px solid yellow",
-                      }}
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`generalSection`)}
                     >
-                      {/* expanding sections */}
-                      <div
-                        style={{
-                          width: "40%",
-                          height: "100%",
-                          //   border: "1px solid red",
-                          gap: "0px",
+                      <Text className={styles.sectionText}>
+                        General Section
+                      </Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.generalSection
+                            ? "ChevronUp"
+                            : "ChevronDown",
                         }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
+                      />
+                    </div>
+                    {expandSections.generalSection && (
+                      <div className={`${styles.expansionPanelInside}`}>
+                        <div style={{ padding: "15px" }}>
+                          {this._renderTable(
+                            this.state.eCommitteData[0].tableData
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Draft Resoultion Section */}
+                  {this.props.formType ==='BoardNoteView'&&
+                   <div className={styles.sectionContainer}>
+                   <div
+                     className={styles.header}
+                     onClick={() => this._onToggleSection(`draftResolution`)}
+                   >
+                     <Text className={styles.sectionText}>
+                     Draft Resolution Section
+                     </Text>
+                     <IconButton
+                       iconProps={{
+                         iconName: expandSections.draftResolution
+                           ? "ChevronUp"
+                           : "ChevronDown",
+                       }}
+                       title="Expand/Collapse"
+                       ariaLabel="Expand/Collapse"
+                       className={styles.chevronIcon}
+                     />
+                   </div>
+                   {expandSections.draftResolution && (
+                     <div className={`${styles.expansionPanelInside}`}>
+                       <div style={{ padding: "15px" }}>
+                       <RichText    value={this.state.draftResoultionFieldValue}/>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+                  
+                  }
+                 
+                 
+                  {/* Reviewers Section */}
+                  <div className={styles.sectionContainer}>
+                    <div
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`reviewersSection`)}
+                    >
+                      <Text className={styles.sectionText}>
+                        Reviewers Section
+                      </Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.generalSection
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
+                      />
+                    </div>
+                    {expandSections.reviewersSection && (
+                      <div
+                        className={`${styles.expansionPanelInside}`}
+                        //   style={{ overflowX: "scroll" }}
                       >
-                        {/* General Section */}
-                        <div className={styles.sectionContainer}>
-                          <div
-                            className={styles.header}
-                            onClick={() => this._onToggleSection(`generalSection`)}
-                          >
-                            <Text className={styles.sectionText}>General Section</Text>
-                            <IconButton
-                              iconProps={{
-                                iconName: expandSections.generalSection
-                                  ? "ChevronUp"
-                                  : "ChevronDown",
-                              }}
-                              title="Expand/Collapse"
-                              ariaLabel="Expand/Collapse"
-                              className={styles.chevronIcon}
+                        <div style={{ padding: "15px" }}>
+                          <ApproverAndReviewerTableInViewForm
+                            data={this.state.peoplePickerData}
+                            reOrderData={this.reOrderData}
+                            removeDataFromGrid={this.removeDataFromGrid}
+                            type="Reviewer"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Approvers  Section */}
+                  <div className={styles.sectionContainer}>
+                    <div
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`approversSection`)}
+                    >
+                      <Text className={styles.sectionText}>
+                        Approvers Section
+                      </Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.generalSection
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
+                      />
+                    </div>
+                    {expandSections.approversSection && (
+                      <div
+                        className={`${styles.expansionPanelInside}`}
+                        //   style={{ overflowX: "scroll" }}
+                      >
+                        <div style={{ padding: "15px" }}>
+                          <ApproverAndReviewerTableInViewForm
+                            data={this.state.peoplePickerApproverData}
+                            reOrderData={this.reOrderData}
+                            removeDataFromGrid={this.removeDataFromGrid}
+                            type="Approver"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/*General Comments */}
+
+                  {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                  this._currentUserEmail !== this.state.createdByEmail ? (
+                    <div className={styles.sectionContainer}>
+                      <div
+                        className={styles.header}
+                        onClick={() => this._onToggleSection(`generalComments`)}
+                      >
+                        <Text className={styles.sectionText}>
+                          General Comments
+                        </Text>
+                        <IconButton
+                          iconProps={{
+                            iconName: expandSections.generalComments
+                              ? "ChevronUp"
+                              : "ChevronDown",
+                          }}
+                          title="Expand/Collapse"
+                          ariaLabel="Expand/Collapse"
+                          className={styles.chevronIcon}
+                        />
+                      </div>
+
+                      {expandSections.generalComments && (
+                        <div
+                          className={`${styles.expansionPanelInside}`}
+                          //   style={{ overflowX: "scroll" }}
+                        >
+                          <div style={{ padding: "15px" }}>
+                            <GeneralCommentsFluentUIGrid
+                              handleCommentDataFuntion={this._getCommentData}
+                              data={this.state.commentsData}
+                              currentUserDetails={
+                                this.props.context.pageContext.user
+                              }
+                              type="generalComments"
                             />
                           </div>
-                          {expandSections.generalSection && (
-                            <div className={`${styles.expansionPanelInside}`}>
-                              <div style={{ padding: "15px" }}>
-                                {this._renderTable(
-                                  this.state.eCommitteData[0].tableData
-                                )}
-                              </div>
-                            </div>
-                          )}
                         </div>
-                        {/* Reviewers Section */}
-                        <div className={styles.sectionContainer}>
-                          <div
-                            className={styles.header}
-                            onClick={() => this._onToggleSection(`reviewersSection`)}
-                          >
-                            <Text className={styles.sectionText}>
-                              Reviewers Section
-                            </Text>
-                            <IconButton
-                              iconProps={{
-                                iconName: expandSections.generalSection
-                                  ? "ChevronUp"
-                                  : "ChevronDown",
-                              }}
-                              title="Expand/Collapse"
-                              ariaLabel="Expand/Collapse"
-                              className={styles.chevronIcon}
+                      )}
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
+                  {/*ATR Assignees */}
+                  {this.state.ApproverType.toString() === "2" ? (
+                    <div className={styles.sectionContainer}>
+                      <div
+                        className={styles.header}
+                        onClick={() => this._onToggleSection(`atrAssignees`)}
+                      >
+                        <Text className={styles.sectionText}>
+                          ATR Assignees
+                        </Text>
+                        <IconButton
+                          iconProps={{
+                            iconName: expandSections.atrAssignees
+                              ? "ChevronUp"
+                              : "ChevronDown",
+                          }}
+                          title="Expand/Collapse"
+                          ariaLabel="Expand/Collapse"
+                          className={styles.chevronIcon}
+                        />
+                      </div>
+                      {expandSections.atrAssignees && (
+                        <div
+                          className={`${styles.expansionPanelInside}`}
+                          //   style={{ overflowX: "scroll" }}
+                        >
+                          {" "}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
+                  {/* Comments Log */}
+
+                  <div className={styles.sectionContainer}>
+                    <div
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`commentsLog`)}
+                    >
+                      <Text className={styles.sectionText}>Comments Log</Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.commentsLog
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
+                      />
+                    </div>
+                    {expandSections.commentsLog && (
+                      <div
+                        className={`${styles.expansionPanelInside}`}
+                        //   style={{ overflowX: "scroll" }}
+                      >
+                        <div style={{ padding: "15px" }}>
+                          <CommentsLogTable
+                            data={this.state.commentsData} //have change data valu
+                            type="commentsLog"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/*Attach Supporting Documents */}
+                  {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                  this._currentUserEmail !== this.state.createdByEmail ? (
+                    <div className={styles.sectionContainer}>
+                      <div
+                        className={styles.header}
+                        onClick={() =>
+                          this._onToggleSection(`attachSupportingDocuments`)
+                        }
+                      >
+                        <Text className={styles.sectionText}>
+                          Attach Supporting Documents
+                        </Text>
+                        <IconButton
+                          iconProps={{
+                            iconName: expandSections.attachSupportingDocuments
+                              ? "ChevronUp"
+                              : "ChevronDown",
+                          }}
+                          title="Expand/Collapse"
+                          ariaLabel="Expand/Collapse"
+                          className={styles.chevronIcon}
+                        />
+                      </div>
+                      {expandSections.attachSupportingDocuments && (
+                        <div
+                          className={`${styles.expansionPanelInside}`}
+                          style={{ width: "100%", margin: "0px" }}
+                        >
+                          <div style={{ padding: "15px" }}>
+                            <UploadFileComponent
+                              typeOfDoc="supportingDocument"
+                              onChange={
+                                this.handleSupportingFileChangeInViewForm
+                              }
+                              accept=".xlsx,.pdf,.doc,.docx"
+                              multiple={true}
+                              maxFileSizeMB={25}
+                              maxTotalSizeMB={25}
+                              data={this.state.supportingFilesInViewForm}
+
+                              // value={this.state.supportingDocumentfiles}
                             />
                           </div>
-                          {expandSections.reviewersSection && (
-                            <div
-                              className={`${styles.expansionPanelInside}`}
-                              //   style={{ overflowX: "scroll" }}
-                            >
-                              <div style={{ padding: "15px" }}>
-                                <ApproverAndReviewerTableInViewForm
-                                  data={this.state.peoplePickerData}
-                                  reOrderData={this.reOrderData}
-                                  removeDataFromGrid={this.removeDataFromGrid}
-                                  type="Reviewer"
-                                />
-                              </div>
-                            </div>
-                          )}
                         </div>
-                        {/* Approvers  Section */}
-                        <div className={styles.sectionContainer}>
-                          <div
-                            className={styles.header}
-                            onClick={() => this._onToggleSection(`approversSection`)}
-                          >
-                            <Text className={styles.sectionText}>
-                              Approvers Section
-                            </Text>
-                            <IconButton
-                              iconProps={{
-                                iconName: expandSections.generalSection
-                                  ? "ChevronUp"
-                                  : "ChevronDown",
-                              }}
-                              title="Expand/Collapse"
-                              ariaLabel="Expand/Collapse"
-                              className={styles.chevronIcon}
-                            />
-                          </div>
-                          {expandSections.approversSection && (
-                            <div
-                              className={`${styles.expansionPanelInside}`}
-                              //   style={{ overflowX: "scroll" }}
-                            >
-                              <div style={{ padding: "15px" }}>
-                                <ApproverAndReviewerTableInViewForm
-                                  data={this.state.peoplePickerApproverData}
-                                  reOrderData={this.reOrderData}
-                                  removeDataFromGrid={this.removeDataFromGrid}
-                                  type="Approver"
-                                />
-                              </div>
-                            </div>
-                          )}
+                      )}
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                  {/* Workflow Log */}
+                  <div className={styles.sectionContainer}>
+                    <div
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`workflowLog`)}
+                    >
+                      <Text className={styles.sectionText}>Workflow Log</Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.workflowLog
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
+                      />
+                    </div>
+                    {expandSections.workflowLog && (
+                      <div
+                        className={`${styles.expansionPanelInside}`}
+                        //   style={{ overflowX: "scroll" }}
+                      >
+                        <div style={{ padding: "15px" }}>
+                          <WorkFlowLogsTable
+                            data={this.state.auditTrail}
+                            type="Approver"
+                          />
                         </div>
-                        {/*General Comments */}
-
-                        {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                        this._currentUserEmail !== this.state.createdByEmail ? (
-                          <div className={styles.sectionContainer}>
-                            <div
-                              className={styles.header}
-                              onClick={() => this._onToggleSection(`generalComments`)}
+                      </div>
+                    )}
+                  </div>
+                  {/* File Attachments*/}
+                  <div className={styles.sectionContainer}>
+                    <div
+                      className={styles.header}
+                      onClick={() => this._onToggleSection(`fileAttachments`)}
+                    >
+                      <Text className={styles.sectionText}>
+                        File Attachments
+                      </Text>
+                      <IconButton
+                        iconProps={{
+                          iconName: expandSections.fileAttachments
+                            ? "ChevronUp"
+                            : "ChevronDown",
+                        }}
+                        title="Expand/Collapse"
+                        ariaLabel="Expand/Collapse"
+                        className={styles.chevronIcon}
+                      />
+                    </div>
+                    {expandSections.fileAttachments && (
+                      <div
+                        className={`${styles.expansionPanelInside} ${styles.responsiveContainerheaderForFileAttachment}`}
+                      >
+                        <div style={{ padding: "15px" }}>
+                          <h4 className={styles.responsiveHeading}>
+                            Main Note Link:
+                            <a
+                              href={this.state.noteTofiles[0]?.fileUrl}
+                              download
                             >
-                              <Text className={styles.sectionText}>
-                                General Comments
-                              </Text>
-                              <IconButton
-                                iconProps={{
-                                  iconName: expandSections.generalComments
-                                    ? "ChevronUp"
-                                    : "ChevronDown",
-                                }}
-                                title="Expand/Collapse"
-                                ariaLabel="Expand/Collapse"
-                                className={styles.chevronIcon}
-                              />
-                            </div>
-
-                            {expandSections.generalComments && (
-                              <div
-                                className={`${styles.expansionPanelInside}`}
-                                //   style={{ overflowX: "scroll" }}
-                              >
-                                <div style={{ padding: "15px" }}>
-                                  <GeneralCommentsFluentUIGrid
-                                    handleCommentDataFuntion={this._getCommentData}
-                                    data={this.state.commentsData}
-                                    currentUserDetails={
-                                      this.props.context.pageContext.user
-                                    }
-                                    type="generalComments"
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          ""
-                        )}
-
-                        {/*ATR Assignees */}
-                        {this.state.ApproverType.toString() === "2" ? (
-                          <div className={styles.sectionContainer}>
-                            <div
-                              className={styles.header}
-                              onClick={() => this._onToggleSection(`atrAssignees`)}
+                              {" "}
+                              {this.state.noteTofiles[0]?.name}
+                            </a>
+                          </h4>
+                          {this.state.wordDocumentfiles.length > 0 && (
+                            <h4
+                              className={styles.responsiveHeading}
+                              style={{ minWidth: "150px" }}
                             >
-                              <Text className={styles.sectionText}>ATR Assignees</Text>
-                              <IconButton
-                                iconProps={{
-                                  iconName: expandSections.atrAssignees
-                                    ? "ChevronUp"
-                                    : "ChevronDown",
-                                }}
-                                title="Expand/Collapse"
-                                ariaLabel="Expand/Collapse"
-                                className={styles.chevronIcon}
-                              />
-                            </div>
-                            {expandSections.atrAssignees && (
-                              <div
-                                className={`${styles.expansionPanelInside}`}
-                                //   style={{ overflowX: "scroll" }}
+                              Word Documents:
+                              <a
+                                href={this.state.wordDocumentfiles[0]?.fileUrl}
+                                download
                               >
                                 {" "}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          ""
-                        )}
-
-                        {/* Comments Log */}
-
-                        <div className={styles.sectionContainer}>
-                          <div
-                            className={styles.header}
-                            onClick={() => this._onToggleSection(`commentsLog`)}
-                          >
-                            <Text className={styles.sectionText}>Comments Log</Text>
-                            <IconButton
-                              iconProps={{
-                                iconName: expandSections.commentsLog
-                                  ? "ChevronUp"
-                                  : "ChevronDown",
-                              }}
-                              title="Expand/Collapse"
-                              ariaLabel="Expand/Collapse"
-                              className={styles.chevronIcon}
-                            />
-                          </div>
-                          {expandSections.commentsLog && (
-                            <div
-                              className={`${styles.expansionPanelInside}`}
-                              //   style={{ overflowX: "scroll" }}
-                            >
-                              <div style={{ padding: "15px" }}>
-                                <CommentsLogTable
-                                  data={this.state.commentsData} //have change data valu
-                                  type="commentsLog"
-                                />
-                              </div>
-                            </div>
+                                {this.state.wordDocumentfiles[0]?.name}
+                              </a>
+                            </h4>
                           )}
-                        </div>
-                        {/*Attach Supporting Documents */}
-                        {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                        this._currentUserEmail !== this.state.createdByEmail ? (
-                          <div className={styles.sectionContainer}>
-                            <div
-                              className={styles.header}
-                              onClick={() =>
-                                this._onToggleSection(`attachSupportingDocuments`)
-                              }
-                            >
-                              <Text className={styles.sectionText}>
-                                Attach Supporting Documents
-                              </Text>
-                              <IconButton
-                                iconProps={{
-                                  iconName: expandSections.attachSupportingDocuments
-                                    ? "ChevronUp"
-                                    : "ChevronDown",
-                                }}
-                                title="Expand/Collapse"
-                                ariaLabel="Expand/Collapse"
-                                className={styles.chevronIcon}
-                              />
-                            </div>
-                            {expandSections.attachSupportingDocuments && (
-                              <div
-                                className={`${styles.expansionPanelInside}`}
-                                style={{ width: "100%", margin: "0px" }}
-                              >
-                                <div style={{ padding: "15px" }}>
-                                  <UploadFileComponent
-                                    typeOfDoc="supportingDocument"
-                                    onChange={this.handleSupportingFileChangeInViewForm}
-                                    accept=".xlsx,.pdf,.doc,.docx"
-                                    multiple={true}
-                                    maxFileSizeMB={25}
-                                    maxTotalSizeMB={25}
-                                    data={this.state.supportingFilesInViewForm}
-
-                                    // value={this.state.supportingDocumentfiles}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                        {/* Workflow Log */}
-                        <div className={styles.sectionContainer}>
-                          <div
-                            className={styles.header}
-                            onClick={() => this._onToggleSection(`workflowLog`)}
-                          >
-                            <Text className={styles.sectionText}>Workflow Log</Text>
-                            <IconButton
-                              iconProps={{
-                                iconName: expandSections.workflowLog
-                                  ? "ChevronUp"
-                                  : "ChevronDown",
-                              }}
-                              title="Expand/Collapse"
-                              ariaLabel="Expand/Collapse"
-                              className={styles.chevronIcon}
-                            />
-                          </div>
-                          {expandSections.workflowLog && (
-                            <div
-                              className={`${styles.expansionPanelInside}`}
-                              //   style={{ overflowX: "scroll" }}
-                            >
-                              <div style={{ padding: "15px" }}>
-                                <WorkFlowLogsTable
-                                  data={this.state.auditTrail}
-                                  type="Approver"
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        {/* File Attachments*/}
-                        <div className={styles.sectionContainer}>
-                          <div
-                            className={styles.header}
-                            onClick={() => this._onToggleSection(`fileAttachments`)}
-                          >
-                            <Text className={styles.sectionText}>File Attachments</Text>
-                            <IconButton
-                              iconProps={{
-                                iconName: expandSections.fileAttachments
-                                  ? "ChevronUp"
-                                  : "ChevronDown",
-                              }}
-                              title="Expand/Collapse"
-                              ariaLabel="Expand/Collapse"
-                              className={styles.chevronIcon}
-                            />
-                          </div>
-                          {expandSections.fileAttachments && (
-                            <div
-                              className={`${styles.expansionPanelInside}`}
-
-                              //   style={{ overflowX: "scroll" }}
-                            >
-                              {/* Note Files */}
-                              <div style={{ padding: "15px" }}>
-                                <h4>
-                                  Main Note Link:
-                                  <a href={this.state.noteTofiles[0].fileUrl} download>
-                                    {" "}
-                                    {this.state.noteTofiles[0].name}
-                                  </a>
-                                </h4>
-                                {/* Word Documents */}
-                                {this.state.wordDocumentfiles.length > 0 && (
-                                  <h4 style={{ minWidth: "150px" }}>
-                                    Word Documents :
-                                    <a
-                                      href={this.state.wordDocumentfiles[0].fileUrl}
-                                      download
-                                    >
-                                      {" "}
-                                      {this.state.wordDocumentfiles[0].name}
-                                    </a>
-                                  </h4>
-                                )}
-
-                                {/* Support Documents */}
-                                <h4>Support Documents :</h4>
-                                <FileAttatchmentTable
-                                  data={this.state.supportingDocumentfiles}
-                                />
-
-                                {/* <h4>Word Documents :</h4>
-                              <FileAttatchmentTable
-                                data={this.state.wordDocumentfiles}
-                              /> */}
-                              </div>
-                            </div>
-                          )}
+                          <h4 className={styles.responsiveHeading}>
+                            Support Documents:
+                          </h4>
+                          <FileAttatchmentTable
+                            data={this.state.supportingDocumentfiles}
+                          />
                         </div>
                       </div>
-                      {/* {pdf Viewer} */}
-                      <div
-                        style={{
-                          
-                          width: "60%",
-                          border: "1px solid pink",
-                        }}
-                      >
-                        {this.state.pdfLink && this._renderPDFView()}
-                      </div>
-                    </div>
-                    {/* buttons Sections */}
-                    <div className={styles.btnsContainer}
-                      
+                    )}
+                  </div>
+                </div>
+                {/* {pdf Viewer} */}
+                <div className={styles.pdfContainer}>
+                  {this.state.pdfLink && this._renderPDFView()}
+                </div>
+              </div>
+              {/* buttons Sections */}
+              <div className={styles.btnsContainer}>
+                {this._currentUserEmail === this.state.createdByEmail ? (
+                  this._checkApproveredStatusIsFound() ? (
+                    <PrimaryButton
+                      className={`${styles.responsiveButton}`}
+                      iconProps={{ iconName: "Edit" }}
+                      onClick={(e) => {
+                        console.log("Change Approver btn Triggered");
+                        this._hanldeFluentDialog(
+                          "Change Approver",
+                          "changeApprover",
+                          "7500",
+                          "Change Approver*",
+                          this.handleChangeApprover,
+                          this._closeDialog
+                        );
+                        //  this.handleChangeApprover( "ChangedApprover", "7500");
+                        this.setState({
+                          status: "changedApprover",
+                          statusNumber: "7500",
+                        });
+                      }}
                     >
-                      {this._currentUserEmail === this.state.createdByEmail ? (
-                        this._checkApproveredStatusIsFound() ? (
-                          <PrimaryButton
-                            onClick={(e) => {
-                              console.log("Change Approver btn Triggered");
-                              this._hanldeFluentDialog(
-                                "Change Approver",
-                                "changeApprover",
-                                "7500",
-                                "Change Approver*",
-                                this.handleChangeApprover,
-                                this._closeDialog
-                              );
-                              //  this.handleChangeApprover( "ChangedApprover", "7500");
-                              this.setState({
-                                status: "changedApprover",
-                                statusNumber: "7500",
-                              });
-                            }}
-                          >
-                            Change Approver
-                          </PrimaryButton>
-                        ) : (
-                          <PrimaryButton
-                            onClick={(e) => {
-                              console.log("Call Back btn Triggered");
-                              this.handleCallBack(e, "Call Back", "7000");
-                              this.setState({
-                                status: "Call Back",
-                                statusNumber: "7000",
-                              });
-                            }}
-                          >
-                            Call Back
-                          </PrimaryButton>
-                        )
-                      ) : ((this.state.refferredToDetails.length> 0 &&((this.state.refferredToDetails[0]?.email ===
-                        this._currentUserEmail) && (this.state.refferredToDetails[0]?.status==="Refered"))))? (
-                        <PrimaryButton
-                          styles={{
-                            root: {
-                              backgroundColor: "#37b400",
-                              border: "none",
-                            },
-                            rootHovered: {
-                              backgroundColor: "#37b400", // Set hover background color
-                              border: "none",
-                            },
-                            rootPressed: {
-                              backgroundColor: "#37b400", // Set pressed background color
-                              border: "none",
-                            },
-                          }}
-                          onClick={(e) => {
-                            this._hanldeFluentDialog(
-                              "Refer Back",
-                              "Referred Back",
-                              "6000",
-                              "Please check the details filled along with attachment and click on Confirm button to approve request.",
-                              this.handleReferBack,
-                              this._closeDialog
-                            );
-                            this.setState({ status: "Approve", statusNumber: "2000" });
-                            // this._handleApproverButton(e,"Approved")
-                          }}
-                        >
-                          Refer Back
-                        </PrimaryButton>
-                      ) : (
-                        this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                        this._getApproverAndReviewerStageButton()
-                      )}
-                      {/* {this._getApproverAndReviewerStageButton()} */}
+                      Change Approver
+                    </PrimaryButton>
+                  ) : (
+                    <PrimaryButton
+                      className={`${styles.responsiveButton}`}
+                      iconProps={{ iconName: "Refresh" }}
+                      onClick={(e) => {
+                        console.log("Call Back btn Triggered");
+                        this.handleCallBack(e, "Call Back", "7000");
+                        this.setState({
+                          status: "Call Back",
+                          statusNumber: "7000",
+                        });
+                      }}
+                    >
+                      Call Back
+                    </PrimaryButton>
+                  )
+                ) : this.state.refferredToDetails.length > 0 &&
+                  this.state.refferredToDetails[0]?.email ===
+                    this._currentUserEmail &&
+                  this.state.refferredToDetails[0]?.status === "Refered" ? (
+                  <PrimaryButton
+                    className={`${styles.responsiveButton}`}
+                    iconProps={{ iconName: "Reply" }}
+                    styles={{
+                      root: {
+                        backgroundColor: "#37b400",
+                        border: "none",
+                      },
+                      rootHovered: {
+                        backgroundColor: "#37b400", // Set hover background color
+                        border: "none",
+                      },
+                      rootPressed: {
+                        backgroundColor: "#37b400", // Set pressed background color
+                        border: "none",
+                      },
+                    }}
+                    onClick={(e) => {
+                      this._hanldeFluentDialog(
+                        "Refer Back",
+                        "Referred Back",
+                        "6000",
+                        "Please check the details filled along with attachment and click on Confirm button to approve request.",
+                        this.handleReferBack,
+                        this._closeDialog
+                      );
+                      this.setState({
+                        status: "Approve",
+                        statusNumber: "2000",
+                      });
+                      // this._handleApproverButton(e,"Approved")
+                    }}
+                  >
+                    Refer Back
+                  </PrimaryButton>
+                ) : (
+                  this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                  this._getApproverAndReviewerStageButton()
+                )}
+                {/* {this._getApproverAndReviewerStageButton()} */}
 
-                      <DefaultButton
-                        type="button"
-                        // className={`${styles.commonBtn2} ${styles.addBtn}`}
-                        // style={{ marginTop: "6px" }}
-                        iconProps={{ iconName: "Cancel" }}
-                      >
-                        Exit
-                      </DefaultButton>
-                    </div>
-
+                <DefaultButton
+                  type="button"
+                  // className={`${styles.commonBtn2} ${styles.addBtn}`}
+                  className={`${styles.responsiveButton} `}
+                  style={{ marginLeft: "10px" }}
+                  iconProps={{ iconName: "Cancel" }}
+                >
+                  Exit
+                </DefaultButton>
+              </div>
             </div>
-           
-           
           </Stack>
         )}
         {!this.state.dialogFluent && (

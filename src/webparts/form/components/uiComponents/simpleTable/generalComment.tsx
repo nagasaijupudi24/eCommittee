@@ -38,7 +38,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       pageNumValue: "",
       pageValue: "",
       commentValue: "",
-      rowsData: this._getCurentUserComment() ,
+      rowsData: this._getCurentUserComment(),
       editState: false,
       id: "",
       editPageNumValue: "",
@@ -59,16 +59,16 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     //   console.log(this.props.currentUserDetails.displayName)
     if (
       this.props.data?.some(
-        (each: any) => each.commentedBy === this.props.currentUserDetails.displayName
+        (each: any) => each?.commentedBy === this.props.currentUserDetails.displayName
       )
     ) {
       console.log(
-        this.props.data.filter(
-          (each: any) => each.commentedBy === this.props.currentUserDetails.displayName
+        this.props.data?.filter(
+          (each: any) => each?.commentedBy === this.props.currentUserDetails.displayName
         )
       );
-      return this.props.data.filter(
-        (each: any) =>each.commentedBy === this.props.currentUserDetails.displayName
+      return this.props.data?.filter(
+        (each: any) =>each?.commentedBy === this.props.currentUserDetails.displayName
         //     {
         //     console.log(each)
         //     console.log(each.commentedBy === this.props.currentUserDetails.displayName)
@@ -200,188 +200,351 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     console.log(this.state);
     return (
       <div style={{ overflow: "auto" }}>
-        <table
-          style={{
-            border: "1px solid black",
-            borderCollapse: "collapse",
-            width: "100%",
-          }}
-        >
-          <tr>
-            <th style={{ border: "1px solid black", padding: "10px" }}>
-              Page#
-            </th>
-            <th style={{ border: "1px solid black", padding: "10px" }}>Page</th>
-            <th style={{ border: "1px solid black", padding: "10px" }}>
-              Comment
-            </th>
-            <th style={{ border: "1px solid black", padding: "10px" }}>
-              Action
-            </th>
-          </tr>
-          <tr>
-            <td style={{ border: "1px solid black", padding: "10px" }}>
-              <input
-                value={this.state.pageNumValue}
-                onChange={(e) => this.handleInputElement(e, "pageNum")}
-              />
-            </td>
-            <td style={{ border: "1px solid black", padding: "10px" }}>
-              <input
-                value={this.state.pageValue}
-                onChange={(e) => this.handleInputElement(e, "page")}
-              />
-            </td>
-            <td style={{ border: "1px solid black", padding: "10px" }}>
-              <textarea
-                value={this.state.commentValue}
-                name="comments"
-                rows={4} // Rows should be a number, not a string
-                cols={50}
-                placeholder="Enter your comment here..."
-                onChange={(e) => this.handleInputElement(e, "comments")}
-              ></textarea>
-            </td>
-            <td style={{ border: "1px solid black", padding: "10px" }}>
-              <button type="button" onClick={this.handleAddBtn}>
-                Add
-              </button>
-            </td>
-          </tr>
-          {this.state.editState
-            ? this.state.rowsData.map((each: any, index: number) => {
-                if (each.id === this.state.id) {
-                  return (
-                    <tr key={each.index + 1}>
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        <input
-                          value={this.state.editPageNumValue}
-                          onChange={(e) => {
-                            this.handleInputElement(e, "pageNum", each.id);
-                          }}
-                        />
-                      </td>
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        <input
-                          value={this.state.editPageValue}
-                          onChange={(e) => {
-                            this.handleInputElement(e, "page", each.id);
-                          }}
-                        />
-                      </td>
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        <input
-                          value={this.state.editCommentValue}
-                          onChange={(e) => {
-                            this.handleInputElement(e, "comment", each.id);
-                          }}
-                        />
-                      </td>
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            console.log("save btn triggered");
-                            this.setState({ editState: false });
-                            this.handleSaveBtn(e);
-                          }}
-                        >
-                          Save
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                } else {
-                  return (
-                    <tr key={each.index + 1}>
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        {each.pageNum}
-                      </td>
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        {each.page}
-                      </td>
+  <table style={{ minWidth: "800px", borderCollapse: "collapse", width: "100%" }}>
+    <thead>
+      <tr>
+        <th style={{ width: "120px", border: "1px solid #ddd", padding: "8px" }}>Page#</th>
+        <th style={{ width: "120px", border: "1px solid #ddd", padding: "8px" }}>Page</th>
+        <th style={{ width: "120px", border: "1px solid #ddd", padding: "8px" }}>Comment</th>
+        <th style={{ width: "120px", border: "1px solid #ddd", padding: "8px" }}>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+          <input
+            value={this.state.pageNumValue}
+            onChange={(e) => this.handleInputElement(e, "pageNum")}
+          />
+        </td>
+        <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+          <input
+            value={this.state.pageValue}
+            onChange={(e) => this.handleInputElement(e, "page")}
+          />
+        </td>
+        <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+          <textarea
+            value={this.state.commentValue}
+            name="comments"
+            rows={4}
+            cols={50}
+            placeholder="Enter your comment here..."
+            onChange={(e) => this.handleInputElement(e, "comments")}
+          ></textarea>
+        </td>
+        <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+          <button type="button" onClick={this.handleAddBtn}>
+            Add
+          </button>
+        </td>
+      </tr>
+      {this.state.editState
+        ? this.state.rowsData.map((each: any) => {
+            if (each.id === this.state.id) {
+              return (
+                <tr key={each.index + 1}>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                    <input
+                      value={this.state.editPageNumValue}
+                      onChange={(e) => {
+                        this.handleInputElement(e, "pageNum", each.id);
+                      }}
+                    />
+                  </td>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                    <input
+                      value={this.state.editPageValue}
+                      onChange={(e) => {
+                        this.handleInputElement(e, "page", each.id);
+                      }}
+                    />
+                  </td>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                    <input
+                      value={this.state.editCommentValue}
+                      onChange={(e) => {
+                        this.handleInputElement(e, "comment", each.id);
+                      }}
+                    />
+                  </td>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        console.log("save btn triggered");
+                        this.setState({ editState: false });
+                        this.handleSaveBtn(e);
+                      }}
+                    >
+                      Save
+                    </button>
+                  </td>
+                </tr>
+              );
+            } else {
+              return (
+                <tr key={each.index + 1}>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.pageNum}</td>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.page}</td>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.comment}</td>
+                  <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                    <button type="button">Delete</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        console.log("Edit is triggered");
+                        this.setState({ editState: true, id: each.id });
+                        const filteredItem = this.state.rowsData.find((item: { id: any; }) => item.id === each.id);
+                        this.setState({
+                          editPageNumValue: filteredItem.pageNum,
+                          editPageValue: filteredItem.page,
+                          editCommentValue: filteredItem.comment,
+                        });
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              );
+            }
+          })
+        : this.state.rowsData.map((each: any) => {
+            return (
+              <tr key={each.index + 1}>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.pageNum}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.page}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.comment}</td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  <button type="button">Delete</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      console.log("Edit is triggered");
+                      this.setState({ editState: true, id: each.id });
+                      const filteredItem = this.state.rowsData.find((item: { id: any; }) => item.id === each.id);
+                      this.setState({
+                        editPageNumValue: filteredItem.pageNum,
+                        editPageValue: filteredItem.page,
+                        editCommentValue: filteredItem.comment,
+                      });
+                    }}
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+    </tbody>
+  </table>
+</div>
 
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        {each.comment}
-                      </td>
-                      <td
-                        style={{ border: "1px solid black", padding: "10px" }}
-                      >
-                        <button type="button">Delete</button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            console.log("Edit is triggered");
-                            this.setState({ editState: true, id: each.id });
-                            const filteredItem = this.state.rowsData.filter(
-                              (item: any) => item.id === each.id
-                            )[0];
-                            this.setState({
-                              editPageNumValue: filteredItem.pageNum,
-                              editPageValue: filteredItem.page,
-                              editCommentValue: filteredItem.comment,
-                            });
-                          }}
-                        >
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                }
-              })
-            : this.state.rowsData.map((each: any, index: number) => {
-                return (
-                  <tr key={each.index + 1}>
-                    <td style={{ border: "1px solid black", padding: "10px" }}>
-                      {each.pageNum}
-                    </td>
-                    <td style={{ border: "1px solid black", padding: "10px" }}>
-                      {each.page}
-                    </td>
-
-                    <td style={{ border: "1px solid black", padding: "10px" }}>
-                      {each.comment}
-                    </td>
-                    <td style={{ border: "1px solid black", padding: "10px" }}>
-                      <button type="button">Delete</button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          console.log("Edit is triggered");
-                          this.setState({ editState: true, id: each.id });
-                          const filteredItem = this.state.rowsData.filter(
-                            (item: any) => item.id === each.id
-                          )[0];
-                          this.setState({
-                            editPageNumValue: filteredItem.pageNum,
-                            editPageValue: filteredItem.page,
-                            editCommentValue: filteredItem.comment,
-                          });
-                        }}
-                      >
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-        </table>
-      </div>
     );
   }
 }
+
+
+
+
+// fluent ui code
+
+// import * as React from "react";
+// import { v4 } from "uuid";
+// import {
+//   DetailsList,
+//   DetailsListLayoutMode,
+//   SelectionMode,
+//   IColumn,
+//   TextField,
+//   PrimaryButton,
+//   DefaultButton,
+// } from "@fluentui/react";
+
+// interface IGridState {
+//   pageNumValue: string;
+//   pageValue: string;
+//   commentValue: string;
+//   rowsData: any;
+//   editState: boolean;
+//   id: any;
+//   editPageNumValue: string;
+//   editPageValue: string;
+//   editCommentValue: string;
+// }
+
+// export default class GeneralCommentsFluentUIGrid extends React.Component<
+//   any,
+//   IGridState
+// > {
+//   private columns: IColumn[];
+
+//   constructor(props: any) {
+//     super(props);
+
+//     this.columns = [
+//       { key: "column1", name: "Page#", fieldName: "pageNum", minWidth: 50, maxWidth: 100, isResizable: true },
+//       { key: "column2", name: "Page", fieldName: "page", minWidth: 100, maxWidth: 200, isResizable: true },
+//       { key: "column3", name: "Comment", fieldName: "comment", minWidth: 200, maxWidth: 300, isResizable: true },
+//       { key: "column4", name: "Action", fieldName: "action", minWidth: 100, maxWidth: 200, isResizable: true },
+//     ];
+
+//     this.state = {
+//       pageNumValue: "",
+//       pageValue: "",
+//       commentValue: "",
+//       rowsData: this._getCurentUserComment(),
+//       editState: false,
+//       id: "",
+//       editPageNumValue: "",
+//       editPageValue: "",
+//       editCommentValue: "",
+//     };
+//   }
+
+//   public _getCurentUserComment = (): any => {
+//     if (
+//       this.props.data?.some(
+//         (each: any) => each?.commentedBy === this.props.currentUserDetails.displayName
+//       )
+//     ) {
+//       return this.props.data?.filter(
+//         (each: any) =>
+//           each?.commentedBy === this.props.currentUserDetails.displayName
+//       );
+//     } else {
+//       return [];
+//     }
+//   };
+
+//   public handleInputElement = (event: any, type: string) => {
+//     if (this.state.editState) {
+//       switch (type) {
+//         case "pageNum":
+//           this.setState({ editPageNumValue: event.target.value });
+//           break;
+//         case "page":
+//           this.setState({ editPageValue: event.target.value });
+//           break;
+//         default:
+//           this.setState({ editCommentValue: event.target.value });
+//       }
+//     } else {
+//       switch (type) {
+//         case "pageNum":
+//           this.setState({ pageNumValue: event.target.value });
+//           break;
+//         case "page":
+//           this.setState({ pageValue: event.target.value });
+//           break;
+//         default:
+//           this.setState({ commentValue: event.target.value });
+//       }
+//     }
+//   };
+
+//   public handleAddBtn = () => {
+//     const { pageNumValue, pageValue, commentValue } = this.state;
+//     const commentsObj = {
+//       id: v4(),
+//       pageNum: pageNumValue,
+//       page: pageValue,
+//       comment: commentValue,
+//       commentedBy: this.props.currentUserDetails.displayName,
+//     };
+
+//     this.props.handleCommentDataFuntion(commentsObj, "add");
+//     this.setState((prev) => ({
+//       rowsData: [...prev.rowsData, commentsObj],
+//       pageNumValue: "",
+//       pageValue: "",
+//       commentValue: "",
+//     }));
+//   };
+
+//   public handleSaveBtn = () => {
+//     const { id, editPageNumValue, editPageValue, editCommentValue } =
+//       this.state;
+//     const commentsObj = {
+//       id: id,
+//       pageNum: editPageNumValue,
+//       page: editPageValue,
+//       comment: editCommentValue,
+//       commentedBy: this.props.currentUserDetails.displayName,
+//     };
+
+//     const updatedRows = this.state.rowsData.map((item: any) =>
+//       item.id === id ? commentsObj : item
+//     );
+
+//     this.setState({ rowsData: updatedRows, editState: false, id: "" });
+//     this.props.handleCommentDataFuntion(commentsObj, "save", id);
+//   };
+
+//   public render(): React.ReactElement<any> {
+//     const items = this.state.rowsData.map((row: any) => ({
+//       key: row.id,
+//       pageNum: row.pageNum,
+//       page: row.page,
+//       comment: row.comment,
+//       action: this.state.editState && this.state.id === row.id ? (
+//         <PrimaryButton text="Save" onClick={this.handleSaveBtn} />
+//       ) : (
+//         <>
+//           <DefaultButton
+//             text="Edit"
+//             onClick={() => {
+//               this.setState({
+//                 editState: true,
+//                 id: row.id,
+//                 editPageNumValue: row.pageNum,
+//                 editPageValue: row.page,
+//                 editCommentValue: row.comment,
+//               });
+//             }}
+//           />
+//           <DefaultButton text="Delete" />
+//         </>
+//       ),
+//     }));
+
+//     return (
+//       <div style={{ overflow: "auto" }}>
+//         <DetailsList
+//           items={items}
+//           columns={this.columns}
+//           setKey="set"
+//           layoutMode={DetailsListLayoutMode.fixedColumns}
+//           selectionMode={SelectionMode.none}
+//         />
+
+//         {/* First row with input fields */}
+//         <div style={{ display: "flex", marginTop: "10px" }}>
+//           <TextField
+//             placeholder="Page#"
+//             value={this.state.pageNumValue}
+//             onChange={(e) => this.handleInputElement(e, "pageNum")}
+//             styles={{ root: { marginRight: 10, width: 100 } }}
+//           />
+//           <TextField
+//             placeholder="Page"
+//             value={this.state.pageValue}
+//             onChange={(e) => this.handleInputElement(e, "page")}
+//             styles={{ root: { marginRight: 10, width: 200 } }}
+//           />
+//           <TextField
+//             placeholder="Comment"
+//             multiline
+//             rows={4}
+//             value={this.state.commentValue}
+//             onChange={(e) => this.handleInputElement(e, "comments")}
+//             styles={{ root: { marginRight: 10, width: 300 } }}
+//           />
+//           <PrimaryButton text="Add" onClick={this.handleAddBtn} />
+//         </div>
+//       </div>
+//     );
+//   }
+// }
+

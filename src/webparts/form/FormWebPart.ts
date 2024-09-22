@@ -81,7 +81,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           sp: this.sp, // Pass the configured sp object
           context: this.context, // Pass the WebPartContext
           listId:this.properties.listId,
-          libraryId:this.properties.libraryId
+          libraryId:this.properties.libraryId,
+          formType:this.properties.FormType
         }
       );
      
@@ -98,7 +99,9 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           sp: this.sp, // Pass the configured sp object
           context: this.context, // Pass the WebPartContext
           listId:this.properties.listId,
-          libraryId:this.properties.libraryId
+          libraryId:this.properties.libraryId,
+          formType:this.properties.FormType
+
         }
       );
      
@@ -118,7 +121,7 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           context: this.context, // Pass the WebPartContext
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
-          formType:this.properties.FormType
+          formType:this.properties.FormType,
         }
       );
      
@@ -135,7 +138,10 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           sp: this.sp, // Pass the configured sp object
           context: this.context, // Pass the WebPartContext
           listId:this.properties.listId,
-          libraryId:this.properties.libraryId
+          libraryId:this.properties.libraryId,
+          
+          formType:this.properties.FormType
+         
         }
       );
      
