@@ -550,7 +550,7 @@ export default class ViewForm extends React.Component<
         ) {
           if (
             each.status === "Refered" &&
-            this.state.refferredToDetails[0]?.status === "Referred Back"
+            this.state.refferredToDetails[0]?.status === "Refered Back"
           ) {
             switch (each.status) {
               case "Approved":
@@ -565,12 +565,10 @@ export default class ViewForm extends React.Component<
               case "pending":
                 console.log(each.status);
                 return true;
-              case "Referred Back":
+              case "Refered Back":
                 console.log(each.status);
                 return true;
-                case "Call Back":
-                console.log(each.status);
-                return false;
+                
               default:
                 console.log("default");
                 return false;
@@ -589,9 +587,11 @@ export default class ViewForm extends React.Component<
               case "pending":
                 console.log(each.status);
                 return true;
-              case "Referred Back":
+              case "Refered Back":
                 console.log(each.status);
                 return true;
+
+             
               default:
                 console.log("default");
                 return false;
@@ -1387,7 +1387,7 @@ export default class ViewForm extends React.Component<
               this._handleApproverButton,
               this._closeDialog
             );
-            this.setState({ status: "Approve", statusNumber: "2000" });
+            this.setState({ status: "Approved", statusNumber: "2000" });
           }}
         >
           Approve
@@ -1419,7 +1419,7 @@ export default class ViewForm extends React.Component<
               this.handleReject,
               this._closeDialog
             );
-            this.setState({ status: "Reject", statusNumber: "4000" });
+            this.setState({ status: "Rejected", statusNumber: "4000" });
           }}
         >
           Reject
@@ -1431,13 +1431,13 @@ export default class ViewForm extends React.Component<
           onClick={(e) => {
             this._hanldeFluentDialog(
               "Refer",
-              "Referred",
+              "Refered",
               "5000",
               ["Add Referee", "Comments"],
               this.handleRefer,
               this._closeDialog
             );
-            this.setState({ status: "Refer", statusNumber: "5000" });
+            this.setState({ status: "Refered", statusNumber: "5000" });
           }}
         >
           Refer
@@ -1455,7 +1455,7 @@ export default class ViewForm extends React.Component<
               this.handleReturn,
               this._closeDialog
             );
-            this.setState({ status: "Return", statusNumber: "3000" });
+            this.setState({ status: "Returned", statusNumber: "3000" });
           }}
         >
           Return
@@ -1469,7 +1469,7 @@ export default class ViewForm extends React.Component<
     
     const currentStatusOfApproverDetails = data.filter(
       (each: any) => {
-        // console.log(each);
+        console.log(each);
         // console.log(each.status);
         if (each.status === "pending" || each.status === "Refered") {
           // console.log(each.status);
@@ -1478,6 +1478,7 @@ export default class ViewForm extends React.Component<
         // return each.status === "pending" && each.approverEmailName
       }
     );
+    console.log(currentStatusOfApproverDetails)
 
     if (currentStatusOfApproverDetails.length > 0) {
       // console.log(
@@ -1487,7 +1488,7 @@ export default class ViewForm extends React.Component<
       //   "currentStatusOfApproverDetails"
       // );
 
-      return currentStatusOfApproverDetails[0].text;
+      return currentStatusOfApproverDetails[0].text || currentStatusOfApproverDetails[0].approverEmailName;
     } else {
       return "";
     }
@@ -1583,6 +1584,18 @@ export default class ViewForm extends React.Component<
           supportingDocumentfiles: [...filesArray],
         });
       }
+    }
+  };
+
+
+  public _checkCurrentRequestIsReturnedOrRejected =(): boolean => {
+    switch (this.state.status) {
+      case 'Rejected':
+      case 'Returned':
+      case 'Call Back':
+        return false;
+      default:
+        return true;
     }
   };
 
@@ -1792,7 +1805,7 @@ export default class ViewForm extends React.Component<
                   </div>
                   {/*General Comments */}
 
-                  {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                  {(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() ) &&
                   this._currentUserEmail !== this.state.createdByEmail ? (
                     <div className={styles.sectionContainer}>
                       <div
@@ -2053,7 +2066,9 @@ export default class ViewForm extends React.Component<
               </div>
               {/* buttons Sections */}
               <div className={styles.btnsContainer}>
-                {this._currentUserEmail === this.state.createdByEmail ? (
+
+                { this._checkCurrentRequestIsReturnedOrRejected()&&
+                (this._currentUserEmail === this.state.createdByEmail ? (
                   this._checkApproveredStatusIsFound() ? (
                     <PrimaryButton
                       className={`${styles.responsiveButton}`}
@@ -2117,15 +2132,15 @@ export default class ViewForm extends React.Component<
                     onClick={(e) => {
                       this._hanldeFluentDialog(
                         "Refer Back",
-                        "Referred Back",
+                        "Refered Back",
                         "6000",
                         "Please check the details filled along with attachment and click on Confirm button to approve request.",
                         this.handleReferBack,
                         this._closeDialog
                       );
                       this.setState({
-                        status: "Approve",
-                        statusNumber: "2000",
+                        status: "Refered Back",
+                        statusNumber: "6000",
                       });
                       // this._handleApproverButton(e,"Approved")
                     }}
@@ -2135,7 +2150,7 @@ export default class ViewForm extends React.Component<
                 ) : (
                   this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
                   this._getApproverAndReviewerStageButton()
-                )}
+                ))}
                 {/* {this._getApproverAndReviewerStageButton()} */}
 
                 <DefaultButton

@@ -754,7 +754,7 @@
 
 .responsiveButton {
   /* Default styles for desktop */
-  width: 100px; 
+  // width: 100px; 
   height: 32px; 
   font-size: 12px; 
   margin-top: 6px;  
@@ -771,24 +771,24 @@
 
   @media (max-width: 1024px) { /* Tablet */
     font-size: 12px; 
-    width: 80px; 
+    // width: 80px; 
     
   }
 
   @media (max-width: 768px) { /* Smaller tablets / larger phones */
     font-size: 12px; 
-    width: 80px; 
-    padding-left: 6px;
-    padding-right: 6px;
+    // width: 80px; 
+    // padding-left: 6px;
+    // padding-right: 6px;
     display: flex; /* Enable flexbox for alignment */
-  align-items: center; /* Center content vertically */
-  justify-content: center;
+    align-items: center; /* Center content vertically */
+    justify-content: center;
     
   }
 
   @media (max-width: 480px) { /* Mobile devices */
     font-size: 12px; 
-    width: 70px; 
+    // width: 70px; 
     padding-left: 6px;
     padding-right: 6px;
     display: flex; /* Enable flexbox for alignment */

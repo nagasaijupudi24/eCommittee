@@ -332,7 +332,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.getfield();
     // this.props.formType === "Edit" && this._getItemData(this._itemId, this._folderName);
-    this._getItemData(this._itemId, this._folderName);
+    // this._getItemData(this._itemId, this._folderName);
     // this.props.formType === "Edit" && this._getItemDocumentsData();
     this._getItemDocumentsData();
     // eslint-disable-next-line no-void
@@ -358,7 +358,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     let email = "NA";
     // const loginName = this.state.peoplePickerData[0]
     const profile = await this.props.sp.profiles.getPropertiesFor(loginName);
-    // console.log(profile)
+    console.log(profile)
     // console.log(profile.DisplayName);
     // console.log(profile.Email);
     // console.log(profile.Title);
@@ -379,13 +379,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return [designation, email];
   };
 
-  private _extractValueFromHtml = (htmlString: string): string => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlString, "text/html");
-    const extractedValue = doc.querySelector("div")?.textContent || "";
-    console.log(extractedValue);
-    return extractedValue;
-  };
+  // private _extractValueFromHtml = (htmlString: string): string => {
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(htmlString, "text/html");
+  //   const extractedValue = doc.querySelector("div")?.textContent || "";
+  //   console.log(extractedValue);
+  //   return extractedValue;
+  // };
 
   // private _getApproversData =(data:any,userId:any):any=>{
   //   // console.log(data)
@@ -435,79 +435,79 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //   }
   // };
 
-  private _getJsonifyReviewer = (item: any, type: string): any[] => {
-    console.log(item);
-    console.log(JSON.parse(item));
-    const parseItem = JSON.parse(item);
-    const approverfilterData = parseItem.filter((each: any) => {
-      if (each.approverType === 1) {
-        console.log(each, "Reviewer data.................parsed item");
-        return each;
+  // private _getJsonifyReviewer = (item: any, type: string): any[] => {
+  //   console.log(item);
+  //   console.log(JSON.parse(item));
+  //   const parseItem = JSON.parse(item);
+  //   const approverfilterData = parseItem.filter((each: any) => {
+  //     if (each.approverType === 1) {
+  //       console.log(each, "Reviewer data.................parsed item");
+  //       return each;
 
-        // this.setState(prev =>(
-        //   {peoplePickerData:[...prev.peoplePickerData,{
-        //     text:each.approverEmailName,
-        //     srNo:each.approverEmailName,
-        //     designation:each.designation,
+  //       // this.setState(prev =>(
+  //       //   {peoplePickerData:[...prev.peoplePickerData,{
+  //       //     text:each.approverEmailName,
+  //       //     srNo:each.approverEmailName,
+  //       //     designation:each.designation,
 
-        //   }]}
-        // ))
-      }
-    });
-    console.log(approverfilterData);
-    const approverData = approverfilterData.map((each: any) => ({
-      text: each.approverEmailName,
-      srNo: each.approverEmailName.split("@")[0],
-      optionalText: each.designation,
-      id: each.id,
-      approverType: 1,
-      ...each,
-    }));
-    console.log(approverData);
-    // this.setState(()=>{
-    //   console.log("State updated")
-    //   return {peoplePickerApproverData:approverData}
-    // })
-    // if ()
-    return approverData;
-  };
+  //       //   }]}
+  //       // ))
+  //     }
+  //   });
+  //   console.log(approverfilterData);
+  //   const approverData = approverfilterData.map((each: any) => ({
+  //     text: each.approverEmailName,
+  //     srNo: each.approverEmailName.split("@")[0],
+  //     optionalText: each.designation,
+  //     id: each.id,
+  //     approverType: 1,
+  //     ...each,
+  //   }));
+  //   console.log(approverData);
+  //   // this.setState(()=>{
+  //   //   console.log("State updated")
+  //   //   return {peoplePickerApproverData:approverData}
+  //   // })
+  //   // if ()
+  //   return approverData;
+  // };
 
-  private _getJsonifyApprover = (item: any, type: string): any[] => {
-    console.log(item);
-    console.log(JSON.parse(item));
-    const parseItem = JSON.parse(item);
-    const approverfilterData = parseItem.filter((each: any) => {
-      if (each.approverType === 2) {
-        console.log(each, "Approver data.................parsed item");
-        return each;
+  // private _getJsonifyApprover = (item: any, type: string): any[] => {
+  //   console.log(item);
+  //   console.log(JSON.parse(item));
+  //   const parseItem = JSON.parse(item);
+  //   const approverfilterData = parseItem.filter((each: any) => {
+  //     if (each.approverType === 2) {
+  //       console.log(each, "Approver data.................parsed item");
+  //       return each;
 
-        // this.setState(prev =>(
-        //   {peoplePickerData:[...prev.peoplePickerData,{
-        //     text:each.approverEmailName,
-        //     srNo:each.approverEmailName,
-        //     designation:each.designation,
+  //       // this.setState(prev =>(
+  //       //   {peoplePickerData:[...prev.peoplePickerData,{
+  //       //     text:each.approverEmailName,
+  //       //     srNo:each.approverEmailName,
+  //       //     designation:each.designation,
 
-        //   }]}
-        // ))
-      }
-    });
-    console.log(approverfilterData);
-    const approverData = approverfilterData.map((each: any) => ({
-      text: each.approverEmailName,
-      srNo: each.approverEmailName.split("@")[0],
-      optionalText: each.designation,
-      id: each.id,
-      approverType: 2,
-      ...each,
-    }));
-    console.log(approverData);
-    // this.setState(()=>{
-    //   console.log("State updated")
-    //   return {peoplePickerApproverData:approverData}
-    // })
-    // if ()
-    return approverData;
-  };
+  //       //   }]}
+  //       // ))
+  //     }
+  //   });
+  //   console.log(approverfilterData);
+  //   const approverData = approverfilterData.map((each: any) => ({
+  //     text: each.approverEmailName,
+  //     srNo: each.approverEmailName.split("@")[0],
+  //     optionalText: each.designation,
+  //     id: each.id,
+  //     approverType: 2,
+  //     ...each,
+  //   }));
+  //   console.log(approverData);
+  //   // this.setState(()=>{
+  //   //   console.log("State updated")
+  //   //   return {peoplePickerApproverData:approverData}
+  //   // })
+  //   // if ()
+  //   return approverData;
+  // };
 
   private _getFileObj = (data: any): any => {
     const tenantUrl = window.location.protocol + "//" + window.location.host;
@@ -605,51 +605,51 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
-  private _getItemData = async (id: any, folderPath: any) => {
-    const item: any = await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
-      .items.getById(id)();
-    console.log(`${id} ------Details`, item);
-    console.log(folderPath);
-    // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
-    // .files().then(res => res);
-    // console.log(folderItem)
-    console.log(this._getJsonifyReviewer(item.ApproverDetails, "Reviewer"));
-    console.log(this._getJsonifyApprover(item.ApproverDetails, "Approver"));
+  // private _getItemData = async (id: any, folderPath: any) => {
+  //   const item: any = await this.props.sp.web.lists
+  //     .getByTitle(this.props.listId)
+  //     .items.getById(id)();
+  //   console.log(`${id} ------Details`, item);
+  //   console.log(folderPath);
+  //   // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
+  //   // .files().then(res => res);
+  //   // console.log(folderItem)
+  //   console.log(this._getJsonifyReviewer(item.ApproverDetails, "Reviewer"));
+  //   console.log(this._getJsonifyApprover(item.ApproverDetails, "Approver"));
 
-    this.setState({
-      committeeNameFeildValue:
-        item.CommitteeName !== null ? item.CommitteeName : "",
-      subjectFeildValue: item.Subject !== null ? item.Subject : "",
-      natureOfNoteFeildValue:
-        item.natureOfNote !== null ? item.natureOfNote : "",
-      noteTypeFeildValue: item.NoteType !== null ? item.NoteType : "",
-      natureOfApprovalOrSanctionFeildValue:
-        item.NatuerOfApprovalSanction !== null
-          ? item.NatuerOfApprovalSanction
-          : "",
-      typeOfFinancialNoteFeildValue:
-        item.TypeOfFinancialNote !== null ? item.TypeOfFinancialNote : "",
-      searchTextFeildValue:
-        item.Search_x0020_Keyword !== null
-          ? this._extractValueFromHtml(item.Search_x0020_Keyword)
-          : "",
-      amountFeildValue: item.Amount !== null ? item.Amount : null,
-      puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
-      // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
-      peoplePickerData: this._getJsonifyReviewer(
-        item.ApproverDetails,
-        "Reviewer"
-      ),
-      peoplePickerApproverData: this._getJsonifyApprover(
-        item.ApproverDetails,
-        "Approver"
-      ),
-      status: item.Status,
-      auditTrail: JSON.parse(item.AuditTrail),
-      draftResoultionFieldValue:item.DraftResoultion
-    });
-  };
+  //   this.setState({
+  //     committeeNameFeildValue:
+  //       item.CommitteeName !== null ? item.CommitteeName : "",
+  //     subjectFeildValue: item.Subject !== null ? item.Subject : "",
+  //     natureOfNoteFeildValue:
+  //       item.natureOfNote !== null ? item.natureOfNote : "",
+  //     noteTypeFeildValue: item.NoteType !== null ? item.NoteType : "",
+  //     natureOfApprovalOrSanctionFeildValue:
+  //       item.NatuerOfApprovalSanction !== null
+  //         ? item.NatuerOfApprovalSanction
+  //         : "",
+  //     typeOfFinancialNoteFeildValue:
+  //       item.TypeOfFinancialNote !== null ? item.TypeOfFinancialNote : "",
+  //     searchTextFeildValue:
+  //       item.Search_x0020_Keyword !== null
+  //         ? this._extractValueFromHtml(item.Search_x0020_Keyword)
+  //         : "",
+  //     amountFeildValue: item.Amount !== null ? item.Amount : null,
+  //     puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
+  //     // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
+  //     peoplePickerData: this._getJsonifyReviewer(
+  //       item.ApproverDetails,
+  //       "Reviewer"
+  //     ),
+  //     peoplePickerApproverData: this._getJsonifyApprover(
+  //       item.ApproverDetails,
+  //       "Approver"
+  //     ),
+  //     status: item.Status,
+  //     auditTrail: JSON.parse(item.AuditTrail),
+  //     draftResoultionFieldValue:item.DraftResoultion
+  //   });
+  // };
 
   private getfield = async () => {
     try {
@@ -836,37 +836,60 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private _fetchApproverDetails = async (): Promise<void> => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const items: any[] = await (
-        await this.props.sp.web.lists
-          .getByTitle("ApprovalConfiguration")
-          .items.select(
-            "*",
-            "Approvers/Title",
-            "Approvers/EMail",
-            "Secretaries/Title",
-            "Secretaries/EMail"
-          )
-          .expand("Approvers", "Secretaries")()
-      )
-        .map((each: any) => {
-          console.log(each);
+      const items =  (
+         (await this.props.sp.web.lists
+          .getByTitle("ApproverMatrix")
+          .items.select("*", "Approver/Title", "Approver/EMail", "Secretary/Title", "Secretary/EMail").expand("Approver", "Secretary")()).map((each: any) => {
+            console.log(each);
+            // console.log(this._getUserProperties(each.email))
+  
+            const newObj = {
+              ...each,
+              text: each.Approvers.Title,
+              email: each.Approvers.EMail,
+              ApproversId: each.ApproversId,
+              approverType: each.approverType,
+              approversOrder: each.approversOrder,
+              Title: each.Title,
+              id: each.ApproversId,
+              secretary: each.Secretaries[0].Title,
+              // srNo:each.email.split("@")[0]
+            };
+            console.log(newObj);
+            return newObj;
+          })
+          .filter((each: any) => each.Title === "Development"));
+          // .select(
+          //   "*",
+          //   // "Approver/Title",
+          //   // "Approver/EMail",
+          //   // "Approver/Designation",
+          //   // "Secretary/Title",
+          //   // "Secretary/EMail"
+          // )
+          // .expand("Approver", "Secretary")()
+     
+        // .map((each: any) => {
+        //   console.log(each);
+        //   // console.log(this._getUserProperties(each.email))
 
-          const newObj = {
-            ...each,
-            text: each.Approvers.Title,
-            email: each.Approvers.EMail,
-            ApproversId: each.ApproversId,
-            approverType: each.approverType,
-            approversOrder: each.approversOrder,
-            Title: each.Title,
-            id: each.ApproversId,
-            secretary: each.Secretaries[0].Title,
-          };
-          console.log(newObj);
-          return newObj;
-        })
-        .filter((each: any) => each.Title === "Development");
-      // console.log(items)
+        //   const newObj = {
+        //     ...each,
+        //     text: each.Approvers.Title,
+        //     email: each.Approvers.EMail,
+        //     ApproversId: each.ApproversId,
+        //     approverType: each.approverType,
+        //     approversOrder: each.approversOrder,
+        //     Title: each.Title,
+        //     id: each.ApproversId,
+        //     secretary: each.Secretaries[0].Title,
+        //     srNo:each.email.split("@")[0]
+        //   };
+        //   console.log(newObj);
+        //   return newObj;
+        // })
+        // .filter((each: any) => each.Title === "Development");
+      console.log(items)
 
       items.map((e: any) => {
         if (e.approverType === 1) {
