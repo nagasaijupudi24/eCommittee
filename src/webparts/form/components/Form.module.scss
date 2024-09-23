@@ -52,7 +52,7 @@
   display: flex;
   align-items: center; // Remove quotes for valid CSS
   justify-content: center; // Remove quotes for valid CSS
-  padding: 10px; // Remove quotes for valid CSS
+   // Remove quotes for valid CSS
 
   // Flex direction
   flex-direction: row; // Default to row for desktop and tablet
@@ -66,6 +66,7 @@
   border: 1px solid rgb(211, 211, 211);
   // border:1px solid red;
   flex-wrap: wrap;
+  
 
   display: "flex";
   justify-content: flex-start;
@@ -75,6 +76,7 @@
   border-radius: 9px;
   padding: 10px;
   // min-height: 100px;
+  width: 100%;
 
 
 
@@ -111,7 +113,7 @@
 
 /* Base styles */
 .halfWidth {
-  width: 45%;
+  width: 48%;
 }
 
 /* Tablet view */
@@ -553,8 +555,9 @@
 
 .viewFormHeaderSection{
   justify-content: 'space-between';
-  padding-left: '5px';
-  padding-right: '5px';
+  padding:'10px';
+ 
+  
 }
 
 
@@ -757,9 +760,9 @@
   margin-top: 6px;  
   padding-left: 10px;
   padding-right: 10px; 
-  display: flex; /* Enable flexbox for alignment */
-  align-items: center; /* Center content vertically */
-  justify-content: center; /* Center content horizontally */
+  // display: flex; /* Enable flexbox for alignment */
+  // align-items: center; /* Center content vertically */
+  // justify-content: center; /* Center content horizontally */
   
   /* Icon padding */
   svg {
@@ -777,6 +780,9 @@
     width: 80px; 
     padding-left: 6px;
     padding-right: 6px;
+    display: flex; /* Enable flexbox for alignment */
+  align-items: center; /* Center content vertically */
+  justify-content: center;
     
   }
 
@@ -785,6 +791,9 @@
     width: 70px; 
     padding-left: 6px;
     padding-right: 6px;
+    display: flex; /* Enable flexbox for alignment */
+  align-items: center; /* Center content vertically */
+  justify-content: center;
   }
 }
 

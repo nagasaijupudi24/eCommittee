@@ -144,8 +144,8 @@ export interface IViewFormState {
 
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
-  const Id = params.get("id");
-  // console.log(Id);
+  const Id = params.get("ItemId");
+  console.log(Id);
   return Id;
 };
 
@@ -568,6 +568,9 @@ export default class ViewForm extends React.Component<
               case "Referred Back":
                 console.log(each.status);
                 return true;
+                case "Call Back":
+                console.log(each.status);
+                return false;
               default:
                 console.log("default");
                 return false;
@@ -1628,6 +1631,7 @@ export default class ViewForm extends React.Component<
             {/* Header section */}
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
+              style={{padding:'10px'}}
             >
               {this.state.ApproverOrder !==
                 this.state.ApproverDetails.length && (

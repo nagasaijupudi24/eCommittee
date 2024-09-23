@@ -30,7 +30,7 @@ const Title: React.FC<TitleProps> = (props,{ formType='',statusOfRequest='' }) =
         Date : {formattedDate}
       </p>
       </div>
-      <span className={`${styles.field}`}>All fields marked "*" are mandatory</span>
+      <span className={`${styles.field}`}><strong>All fields marked "*" are mandatory</strong></span>
       
      
     </div>

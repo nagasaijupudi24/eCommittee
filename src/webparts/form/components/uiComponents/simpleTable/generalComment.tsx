@@ -196,6 +196,16 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     }
   };
 
+  private handleDelete  =(id:any)=>{
+
+    this.setState({rowsData:this.state.rowsData.filter((item: { id: any; }) => item.id !== id)})
+     
+
+
+
+
+  }
+
   public render(): React.ReactElement<any> {
     console.log(this.state);
     return (
@@ -289,7 +299,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
                   <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.page}</td>
                   <td style={{ border: "1px solid #ddd", padding: "8px" }}>{each.comment}</td>
                   <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                    <button type="button">Delete</button>
+                    <button type="button" onClick={()=>this.handleDelete(each.id)}>Delete</button>
                     <button
                       type="button"
                       onClick={() => {

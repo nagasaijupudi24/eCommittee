@@ -202,8 +202,8 @@ export const FormContext = React.createContext<any>(null);
 
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
-  const Id = params.get("id");
-  // console.log(Id);
+  const Id = params.get("ItemId");
+  console.log(Id);
   return Id;
 };
 
@@ -2619,6 +2619,31 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return newText;
   };
 
+
+  private handleCancel = async (
+    statusFromEvent: string,
+    statusNumber: string
+  ) => {
+  
+
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
+    const itemToUpdate = await this.props.sp.web.lists
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+       
+        Status: statusFromEvent,
+        statusNumber: statusNumber,
+        AuditTrail: updateAuditTrial,
+      });
+
+    console.log(itemToUpdate);
+
+
+    // this._closeDialog();
+  };
+
   public render(): React.ReactElement<IFormProps> {
     console.log(this.state);
     console.log(this.props.formType, "Type of Form");
@@ -2687,6 +2712,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 General Section
               </h1>
             </div>
+           
             <div className={`${styles.generalSection}`}>
               {/* <div className={`${styles.generalSectionContainer1}`}> */}
               {/* Department Sub Section */}
@@ -2930,7 +2956,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 )}
               </div>
               {/*  Type of Financial Note Sub Section */}
-              {this.state.noteTypeFeildValue === "Financial" && (
+              {this.state.noteTypeFeildValue === "Finanical" && (
                 <div
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
@@ -3328,6 +3354,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     />
                     {/* <PeoplePicker /> */}
                     <DefaultButton
+                    style={{marginTop:'0px',marginLeft:'6px'}}
                       type="button"
                       className={`${styles.responsiveButton}`}
                       onClick={(e) => this.handleOnAdd(e, "reveiwer")}
@@ -3385,7 +3412,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     marginBottom: "8px",
                   }}
                 >
-                  <div style={{ display: "flex" }}>
+                  <div style={{ display: "flex"}}>
                     <PeoplePicker
                       placeholder="Approver Details"
                       context={this._peopplePicker}
@@ -3403,6 +3430,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     />
                     {/* <PeoplePicker /> */}
                     <DefaultButton
+                    style={{marginTop:'0px',marginLeft:'6px'}}
                       type="button"
                       className={`${styles.responsiveButton}`}
                       onClick={(e) => this.handleOnAdd(e, "approver")}
@@ -3672,16 +3700,28 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               {this._formType === "view" ? (
                 ""
               ) : (
+                this.state.status === "Returned"?
                 <PrimaryButton
                   type="button"
                   className={`${styles.responsiveButton}`}
                   iconProps={{ iconName: "Save" }}
                   onClick={(
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-                  ) => this.handleSubmit(e, "Draft")}
+                  ) => this.handleCancel( "Cancelled","8000")}
                 >
-                  Save as Draft
-                </PrimaryButton>
+                  Cancel
+                </PrimaryButton>:
+                 <PrimaryButton
+                 type="button"
+                 className={`${styles.responsiveButton}`}
+                 iconProps={{ iconName: "Save" }}
+                 onClick={(
+                   e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+                 ) => this.handleSubmit(e, "Draft")}
+               >
+                 Save as Draft
+               </PrimaryButton>
+
               )}
               {this._formType !== "view" &&
                 (this._itemId > 0 ? (

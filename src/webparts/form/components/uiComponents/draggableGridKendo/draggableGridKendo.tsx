@@ -94,7 +94,7 @@ const DraggableTable = (props:any) => {
                         )}
                     >
                         <Column title="" width="50px" cell={DragHandleCell} />
-                        <Column field="id" title="ID" width="60px" />
+                     
                         <Column field="text" title={type} width="90px" />
                         <Column field='srNo' title="SR No" width="90px" />
                         <Column field="optionalText" title="Designation" />
