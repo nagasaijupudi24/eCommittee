@@ -45,10 +45,12 @@
     "date-fns": "^3.6.0",
     "fluentui-editable-grid": "^1.12.1",
     "pdfjs-dist": "^3.11.174",
+    "pspdfkit": "^2024.5.2",
     "react": "17.0.1",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "17.0.1",
     "react-pdf": "^9.1.0",
+    "react-simple-snackbar": "^1.1.11",
     "tslib": "2.3.1",
     "uuid": "^10.0.0"
   },

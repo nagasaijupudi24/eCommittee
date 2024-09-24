@@ -687,67 +687,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         }
       });
 
-      // finalList?.map((each) => {
-      //   // console.log(each)
-      //   if (
-      //     each !== undefined &&
-      //     Array.isArray(each) &&
-      //     each.length > 1 &&
-      //     Array.isArray(each[1])
-      //   ) {
-      //     if (each[0] === "NatureOfNote") {
-      //       // console.log(each[1]);
-      //       const natureOfNoteArray = each[1].map((item, index) => {
-      //         return item;
-      //       });
-
-      //       this.setState({ natureOfNote: natureOfNoteArray });
-      //     } else if (each[0] === "NoteType") {
-      //       // console.log(each[1]);
-      //       const noteTypeArray = each[1].map((item, index) => {
-      //         return item;
-      //       });
-
-      //       // console.log(noteTypeArray);
-
-      //       this.setState({ noteType: noteTypeArray });
-      //     } else if (each[0] === "NatureOfApprovalOrSanction") {
-      //       // console.log(each[1]);
-      //       const typeOfNatureOfApprovalSancation = each[1].map(
-      //         (item, index) => {
-      //           return item;
-      //         }
-      //       );
-
-      //       this.setState({
-      //         natureOfApprovalSancation: typeOfNatureOfApprovalSancation,
-      //       });
-      //     } else if (each[0] === "FinancialType") {
-      //       // console.log(each[1]);
-      //       const typeOfFinancialNoteArray = each[1].map((item, index) => {
-      //         return item;
-      //       });
-
-      //       this.setState({ typeOfFinancialNote: typeOfFinancialNoteArray });
-      //     } else if (each[0] === "CommitteeName") {
-      //       // console.log(each[1]);
-      //       const committenameArray = each[1].map((item, index) => {
-      //         return item;
-      //       });
-
-      //       this.setState({ committename: committenameArray });
-      //     }
-      //     else if (each[0] === "Purpose") {
-      //       console.log(each[1]);
-      //       const purposeArray = each[1].map((item, index) => {
-      //         return item;
-      //       });
-
-      //       this.setState({ purpose: purposeArray });
-      //     }
-      //     // each[1].map(item => console.log(item));
-      //   }
-      // });
       finalList?.map((each) => {
         // console.log(each)
         if (
@@ -756,7 +695,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           each.length > 1 &&
           Array.isArray(each[1])
         ) {
-          if (each[0] === "natureOfNote") {
+          if (each[0] === "NatureOfNote") {
             // console.log(each[1]);
             const natureOfNoteArray = each[1].map((item, index) => {
               return item;
@@ -772,7 +711,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // console.log(noteTypeArray);
 
             this.setState({ noteType: noteTypeArray });
-          } else if (each[0] === "NatuerOfApprovalSanction") {
+          } else if (each[0] === "NatureOfApprovalOrSanction") {
             // console.log(each[1]);
             const typeOfNatureOfApprovalSancation = each[1].map(
               (item, index) => {
@@ -783,7 +722,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.setState({
               natureOfApprovalSancation: typeOfNatureOfApprovalSancation,
             });
-          } else if (each[0] === "TypeOfFinancialNote") {
+          } else if (each[0] === "FinancialType") {
             // console.log(each[1]);
             const typeOfFinancialNoteArray = each[1].map((item, index) => {
               return item;
@@ -797,7 +736,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             });
 
             this.setState({ committename: committenameArray });
-          } else if (each[0] === "Purpose") {
+          }
+          else if (each[0] === "Purpose") {
             console.log(each[1]);
             const purposeArray = each[1].map((item, index) => {
               return item;
@@ -808,6 +748,66 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // each[1].map(item => console.log(item));
         }
       });
+      // finalList?.map((each) => {
+      //   // console.log(each)
+      //   if (
+      //     each !== undefined &&
+      //     Array.isArray(each) &&
+      //     each.length > 1 &&
+      //     Array.isArray(each[1])
+      //   ) {
+      //     if (each[0] === "natureOfNote") {
+      //       // console.log(each[1]);
+      //       const natureOfNoteArray = each[1].map((item, index) => {
+      //         return item;
+      //       });
+
+      //       this.setState({ natureOfNote: natureOfNoteArray });
+      //     } else if (each[0] === "NoteType") {
+      //       // console.log(each[1]);
+      //       const noteTypeArray = each[1].map((item, index) => {
+      //         return item;
+      //       });
+
+      //       // console.log(noteTypeArray);
+
+      //       this.setState({ noteType: noteTypeArray });
+      //     } else if (each[0] === "NatuerOfApprovalSanction") {
+      //       // console.log(each[1]);
+      //       const typeOfNatureOfApprovalSancation = each[1].map(
+      //         (item, index) => {
+      //           return item;
+      //         }
+      //       );
+
+      //       this.setState({
+      //         natureOfApprovalSancation: typeOfNatureOfApprovalSancation,
+      //       });
+      //     } else if (each[0] === "TypeOfFinancialNote") {
+      //       // console.log(each[1]);
+      //       const typeOfFinancialNoteArray = each[1].map((item, index) => {
+      //         return item;
+      //       });
+
+      //       this.setState({ typeOfFinancialNote: typeOfFinancialNoteArray });
+      //     } else if (each[0] === "CommitteeName") {
+      //       // console.log(each[1]);
+      //       const committenameArray = each[1].map((item, index) => {
+      //         return item;
+      //       });
+
+      //       this.setState({ committename: committenameArray });
+      //     } else if (each[0] === "Purpose") {
+      //       console.log(each[1]);
+      //       const purposeArray = each[1].map((item, index) => {
+      //         return item;
+      //       });
+
+      //       this.setState({ purpose: purposeArray });
+      //     }
+      //     // each[1].map(item => console.log(item));
+      //   }
+      // });
 
       // const filterDataFieldData = fieldDetails.map(each=>({"each":each.choices})})
 
@@ -840,64 +840,36 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
          (await this.props.sp.web.lists
           .getByTitle("ApproverMatrix")
           .items.select("*", "Approver/Title", "Approver/EMail", "Secretary/Title", "Secretary/EMail").expand("Approver", "Secretary")()).map((each: any) => {
-            console.log(each);
+            // console.log(each);
             // console.log(this._getUserProperties(each.email))
   
             const newObj = {
-              ...each,
-              text: each.Approvers.Title,
-              email: each.Approvers.EMail,
-              ApproversId: each.ApproversId,
-              approverType: each.approverType,
-              approversOrder: each.approversOrder,
+            
+              text: each.Approver.Title,
+              email: each.Approver.EMail,
+              ApproversId: each.ApproverId,
+              approverType: each.ApproverType,
+              approversOrder: each.ApproverType === "Approver"?2:1,
               Title: each.Title,
-              id: each.ApproversId,
-              secretary: each.Secretaries[0].Title,
-              // srNo:each.email.split("@")[0]
+              id: each.ApproverId,
+              secretary: each.Secretary,
+              srNo:each.Approver.EMail.split("@")[0]
             };
             console.log(newObj);
-            return newObj;
+            if (each.ApproverType === "Approver") {
+   
+              this.setState({ peoplePickerApproverData: [newObj] });
+            } else {
+              this.setState({ peoplePickerData: [newObj] });
+              
+            }
+           
           })
-          .filter((each: any) => each.Title === "Development"));
-          // .select(
-          //   "*",
-          //   // "Approver/Title",
-          //   // "Approver/EMail",
-          //   // "Approver/Designation",
-          //   // "Secretary/Title",
-          //   // "Secretary/EMail"
-          // )
-          // .expand("Approver", "Secretary")()
-     
-        // .map((each: any) => {
-        //   console.log(each);
-        //   // console.log(this._getUserProperties(each.email))
-
-        //   const newObj = {
-        //     ...each,
-        //     text: each.Approvers.Title,
-        //     email: each.Approvers.EMail,
-        //     ApproversId: each.ApproversId,
-        //     approverType: each.approverType,
-        //     approversOrder: each.approversOrder,
-        //     Title: each.Title,
-        //     id: each.ApproversId,
-        //     secretary: each.Secretaries[0].Title,
-        //     srNo:each.email.split("@")[0]
-        //   };
-        //   console.log(newObj);
-        //   return newObj;
-        // })
-        // .filter((each: any) => each.Title === "Development");
+        )
+         
       console.log(items)
 
-      items.map((e: any) => {
-        if (e.approverType === 1) {
-          this.setState({ peoplePickerData: [e] });
-        } else {
-          this.setState({ peoplePickerApproverData: [e] });
-        }
-      });
+     
 
       // this.setState({ itemsFromSpList:items });
       // this.setState(prevState => ({

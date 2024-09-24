@@ -37,6 +37,7 @@ import { format } from "date-fns";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
 import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
+import PSPDFKitViewer from "../psdpdfKit/psdPDF";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
 // import { WebPartContext } from "@microsoft/sp-webpart-base";
@@ -2186,13 +2187,14 @@ export default class ViewForm extends React.Component<
             }}
           />
         )}
-
+        <PSPDFKitViewer documentURL={this.state.pdfLink} sp={this.props.sp}/>
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}
         {/* <PdfViewer pdfUrl={this.state.pdfLink} /> */}
         {/* //working code throught canvas  */}
         {/* <AdobePdfWebPart/> */}
         {/* <AdobePdfViewer clientId={"825473e9e1184eL459736428fd30f8b99"} fileUrl={this.state.pdfLink} height={800} defaultViewMode={"FIT_WIDTH"}/> */}
+
       </Stack>
     );
   }
