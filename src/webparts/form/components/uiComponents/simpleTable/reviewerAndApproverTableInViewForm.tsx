@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
 import { DetailsList, DetailsListLayoutMode, IColumn, SelectionMode } from '@fluentui/react/lib/DetailsList';
+import { format } from 'date-fns';
 
 const ApproverAndReviewerTableInViewForm = (props: any) => {
     const { type } = props;
@@ -13,12 +14,26 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
 
     // Define the columns for the DetailsList
     const columns: IColumn[] = [
-        { key: 'id', name: 'ID', fieldName: 'id', minWidth: 60, maxWidth: 60, isResizable: true },
+        
         { key: 'text', name: type, fieldName: 'text', minWidth: 90, maxWidth: 120, isResizable: true },
         { key: 'srNo', name: 'SR No', fieldName: 'srNo', minWidth: 90, maxWidth: 120, isResizable: true },
         { key: 'optionalText', name: 'Designation', fieldName: 'optionalText', minWidth: 100, maxWidth: 150, isResizable: true },
         { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150, isResizable: true },
-        { key: 'actions', name: 'Action Date', fieldName: '', minWidth: 100, maxWidth: 150, isResizable: true } // Placeholder for actions
+        { key: 'actionDate', name: 'Action Date', fieldName: 'actionDate', minWidth: 100, maxWidth: 150, isResizable: true ,
+            onRender: (item) => {
+                console.log(item)
+                console.log(item.actionDate)
+                if (item.actionDate){
+                    const formattedDate = format(new Date(item.actionDate), 'dd-MMM-yyyy');
+                const formattedTime = format(new Date(item.actionDate), 'hh:mm a');
+                return `${formattedDate} ${formattedTime}`;
+
+                }
+                return ''
+
+                
+              }
+        } // Placeholder for actions
     ];
 
     return (

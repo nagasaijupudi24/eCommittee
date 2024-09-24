@@ -7,6 +7,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React from "react";
 import styles from "../Form.module.scss";
+// import * as MicrosoftGraph from '@microsoft/microsoft-graph-types';
 // import { SPFI } from "@pnp/sp";
 import { IFormProps } from "../IFormProps";
 import { DefaultButton } from "@fluentui/react";
@@ -84,7 +85,7 @@ interface INoteObject {
   NatuerOfApprovalSanction: string;
   NoteType: string;
   TypeOfFinancialNote: string;
-  Amount: string | number | readonly string[];
+  Amount:  number;
   Search_x0020_Keyword: any;
   Purpose: any;
   ApproverDetails: any;
@@ -181,7 +182,7 @@ interface IMainFormState {
   referredFromDetails: any;
   refferredToDetails: any;
 
-  draftResoultionFieldValue: any;
+  draftResolutionFieldValue: any;
 }
 
 // let fetchedData:any[];
@@ -315,7 +316,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       pastApprover: [],
       referredFromDetails: [],
       refferredToDetails: [],
-      draftResoultionFieldValue: "",
+      draftResolutionFieldValue: "",
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -332,9 +333,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.getfield();
     // this.props.formType === "Edit" && this._getItemData(this._itemId, this._folderName);
-    // this._getItemData(this._itemId, this._folderName);
+    this._getItemData(this._itemId, this._folderName);
     // this.props.formType === "Edit" && this._getItemDocumentsData();
     this._getItemDocumentsData();
+    // this._GetMyProfile("421")
     // eslint-disable-next-line no-void
     // void this.createFolder();
   }
@@ -435,79 +437,79 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //   }
   // };
 
-  // private _getJsonifyReviewer = (item: any, type: string): any[] => {
-  //   console.log(item);
-  //   console.log(JSON.parse(item));
-  //   const parseItem = JSON.parse(item);
-  //   const approverfilterData = parseItem.filter((each: any) => {
-  //     if (each.approverType === 1) {
-  //       console.log(each, "Reviewer data.................parsed item");
-  //       return each;
+  private _getJsonifyReviewer = (item: any, type: string): any[] => {
+    console.log(item);
+    console.log(JSON.parse(item));
+    const parseItem = JSON.parse(item);
+    const approverfilterData = parseItem.filter((each: any) => {
+      if (each.approverType === "Reviewer") {
+        console.log(each, "Reviewer data.................parsed item");
+        return each;
 
-  //       // this.setState(prev =>(
-  //       //   {peoplePickerData:[...prev.peoplePickerData,{
-  //       //     text:each.approverEmailName,
-  //       //     srNo:each.approverEmailName,
-  //       //     designation:each.designation,
+        // this.setState(prev =>(
+        //   {peoplePickerData:[...prev.peoplePickerData,{
+        //     text:each.approverEmailName,
+        //     srNo:each.approverEmailName,
+        //     designation:each.designation,
 
-  //       //   }]}
-  //       // ))
-  //     }
-  //   });
-  //   console.log(approverfilterData);
-  //   const approverData = approverfilterData.map((each: any) => ({
-  //     text: each.approverEmailName,
-  //     srNo: each.approverEmailName.split("@")[0],
-  //     optionalText: each.designation,
-  //     id: each.id,
-  //     approverType: 1,
-  //     ...each,
-  //   }));
-  //   console.log(approverData);
-  //   // this.setState(()=>{
-  //   //   console.log("State updated")
-  //   //   return {peoplePickerApproverData:approverData}
-  //   // })
-  //   // if ()
-  //   return approverData;
-  // };
+        //   }]}
+        // ))
+      }
+    });
+    console.log(approverfilterData);
+    const approverData = approverfilterData.map((each: any) => ({
+      text: each.approverEmailName,
+      srNo: each.approverEmailName.split("@")[0],
+      optionalText: each.designation,
+      id: each.id,
+      approverType: 1,
+      ...each,
+    }));
+    console.log(approverData);
+    // this.setState(()=>{
+    //   console.log("State updated")
+    //   return {peoplePickerApproverData:approverData}
+    // })
+    // if ()
+    return approverData;
+  };
 
-  // private _getJsonifyApprover = (item: any, type: string): any[] => {
-  //   console.log(item);
-  //   console.log(JSON.parse(item));
-  //   const parseItem = JSON.parse(item);
-  //   const approverfilterData = parseItem.filter((each: any) => {
-  //     if (each.approverType === 2) {
-  //       console.log(each, "Approver data.................parsed item");
-  //       return each;
+  private _getJsonifyApprover = (item: any, type: string): any[] => {
+    console.log(item);
+    console.log(JSON.parse(item));
+    const parseItem = JSON.parse(item);
+    const approverfilterData = parseItem.filter((each: any) => {
+      if (each.approverType === "Approver") {
+        console.log(each, "Approver data.................parsed item");
+        return each;
 
-  //       // this.setState(prev =>(
-  //       //   {peoplePickerData:[...prev.peoplePickerData,{
-  //       //     text:each.approverEmailName,
-  //       //     srNo:each.approverEmailName,
-  //       //     designation:each.designation,
+        // this.setState(prev =>(
+        //   {peoplePickerData:[...prev.peoplePickerData,{
+        //     text:each.approverEmailName,
+        //     srNo:each.approverEmailName,
+        //     designation:each.designation,
 
-  //       //   }]}
-  //       // ))
-  //     }
-  //   });
-  //   console.log(approverfilterData);
-  //   const approverData = approverfilterData.map((each: any) => ({
-  //     text: each.approverEmailName,
-  //     srNo: each.approverEmailName.split("@")[0],
-  //     optionalText: each.designation,
-  //     id: each.id,
-  //     approverType: 2,
-  //     ...each,
-  //   }));
-  //   console.log(approverData);
-  //   // this.setState(()=>{
-  //   //   console.log("State updated")
-  //   //   return {peoplePickerApproverData:approverData}
-  //   // })
-  //   // if ()
-  //   return approverData;
-  // };
+        //   }]}
+        // ))
+      }
+    });
+    console.log(approverfilterData);
+    const approverData = approverfilterData.map((each: any) => ({
+      text: each.approverEmailName,
+      srNo: each.approverEmailName.split("@")[0],
+      optionalText: each.designation,
+      id: each.id,
+      approverType: 2,
+      ...each,
+    }));
+    console.log(approverData);
+    // this.setState(()=>{
+    //   console.log("State updated")
+    //   return {peoplePickerApproverData:approverData}
+    // })
+    // if ()
+    return approverData;
+  };
 
   private _getFileObj = (data: any): any => {
     const tenantUrl = window.location.protocol + "//" + window.location.host;
@@ -605,51 +607,74 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
-  // private _getItemData = async (id: any, folderPath: any) => {
-  //   const item: any = await this.props.sp.web.lists
-  //     .getByTitle(this.props.listId)
-  //     .items.getById(id)();
-  //   console.log(`${id} ------Details`, item);
-  //   console.log(folderPath);
-  //   // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
-  //   // .files().then(res => res);
-  //   // console.log(folderItem)
-  //   console.log(this._getJsonifyReviewer(item.ApproverDetails, "Reviewer"));
-  //   console.log(this._getJsonifyApprover(item.ApproverDetails, "Approver"));
 
-  //   this.setState({
-  //     committeeNameFeildValue:
-  //       item.CommitteeName !== null ? item.CommitteeName : "",
-  //     subjectFeildValue: item.Subject !== null ? item.Subject : "",
-  //     natureOfNoteFeildValue:
-  //       item.natureOfNote !== null ? item.natureOfNote : "",
-  //     noteTypeFeildValue: item.NoteType !== null ? item.NoteType : "",
-  //     natureOfApprovalOrSanctionFeildValue:
-  //       item.NatuerOfApprovalSanction !== null
-  //         ? item.NatuerOfApprovalSanction
-  //         : "",
-  //     typeOfFinancialNoteFeildValue:
-  //       item.TypeOfFinancialNote !== null ? item.TypeOfFinancialNote : "",
-  //     searchTextFeildValue:
-  //       item.Search_x0020_Keyword !== null
-  //         ? this._extractValueFromHtml(item.Search_x0020_Keyword)
-  //         : "",
-  //     amountFeildValue: item.Amount !== null ? item.Amount : null,
-  //     puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
-  //     // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
-  //     peoplePickerData: this._getJsonifyReviewer(
-  //       item.ApproverDetails,
-  //       "Reviewer"
-  //     ),
-  //     peoplePickerApproverData: this._getJsonifyApprover(
-  //       item.ApproverDetails,
-  //       "Approver"
-  //     ),
-  //     status: item.Status,
-  //     auditTrail: JSON.parse(item.AuditTrail),
-  //     draftResoultionFieldValue:item.DraftResoultion
-  //   });
-  // };
+  // private _GetMyProfile = (id:any) => {
+  //   this.props.context.msGraphClientFactory.getClient(id).then((client): void => {
+  //     client.api('me').get((error, user: MicrosoftGraph.User, rawResponse?: any) => {
+  //       console.log(user)
+  //       if (user) {
+  //         //set the user information object in state property
+  //         this.setState({
+  //           eCommitteData: user
+  //         })
+  //       }
+  //     })
+  //   })
+  // }
+
+  private _getItemData = async (id: any, folderPath: any) => {
+    const item: any = await this.props.sp.web.lists
+      .getByTitle(this.props.listId)
+      .items.getById(id).select("*","Approvers","Approvers/Title","Reviewers/Title","Approvers/EMail","Reviewers/EMail","CurrentApprover/Title","CurrentApprover/EMail").expand("Approvers","Reviewers","CurrentApprover")();
+    console.log(`${id} ------Details`, item);
+    console.log(folderPath);
+    // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
+    // .files().then(res => res);
+    // console.log(folderItem)
+    console.log(this._getJsonifyReviewer(
+      item.NoteApproversDTO,
+      "Reviewer"
+    ));
+    console.log(this._getJsonifyApprover(
+      item.NoteApproversDTO,
+      "Approver"
+    ));
+    console.log(item.Purpose)
+
+    this.setState({
+      committeeNameFeildValue:
+        item.CommitteeName !== null ? item.CommitteeName : "",
+      subjectFeildValue: item.Subject !== null ? item.Subject : "",
+      natureOfNoteFeildValue:
+        item.NatureOfNote !== null ? item.NatureOfNote : "",
+      noteTypeFeildValue: item.NoteType !== null ? item.NoteType : "",
+      natureOfApprovalOrSanctionFeildValue:
+        item.NatureOfApprovalOrSanction !== null
+          ? item.NatureOfApprovalOrSanction
+          : "",
+      typeOfFinancialNoteFeildValue:
+        item.FinancialType !== null ? item.FinancialType : "",
+      searchTextFeildValue:
+        item.SearchKeyword !== null
+          ? item.SearchKeyword
+          : "",
+      amountFeildValue: item.Amount !== null ? item.Amount : null,
+      puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
+      // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
+      peoplePickerData: this._getJsonifyReviewer(
+        item.NoteApproversDTO,
+        "Reviewer"
+      ),
+      peoplePickerApproverData: this._getJsonifyApprover(
+        item.NoteApproversDTO,
+        "Approver"
+      ),
+      status: item.Status,
+      auditTrail: JSON.parse(item.AuditTrail),
+      statusNumber:item.StatusNumber,
+      draftResolutionFieldValue:item.DraftResolution
+    });
+  };
 
   private getfield = async () => {
     try {
@@ -922,13 +947,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       console.log(newItemsDataNA);
       this.setState({ reviewerInfo: newItemsDataNA });
     } else {
-      const newItemsData = items.map((obj: { loginName: any }) => {
+      const newItemsData = items.map((obj: {
+        secondaryText: any; loginName: any 
+}) => {
         return {
           ...obj,
           optionalText: dataRec[0],
           approverType: 1,
           email: dataRec[1],
-          srNo: dataRec[1].split("@")[0],
+          srNo: dataRec[1].split("@")[0] ||obj.secondaryText.split("@")[0],
         };
       });
       // console.log(newItemsData)
@@ -963,6 +990,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             optionalText: "N/A",
             approverType: 2,
             email: obj.secondaryText,
+            srNo: dataRec[1].split("@")[0] ||obj.secondaryText.split("@")[0]
           };
         }
       );
@@ -1576,7 +1604,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         Actioner: this._userName,
         ActionerEmail: this._currentUserEmail,
 
-        ActionTaken: status,
+        ActionTaken:this.props.formType==='View'? `ECommittee is ${status}`:`Board Note is ${status}`,
         Role: this._role,
         ActionTakenOn:
           new Date().toDateString() + " " + new Date().toLocaleTimeString(),
@@ -1620,43 +1648,63 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return nw;
   };
 
+
+  private _getCurrentApproverId = (data:any,purpose:any) => {
+    console.log(data,"...data",purpose,'...purpose')
+    const arr = data[0].map((each: any) => {
+      if (each.id !== "undefined") {
+        return each.id;
+      }
+    });
+
+    const nw = arr.filter((each: any) => {
+      if (each !== undefined) {
+        return `${each}`;
+      }
+    });
+    console.log(nw);
+    return nw[0];
+  };
+
   private createEcommitteeObject = (
     status: string,
     statusNumber: any
   ): INoteObject => {
     const ecommitteObject: any = {
-      Department: this.state.department,
+      Department: "Department",
       CommitteeName: this.state.committeeNameFeildValue,
       Subject: this.state.subjectFeildValue,
-      natureOfNote: this.state.natureOfNoteFeildValue,
-      NatuerOfApprovalSanction: this.state.natureOfApprovalOrSanctionFeildValue,
+      NatureOfNote: this.state.natureOfNoteFeildValue,
+      NatureOfApprovalOrSanction: this.state.natureOfApprovalOrSanctionFeildValue,
       NoteType: this.state.noteTypeFeildValue,
-      TypeOfFinancialNote: this.state.typeOfFinancialNoteFeildValue,
-      Amount: this.state.amountFeildValue,
-      Search_x0020_Keyword: this.state.searchTextFeildValue,
+      FinancialType: this.state.typeOfFinancialNoteFeildValue,
+      Amount: parseInt(this.state.amountFeildValue),
+      SearchKeyword: this.state.searchTextFeildValue,
       Purpose:
         this.state.puroposeFeildValue === "Others"
           ? this.state.othersFieldValue
           : this.state.puroposeFeildValue,
-      ApproverDetails: this._getApproverDetails(
+          NoteApproversDTO: this._getApproverDetails(
         this.state.peoplePickerData,
         this.state.peoplePickerApproverData,
         "allDetails"
       ),
       Status: status,
-      statusNumber: status === "Submitted" ? statusNumber : "3000",
+      StatusNumber: status === "Submitted" ? statusNumber : "3000",
       AuditTrail:
         this.state.status === "Call Back"
           ? this._getAuditTrail("Re-submitted")
           : this._getAuditTrail(status),
-      ReviewerId: this._getReviewerId(),
-      ApproverId: this._getApproverId(),
-      currentApprover: this._getApproverDetails(
-        this.state.peoplePickerData,
-        this.state.peoplePickerApproverData,
+      ReviewersId: this._getReviewerId(),
+      ApproversId: this._getApproverId(),
+      // ReviewersId: 36,
+      // ApproversId: 45,
+      CurrentApproverId: this._getCurrentApproverId(
+       [ this.state.peoplePickerData,
+        this.state.peoplePickerApproverData],
         "intialOrderApproverDetails"
       ),
-      DraftResoultion:this.state.draftResoultionFieldValue
+      DraftResolution:this.state.draftResolutionFieldValue
     };
     console.log(ecommitteObject);
     return ecommitteObject;
@@ -2491,7 +2539,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private async _generateRequsterNumber(id: number) {
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
-    const requesterNo = `AD1/${currentyear}-${nextYear}/C${id}`;
+    const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;
     // const requesterNo=`AD1/${currentyear}-${nextYear}/C${id}`
     await this.props.sp.web.lists
       .getByTitle(this.props.listId)
@@ -2508,7 +2556,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   public _folderNameGenerate(id: any): any {
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
-    const requesterNo = `AD1/${currentyear}-${nextYear}/C${id}`;
+    const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
@@ -2610,7 +2658,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private onTextChange = (newText: string) => {
     // this.properties.myRichText = newText;
     console.log(newText);
-    this.setState({draftResoultionFieldValue:newText})
+    this.setState({draftResolutionFieldValue:newText})
     return newText;
   };
 
@@ -2951,7 +2999,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 )}
               </div>
               {/*  Type of Financial Note Sub Section */}
-              {this.state.noteTypeFeildValue === "Finanical" && (
+              {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
@@ -3183,6 +3231,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     {this.state.isWarningNoteType ? (
                       this.state.noteTypeFeildValue ? (
                         <DropDownList
+                        value={this.state.puroposeFeildValue}
                           data={this.state.purpose.slice(
                             4,
                             this.state.purpose.length
@@ -3198,6 +3247,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         />
                       ) : (
                         <DropDownList
+                        value={this.state.puroposeFeildValue}
                           data={this.state.purpose.slice(
                             4,
                             this.state.purpose.length
@@ -3214,6 +3264,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       )
                     ) : (
                       <DropDownList
+                      value={this.state.puroposeFeildValue}
                         data={this.state.purpose.slice(
                           4,
                           this.state.purpose.length
@@ -3489,7 +3540,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 <div className={`${styles.generalSectionApproverDetails}`}>
                   <div className={styles.richTextContainer}>
                     <RichText
-                      value={this.state.draftResoultionFieldValue}
+                      value={this.state.draftResolutionFieldValue}
                       onChange={(text) => this.onTextChange(text)}
                     />
                   </div>
