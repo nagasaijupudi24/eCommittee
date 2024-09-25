@@ -478,7 +478,7 @@ export default class ViewForm extends React.Component<
     });
     const dataApproverInfo =
       item.Author.EMail !== this._currentUserEmail &&
-      this._getApproverOrder(JSON.parse(item.NoteApproversDTO));
+      this._getApproverOrder(JSON.parse(item.NoteApproversDTO),item.StatusNumber);
     // console.log(dataApproverInfo);
     // console.log(item.CommentsLog);
     // console.log(typeof item.CommentsLog);
@@ -712,22 +712,32 @@ export default class ViewForm extends React.Component<
       // }
     };
 
-  private _getApproverOrder = (data: any): any => {
-    const order = data.filter((each: any) => {
-      // console.log(each);
-      console.log(each.approverEmail);
-      console.log(this._currentUserEmail);
-      console.log(each.approverEmail || each.email);
+  private _getApproverOrder = (data: any,statusNum:any): any => {
+    console.log(statusNum)
+    console.log(data)
+    if(statusNum !=='5000'){
+      const order = data.filter((each: any) => {
+     
+        // console.log(each);
+        console.log(each.approverEmail);
+        console.log(this._currentUserEmail);
+        console.log(each.approverEmail || each.email);
+  
+        console.log(each.approverEmail === this._currentUserEmail);
+  
+        if ((each.approverEmail || each.email) === this._currentUserEmail) {
+          // console.log(each.approverOrder);
+          return each;
+        }
+      });
+      console.log(order);
+      return [order[0].approverOrder, order[0].approverType];
 
-      console.log(each.approverEmail === this._currentUserEmail);
-
-      if ((each.approverEmail || each.email) === this._currentUserEmail) {
-        // console.log(each.approverOrder);
-        return each;
-      }
-    });
-    console.log(order);
-    return [order[0].approverOrder, order[0].approverType];
+    }
+    else{
+      return ''
+    }
+   
   };
 
   private _getFileObj = (data: any): any => {
@@ -1172,12 +1182,12 @@ export default class ViewForm extends React.Component<
     console.log(updateAuditTrial);
 
     const obj = {
-      NoteApproverCommentsDTO: JSON.stringify(modifyApproveDetails),
+      NoteApproversDTO: JSON.stringify(modifyApproveDetails),
       Status: statusFromEvent,
-      statusNumber: statusNumber,
+      StatusNumber: statusNumber,
       AuditTrail: updateAuditTrial,
-      CommentsLog: JSON.stringify([...this.state.commentsData, commentsObj]),
-      noteReferrerDTO: JSON.stringify([
+      NoteApproverCommentsDTO: JSON.stringify([...this.state.commentsData, commentsObj]),
+      NoteReferrerDTO: JSON.stringify([
         {
           referredTo: this.state.refferredToDetails,
           referredFrom: this.state.referredFromDetails,
@@ -1228,10 +1238,10 @@ export default class ViewForm extends React.Component<
 
     const obj = {
       Status: statusFromEvent,
-      statusNumber: statusNumber,
+      StatusNumber: statusNumber,
       AuditTrail: updateAuditTrial,
-      CommentsLog: JSON.stringify([...this.state.commentsData, commentsObj]),
-      noteReferrerDTO: JSON.stringify([
+      NoteApproverCommentsDTO: JSON.stringify([...this.state.commentsData, commentsObj]),
+      NoteReferrerDTO: JSON.stringify([
         {
           referredTo: modifyReferredToDetails,
           referredFrom: this.state.referredFromDetails,
@@ -1941,8 +1951,8 @@ export default class ViewForm extends React.Component<
                     ""
                   )}
 
-                  {/*ATR Assignees */}
-                  {this.state.ApproverType.toString() === "2" ? (
+                  {/* ATR Assignees
+                  {(this.state.ApproverType !== null &&this.state.ApproverType.toString() === "2") ? (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -1973,7 +1983,7 @@ export default class ViewForm extends React.Component<
                     </div>
                   ) : (
                     ""
-                  )}
+                  )} */}
 
                   {/* Comments Log */}
 
@@ -2199,10 +2209,7 @@ export default class ViewForm extends React.Component<
                         Call Back
                       </PrimaryButton>
                     )
-                  ) : this.state.refferredToDetails.length > 0 &&
-                    this.state.refferredToDetails[0]?.email ===
-                      this._currentUserEmail &&
-                    this.state.refferredToDetails[0]?.status === "Refered" ? (
+                  ) : this.state.statusNumber === '5000' ? (
                     <PrimaryButton
                       className={`${styles.responsiveButton}`}
                       iconProps={{ iconName: "Reply" }}

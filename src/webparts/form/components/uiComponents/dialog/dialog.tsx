@@ -45,7 +45,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
 
   const buttonStyles: IStackStyles = {
     root:{
-      background:'red'
+      // background:'red'
     }
   }
 
@@ -84,10 +84,12 @@ const MyDialog: React.FC<MyDialogProps> = ({
       </Stack>
      
     </Stack>
+    <h4>Please fill up all the mandatory fields</h4>
     <ul>
       {undefinedData.map((each) =>{
         console.log(each)
         if (each!== "supportingDocumentfiles") {
+
           return (
         
             <li key={each}>{each}</li>
@@ -97,8 +99,10 @@ const MyDialog: React.FC<MyDialogProps> = ({
         
       } )}
     </ul>
+    <p><strong>Note:</strong>Invalid files are not allowed</p>
+    
     <DialogFooter>
-      <PrimaryButton text="OK" onClick={handleDialogBox} styles={buttonStyles}/>
+      <PrimaryButton text="OK" iconProps={{ iconName: 'ReplyMirrored' }} onClick={handleDialogBox} styles={buttonStyles}/>
       {/* <DefaultButton  text="Cancel" /> */}
     </DialogFooter>
   </Dialog>

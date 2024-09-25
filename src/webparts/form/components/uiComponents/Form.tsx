@@ -1773,10 +1773,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.amountFeildValue &&
           this.state.searchTextFeildValue &&
           this.state.noteTofiles.length > 0 &&
-          this.state.wordDocumentfiles.length > 0
+          this.state.wordDocumentfiles.length > 0&&
           // this.state.wordDocumentfiles.length>0 &&
           // this.state.peoplePickerData.length > 0&&
-          // this.state.peoplePickerApproverData.length > 0
+          this.state.peoplePickerApproverData.length > 0
 
           // this.isNatureOfApprovalOrSanction()
         ) {
@@ -1841,7 +1841,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             isWarningSearchText: false,
             isWarningNoteToFiles: false,
             isWarningWordDocumentFiles: false,
-            isWarningPeoplePicker: false,
+            // isWarningPeoplePicker: false,
           });
           console.log(
             `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
@@ -1857,9 +1857,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             isWarningAmountField: true,
             isWarningPurposeField: true,
             isWarningSearchText: true,
-            isWarningNoteToFiles: true,
-            isWarningWordDocumentFiles: true,
-            isWarningPeoplePicker: true,
+           
+            // isWarningPeoplePicker: true,
             isDialogHidden: false,
           });
 
@@ -1877,7 +1876,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               noteTofiles: this.state.noteTofiles,
               wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
-              peoplePickerData: this.state.peoplePickerData,
+              AppoverData: this.state.peoplePickerApproverData,
             },
           });
         }
@@ -1896,7 +1895,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.searchTextFeildValue &&
           this.state.noteTofiles.length > 0 &&
           this.state.wordDocumentfiles.length > 0 &&
-          this.state.peoplePickerData.length > 0
+          this.state.peoplePickerApproverData.length > 0
         ) {
           this.setState({ status: "Submitted", statusNumber: "1000" });
           let id;
@@ -1969,9 +1968,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             isWarningNoteType: true,
             isWarningSearchText: true,
 
-            isWarningNoteToFiles: true,
-            isWarningWordDocumentFiles: true,
-            isWarningPeoplePicker: true,
+            
             isDialogHidden: false,
           });
 
@@ -1988,7 +1985,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               noteTofiles: this.state.noteTofiles,
               wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
-              peoplePickerData: this.state.peoplePickerData,
+              AppoverData: this.state.peoplePickerApproverData,
             },
           });
         }
@@ -2010,7 +2007,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.puroposeFeildValue &&
           this.state.noteTofiles.length > 0 &&
           this.state.wordDocumentfiles.length > 0 &&
-          this.state.peoplePickerData.length > 0
+          this.state.peoplePickerApproverData.length > 0
         ) {
           this.setState({ status: "Submitted", statusNumber: "1000" });
           let id;
@@ -2089,9 +2086,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             isWarningAmountField: true,
             isWarningSearchText: true,
             isWarningPurposeField: true,
-            isWarningNoteToFiles: true,
-            isWarningWordDocumentFiles: true,
-            isWarningPeoplePicker: true,
+           
             isDialogHidden: false,
           });
           this.setState({
@@ -2110,7 +2105,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               noteTofiles: this.state.noteTofiles,
               wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
-              peoplePickerData: this.state.peoplePickerData,
+              AppoverData: this.state.peoplePickerApproverData,
             },
           });
         }
@@ -2138,7 +2133,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.searchTextFeildValue &&
           this.state.noteTofiles.length > 0 &&
           this.state.wordDocumentfiles.length > 0 &&
-          this.state.peoplePickerData.length > 0
+          this.state.peoplePickerApproverData.length > 0
         ) {
           console.log("else entered");
           let id;
@@ -2215,10 +2210,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             isWarningSearchText: true,
             isDialogHidden: false,
-            isWarningNoteToFiles: true,
-            // isWarningSupportingDocumentFiles: true, no warning required
-            isWarningWordDocumentFiles: true,
-            isWarningPeoplePicker: true,
+          
           });
           this.setState({
             eCommitteData: {
@@ -2233,7 +2225,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               noteTofiles: this.state.noteTofiles,
               wordDocumentfiles: this.state.wordDocumentfiles,
               supportingDocumentfiles: this.state.supportingDocumentfiles,
-              peoplePickerData: this.state.peoplePickerData,
+              AppoverData: this.state.peoplePickerApproverData,
             },
           });
         }
@@ -2546,6 +2538,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       .items.getById(id)
       .update({
         Title: requesterNo,
+      
       })
       .then((data) => console.log(data, "data"));
     console.log(requesterNo);
