@@ -939,7 +939,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           return {
             ...obj,
             optionalText: "N/A",
-            approverType: 1,
+            approverTypeNum: 1,
+          approverType: "Reviewer",
             email: obj.secondaryText,
           };
         }
@@ -953,7 +954,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         return {
           ...obj,
           optionalText: dataRec[0],
-          approverType: 1,
+          approverTypeNum: 1,
+          approverType: "Reviewer",
           email: dataRec[1],
           srNo: dataRec[1].split("@")[0] ||obj.secondaryText.split("@")[0],
         };
@@ -988,7 +990,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           return {
             ...obj,
             optionalText: "N/A",
-            approverType: 2,
+            approverTypeNum: 2,
+          approverType: "Approver",
             email: obj.secondaryText,
             srNo: dataRec[1].split("@")[0] ||obj.secondaryText.split("@")[0]
           };
@@ -1002,7 +1005,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         return {
           ...obj,
           optionalText: dataRec[0],
-          approverType: 2,
+          approverTypeNum: 2,
+          approverType: "Approver",
           email: dataRec[1],
         };
       });
