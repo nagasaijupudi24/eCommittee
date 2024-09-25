@@ -379,6 +379,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
                         >
                           <PrimaryButton
                             type="button"
+                            style={{marginBottom:'3px'}}
                             onClick={() => this.handleDelete(each.id)}
                           >
                             Delete
@@ -418,7 +419,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
                         {each.comment}
                       </td>
                       <td style={{ border: "1px solid #ddd", padding: "8px" }}>
-                        <PrimaryButton type="button" onClick={() => this.handleDelete(each.id)}>Delete</PrimaryButton>
+                        <PrimaryButton type="button" style={{marginBottom:'2px'}} onClick={() => this.handleDelete(each.id)}>Delete</PrimaryButton>
                         <PrimaryButton
                           type="button"
                           onClick={() => {

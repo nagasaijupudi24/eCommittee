@@ -15,7 +15,6 @@ import {
   IColumn,
   DetailsList,
   SelectionMode,
- 
 } from "@fluentui/react";
 import styles from "../Form.module.scss";
 // import DraggableTable from "./draggableGridKendo/draggableGridKendo";
@@ -139,7 +138,7 @@ export interface IViewFormState {
   pastApprover: any;
   referredFromDetails: any;
   refferredToDetails: any;
-  noteReferrerDTO:any;
+  noteReferrerDTO: any;
 
   draftResolutionFieldValue: any;
 }
@@ -258,11 +257,9 @@ export default class ViewForm extends React.Component<
       pastApprover: [],
       referredFromDetails: [],
       refferredToDetails: [],
-      noteReferrerDTO:[],
+      noteReferrerDTO: [],
 
       draftResolutionFieldValue: "",
-
-
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -294,7 +291,7 @@ export default class ViewForm extends React.Component<
   public _folderNameGenerate(id: any): any {
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
-    const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;  
+    const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
@@ -383,9 +380,22 @@ export default class ViewForm extends React.Component<
 
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
-    .getByTitle(this.props.listId)
-    .items.getById(id).select("*","Author/Title","Author/EMail","Approvers","Approvers/Title","Reviewers/Title","Approvers/EMail","Reviewers/EMail","CurrentApprover/Title","CurrentApprover/EMail").expand("Author","Approvers","Reviewers","CurrentApprover")();
-  
+      .getByTitle(this.props.listId)
+      .items.getById(id)
+      .select(
+        "*",
+        "Author/Title",
+        "Author/EMail",
+        "Approvers",
+        "Approvers/Title",
+        "Reviewers/Title",
+        "Approvers/EMail",
+        "Reviewers/EMail",
+        "CurrentApprover/Title",
+        "CurrentApprover/EMail"
+      )
+      .expand("Author", "Approvers", "Reviewers", "CurrentApprover")();
+
     console.log(`${id} ------Details`, item);
     console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
@@ -416,14 +426,14 @@ export default class ViewForm extends React.Component<
             },
             item.NoteApproversDTO !== null && {
               column1: "Current Approver",
-              column2: `${this._getPendingStatus(JSON.parse(item.NoteApproversDTO))}`,
+              column2: `${this._getPendingStatus(
+                JSON.parse(item.NoteApproversDTO)
+              )}`,
             },
             item.Department !== null && {
               column1: "Department",
               column2: `${item.Department}`,
             },
-
-            
 
             item.CommitteeName !== null && {
               column1: "CommitteeName",
@@ -452,7 +462,7 @@ export default class ViewForm extends React.Component<
             },
             item.SearchKeyword !== null && {
               column1: "Search Keyword",
-              column2:item.SearchKeyword,
+              column2: item.SearchKeyword,
             },
             item.Amount !== null && {
               column1: "Amount",
@@ -507,7 +517,10 @@ export default class ViewForm extends React.Component<
       status: item.Status,
       statusNumber: item.StatusNumber,
       ApproverDetails: JSON.parse(item.NoteApproversDTO),
-      currentApprover: this._getCurrentApproverDetails(item.CurrentApprover, item.NoteApproversDTO),
+      currentApprover: this._getCurrentApproverDetails(
+        item.CurrentApprover,
+        item.NoteApproversDTO
+      ),
       ApproverOrder:
         item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[0],
       ApproverType:
@@ -515,14 +528,21 @@ export default class ViewForm extends React.Component<
 
       title: item.Title,
       commentsData:
-        item.NoteApproverCommentsDTO !== null ? JSON.parse(item.NoteApproverCommentsDTO) : [],
+        item.NoteApproverCommentsDTO !== null
+          ? JSON.parse(item.NoteApproverCommentsDTO)
+          : [],
       referredFromDetails:
-        item.NoteReferrerDTO !== null ?this._getReferedFromAndToDetails(item.NoteReferrerDTO,"from") : [],
+        item.NoteReferrerDTO !== null
+          ? this._getReferedFromAndToDetails(item.NoteReferrerDTO, "from")
+          : [],
       refferredToDetails:
-        item.NoteReferrerDTO !== null ?this._getReferedFromAndToDetails(item.NoteReferrerDTO,"to") : [],
+        item.NoteReferrerDTO !== null
+          ? this._getReferedFromAndToDetails(item.NoteReferrerDTO, "to")
+          : [],
 
-        draftResolutionFieldValue:item.DraftResoultion,
-        noteReferrerDTO:item.NoteReferrerDTO !== null ? JSON.parse(item.NoteReferrerDTO) : [],
+      draftResolutionFieldValue: item.DraftResoultion,
+      noteReferrerDTO:
+        item.NoteReferrerDTO !== null ? JSON.parse(item.NoteReferrerDTO) : [],
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
       // ?  []
       // : JSON.parse(item.CommentsLog),
@@ -531,42 +551,44 @@ export default class ViewForm extends React.Component<
     });
   };
 
-
-  private _getReferedFromAndToDetails=(commentsData:any,typeOfReferee:any):any=>{
-    commentsData =JSON.parse(commentsData)
-     console.log(commentsData)
-    if (typeOfReferee === 'to'){
-      return commentsData[0].referredTo
+  private _getReferedFromAndToDetails = (
+    commentsData: any,
+    typeOfReferee: any
+  ): any => {
+    commentsData = JSON.parse(commentsData);
+    console.log(commentsData);
+    if (typeOfReferee === "to") {
+      return commentsData[0].referredTo;
     }
-    return commentsData[0].referredFrom
-    
-    
-  }
+    return commentsData[0].referredFrom;
+  };
 
+  private _getCurrentApproverDetails = (
+    currentApproverData: any,
+    ApproverDetails: any
+  ): any => {
+    ApproverDetails = JSON.parse(ApproverDetails);
+    console.log(currentApproverData);
 
-  private _getCurrentApproverDetails=(currentApproverData:any,ApproverDetails:any):any=>{
-
-    ApproverDetails = JSON.parse(ApproverDetails)
-
-    const filterApproverData = ApproverDetails.filter(
-      (each:any)=>{
-        // console.log(each)
-        if ((each.email || each.approverEmail) === currentApproverData.EMail){
-          return {...each,...currentApproverData}
+    if (currentApproverData) {
+      const filterApproverData = ApproverDetails.filter((each: any) => {
+        console.log(each);
+        if ((each.email || each.approverEmail) === currentApproverData.EMail) {
+          return { ...each, ...currentApproverData };
         }
-      }
-    )
-    console.log(filterApproverData)
+      });
+      console.log(filterApproverData);
 
-    return filterApproverData
-
-  }
+      return filterApproverData;
+    }
+    return null;
+  };
 
   private _formatDateTime = (date: string | number | Date) => {
-    const formattedDate = format(new Date(date), 'dd-MMM-yyyy');
-    const formattedTime = format(new Date(date), 'hh:mm a');
+    const formattedDate = format(new Date(date), "dd-MMM-yyyy");
+    const formattedTime = format(new Date(date), "hh:mm a");
     return `${formattedDate} ${formattedTime}`;
-};
+  };
 
   private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest =
     (): any => {
@@ -596,7 +618,7 @@ export default class ViewForm extends React.Component<
               case "Refered Back":
                 console.log(each.status);
                 return true;
-                
+
               default:
                 console.log("default");
                 return false;
@@ -619,7 +641,6 @@ export default class ViewForm extends React.Component<
                 console.log(each.status);
                 return true;
 
-             
               default:
                 console.log("default");
                 return false;
@@ -694,18 +715,18 @@ export default class ViewForm extends React.Component<
   private _getApproverOrder = (data: any): any => {
     const order = data.filter((each: any) => {
       // console.log(each);
-      // console.log(each.approverEmail);
-      // console.log(this._currentUserEmail);
-      // console.log(each.approverEmail ||each.email)
+      console.log(each.approverEmail);
+      console.log(this._currentUserEmail);
+      console.log(each.approverEmail || each.email);
 
-      // console.log(each.approverEmail === this._currentUserEmail);
+      console.log(each.approverEmail === this._currentUserEmail);
 
-      if (each.approverEmail || each.email === this._currentUserEmail) {
+      if ((each.approverEmail || each.email) === this._currentUserEmail) {
         // console.log(each.approverOrder);
         return each;
       }
     });
-    // console.log(order);
+    console.log(order);
     return [order[0].approverOrder, order[0].approverType];
   };
 
@@ -832,7 +853,7 @@ export default class ViewForm extends React.Component<
     const columns: IColumn[] = [
       {
         key: "column1",
-        name: "Column 1",
+        name: "",
         fieldName: "column1",
         minWidth: 120,
         maxWidth: 200,
@@ -840,7 +861,7 @@ export default class ViewForm extends React.Component<
       },
       {
         key: "column2",
-        name: "Column 2",
+        name: "",
         fieldName: "column2",
         minWidth: 120,
         maxWidth: 200,
@@ -849,7 +870,9 @@ export default class ViewForm extends React.Component<
     ];
 
     return (
-      <div style={{ overflow: "auto" }}>
+      <div
+      //  style={{ overflow: "auto" }}
+      >
         <DetailsList
           items={tableData.filter((row) => row.column2 !== undefined)} // Filter out rows with undefined column2
           columns={columns}
@@ -857,7 +880,7 @@ export default class ViewForm extends React.Component<
           selectionMode={SelectionMode.none}
           layoutMode={0} // Use detailsListLayoutMode.fixedColumns
           styles={{
-            root: { minWidth: "400px" },
+            root: { width: "100%" },
           }}
         />
       </div>
@@ -916,7 +939,10 @@ export default class ViewForm extends React.Component<
       {
         Actioner: this.props.context.pageContext.user.displayName,
         ActionerEmail: this._currentUserEmail,
-        ActionTaken:this.props.formType==='View'? `ECommittee is ${status}`:`Board Note is ${status}`,
+        ActionTaken:
+          this.props.formType === "View"
+            ? `ECommittee note is  ${status}`
+            : `Board Note is ${status}`,
         Role: profile.Title,
         // Role: this.props.context.pageContext.user.,
         ActionTakenOn:
@@ -994,7 +1020,7 @@ export default class ViewForm extends React.Component<
         if (each.approverEmail === this._currentUserEmail) {
           // console.log("ednter");
 
-          return { ...each, status: statusFromEvent ,actionDate:new Date()};
+          return { ...each, status: statusFromEvent, actionDate: new Date() };
         }
         // if (each.approverOrder===currentApproverOrder+1){
 
@@ -1021,22 +1047,23 @@ export default class ViewForm extends React.Component<
       });
       console.log(currentApproverdata);
       return currentApproverdata[0].id;
-      
     };
 
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     // console.log(updateAuditTrial);
-    const updateItems ={
+    const updateItems = {
       NoteApproversDTO: JSON.stringify(modifyApproveDetails),
       Status: "pending",
       StatusNumber: "1500",
       AuditTrail: updateAuditTrial,
       NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
-      CurrentApproverId:_getCurrentApproverDetails(),
-    }
-    console.log(
-      updateItems
-    )
+      CurrentApproverId:
+        this.state.ApproverOrder === modifyApproveDetails.length
+          ? null
+          : _getCurrentApproverDetails(),
+      // PreviousApprover:_getPreviousApproverDetails(Note)
+    };
+    console.log(updateItems);
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
@@ -1070,16 +1097,14 @@ export default class ViewForm extends React.Component<
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
-          return { ...each, status: statusFromEvent,actionDate:new Date() };
+          return { ...each, status: statusFromEvent, actionDate: new Date() };
         }
         // if (each.approverOrder===currentApproverOrder+1){
 
         //   return {...each,status:"pending"}
 
         // }
-        if (each.approverOrder === this.state.ApproverOrder + 1) {
-          return { ...each, status: "pending"};
-        }
+      
         return each;
       }
     );
@@ -1133,7 +1158,7 @@ export default class ViewForm extends React.Component<
           this._currentUserEmail
         ) {
           console.log("Entered -----", statusFromEvent);
-          return { ...each, status: statusFromEvent ,actionDate:new Date()};
+          return { ...each, status: statusFromEvent, actionDate: new Date() };
         }
         if (each.approverOrder === this.state.ApproverOrder + 1) {
           return { ...each, status: "waiting" };
@@ -1152,7 +1177,12 @@ export default class ViewForm extends React.Component<
       statusNumber: statusNumber,
       AuditTrail: updateAuditTrial,
       CommentsLog: JSON.stringify([...this.state.commentsData, commentsObj]),
-      noteReferrerDTO:JSON.stringify([{referredTo:this.state.refferredToDetails,referredFrom:this.state.referredFromDetails}])
+      noteReferrerDTO: JSON.stringify([
+        {
+          referredTo: this.state.refferredToDetails,
+          referredFrom: this.state.referredFromDetails,
+        },
+      ]),
       // referredTo: JSON.stringify(this.state.refferredToDetails),
       // referredFrom: JSON.stringify(this.state.referredFromDetails),
     };
@@ -1189,7 +1219,7 @@ export default class ViewForm extends React.Component<
     const modifyReferredToDetails = this.state.referredFromDetails.map(
       (each: any, index: number) => {
         console.log(each);
-        return { ...each, status: statusFromEvent,actionDate:new Date() };
+        return { ...each, status: statusFromEvent, actionDate: new Date() };
       }
     );
 
@@ -1201,8 +1231,12 @@ export default class ViewForm extends React.Component<
       statusNumber: statusNumber,
       AuditTrail: updateAuditTrial,
       CommentsLog: JSON.stringify([...this.state.commentsData, commentsObj]),
-      noteReferrerDTO:JSON.stringify([{referredTo:modifyReferredToDetails,referredFrom:this.state.referredFromDetails}])
-      
+      noteReferrerDTO: JSON.stringify([
+        {
+          referredTo: modifyReferredToDetails,
+          referredFrom: this.state.referredFromDetails,
+        },
+      ]),
     };
     console.log(obj);
 
@@ -1236,7 +1270,7 @@ export default class ViewForm extends React.Component<
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
-          return { ...each, status: statusFromEvent,actionDate:new Date() };
+          return { ...each, status: statusFromEvent, actionDate: new Date() };
         }
         // if (each.approverOrder===currentApproverOrder+1){
 
@@ -1325,7 +1359,11 @@ export default class ViewForm extends React.Component<
 
           // console.log(each.approverOrder ===this._getApproverOrder(this.state.ApproverDetails)[0])
           if (each.status === "pending") {
-            return { ...this.state.currentApprover, status: "pending" , actionDate:new Date()};
+            return {
+              ...this.state.currentApprover,
+              status: "pending",
+              actionDate: new Date(),
+            };
           }
         }
       );
@@ -1499,21 +1537,19 @@ export default class ViewForm extends React.Component<
     );
   };
 
-  private _getPendingStatus = (data:any): any => {
+  private _getPendingStatus = (data: any): any => {
     // console.log(this.state.ApproverDetails);
-    
-    const currentStatusOfApproverDetails = data.filter(
-      (each: any) => {
-        // console.log(each);
+
+    const currentStatusOfApproverDetails = data.filter((each: any) => {
+      // console.log(each);
+      // console.log(each.status);
+      if (each.status === "pending" || each.status === "Refered") {
         // console.log(each.status);
-        if (each.status === "pending" || each.status === "Refered") {
-          // console.log(each.status);
-          return each;
-        }
-        // return each.status === "pending" && each.approverEmailName
+        return each;
       }
-    );
-    console.log(currentStatusOfApproverDetails)
+      // return each.status === "pending" && each.approverEmailName
+    });
+    console.log(currentStatusOfApproverDetails);
 
     if (currentStatusOfApproverDetails.length > 0) {
       // console.log(
@@ -1523,7 +1559,10 @@ export default class ViewForm extends React.Component<
       //   "currentStatusOfApproverDetails"
       // );
 
-      return currentStatusOfApproverDetails[0].text || currentStatusOfApproverDetails[0].approverEmailName;
+      return (
+        currentStatusOfApproverDetails[0].text ||
+        currentStatusOfApproverDetails[0].approverEmailName
+      );
     } else {
       return "";
     }
@@ -1562,9 +1601,9 @@ export default class ViewForm extends React.Component<
     id: string = ""
   ) => {
     console.log(commentsData);
-    console.log(id)
+    console.log(id);
     if (type === "add") {
-      console.log('entered into Add')
+      console.log("entered into Add");
       this.setState((prev) => {
         console.log(commentsData);
         console.log(prev.commentsData);
@@ -1572,23 +1611,26 @@ export default class ViewForm extends React.Component<
           commentsData: [...prev.commentsData, commentsData],
         };
       });
-    }else if (type==='delete'){
-      console.log('entered into delete')
-      const updatingCommentData = this.state.commentsData.filter((each:any)=>{
-        console.log(each)
-        console.log(each.id)
-        console.log(id)
-        console.log(each.id!==id)
-        return  each.id!==id
-
-      })
-      console.log(updatingCommentData)
+    } else if (type === "delete") {
+      console.log("entered into delete");
+      const updatingCommentData = this.state.commentsData.filter(
+        (each: any) => {
+          console.log(each);
+          console.log(each.id);
+          console.log(id);
+          console.log(each.id !== id);
+          return each.id !== id;
+        }
+      );
+      console.log(updatingCommentData);
       this.setState({
-        commentsData:this.state.commentsData.filter((each:any)=>each.id!==id)
-      })
+        commentsData: this.state.commentsData.filter(
+          (each: any) => each.id !== id
+        ),
+      });
     } else {
-      console.log('entered into save')
-      console.log(id)
+      console.log("entered into save");
+      console.log(id);
       const filterIdforUpdateState = this.state.commentsData.filter(
         (each: any) => each.id === id
       )[0];
@@ -1640,12 +1682,11 @@ export default class ViewForm extends React.Component<
     }
   };
 
-
-  public _checkCurrentRequestIsReturnedOrRejected =(): boolean => {
+  public _checkCurrentRequestIsReturnedOrRejected = (): boolean => {
     switch (this.state.status) {
-      case 'Rejected':
-      case 'Returned':
-      case 'Call Back':
+      case "Rejected":
+      case "Returned":
+      case "Call Back":
         return false;
       default:
         return true;
@@ -1697,14 +1738,12 @@ export default class ViewForm extends React.Component<
             {/* Header section */}
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
-              style={{padding:'10px'}}
-            >
-              {this.state.ApproverOrder !==
-                this.state.ApproverDetails.length && (
-                <h1 className={`${styles.generalHeader} `}>
-                  pending: {this._getPendingStatus(this.state.ApproverDetails)}
-                </h1>
-              )}
+              style={{ padding: "10px" }}
+            > 
+   
+              <h1 className={`${styles.generalHeader} `}>
+                pending: {(this.state.status!=='Rejected') &&this._getPendingStatus(this.state.ApproverDetails)}
+              </h1>
 
               <h1 className={`${styles.generalHeader} `}>
                 eCommittee Note - {this.state.title}
@@ -1752,38 +1791,38 @@ export default class ViewForm extends React.Component<
                     )}
                   </div>
                   {/* Draft Resoultion Section */}
-                  {this.props.formType ==='BoardNoteView'&&
-                   <div className={styles.sectionContainer}>
-                   <div
-                     className={styles.header}
-                     onClick={() => this._onToggleSection(`draftResolution`)}
-                   >
-                     <Text className={styles.sectionText}>
-                     Draft Resolution Section
-                     </Text>
-                     <IconButton
-                       iconProps={{
-                         iconName: expandSections.draftResolution
-                           ? "ChevronUp"
-                           : "ChevronDown",
-                       }}
-                       title="Expand/Collapse"
-                       ariaLabel="Expand/Collapse"
-                       className={styles.chevronIcon}
-                     />
-                   </div>
-                   {expandSections.draftResolution && (
-                     <div className={`${styles.expansionPanelInside}`}>
-                       <div style={{ padding: "15px" }}>
-                       <RichText    value={this.state.draftResolutionFieldValue}/>
-                       </div>
-                     </div>
-                   )}
-                 </div>
-                  
-                  }
-                 
-                 
+                  {this.props.formType === "BoardNoteView" && (
+                    <div className={styles.sectionContainer}>
+                      <div
+                        className={styles.header}
+                        onClick={() => this._onToggleSection(`draftResolution`)}
+                      >
+                        <Text className={styles.sectionText}>
+                          Draft Resolution Section
+                        </Text>
+                        <IconButton
+                          iconProps={{
+                            iconName: expandSections.draftResolution
+                              ? "ChevronUp"
+                              : "ChevronDown",
+                          }}
+                          title="Expand/Collapse"
+                          ariaLabel="Expand/Collapse"
+                          className={styles.chevronIcon}
+                        />
+                      </div>
+                      {expandSections.draftResolution && (
+                        <div className={`${styles.expansionPanelInside}`}>
+                          <div style={{ padding: "15px" }}>
+                            <RichText
+                              value={this.state.draftResolutionFieldValue}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Reviewers Section */}
                   <div className={styles.sectionContainer}>
                     <div
@@ -1858,7 +1897,7 @@ export default class ViewForm extends React.Component<
                   </div>
                   {/*General Comments */}
 
-                  {(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() ) &&
+                  {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
                   this._currentUserEmail !== this.state.createdByEmail ? (
                     <div className={styles.sectionContainer}>
                       <div
@@ -2119,91 +2158,90 @@ export default class ViewForm extends React.Component<
               </div>
               {/* buttons Sections */}
               <div className={styles.btnsContainer}>
-
-                { this._checkCurrentRequestIsReturnedOrRejected()&&
-                (this._currentUserEmail === this.state.createdByEmail ? (
-                  this._checkApproveredStatusIsFound() ? (
+                {this._checkCurrentRequestIsReturnedOrRejected() &&
+                  (this._currentUserEmail === this.state.createdByEmail ? (
+                    this._checkApproveredStatusIsFound() ? (
+                      <PrimaryButton
+                        className={`${styles.responsiveButton}`}
+                        iconProps={{ iconName: "Edit" }}
+                        onClick={(e) => {
+                          console.log("Change Approver btn Triggered");
+                          this._hanldeFluentDialog(
+                            "Change Approver",
+                            "changeApprover",
+                            "7500",
+                            "Change Approver*",
+                            this.handleChangeApprover,
+                            this._closeDialog
+                          );
+                          //  this.handleChangeApprover( "ChangedApprover", "7500");
+                          this.setState({
+                            status: "changedApprover",
+                            statusNumber: "7500",
+                          });
+                        }}
+                      >
+                        Change Approver
+                      </PrimaryButton>
+                    ) : (
+                      <PrimaryButton
+                        className={`${styles.responsiveButton}`}
+                        iconProps={{ iconName: "Refresh" }}
+                        onClick={(e) => {
+                          console.log("Call Back btn Triggered");
+                          this.handleCallBack(e, "Call Back", "7000");
+                          this.setState({
+                            status: "Call Back",
+                            statusNumber: "7000",
+                          });
+                        }}
+                      >
+                        Call Back
+                      </PrimaryButton>
+                    )
+                  ) : this.state.refferredToDetails.length > 0 &&
+                    this.state.refferredToDetails[0]?.email ===
+                      this._currentUserEmail &&
+                    this.state.refferredToDetails[0]?.status === "Refered" ? (
                     <PrimaryButton
                       className={`${styles.responsiveButton}`}
-                      iconProps={{ iconName: "Edit" }}
+                      iconProps={{ iconName: "Reply" }}
+                      styles={{
+                        root: {
+                          backgroundColor: "#37b400",
+                          border: "none",
+                        },
+                        rootHovered: {
+                          backgroundColor: "#37b400", // Set hover background color
+                          border: "none",
+                        },
+                        rootPressed: {
+                          backgroundColor: "#37b400", // Set pressed background color
+                          border: "none",
+                        },
+                      }}
                       onClick={(e) => {
-                        console.log("Change Approver btn Triggered");
                         this._hanldeFluentDialog(
-                          "Change Approver",
-                          "changeApprover",
-                          "7500",
-                          "Change Approver*",
-                          this.handleChangeApprover,
+                          "Refer Back",
+                          "Refered Back",
+                          "6000",
+                          "Please check the details filled along with attachment and click on Confirm button to approve request.",
+                          this.handleReferBack,
                           this._closeDialog
                         );
-                        //  this.handleChangeApprover( "ChangedApprover", "7500");
                         this.setState({
-                          status: "changedApprover",
-                          statusNumber: "7500",
+                          status: "Refered Back",
+                          statusNumber: "6000",
                         });
+                        // this._handleApproverButton(e,"Approved")
                       }}
                     >
-                      Change Approver
+                      Refer Back
                     </PrimaryButton>
                   ) : (
-                    <PrimaryButton
-                      className={`${styles.responsiveButton}`}
-                      iconProps={{ iconName: "Refresh" }}
-                      onClick={(e) => {
-                        console.log("Call Back btn Triggered");
-                        this.handleCallBack(e, "Call Back", "7000");
-                        this.setState({
-                          status: "Call Back",
-                          statusNumber: "7000",
-                        });
-                      }}
-                    >
-                      Call Back
-                    </PrimaryButton>
-                  )
-                ) : this.state.refferredToDetails.length > 0 &&
-                  this.state.refferredToDetails[0]?.email ===
-                    this._currentUserEmail &&
-                  this.state.refferredToDetails[0]?.status === "Refered" ? (
-                  <PrimaryButton
-                    className={`${styles.responsiveButton}`}
-                    iconProps={{ iconName: "Reply" }}
-                    styles={{
-                      root: {
-                        backgroundColor: "#37b400",
-                        border: "none",
-                      },
-                      rootHovered: {
-                        backgroundColor: "#37b400", // Set hover background color
-                        border: "none",
-                      },
-                      rootPressed: {
-                        backgroundColor: "#37b400", // Set pressed background color
-                        border: "none",
-                      },
-                    }}
-                    onClick={(e) => {
-                      this._hanldeFluentDialog(
-                        "Refer Back",
-                        "Refered Back",
-                        "6000",
-                        "Please check the details filled along with attachment and click on Confirm button to approve request.",
-                        this.handleReferBack,
-                        this._closeDialog
-                      );
-                      this.setState({
-                        status: "Refered Back",
-                        statusNumber: "6000",
-                      });
-                      // this._handleApproverButton(e,"Approved")
-                    }}
-                  >
-                    Refer Back
-                  </PrimaryButton>
-                ) : (
-                  this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                  this._getApproverAndReviewerStageButton()
-                ))}
+                    this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                    this._getApproverAndReviewerStageButton()
+                  ))}
                 {/* {this._getApproverAndReviewerStageButton()} */}
 
                 <DefaultButton
@@ -2246,7 +2284,6 @@ export default class ViewForm extends React.Component<
         {/* //working code throught canvas  */}
         {/* <AdobePdfWebPart/> */}
         {/* <AdobePdfViewer clientId={"825473e9e1184eL459736428fd30f8b99"} fileUrl={this.state.pdfLink} height={800} defaultViewMode={"FIT_WIDTH"}/> */}
-
       </Stack>
     );
   }

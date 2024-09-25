@@ -1604,7 +1604,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         Actioner: this._userName,
         ActionerEmail: this._currentUserEmail,
 
-        ActionTaken:this.props.formType==='View'? `ECommittee is ${status}`:`Board Note is ${status}`,
+        ActionTaken:this.props.formType==='New'? `ECommittee note is ${status}`:`Board Note is ${status}`,
         Role: this._role,
         ActionTakenOn:
           new Date().toDateString() + " " + new Date().toLocaleTimeString(),

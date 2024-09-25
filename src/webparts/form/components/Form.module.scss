@@ -167,6 +167,7 @@
   background-color: #034ea1;
   color: white;
   font-size: 14px;
+  
 
 }
 
@@ -662,6 +663,7 @@
 
 .header {
   display: flex;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   cursor: pointer; // Make the header clickable
@@ -708,6 +710,7 @@
 .responsiveContainerheaderForFileAttachment {
   width: 100%; /* Full width */
   padding: 15px; /* Default padding */
+  // border:1px solid green;
   
   @media (max-width: 1200px) { /* Large tablets */
     padding: 12px;
