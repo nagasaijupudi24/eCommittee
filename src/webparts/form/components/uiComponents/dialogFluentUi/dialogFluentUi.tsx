@@ -172,6 +172,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
                       page: 'NA',
                       comment: newText,
                       commentedBy: context.pageContext.user.displayName,
+                      commentsFrom:dialogDetails.status,
+                      commentedEmail:context.pageContext.user.email
                     };
                     console.log(commentsObj);
                     return commentsObj

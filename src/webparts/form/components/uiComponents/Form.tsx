@@ -874,7 +874,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               email: each.Approver.EMail,
               ApproversId: each.ApproverId,
               approverType: each.ApproverType,
-              approversOrder: each.ApproverType === "Approver"?2:1,
+              // approversOrder: each.ApproverType === "Approver"?2:1,
               Title: each.Title,
               id: each.ApproverId,
               secretary: each.Secretary,
@@ -1571,19 +1571,40 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const finalData = dataOfReveiwerAndApprover.map(
       (each: any, index: number) => {
         console.log(each);
-        return {
-          approverType: each.approverType,
-          approverEmail: each.email,
-          approverOrder: index + 1,
-          approverStatus: 1,
-          id: each.id,
-          status: index === 0 ? "pending" : "waiting",
-          email: each.secondaryText,
-          designation: each.optionalText,
-          approverEmailName: each.text,
-          srNo: each.srNo,
-          secretary: "IB Test 1",
-        };
+
+        if (each.approverType === 'Reviewer'){
+          return {
+            approverType: each.approverType,
+            approverEmail: each.email,
+            approverOrder: index + 1,
+            approverStatus: 1,
+            id: each.id,
+            status: index === 0 ? "pending" : "waiting",
+            mainStatus:index === 0?'pending with Reviewer':'waiting',
+            email: each.secondaryText,
+            designation: each.optionalText,
+            approverEmailName: each.text,
+            srNo: each.srNo,
+            secretary: "IB Test 1",
+          };
+
+        }else{
+          return {
+            approverType: each.approverType,
+            approverEmail: each.email,
+            approverOrder: index + 1,
+            approverStatus: 1,
+            id: each.id,
+            status: index === 0 ? "pending" : "waiting",
+            mainStatus:index === 0?'pending with Approver':'waiting',
+            email: each.secondaryText,
+            designation: each.optionalText,
+            approverEmailName: each.text,
+            srNo: each.srNo,
+            secretary: "IB Test 1",
+          };
+        }
+        
       }
     );
     console.log(finalData);
@@ -2527,6 +2548,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
+  
+
   // Generate Request Number
   private async _generateRequsterNumber(id: number) {
     const currentyear = new Date().getFullYear();
@@ -2538,6 +2561,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       .items.getById(id)
       .update({
         Title: requesterNo,
+        // NoteApproversDTO:JSON.stringify(this._getNewUpdatedNoteApproverDTO(this.state.peoplePickerData,this.state.peoplePickerApproverData))
       
       })
       .then((data) => console.log(data, "data"));

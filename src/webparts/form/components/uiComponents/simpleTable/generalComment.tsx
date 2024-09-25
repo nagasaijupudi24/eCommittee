@@ -67,12 +67,12 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       console.log(
         this.props.data?.filter(
           (each: any) =>
-            each?.commentedBy === this.props.currentUserDetails.displayName
+            each?.commentedBy === this.props.currentUserDetails.displayName 
         )
       );
       return this.props.data?.filter(
         (each: any) =>
-          each?.commentedBy === this.props.currentUserDetails.displayName
+          each?.commentedBy === this.props.currentUserDetails.displayName && each?.commentsFrom==="generalComments"
         //     {
         //     console.log(each)
         //     console.log(each.commentedBy === this.props.currentUserDetails.displayName)
@@ -119,6 +119,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
 
   public handleAddBtn = (event: any) => {
     console.log("Add btn event triggered");
+    console.log(this.props.currentUserDetails)
     const { pageNumValue, pageValue, commentValue } = this.state;
     const commentsObj = {
       id: v4(),
@@ -126,6 +127,8 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       page: pageValue,
       comment: commentValue,
       commentedBy: this.props.currentUserDetails.displayName,
+      commentsFrom:'generalComments',
+      commentedEmail:this.props.currentUserDetails.email
     };
     console.log(commentsObj);
     this.props.handleCommentDataFuntion(commentsObj, "add");

@@ -476,9 +476,9 @@ export default class ViewForm extends React.Component<
         },
       ],
     });
-    const dataApproverInfo =
-      item.Author.EMail !== this._currentUserEmail &&
-      this._getApproverOrder(JSON.parse(item.NoteApproversDTO),item.StatusNumber);
+    // const dataApproverInfo =
+    //   item.Author.EMail !== this._currentUserEmail &&
+    //   this._getApproverOrder(JSON.parse(item.NoteApproversDTO),item.StatusNumber);
     // console.log(dataApproverInfo);
     // console.log(item.CommentsLog);
     // console.log(typeof item.CommentsLog);
@@ -514,7 +514,7 @@ export default class ViewForm extends React.Component<
       auditTrail: JSON.parse(item.AuditTrail),
       isLoading: false,
       createdByEmail: item.Author.EMail,
-      status: item.Status,
+      status: item.Status==="Submitted"?this._getStatus(item.NoteApproversDTO):item.status,
       statusNumber: item.StatusNumber,
       ApproverDetails: JSON.parse(item.NoteApproversDTO),
       currentApprover: this._getCurrentApproverDetails(
@@ -522,9 +522,15 @@ export default class ViewForm extends React.Component<
         item.NoteApproversDTO
       ),
       ApproverOrder:
-        item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[0],
+        item.Author.EMail === this._currentUserEmail ? "" :(item.CurrentApprover && this._getCurrentApproverDetails(
+          item.CurrentApprover,
+          item.NoteApproversDTO
+        )[0].approverOrder),
       ApproverType:
-        item.Author.EMail === this._currentUserEmail ? "" : dataApproverInfo[1],
+        item.Author.EMail === this._currentUserEmail ? "" : (item.CurrentApprover &&this._getCurrentApproverDetails(
+          item.CurrentApprover,
+          item.NoteApproversDTO
+        )[0].approverType),
 
       title: item.Title,
       commentsData:
@@ -550,6 +556,13 @@ export default class ViewForm extends React.Component<
       //don't use this commentsData:item.CommentsLog !== typeof null||'null' ? JSON.parse(item.CommentsLog):[],
     });
   };
+
+  private _getStatus = (e:any):any =>{
+    console.log(e)
+    e = JSON.parse(e)
+    return e[0].mainStatus
+
+  }
 
   private _getReferedFromAndToDetails = (
     commentsData: any,
@@ -712,33 +725,36 @@ export default class ViewForm extends React.Component<
       // }
     };
 
-  private _getApproverOrder = (data: any,statusNum:any): any => {
-    console.log(statusNum)
-    console.log(data)
-    if(statusNum !=='5000'){
-      const order = data.filter((each: any) => {
+  // private _getApproverOrder = (data: any,statusNum:any): any => {
+  //   console.log(statusNum)
+  //   console.log(data)
+  //   console.log(statusNum !=='5000' || statusNum !=='6000')
+  //   console.log(statusNum !=='5000' || statusNum !=='6000'?statusNum !=='5000':statusNum !=='6000')
+  //   console.log(statusNum !=='5000' || statusNum !=='6000'?false:true)
+  //   if(statusNum !=='5000' || statusNum !=='6000'?false:true){
+  //     const order = data.filter((each: any) => {
      
-        // console.log(each);
-        console.log(each.approverEmail);
-        console.log(this._currentUserEmail);
-        console.log(each.approverEmail || each.email);
+  //       // console.log(each);
+  //       console.log(each.approverEmail);
+  //       console.log(this._currentUserEmail);
+  //       console.log(each.approverEmail || each.email);
   
-        console.log(each.approverEmail === this._currentUserEmail);
+  //       console.log(each.approverEmail === this._currentUserEmail);
   
-        if ((each.approverEmail || each.email) === this._currentUserEmail) {
-          // console.log(each.approverOrder);
-          return each;
-        }
-      });
-      console.log(order);
-      return [order[0].approverOrder, order[0].approverType];
+  //       if ((each.approverEmail || each.email) === this._currentUserEmail) {
+  //         // console.log(each.approverOrder);
+  //         return each;
+  //       }
+  //     });
+  //     console.log(order);
+  //     return [order[0].approverOrder, order[0].approverType];
 
-    }
-    else{
-      return ''
-    }
+  //   }
+  //   else{
+  //     return ''
+  //   }
    
-  };
+  // };
 
   private _getFileObj = (data: any): any => {
     const tenantUrl = window.location.protocol + "//" + window.location.host;
@@ -1047,10 +1063,11 @@ export default class ViewForm extends React.Component<
         return each;
       }
     );
-    // console.log(modifyApproveDetails);
+    console.log(modifyApproveDetails);
 
     const _getCurrentApproverDetails = (): any => {
       const currentApproverdata = modifyApproveDetails.filter((each: any) => {
+        console.log(each)
         if (each.status === "pending") {
           return each;
         }
@@ -1058,6 +1075,18 @@ export default class ViewForm extends React.Component<
       console.log(currentApproverdata);
       return currentApproverdata[0].id;
     };
+
+  //  const _getPreviousApproverId = ():any =>{
+  //   const previousApproverId = modifyApproveDetails.filter((each: any) => {
+  //     console.log(each)
+  //     if (each.approverOrder === this.state.ApproverOrder) {
+  //       return each;
+  //     }
+  //   });
+  //   console.log(previousApproverId);
+  //   return previousApproverId[0].id;
+
+  //  }
 
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     // console.log(updateAuditTrial);
@@ -1067,6 +1096,7 @@ export default class ViewForm extends React.Component<
       StatusNumber: "1500",
       AuditTrail: updateAuditTrial,
       NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
+      // PreviousApproverId:_getPreviousApproverId(),
       CurrentApproverId:
         this.state.ApproverOrder === modifyApproveDetails.length
           ? null
@@ -1377,7 +1407,7 @@ export default class ViewForm extends React.Component<
           }
         }
       );
-      // console.log(upatedCurrentApprover);
+      console.log(upatedCurrentApprover);
       console.log([
         {
           ...this.state.currentApprover[0],
@@ -1385,7 +1415,7 @@ export default class ViewForm extends React.Component<
           approverOrder: upatedCurrentApprover[0].approverOrder,
           approverStatus: upatedCurrentApprover[0].approverStatus,
           approverType: upatedCurrentApprover[0].approverType,
-          approverEmailName: this.state.currentApprover[0].email,
+          approverEmailName: this.state.currentApprover[0].email ||this.state.currentApprover[0].secondaryText,
         },
       ]);
       return [
@@ -1395,14 +1425,18 @@ export default class ViewForm extends React.Component<
           approverOrder: upatedCurrentApprover[0].approverOrder,
           approverStatus: upatedCurrentApprover[0].approverStatus,
           approverType: upatedCurrentApprover[0].approverType,
-          approverEmailName: upatedCurrentApprover[0].email,
+          approverEmailName: this.state.currentApprover[0].email ||this.state.currentApprover[0].secondaryText,
         },
       ];
     };
+    console.log(updateCurrentApprover())
     const modifyApproverDetails = this.state.ApproverDetails.map(
       (each: any) => {
         console.log(each);
+        console.log(each.status)
+        console.log(each.status === "pending")
         if (each.status === "pending") {
+          console.log(updateCurrentApprover())
           return { ...updateCurrentApprover()[0] };
         } else {
           return each;
@@ -1410,15 +1444,17 @@ export default class ViewForm extends React.Component<
       }
     );
     console.log(modifyApproverDetails);
+    const currentApproverId = updateCurrentApprover()[0].id 
+    console.log(currentApproverId)
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
-        CurrentApprover: JSON.stringify(updateCurrentApprover()),
+        CurrentApproverId: currentApproverId,
         AuditTrail: updateAuditTrial,
-        NoteApproverCommentsDTO: JSON.stringify(modifyApproverDetails),
+        NoteApproversDTO: JSON.stringify(modifyApproverDetails),
       });
 
     console.log(itemToUpdate);
@@ -1697,16 +1733,56 @@ export default class ViewForm extends React.Component<
       case "Rejected":
       case "Returned":
       case "Call Back":
+      case 'Approved':
         return false;
       default:
         return true;
     }
   };
 
+  // private _getNewUpdatedNoteApproverDTO = (re:any,ap:any):any=>{
+  //   console.log(re)
+  //   console.log(ap)
+  //   const newupdate = [...re,...ap].map(
+  //     (each:any)=>{
+  //       console.log(each)
+  //       if (each.approversOrder === 1){
+  //         console.log("entered")
+  //         if (each.approverType ==="Reviewer"){
+  //           return {...each,status:'pending',mainstatus:'pending with Reviewer',
+              
+  //           }
+
+  //         } else{
+  //           return {...each,status:'pending',mainstatus:'pending with Approver'}
+  //         }
+          
+  //       }else{
+  //         return {...each, status:'waiting',mainstatus:'waiting'}
+
+  //       }
+        
+       
+  //     }
+  //   )
+
+  //   console.log(newupdate)
+  //   return newupdate
+
+  // }
+
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
+    // console.log((this.state.refferredToDetails[0] ))
+    //   // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
+    //   console.log((this.state.refferredToDetails[0].email ))
+    // console.log((( this._currentUserEmail)))
+    // console.log(((this.state.refferredToDetails?.email === this._currentUserEmail) ))
+    // console.log(this.state.statusNumber === '5000')
+    
+    // console.log(((this.state.refferredToDetails[0]?.email === this._currentUserEmail) &&this.state.statusNumber === '5000'))
     console.log(
       this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest()
     );
@@ -2209,7 +2285,10 @@ export default class ViewForm extends React.Component<
                         Call Back
                       </PrimaryButton>
                     )
-                  ) : this.state.statusNumber === '5000' ? (
+                  ) :  this.state.refferredToDetails.length > 0 &&
+                  this.state.refferredToDetails[0]?.email ===
+                    this._currentUserEmail &&
+                  this.state.refferredToDetails[0]?.status === "Refered"? (
                     <PrimaryButton
                       className={`${styles.responsiveButton}`}
                       iconProps={{ iconName: "Reply" }}
