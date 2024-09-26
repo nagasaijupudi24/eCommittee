@@ -522,12 +522,12 @@ export default class ViewForm extends React.Component<
         item.NoteApproversDTO
       ),
       ApproverOrder:
-        item.Author.EMail === this._currentUserEmail ? "" :(item.CurrentApprover && this._getCurrentApproverDetails(
+       (item.CurrentApprover && this._getCurrentApproverDetails(
           item.CurrentApprover,
           item.NoteApproversDTO
         )[0].approverOrder),
       ApproverType:
-        item.Author.EMail === this._currentUserEmail ? "" : (item.CurrentApprover &&this._getCurrentApproverDetails(
+        (item.CurrentApprover &&this._getCurrentApproverDetails(
           item.CurrentApprover,
           item.NoteApproversDTO
         )[0].approverType),
@@ -879,7 +879,7 @@ export default class ViewForm extends React.Component<
     const columns: IColumn[] = [
       {
         key: "column1",
-        name: "",
+        name: "Column 1",
         fieldName: "column1",
         minWidth: 120,
         maxWidth: 200,
@@ -887,7 +887,7 @@ export default class ViewForm extends React.Component<
       },
       {
         key: "column2",
-        name: "",
+        name: "Column 2",
         fieldName: "column2",
         minWidth: 120,
         maxWidth: 200,
@@ -906,7 +906,7 @@ export default class ViewForm extends React.Component<
           selectionMode={SelectionMode.none}
           layoutMode={0} // Use detailsListLayoutMode.fixedColumns
           styles={{
-            root: { width: "100%" },
+            root: { width: "100%",paddingTop: '4px' },
           }}
         />
       </div>
@@ -1046,7 +1046,7 @@ export default class ViewForm extends React.Component<
         if (each.approverEmail === this._currentUserEmail) {
           // console.log("ednter");
 
-          return { ...each, status: statusFromEvent, actionDate: new Date(),mainStatus:'Approved' };
+          return { ...each, status: statusFromEvent, actionDate: new Date(),mainStatus:'Approved',statusNumber:'9000' };
         }
         // if (each.approverOrder===currentApproverOrder+1){
 
@@ -1060,7 +1060,8 @@ export default class ViewForm extends React.Component<
           // console.log("ednter 2");
           return { ...each, status: "pending" ,mainStatus:each.approverType==='Approver'?
             "pending with Approver":
-            "pending with Reviewer"};
+            "pending with Reviewer" ,statusNumber:each.approverType==='Approver'?'3000':'2000'};
+           
         }
         return each;
       }
@@ -1096,7 +1097,7 @@ export default class ViewForm extends React.Component<
     const updateItems = {
       NoteApproversDTO: JSON.stringify(modifyApproveDetails),
       Status: currentApproverDetail?.mainStatus,
-      StatusNumber: "1500",
+      StatusNumber: currentApproverDetail?.statusNumber,
       AuditTrail: updateAuditTrial,
       NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
       // PreviousApproverId:_getPreviousApproverId(),
@@ -1504,7 +1505,7 @@ export default class ViewForm extends React.Component<
             this._hanldeFluentDialog(
               "Approve",
               "Approved",
-              "2000",
+              "9000",
               "Please check the details filled along with attachment and click on Confirm button to approve request.",
               this._handleApproverButton,
               this._closeDialog
@@ -1536,7 +1537,7 @@ export default class ViewForm extends React.Component<
             this._hanldeFluentDialog(
               "Reject",
               "Rejected",
-              "4000",
+              "8000",
               "click on Confirm button to reject request.",
               this.handleReject,
               this._closeDialog
@@ -1554,7 +1555,7 @@ export default class ViewForm extends React.Component<
             this._hanldeFluentDialog(
               "Refer",
               "Refered",
-              "5000",
+              "4000",
               ["Add Referee", "Comments"],
               this.handleRefer,
               this._closeDialog
@@ -1572,7 +1573,7 @@ export default class ViewForm extends React.Component<
             this._hanldeFluentDialog(
               "Return",
               "Returned",
-              "3000",
+              "5000",
               "click on Confirm button to Return request.",
               this.handleReturn,
               this._closeDialog
@@ -1871,7 +1872,7 @@ export default class ViewForm extends React.Component<
                     </div>
                     {expandSections.generalSection && (
                       <div className={`${styles.expansionPanelInside}`}>
-                        <div style={{ padding: "15px" }}>
+                        <div style={{ padding: "15px",paddingTop:'4px' }}>
                           {this._renderTable(
                             this.state.eCommitteData[0].tableData
                           )}
@@ -1902,7 +1903,7 @@ export default class ViewForm extends React.Component<
                       </div>
                       {expandSections.draftResolution && (
                         <div className={`${styles.expansionPanelInside}`}>
-                          <div style={{ padding: "15px" }}>
+                          <div style={{ padding: "15px",paddingTop:'4px' }}>
                             <RichText
                               value={this.state.draftResolutionFieldValue}
                             />
@@ -1923,7 +1924,7 @@ export default class ViewForm extends React.Component<
                       </Text>
                       <IconButton
                         iconProps={{
-                          iconName: expandSections.generalSection
+                          iconName: expandSections.reviewersSection
                             ? "ChevronUp"
                             : "ChevronDown",
                         }}
@@ -1937,7 +1938,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px" }}>
+                        <div style={{ padding: "15px" ,paddingTop:'4px'}}>
                           <ApproverAndReviewerTableInViewForm
                             data={this.state.peoplePickerData}
                             reOrderData={this.reOrderData}
@@ -1959,7 +1960,7 @@ export default class ViewForm extends React.Component<
                       </Text>
                       <IconButton
                         iconProps={{
-                          iconName: expandSections.generalSection
+                          iconName: expandSections.approversSection
                             ? "ChevronUp"
                             : "ChevronDown",
                         }}
@@ -1973,7 +1974,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px" }}>
+                        <div style={{ padding: "15px",paddingTop:'4px' }}>
                           <ApproverAndReviewerTableInViewForm
                             data={this.state.peoplePickerApproverData}
                             reOrderData={this.reOrderData}
@@ -2013,7 +2014,7 @@ export default class ViewForm extends React.Component<
                           className={`${styles.expansionPanelInside}`}
                           //   style={{ overflowX: "scroll" }}
                         >
-                          <div style={{ padding: "15px" }}>
+                          <div style={{ padding: "15px" ,paddingTop:'4px'}}>
                             <GeneralCommentsFluentUIGrid
                               handleCommentDataFuntion={this._getCommentData}
                               data={this.state.commentsData}
@@ -2088,7 +2089,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px" }}>
+                        <div style={{ padding: "15px" ,paddingTop:'4px'}}>
                           <CommentsLogTable
                             data={this.state.commentsData} //have change data valu
                             type="commentsLog"
@@ -2126,7 +2127,7 @@ export default class ViewForm extends React.Component<
                           className={`${styles.expansionPanelInside}`}
                           style={{ width: "100%", margin: "0px" }}
                         >
-                          <div style={{ padding: "15px" }}>
+                          <div style={{ padding: "15px",paddingTop:'4px' }}>
                             <UploadFileComponent
                               typeOfDoc="supportingDocument"
                               onChange={
@@ -2170,7 +2171,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px" }}>
+                        <div style={{ padding: "15px",paddingTop:'4px' }}>
                           <WorkFlowLogsTable
                             data={this.state.auditTrail}
                             type="Approver"
@@ -2203,7 +2204,7 @@ export default class ViewForm extends React.Component<
                       <div
                         className={`${styles.expansionPanelInside} ${styles.responsiveContainerheaderForFileAttachment}`}
                       >
-                        <div style={{ padding: "15px" }}>
+                        <div style={{ padding: "15px",paddingTop:'4px' }}>
                           <h4 className={styles.responsiveHeading}>
                             Main Note Link:
                             <a
@@ -2229,12 +2230,15 @@ export default class ViewForm extends React.Component<
                               </a>
                             </h4>
                           )}
-                          <h4 className={styles.responsiveHeading}>
+                          {this.state.supportingDocumentfiles.length>0 &&
+                          <div>
+                             <h4 className={styles.responsiveHeading}>
                             Support Documents:
                           </h4>
                           <FileAttatchmentTable
                             data={this.state.supportingDocumentfiles}
-                          />
+                          /></div>}
+                         
                         </div>
                       </div>
                     )}
@@ -2281,7 +2285,7 @@ export default class ViewForm extends React.Component<
                           this.handleCallBack(e, "Call Back", "7000");
                           this.setState({
                             status: "Call Back",
-                            statusNumber: "7000",
+                            statusNumber: "200",
                           });
                         }}
                       >

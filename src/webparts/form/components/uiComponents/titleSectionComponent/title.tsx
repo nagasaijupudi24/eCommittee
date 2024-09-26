@@ -4,6 +4,7 @@ import * as React from 'react';
 import styles from '../../Form.module.scss';
 
 interface TitleProps {
+  itemId:any
   formType: string;
   statusOfRequest:string;
   propPaneformType:any;
@@ -21,9 +22,9 @@ const Title: React.FC<TitleProps> = (props,{ formType='',statusOfRequest='' }) =
       >
         <p  className={`${styles.status}`}>Status: {statusOfRequest}</p>
         {props.propPaneformType === 'BoardNoteNew'?<h1 className={`${styles.title}`} >
-          Board Note - {formType}
+          Board Note - {props.itemId?"Edit":'New'}
         </h1>:<h1 className={`${styles.title}`} >
-          eCommittee Note - {formType}
+          eCommittee Note - {props.itemId?"Edit":'New'}
         </h1>}
         
         <p  className={`${styles.title}`} style={{ textAlign: 'right' }}>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from "react";
-import { DetailsList, IColumn } from '@fluentui/react';
+import { DetailsList, IColumn, SelectionMode } from '@fluentui/react';
 
 const FileAttachmentTable = (props: any) => {
   const gridData = props.data;
@@ -43,15 +43,18 @@ const FileAttachmentTable = (props: any) => {
   ];
 
   return (
-    <div style={{ overflow: "auto" }}>
+    <div 
+    style={{ overflowX: 'auto' }}
+    >
       <DetailsList
         items={gridData}
         columns={columns}
-        setKey="set"
-        layoutMode={0} // Use detailsListLayoutMode.fixedColumns
-        selectionMode={0} // Disable selection column
+        selectionMode={SelectionMode.none}  
+    
         styles={{
-          root: { minWidth: '400px' },
+          root: { minWidth: '400px',
+            paddingTop:'0px'
+           },
         }}
       />
     </div>

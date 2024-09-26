@@ -2265,29 +2265,30 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     Department: this.state.department,
     CommitteeName: this.state.committeeNameFeildValue,
     Subject: this.state.subjectFeildValue,
-    natureOfNote: this.state.natureOfNoteFeildValue,
-    NatuerOfApprovalSanction: this.state.natureOfApprovalOrSanctionFeildValue,
+    NatureOfNote: this.state.natureOfNoteFeildValue,
+    NatureOfApprovalOrSanction: this.state.natureOfApprovalOrSanctionFeildValue,
     NoteType: this.state.noteTypeFeildValue,
-    TypeOfFinancialNote: this.state.typeOfFinancialNoteFeildValue,
+    FinancialType: this.state.typeOfFinancialNoteFeildValue,
     Amount: this.state.amountFeildValue,
-    Search_x0020_Keyword: this.state.searchTextFeildValue,
+    SearchKeyword: this.state.searchTextFeildValue,
     Purpose: this.state.puroposeFeildValue,
-    ApproverDetails: this._getApproverDetails(
+    NoteApproversDTO: this._getApproverDetails(
       this.state.peoplePickerData,
       this.state.peoplePickerApproverData,
       "allDetails"
     ),
     Status: "ReSubmitted",
-    statusNumber: "2500",
+    StatusNumber: "2500",
     AuditTrail: this._getAuditTrail("ReSubmitted"),
     // Reviewer:{result:this._getReviewerId()}
-    ReviewerId: this._getReviewerId(),
-    ApproverId: this._getApproverId(),
-    currentApprover: this._getApproverDetails(
-      this.state.peoplePickerData,
-      this.state.peoplePickerApproverData,
-      "intialOrderApproverDetails"
-    ),
+    ReviewersId: this._getReviewerId(),
+    ApproversId: this._getApproverId(),
+    CurrentApproverId: this._getCurrentApproverId(
+      [ this.state.peoplePickerData,
+       this.state.peoplePickerApproverData],
+       "intialOrderApproverDetails"
+     ),
+     DraftResolution:this.state.draftResolutionFieldValue
   });
 
   public async clearFolder(
@@ -2754,6 +2755,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           <div className={styles.form}>
             {/* <Header /> */}
             <Title
+              itemId= {this._itemId}
               formType={this._formType}
               propPaneformType={this.props.formType}
               statusOfRequest={this.state.status}
@@ -3764,7 +3766,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 gap: "5px",
               }}
             >
-              {this._formType === "view" ? (
+              {this._itemId ? (
                 ""
               ) : (
                 this.state.status === "Returned"?
@@ -3774,7 +3776,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   iconProps={{ iconName: "Save" }}
                   onClick={(
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-                  ) => this.handleCancel( "Cancelled","8000")}
+                  ) => this.handleCancel( "Cancelled","300")}
                 >
                   Cancel
                 </PrimaryButton>:
@@ -3790,7 +3792,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                </PrimaryButton>
 
               )}
-              {this._formType !== "view" &&
+              {this._itemId&&
                 (this._itemId > 0 ? (
                   <PrimaryButton
                     type="button"

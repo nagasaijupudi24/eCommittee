@@ -76,7 +76,7 @@
   border-radius: 9px;
   padding: 10px;
   // min-height: 100px;
-  width: 100%;
+  width: 96%;
 
 
 
@@ -193,10 +193,12 @@
   /* Uncomment the border if needed */
   /* border: 1px solid red; */
   gap: 0px;
+  margin: 4px;
 }
 
 /* PDF Container */
 .pdfContainer {
+  margin:4px;
   width: 60%; /* Default width for larger screens */
   // border: 1px solid pink;
 }
@@ -658,18 +660,20 @@
   // margin-bottom: 10px;
   // padding:10px;
   // border: 1px solid #000;
+  // border:1px solid green;
   padding: 0px;
+  width: 100%;
 }
 
 .header {
   display: flex;
-  width: 100%;
+  // width: 100%;
   justify-content: space-between;
   align-items: center;
   cursor: pointer; // Make the header clickable
   padding: 5px;
   background-color: #f0f8ff; // Background color for the header
-  border-radius: 4px; // Rounded corners
+  // border-radius: 4px; // Rounded corners
 }
 
 .sectionText {
@@ -684,31 +688,12 @@
 .expansionPanelInside {
   // padding-left:'22px';
   border: 1px solid #ddd;
+  padding-top: '0px';
 
-}
-
-.responsiveHeading {
-  font-size: 14px; /* Default font size */
-  
-  @media (max-width: 1200px) { /* Large tablets */
-    font-size: 14px;
-  }
-  
-  @media (max-width: 992px) { /* Medium tablets */
-    font-size: 14px;
-  }
-  
-  @media (max-width: 768px) { /* Small tablets */
-    font-size: 14px;
-  }
-  
-  @media (max-width: 576px) { /* Mobile */
-    font-size: 12px;
-  }
 }
 
 .responsiveContainerheaderForFileAttachment {
-  width: 100%; /* Full width */
+  // width: 100%; /* Full width */
   padding: 15px; /* Default padding */
   // border:1px solid green;
   
@@ -728,6 +713,28 @@
     padding: 5px;
   }
 }
+
+
+.responsiveHeading {
+  font-size: 12px; /* Default font size */
+  
+  @media (max-width: 1200px) { /* Large tablets */
+    font-size: 12px;
+  }
+  
+  @media (max-width: 992px) { /* Medium tablets */
+    font-size: 12px;
+  }
+  
+  @media (max-width: 768px) { /* Small tablets */
+    font-size: 12px;
+  }
+  
+  @media (max-width: 576px) { /* Mobile */
+    font-size: 12px;
+  }
+}
+
 
 
 // 

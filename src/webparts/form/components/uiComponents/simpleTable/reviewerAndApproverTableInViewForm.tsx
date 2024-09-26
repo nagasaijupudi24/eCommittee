@@ -3,8 +3,14 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as React from 'react';
-import { DetailsList, DetailsListLayoutMode, IColumn, SelectionMode } from '@fluentui/react/lib/DetailsList';
+import { DetailsList, DetailsListLayoutMode, IColumn, IDetailsListStyles, SelectionMode } from '@fluentui/react/lib/DetailsList';
 import { format } from 'date-fns';
+
+const detailsListStyles: Partial<IDetailsListStyles> = {
+    root: {
+      paddingTop: '0px', // Adjust top padding here
+    },
+  };
 
 const ApproverAndReviewerTableInViewForm = (props: any) => {
     const { type } = props;
@@ -19,7 +25,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
         { key: 'srNo', name: 'SR No', fieldName: 'srNo', minWidth: 90, maxWidth: 120, isResizable: true },
         { key: 'optionalText', name: 'Designation', fieldName: 'optionalText', minWidth: 100, maxWidth: 150, isResizable: true },
         { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150, isResizable: true },
-        { key: 'actionDate', name: 'Action Date', fieldName: 'actionDate', minWidth: 100, maxWidth: 150, isResizable: true ,
+        { key: 'mainStatus', name: 'Action Date', fieldName: 'actionDate', minWidth: 100, maxWidth: 150, isResizable: true ,
             onRender: (item) => {
                 console.log(item)
                 console.log(item.actionDate)
@@ -44,6 +50,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
                 layoutMode={DetailsListLayoutMode.fixedColumns} // Keep columns fixed
                 selectionMode={SelectionMode.none} // No selection column
                 isHeaderVisible={true} // Show column headers
+                styles={detailsListStyles}
             />
         </div>
     );

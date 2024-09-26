@@ -268,8 +268,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
                   options: [
                     { key: 'New', text: 'New' },
                     { key: 'View', text: 'View' },
-                    { key: 'Edit', text: 'Edit' },
-                    { key: 'allRequest', text: 'All Request' },
+                    // { key: 'Edit', text: 'Edit' },
+                    // { key: 'allRequest', text: 'All Request' },
                     { key: 'BoardNoteNew', text: 'BoardNote New' },
                     { key: 'BoardNoteView', text: 'BoardNote View' }
                     
