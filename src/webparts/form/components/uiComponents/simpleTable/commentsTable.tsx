@@ -10,10 +10,10 @@ const CommentsLogTable = (props: any) => {
 
     // Define the columns for the DetailsList
     const columns: IColumn[] = [
-        { key: 'pageNum', name: 'Page#', fieldName: 'pageNum', minWidth: 120, maxWidth: 150, isResizable: true },
-        { key: 'page', name: 'Doc Reference', fieldName: 'page', minWidth: 120, maxWidth: 150, isResizable: true },
-        { key: 'comment', name: 'Comments', fieldName: 'comment', minWidth: 120, maxWidth: 250, isResizable: true, isMultiline: true },
-        { key: 'commentedBy', name: 'Comment By', fieldName: 'commentedBy', minWidth: 120, maxWidth: 150, isResizable: true }
+        { key: 'pageNum', name: 'Page#', fieldName: 'pageNum', minWidth:80, maxWidth: 150, isResizable: true },
+        { key: 'page', name: 'Doc Reference', fieldName: 'page', minWidth: 80, maxWidth: 150, isResizable: true },
+        { key: 'comment', name: 'Comments', fieldName: 'comment', minWidth: 80, maxWidth: 250, isResizable: true, isMultiline: true },
+        { key: 'commentedBy', name: 'Comment By', fieldName: 'commentedBy', minWidth: 80, maxWidth: 150, isResizable: true }
     ];
 
     switch (props.type) {

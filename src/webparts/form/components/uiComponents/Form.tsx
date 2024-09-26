@@ -204,6 +204,7 @@ export const FormContext = React.createContext<any>(null);
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
   const Id = params.get("ItemId");
+  // const Id = params.get("itemId");
   console.log(Id);
   return Id;
 };
@@ -3767,7 +3768,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               }}
             >
               {this._itemId ? (
-                ""
+                 <PrimaryButton
+                 type="button"
+                 className={`${styles.responsiveButton}`}
+                 iconProps={{ iconName: "Save" }}
+                 onClick={(
+                   e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+                 ) => this.handleSubmit(e, "Draft")}
+               >
+                 Save as Draft
+               </PrimaryButton>
               ) : (
                 this.state.status === "Returned"?
                 <PrimaryButton
@@ -3792,8 +3802,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                </PrimaryButton>
 
               )}
-              {this._itemId&&
-                (this._itemId > 0 ? (
+              {this._itemId
+                ? (
                   <PrimaryButton
                     type="button"
                     className={`${styles.responsiveButton}`}
@@ -3813,7 +3823,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   >
                     Submit
                   </PrimaryButton>
-                ))}
+                )}
 
               <DefaultButton
                 // type="button"

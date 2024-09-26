@@ -21,11 +21,11 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
     // Define the columns for the DetailsList
     const columns: IColumn[] = [
         
-        { key: 'text', name: type, fieldName: 'text', minWidth: 90, maxWidth: 120, isResizable: true },
-        { key: 'srNo', name: 'SR No', fieldName: 'srNo', minWidth: 90, maxWidth: 120, isResizable: true },
-        { key: 'optionalText', name: 'Designation', fieldName: 'optionalText', minWidth: 100, maxWidth: 150, isResizable: true },
-        { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150, isResizable: true },
-        { key: 'mainStatus', name: 'Action Date', fieldName: 'actionDate', minWidth: 100, maxWidth: 150, isResizable: true ,
+        { key: 'text', name: type, fieldName: 'text', minWidth: 60, maxWidth: 120, isResizable: true },
+        { key: 'srNo', name: 'SR No', fieldName: 'srNo', minWidth: 60, maxWidth: 120, isResizable: true },
+        { key: 'optionalText', name: 'Designation', fieldName: 'optionalText', minWidth: 80, maxWidth: 150, isResizable: true },
+        { key: 'mainStatus', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 800, isResizable: true },
+        { key: 'actionDate', name: 'Action Date', fieldName: 'actionDate', minWidth: 100, maxWidth: 150, isResizable: true ,
             onRender: (item) => {
                 console.log(item)
                 console.log(item.actionDate)

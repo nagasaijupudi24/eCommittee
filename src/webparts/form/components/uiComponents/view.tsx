@@ -146,6 +146,7 @@ export interface IViewFormState {
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
   const Id = params.get("ItemId");
+  // const Id = params.get("itemId");
   console.log(Id);
   return Id;
 };
@@ -1510,7 +1511,7 @@ export default class ViewForm extends React.Component<
               this._handleApproverButton,
               this._closeDialog
             );
-            this.setState({ status: "Approved", statusNumber: "2000" });
+            this.setState({ status: "Approved", statusNumber: "9000" });
           }}
         >
           Approve
@@ -1542,7 +1543,7 @@ export default class ViewForm extends React.Component<
               this.handleReject,
               this._closeDialog
             );
-            this.setState({ status: "Rejected", statusNumber: "4000" });
+            this.setState({ status: "Rejected", statusNumber: "8000" });
           }}
         >
           Reject
@@ -1560,7 +1561,7 @@ export default class ViewForm extends React.Component<
               this.handleRefer,
               this._closeDialog
             );
-            this.setState({ status: "Refered", statusNumber: "5000" });
+            this.setState({ status: "Refered", statusNumber: "4000" });
           }}
         >
           Refer
@@ -1578,7 +1579,7 @@ export default class ViewForm extends React.Component<
               this.handleReturn,
               this._closeDialog
             );
-            this.setState({ status: "Returned", statusNumber: "3000" });
+            this.setState({ status: "Returned", statusNumber: "5000" });
           }}
         >
           Return

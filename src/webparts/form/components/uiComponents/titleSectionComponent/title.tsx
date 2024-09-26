@@ -11,6 +11,7 @@ interface TitleProps {
 }
 
 const Title: React.FC<TitleProps> = (props,{ formType='',statusOfRequest='' }) => {
+  console.log(props)
   const currentDate: Date = new Date();
   const formattedDate: string = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
   
@@ -20,7 +21,7 @@ const Title: React.FC<TitleProps> = (props,{ formType='',statusOfRequest='' }) =
         className={`${styles.noteTitle} 
         ${styles.commonProperties}`}
       >
-        <p  className={`${styles.status}`}>Status: {statusOfRequest}</p>
+        <p  className={`${styles.status}`}>Status: {props.statusOfRequest}</p>
         {props.propPaneformType === 'BoardNoteNew'?<h1 className={`${styles.title}`} >
           Board Note - {props.itemId?"Edit":'New'}
         </h1>:<h1 className={`${styles.title}`} >
