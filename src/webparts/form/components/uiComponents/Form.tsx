@@ -182,6 +182,8 @@ interface IMainFormState {
   referredFromDetails: any;
   refferredToDetails: any;
 
+  noteSecretaryDetails:any;
+
   draftResolutionFieldValue: any;
 }
 
@@ -317,6 +319,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       pastApprover: [],
       referredFromDetails: [],
       refferredToDetails: [],
+
+      noteSecretaryDetails:[],
+
       draftResolutionFieldValue: "",
     };
     console.log(this._itemId);
@@ -675,6 +680,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       statusNumber:item.StatusNumber,
       draftResolutionFieldValue:item.DraftResolution
     });
+    return item
   };
 
   private getfield = async () => {
@@ -866,7 +872,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
          (await this.props.sp.web.lists
           .getByTitle("ApproverMatrix")
           .items.select("*", "Approver/Title", "Approver/EMail", "Secretary/Title", "Secretary/EMail").expand("Approver", "Secretary")()).map((each: any) => {
-            // console.log(each);
+            console.log(each);
             // console.log(this._getUserProperties(each.email))
   
             const newObj = {
@@ -882,6 +888,20 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               srNo:each.Approver.EMail.split("@")[0]
             };
             console.log(newObj);
+            const secretaryObj ={
+              "noteSecretarieId": each.SecretaryId,
+              "noteApproverId": each.ApproverId,
+              "noteId": "",
+              "secretaryEmail": each.Secretary.EMail,
+              "approverEmail": each.Approver.EMail,
+              "approverEmailName": each.Approver.Title,
+              "secretaryEmailName": each.Secretary.Title,
+              "createdBy":"",
+              "modifiedDate": "",
+              "modifiedBy": "",
+
+            }
+            this.setState((prev)=>{this.setState({noteSecretaryDetails:[...prev.noteSecretaryDetails,secretaryObj]})})
             if (each.ApproverType === "Approver") {
    
               this.setState({ peoplePickerApproverData: [newObj] });
@@ -889,6 +909,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.setState({ peoplePickerData: [newObj] });
               
             }
+            
            
           })
         )
@@ -952,6 +973,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       const newItemsData = items.map((obj: {
         secondaryText: any; loginName: any 
 }) => {
+  console.log(obj)
         return {
           ...obj,
           optionalText: dataRec[0],
@@ -1692,6 +1714,38 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return nw[0];
   };
 
+  // private returnSecretaryDto = ():any =>{
+  //   const dto = {
+  //     "noteSecretarieId": 3078,
+  //     "noteApproverId": 4550,
+  //     "noteId": 979,
+  //     "secretaryEmail": "ib.test5@xencia.com",
+  //     "approverEmail": "ib.test2@xencia.com",
+  //     "approverEmailName": "IB Test2",
+  //     "secretaryEmailName": "IB Test5",
+  //     "gistWordDocumentPath": null,
+  //     "gistWordDocumentPathPart1": null,
+  //     "gistWordDocumentPathPart2": null,
+  //     "gistWordDocumentPathPart3": null,
+  //     "gistWordDocumentPathPart4": null,
+  //     "gistWordDocumentPathPart5": null,
+  //     "gistWordDocumentPathPart6": null,
+  //     "gistWordDocumentPathPart7": null,
+  //     "gistWordDocumentPathPart8": null,
+  //     "gistWordDocumentPathPart9": null,
+  //     "gistWordDocumentPathPart10": null,
+  //     "gistWordDocumentFileName": null,
+  //     "createdDate": "2024-09-26T16:55:00",
+  //     "createdBy": "Jupudinaga.sai@xencia.com",
+  //     "modifiedDate": "2024-09-26T16:55:00",
+  //     "modifiedBy": "Jupudinaga.sai@xencia.com",
+  //     "gistWordBase64": null,
+  //     "gistWordDocumentPathLength": null
+  // }
+  // console.log(dto)
+  // return dto
+  // }
+
   private createEcommitteeObject = (
     status: string,
     statusNumber: any
@@ -1730,7 +1784,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.peoplePickerApproverData],
         "intialOrderApproverDetails"
       ),
-      DraftResolution:this.state.draftResolutionFieldValue
+      DraftResolution:this.state.draftResolutionFieldValue,
+      NoteSecretaryDTO:JSON.stringify(this.state.noteSecretaryDetails)
+
     };
     console.log(ecommitteObject);
     return ecommitteObject;
@@ -2562,11 +2618,32 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const nextYear = (currentyear + 1).toString().slice(-2);
     const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;
     // const requesterNo=`AD1/${currentyear}-${nextYear}/C${id}`
+
+
+
+    const currentItem = await this._getItemData(id,'')
+    console.log(currentItem)
+
+    
+    const getUpdatedNoteSecretaryDTO =():any=>{
+      const updatedSecretaryDTO = JSON.parse(currentItem.NoteSecretaryDTO).map(
+        (each:any)=>{
+          return {...each,noteId:id,createdBy:each.Author}
+        }
+      )
+      console.log(updatedSecretaryDTO)
+      return updatedSecretaryDTO
+    }
+
+    
+
     await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(id)
       .update({
         Title: requesterNo,
+        NoteSecretaryDTO:JSON.stringify(getUpdatedNoteSecretaryDTO())
+        
         // NoteApproversDTO:JSON.stringify(this._getNewUpdatedNoteApproverDTO(this.state.peoplePickerData,this.state.peoplePickerApproverData))
       
       })

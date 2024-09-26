@@ -95,10 +95,10 @@ const DraggableTable = (props:any) => {
                     >
                         <Column title="" width="50px" cell={DragHandleCell} />
                      
-                        <Column field="text" title={type} width="90px" />
-                        <Column field='srNo' title="SR No" width="90px" />
-                        <Column field="optionalText" title="Designation" />
-                        <Column
+                        <Column field="text" title={type} width="120px" />
+                        <Column field='srNo' title="SR No" width="120px" />
+                        <Column field="optionalText" title="Designation" width="120px" />
+                        <Column width="120px"
                             cell={(props) => (
                                 <td>
                                     <Button
