@@ -514,7 +514,7 @@ export default class ViewForm extends React.Component<
       auditTrail: JSON.parse(item.AuditTrail),
       isLoading: false,
       createdByEmail: item.Author.EMail,
-      status: item.Status==="Submitted"?this._getStatus(item.NoteApproversDTO):item.status,
+      status: item.Status==="Submitted"?this._getStatus(item.NoteApproversDTO):item.Status,
       statusNumber: item.StatusNumber,
       ApproverDetails: JSON.parse(item.NoteApproversDTO),
       currentApprover: this._getCurrentApproverDetails(
@@ -1046,7 +1046,7 @@ export default class ViewForm extends React.Component<
         if (each.approverEmail === this._currentUserEmail) {
           // console.log("ednter");
 
-          return { ...each, status: statusFromEvent, actionDate: new Date() };
+          return { ...each, status: statusFromEvent, actionDate: new Date(),mainStatus:'Approved' };
         }
         // if (each.approverOrder===currentApproverOrder+1){
 
@@ -1058,7 +1058,9 @@ export default class ViewForm extends React.Component<
         // console.log(each.approverOrder === this.state.ApproverOrder + 1);
         if (each.approverOrder === this.state.ApproverOrder + 1) {
           // console.log("ednter 2");
-          return { ...each, status: "pending" };
+          return { ...each, status: "pending" ,mainStatus:each.approverType==='Approver'?
+            "pending with Approver":
+            "pending with Reviewer"};
         }
         return each;
       }
@@ -1073,9 +1075,10 @@ export default class ViewForm extends React.Component<
         }
       });
       console.log(currentApproverdata);
-      return currentApproverdata[0].id;
+      return currentApproverdata[0];
     };
-
+    const currentApproverDetail = _getCurrentApproverDetails()
+    console.log(currentApproverDetail)
   //  const _getPreviousApproverId = ():any =>{
   //   const previousApproverId = modifyApproveDetails.filter((each: any) => {
   //     console.log(each)
@@ -1092,7 +1095,7 @@ export default class ViewForm extends React.Component<
     // console.log(updateAuditTrial);
     const updateItems = {
       NoteApproversDTO: JSON.stringify(modifyApproveDetails),
-      Status: "pending",
+      Status: currentApproverDetail?.mainStatus,
       StatusNumber: "1500",
       AuditTrail: updateAuditTrial,
       NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
@@ -1100,7 +1103,7 @@ export default class ViewForm extends React.Component<
       CurrentApproverId:
         this.state.ApproverOrder === modifyApproveDetails.length
           ? null
-          : _getCurrentApproverDetails(),
+          : currentApproverDetail.id,
       // PreviousApprover:_getPreviousApproverDetails(Note)
     };
     console.log(updateItems);
