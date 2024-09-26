@@ -30,12 +30,13 @@ type ContextProps = {
 export const ReorderContext = React.createContext<ContextProps>({
     reorder: () => {},
     dragStart: () => {},
+    
 });
 
 
 
 const DraggableTable = (props:any) => {
-    // console.log(props.data)
+    console.log(props)
     const {reOrderData, removeDataFromGrid,type} = props
     
     const gridData = props.data
@@ -102,7 +103,11 @@ const DraggableTable = (props:any) => {
                             cell={(props) => (
                                 <td>
                                     <Button
-                                        onClick={() => remove(props.dataItem)}
+                                        onClick={() =>{
+                                            remove(props.dataItem)
+                                        //    handleNoterReferDTO(props.dataItem.id)
+
+                                        } }
                                     >
                                         Delete
                                     </Button>

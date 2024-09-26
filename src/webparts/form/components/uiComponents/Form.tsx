@@ -182,6 +182,7 @@ interface IMainFormState {
   referredFromDetails: any;
   refferredToDetails: any;
 
+  approverIdsHavingSecretary:any;
   noteSecretaryDetails:any;
 
   draftResolutionFieldValue: any;
@@ -320,6 +321,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       referredFromDetails: [],
       refferredToDetails: [],
 
+      approverIdsHavingSecretary:[],
       noteSecretaryDetails:[],
 
       draftResolutionFieldValue: "",
@@ -901,7 +903,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "modifiedBy": "",
 
             }
-            this.setState((prev)=>{this.setState({noteSecretaryDetails:[...prev.noteSecretaryDetails,secretaryObj]})})
+            this.setState((prev)=>{this.setState({noteSecretaryDetails:[...prev.noteSecretaryDetails,secretaryObj],approverIdsHavingSecretary:[...prev.approverIdsHavingSecretary,{ApproverId:each.ApproverId,SecretaryId:each.SecretaryId,secretaryObj}]})})
             if (each.ApproverType === "Approver") {
    
               this.setState({ peoplePickerApproverData: [newObj] });
@@ -1048,6 +1050,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public removeDataFromGrid = (dataItem: any, typeOfTable: string): void => {
+    this.setState(prev=>({noteSecretaryDetails:prev.noteSecretaryDetails.filter((each:any)=>each.noteApproverId!==dataItem.id)}))
+    console.log(dataItem)
     if (typeOfTable === "Reviewer") {
       console.log("Remove triggered from Reviewer Table");
       // console.log(dataItem);
@@ -1116,12 +1120,33 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.setState({ isApproverOrReviewerDialogHandel: false });
       } else {
         console.log(this.state.reviewerInfo, "Reviewer Info");
-        this.setState((prev) => ({
-          peoplePickerData: [
-            ...prev.peoplePickerData,
-            ...this.state.reviewerInfo,
-          ],
-        }));
+        const getSecretaryDetails = this.state.approverIdsHavingSecretary.filter(
+          (each:any)=>{
+            console.log(each)
+            return each.ApproverId===this.state.reviewerInfo[0].id
+
+          }
+        )
+        console.log(getSecretaryDetails)
+        if(getSecretaryDetails.length>0){
+          console.log('if entered')
+          this.setState((prev) => ({
+            peoplePickerData: [
+              ...prev.peoplePickerData,
+              ...this.state.reviewerInfo,
+            ],noteSecretaryDetails:[...prev.noteSecretaryDetails,getSecretaryDetails[0]?.secretaryObj]
+          }));
+
+        }else{
+          console.log('else entered')
+          this.setState((prev) => ({
+            peoplePickerData: [
+              ...prev.peoplePickerData,
+              ...this.state.reviewerInfo,
+            ]
+          }));
+        }
+       
       }
 
       // console.log(fetchedData)
@@ -1140,12 +1165,30 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.setState({ isApproverOrReviewerDialogHandel: false });
       } else {
         console.log(this.state.approverInfo, "Approver Info");
-        this.setState((prev) => ({
-          peoplePickerApproverData: [
-            ...prev.peoplePickerApproverData,
-            ...this.state.approverInfo,
-          ],
-        }));
+        const getSecretaryDetails = this.state.approverIdsHavingSecretary.filter(
+          (each:any)=>{
+            console.log(each)
+            return each.ApproverId===this.state.approverInfo[0].id
+
+          }
+        )
+        console.log(getSecretaryDetails)
+        if(getSecretaryDetails.length>0){
+          this.setState((prev) => ({
+            peoplePickerData: [
+              ...prev.peoplePickerData,
+              ...this.state.reviewerInfo,
+            ],noteSecretaryDetails:[...prev.noteSecretaryDetails,getSecretaryDetails[0]?.secretaryObj]
+          }));
+
+        }else{
+          this.setState((prev) => ({
+            peoplePickerData: [
+              ...prev.peoplePickerData,
+              ...this.state.reviewerInfo,
+            ]
+          }));
+        }
       }
 
       // console.log(fetchedData)
@@ -3525,6 +3568,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         reOrderData={this.reOrderData}
                         removeDataFromGrid={this.removeDataFromGrid}
                         type="Reviewer"
+                        // handleNoterReferDTO={(id:any)=>{
+                        //   console.log(id)
+                        //   this.setState(prev=>({noteSecretaryDetails:prev.noteSecretaryDetails.filter((each:any)=>each.id!==id)}))
+
+                        // }}
                       />
                     </div>
                   ) : (
@@ -3611,6 +3659,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                           reOrderData={this.reOrderData}
                           removeDataFromGrid={this.removeDataFromGrid}
                           type="Approver"
+                          // handleNoterReferDTO={(id:any):any=>{
+                          //   console.log(id)
+                          //   this.setState(prev=>({noteSecretaryDetails:prev.noteSecretaryDetails.filter((each:any)=>each.id!==id)}))
+  
+                          // }}
                         />
                       </div>
                     )
@@ -3726,10 +3779,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 </p>
               </div>
 
-              {this.checkUserIsIBTes2(
-                this.state.peoplePickerData,
-                this.state.peoplePickerApproverData
-              ) ? (
+              {this.state.noteSecretaryDetails.length > 0  ? (
                 <div className={`${styles.fileInputContainers}`}>
                   <p className={styles.label} style={{ margin: "0px" }}>
                     Word Document <span className={styles.warning}>*</span>
