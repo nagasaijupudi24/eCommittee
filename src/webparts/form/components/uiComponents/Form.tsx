@@ -918,6 +918,55 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
          
       console.log(items)
 
+
+      const atrItems =  (
+        (await this.props.sp.web.lists
+         .getByTitle("ATRCreators")
+         .items.select("*", "ATRCreators/Title", "ATRCreators/EMail").expand("ATRCreators")()).map((each: any) => {
+           console.log(each);
+           // console.log(this._getUserProperties(each.email))
+ 
+           const newObj = {
+           
+             text: each.Approver.Title,
+             email: each.Approver.EMail,
+             ApproversId: each.ApproverId,
+             approverType: each.ApproverType,
+             // approversOrder: each.ApproverType === "Approver"?2:1,
+             Title: each.Title,
+             id: each.ApproverId,
+             secretary: each.Secretary,
+             srNo:each.Approver.EMail.split("@")[0]
+           };
+           console.log(newObj);
+           const secretaryObj ={
+             "noteSecretarieId": each.SecretaryId,
+             "noteApproverId": each.ApproverId,
+             "noteId": "",
+             "secretaryEmail": each.Secretary.EMail,
+             "approverEmail": each.Approver.EMail,
+             "approverEmailName": each.Approver.Title,
+             "secretaryEmailName": each.Secretary.Title,
+             "createdBy":"",
+             "modifiedDate": "",
+             "modifiedBy": "",
+
+           }
+           this.setState((prev)=>{this.setState({noteSecretaryDetails:[...prev.noteSecretaryDetails,secretaryObj],approverIdsHavingSecretary:[...prev.approverIdsHavingSecretary,{ApproverId:each.ApproverId,SecretaryId:each.SecretaryId,secretaryObj}]})})
+           if (each.ApproverType === "Approver") {
+  
+             this.setState({ peoplePickerApproverData: [newObj] });
+           } else {
+             this.setState({ peoplePickerData: [newObj] });
+             
+           }
+           
+          
+         })
+       )
+        
+     console.log(atrItems,"Atr Items fetched")
+
      
 
       // this.setState({ itemsFromSpList:items });
@@ -1104,6 +1153,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private handleOnAdd = async (event: any, type: string): Promise<void> => {
+    console.log(type)
     if (type === "reveiwer") {
       // console.log(this.checkReviewer());
       // this.checkReviewer()
@@ -1175,17 +1225,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         console.log(getSecretaryDetails)
         if(getSecretaryDetails.length>0){
           this.setState((prev) => ({
-            peoplePickerData: [
-              ...prev.peoplePickerData,
-              ...this.state.reviewerInfo,
+            peoplePickerApproverData: [
+              ...prev.peoplePickerApproverData,
+              ...this.state.approverInfo,
             ],noteSecretaryDetails:[...prev.noteSecretaryDetails,getSecretaryDetails[0]?.secretaryObj]
           }));
 
         }else{
           this.setState((prev) => ({
-            peoplePickerData: [
-              ...prev.peoplePickerData,
-              ...this.state.reviewerInfo,
+            peoplePickerApproverData: [
+              ...prev.peoplePickerApproverData,
+              ...this.state.approverInfo,
             ]
           }));
         }
@@ -1524,12 +1574,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         },
       ];
 
+      (this.state.noteSecretaryDetails.length > 0 && async function(){
+        await sp.web.rootFolder.folders.addUsingPath(`${parentFolderPath}/GistDocuments`)
+        console.log(`folder is created ${parentFolderPath}/GistDocuments`)
+      }()
+        )
+
       for (const { folderName, files } of filesDataArray) {
         const siteUrl = `${parentFolderPath}/${folderName}`;
         console.log(siteUrl);
 
         // Create the folder in SharePoint
         await sp.web.rootFolder.folders.addUsingPath(siteUrl);
+       
 
         for (const file of files) {
           console.log(file);
@@ -1753,8 +1810,20 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         return `${each}`;
       }
     });
+
+
     console.log(nw);
-    return nw[0];
+
+    if (purpose === "intialOrderApproverDetails"){
+      return nw[0];
+
+    }else{
+      const finalApprover = nw.reverse()
+      return finalApprover[0]
+    }
+
+    
+    
   };
 
   // private returnSecretaryDto = ():any =>{
@@ -1813,7 +1882,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "allDetails"
       ),
       Status: status,
-      StatusNumber: status === "Submitted" ? statusNumber : "3000",
+      StatusNumber: status === "Submitted" ? statusNumber : "100",
       AuditTrail:
         this.state.status === "Call Back"
           ? this._getAuditTrail("Re-submitted")
@@ -1828,7 +1897,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "intialOrderApproverDetails"
       ),
       DraftResolution:this.state.draftResolutionFieldValue,
-      NoteSecretaryDTO:JSON.stringify(this.state.noteSecretaryDetails)
+      NoteSecretaryDTO:JSON.stringify(this.state.noteSecretaryDetails),
+      FinalApproverId:this._getCurrentApproverId(
+        [ this.state.peoplePickerData,
+         this.state.peoplePickerApproverData],
+         "FinalOrderApproverDetails"
+       ),
 
     };
     console.log(ecommitteObject);
@@ -3981,3 +4055,5 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     );
   }
 }
+
+

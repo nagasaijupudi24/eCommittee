@@ -36,6 +36,8 @@ import { format } from "date-fns";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
 import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
+import { v4 } from "uuid";
+import { ATRAssignee } from "./ATR/atr";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
@@ -139,6 +141,9 @@ export interface IViewFormState {
   referredFromDetails: any;
   refferredToDetails: any;
   noteReferrerDTO: any;
+
+  noteSecretaryDetails:any;
+  secretaryGistDocs:any[];
 
   draftResolutionFieldValue: any;
 }
@@ -260,13 +265,18 @@ export default class ViewForm extends React.Component<
       refferredToDetails: [],
       noteReferrerDTO: [],
 
+      noteSecretaryDetails:[],
+      secretaryGistDocs:[],
+
       draftResolutionFieldValue: "",
     };
     console.log(this._itemId);
     console.log(this._formType);
     console.log(this.props.context.pageContext.user);
+    this._fetchATRCreatorDetails()
     this._getItemData(this._itemId, this._folderName);
     this._getItemDocumentsData();
+    
     // this._getUserCountry();
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest()
     // console.log(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest())
@@ -288,6 +298,39 @@ export default class ViewForm extends React.Component<
   //     console.error("Error retrieving user profile properties:", error);
   //   }
   // };
+
+
+  private _fetchATRCreatorDetails = async (): Promise<void> => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    
+
+
+      const atrItems =  (
+        (await this.props.sp.web.lists
+         .getByTitle("ATRCreators")
+         .items.select("*", "ATRCreators/Title", "ATRCreators/EMail").expand("ATRCreators")()).map((each: any) => {
+           console.log(each);
+           // console.log(this._getUserProperties(each.email))
+ 
+          
+           
+          
+         })
+       )
+        
+     console.log(atrItems,"Atr Items fetched")
+
+     
+
+      // this.setState({ itemsFromSpList:items });
+      // this.setState(prevState => ({
+      //   itemsFromSpList: [...prevState.itemsFromSpList, ...items]
+      // }));
+    } catch (error) {
+      console.error("Error fetching list items: ", error);
+    }
+  };
 
   public _folderNameGenerate(id: any): any {
     const currentyear = new Date().getFullYear();
@@ -546,8 +589,10 @@ export default class ViewForm extends React.Component<
         item.NoteReferrerDTO !== null
           ? this._getReferedFromAndToDetails(item.NoteReferrerDTO, "to")
           : [],
+      
 
       draftResolutionFieldValue: item.DraftResoultion,
+      noteSecretaryDetails:item.NoteSecretaryDTO !== null ?JSON.parse(item.NoteSecretaryDTO):[],
       noteReferrerDTO:
         item.NoteReferrerDTO !== null ? JSON.parse(item.NoteReferrerDTO) : [],
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
@@ -857,10 +902,34 @@ export default class ViewForm extends React.Component<
       });
       // console.log(tempFilesSupportingDocument);
       this.setState({ supportingDocumentfiles: tempFilesSupportingDocument });
+
+
+      //Gist documents
+      console.log(
+        "------------------Supporting Document-----------------------------------"
+      );
+
+      console.log(`${this._folderName}/SupportingDocument`);
+      const GistDocument = await this.props.sp.web
+        .getFolderByServerRelativePath(`${this._folderName}/GistDocuments`)
+        .files.select("*")
+        .expand("Author", "Editor")()
+        .then((res) => res);
+      console.log(GistDocument);
+      // console.log(SupportingDocument[0]);
+
+      const tempFilesGistDocument: IFileDetails[] = [];
+      SupportingDocument.forEach((values) => {
+        tempFilesSupportingDocument.push(this._getFileObj(values));
+      });
+      // console.log(tempFilesSupportingDocument);
+      this.setState({ secretaryGistDocs: tempFilesGistDocument });
     } catch {
       console.log("failed to fetch");
     }
   };
+
+
 
   private _onToggleSection = (section: string): void => {
     this.setState((prevState) => ({
@@ -981,10 +1050,46 @@ export default class ViewForm extends React.Component<
     return JSON.stringify([...this.state.auditTrail, ...auditLog]);
   };
 
+  // public async clearFolder(
+  //   libraryName: any,
+  //   folderRelativeUrl: string
+  // ): Promise<void> {
+  //   try {
+  //     // Get the folder
+  //     const folder = await this.props.sp.web.getFolderByServerRelativePath(
+  //       folderRelativeUrl
+  //     );
+
+  //     // Get all items in the folder
+  //     const items = await folder.files();
+
+  //     // Loop through each item and delete it
+  //     for (const item of items) {
+  //       await this.props.sp.web
+  //         .getFileByServerRelativePath(item.ServerRelativeUrl)
+  //         .recycle();
+  //     }
+
+  //     console.log(
+  //       `All files in folder '${folderRelativeUrl}' have been deleted.`
+  //     );
+  //   } catch (error) {
+  //     console.error("Error clearing folder:", error);
+  //   }
+  // }
+  
   private async updateSupportingDocumentFolderItems(
     libraryName: any[],
-    folderPath: string
+    folderPath: string,
+    type:string,
   ) {
+
+      console.log(libraryName,folderPath,type,"....details attachment")
+    // await this.clearFolder(libraryName, folderPath);
+    // await this.props.sp.web.rootFolder.folders.addUsingPath(folderPath)
+    console.log(
+      `Folder -----${type}---- created successfully in list`
+    );
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
         return await file.arrayBuffer();
@@ -1030,7 +1135,7 @@ export default class ViewForm extends React.Component<
             Overwrite: true,
           });
       }
-      console.log("updated Supporting document successfully");
+      console.log(`updated ${type} document successfully`);
     } catch (error) {
       console.error(`Error updating folder items: ${error}`);
     }
@@ -1068,6 +1173,9 @@ export default class ViewForm extends React.Component<
       }
     );
     console.log(modifyApproveDetails);
+
+
+
 
     const _getCurrentApproverDetails = (): any => {
       const currentApproverdata = modifyApproveDetails.filter((each: any) => {
@@ -1117,7 +1225,8 @@ export default class ViewForm extends React.Component<
     console.log(itemToUpdate);
     this.updateSupportingDocumentFolderItems(
       this.state.supportingDocumentfiles,
-      `${this._folderName}/SupportingDocument`
+      `${this._folderName}/gistDocument`,"gistDocument"
+
     );
 
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
@@ -1134,6 +1243,24 @@ export default class ViewForm extends React.Component<
     }
     this._closeDialog();
   };
+
+
+
+  private _checkingCurrentUserInSecretaryDTO=():any=>{
+
+    return this.state.noteSecretaryDetails.some(
+      (each:any)=>{
+        console.log(each)
+        console.log(this._currentUserEmail)
+        console.log(each.approverEmail === this._currentUserEmail)
+        if (each.approverEmail === this._currentUserEmail){
+          return true
+        }
+       
+      }
+    )
+
+  }
 
   private handleReject = async (
     statusFromEvent: string,
@@ -1215,16 +1342,62 @@ export default class ViewForm extends React.Component<
 
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
+    console.log(
+      [
+        {
+          approverEmail: this.state.referredFromDetails[0].email ||this.state.referredFromDetails[0].approverEmail,
+          approverEmailName:this.state.referredFromDetails[0].text ||this.state.referredFromDetails[0].approverEmailName,
+          approverType: this.state.referredFromDetails[0].approverType,
+          createdBy:this.state.referredFromDetails[0].email ||this.state.referredFromDetails[0].approverEmail,
+          createdDate: new Date(),
+          modifiedBy: this.state.referredFromDetails[0].email ||this.state.referredFromDetails[0].approverEmail,
+          modifiedDate:new Date(),
+          noteApproverId: this.state.referredFromDetails[0].id,
+          noteId:this._itemId,
+
+          noteReferrerCommentDTO: null,
+          noteReferrerId: v4(),
+          noteSupportingDocumentsDTO: null,
+          referrerEmail:this.state.refferredToDetails[0].email ||this.state.refferredToDetails[0].approverEmail,
+          referrerEmailName: this.state.refferredToDetails[0].text ||this.state.refferredToDetails[0].approverEmailName,
+          referrerStatus: 2,
+          referrerStatusType:this.state.refferredToDetails[0].status,
+          referredTo:this.state.refferredToDetails,
+          referredFrom: this.state.referredFromDetails,
+        },
+      ]
+
+    )
 
     const obj = {
       NoteApproversDTO: JSON.stringify(modifyApproveDetails),
       Status: statusFromEvent,
       StatusNumber: statusNumber,
       AuditTrail: updateAuditTrial,
-      NoteApproverCommentsDTO: JSON.stringify([...this.state.commentsData, commentsObj]),
+      NoteApproverCommentsDTO: JSON.stringify([
+        ...this.state.commentsData,
+        commentsObj,
+      ]),
       NoteReferrerDTO: JSON.stringify([
         {
-          referredTo: this.state.refferredToDetails,
+          approverEmail: this.state.referredFromDetails[0].email ||this.state.referredFromDetails[0].approverEmail,
+          approverEmailName:this.state.referredFromDetails[0].text ||this.state.referredFromDetails[0].approverEmailName,
+          approverType: this.state.referredFromDetails[0].approverType,
+          createdBy:this.state.referredFromDetails[0].email ||this.state.referredFromDetails[0].approverEmail,
+          createdDate: new Date(),
+          modifiedBy: this.state.referredFromDetails[0].email ||this.state.referredFromDetails[0].approverEmail,
+          modifiedDate:new Date(),
+          noteApproverId: this.state.referredFromDetails[0].id,
+          noteId:this._itemId,
+
+          noteReferrerCommentDTO: null,
+          noteReferrerId: v4(),
+          noteSupportingDocumentsDTO: null,
+          referrerEmail:this.state.refferredToDetails[0].email ||this.state.refferredToDetails[0].approverEmail,
+          referrerEmailName: this.state.refferredToDetails[0].text ||this.state.refferredToDetails[0].approverEmailName,
+          referrerStatus: 2,
+          referrerStatusType:this.state.refferredToDetails[0].status,
+          referredTo:this.state.refferredToDetails,
           referredFrom: this.state.referredFromDetails,
         },
       ]),
@@ -1733,6 +1906,36 @@ export default class ViewForm extends React.Component<
     }
   };
 
+  private handleGistDocuments = (
+    files: File[],
+    typeOfDoc: string
+  ) => {
+    console.log(typeOfDoc);
+    console.log(files);
+    for (let i = 0; i < files.length; i++) {
+      console.log(files[i]);
+    }
+
+    if (files) {
+      console.log(files);
+      // Convert FileList to an array of File objects
+      const filesArray = Array.from(files);
+      // this.setState((prev) => ({
+      //   supportingDocumentfiles: [
+      //     ...prev.supportingDocumentfiles,
+      //     ...filesArray,
+      //   ],
+      // }));
+      console.log(files);
+      if (files.length > 0) {
+        this.setState({
+          
+          secretaryGistDocs: [...filesArray],
+        });
+      }
+    }
+  };
+
   public _checkCurrentRequestIsReturnedOrRejected = (): boolean => {
     switch (this.state.status) {
       case "Rejected":
@@ -1830,10 +2033,11 @@ export default class ViewForm extends React.Component<
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
               style={{ padding: "10px" }}
-            > 
-   
+            >
               <h1 className={`${styles.generalHeader} `}>
-                pending: {(this.state.status!=='Rejected') &&this._getPendingStatus(this.state.ApproverDetails)}
+                pending:{" "}
+                {this.state.status !== "Rejected" &&
+                  this._getPendingStatus(this.state.ApproverDetails)}
               </h1>
 
               <h1 className={`${styles.generalHeader} `}>
@@ -1873,7 +2077,7 @@ export default class ViewForm extends React.Component<
                     </div>
                     {expandSections.generalSection && (
                       <div className={`${styles.expansionPanelInside}`}>
-                        <div style={{ padding: "15px",paddingTop:'4px' }}>
+                        <div style={{ padding: "15px", paddingTop: "4px" }}>
                           {this._renderTable(
                             this.state.eCommitteData[0].tableData
                           )}
@@ -1904,7 +2108,7 @@ export default class ViewForm extends React.Component<
                       </div>
                       {expandSections.draftResolution && (
                         <div className={`${styles.expansionPanelInside}`}>
-                          <div style={{ padding: "15px",paddingTop:'4px' }}>
+                          <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <RichText
                               value={this.state.draftResolutionFieldValue}
                             />
@@ -1939,7 +2143,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px" ,paddingTop:'4px'}}>
+                        <div style={{ padding: "15px", paddingTop: "4px" }}>
                           <ApproverAndReviewerTableInViewForm
                             data={this.state.peoplePickerData}
                             reOrderData={this.reOrderData}
@@ -1975,7 +2179,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px",paddingTop:'4px' }}>
+                        <div style={{ padding: "15px", paddingTop: "4px" }}>
                           <ApproverAndReviewerTableInViewForm
                             data={this.state.peoplePickerApproverData}
                             reOrderData={this.reOrderData}
@@ -2015,7 +2219,7 @@ export default class ViewForm extends React.Component<
                           className={`${styles.expansionPanelInside}`}
                           //   style={{ overflowX: "scroll" }}
                         >
-                          <div style={{ padding: "15px" ,paddingTop:'4px'}}>
+                          <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <GeneralCommentsFluentUIGrid
                               handleCommentDataFuntion={this._getCommentData}
                               data={this.state.commentsData}
@@ -2032,8 +2236,8 @@ export default class ViewForm extends React.Component<
                     ""
                   )}
 
-                  {/* ATR Assignees
-                  {(this.state.ApproverType !== null &&this.state.ApproverType.toString() === "2") ? (
+                  {/* ATR Assignees */}
+                  {/* { this._checkCurrentUserIsAATRAssignee? ( */}
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -2056,15 +2260,22 @@ export default class ViewForm extends React.Component<
                       {expandSections.atrAssignees && (
                         <div
                           className={`${styles.expansionPanelInside}`}
-                          //   style={{ overflowX: "scroll" }}
-                        >
-                          {" "}
+                            style={{ overflowX: "scroll" }}
+                        > 
+                        <div style={{ padding: "15px" }}>
+                          <ATRAssignee sp={this.props.sp}
+                            context={this.props.context} 
+                            commentsData={this.state.commentsData}/>
+
+                        </div>
+                          
                         </div>
                       )}
                     </div>
-                  ) : (
-                    ""
-                  )} */}
+                  {/* ) : 
+                  (
+                    "" */}
+                  {/* )} */}
 
                   {/* Comments Log */}
 
@@ -2090,7 +2301,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px" ,paddingTop:'4px'}}>
+                        <div style={{ padding: "15px", paddingTop: "4px" }}>
                           <CommentsLogTable
                             data={this.state.commentsData} //have change data valu
                             type="commentsLog"
@@ -2128,7 +2339,7 @@ export default class ViewForm extends React.Component<
                           className={`${styles.expansionPanelInside}`}
                           style={{ width: "100%", margin: "0px" }}
                         >
-                          <div style={{ padding: "15px",paddingTop:'4px' }}>
+                          <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <UploadFileComponent
                               typeOfDoc="supportingDocument"
                               onChange={
@@ -2149,6 +2360,110 @@ export default class ViewForm extends React.Component<
                   ) : (
                     ""
                   )}
+
+                  {/*Gist Document Section */}
+                  {this._checkingCurrentUserInSecretaryDTO() ? (
+                    <div className={styles.sectionContainer}>
+                      <div
+                        className={styles.header}
+                        onClick={() => this._onToggleSection(`gistDocuments`)}
+                      >
+                        <Text className={styles.sectionText}>
+                          Gist Document
+                        </Text>
+                        <IconButton
+                          iconProps={{
+                            iconName: expandSections.gistDocuments
+                              ? "ChevronUp"
+                              : "ChevronDown",
+                          }}
+                          title="Expand/Collapse"
+                          ariaLabel="Expand/Collapse"
+                          className={styles.chevronIcon}
+                        />
+                      </div>
+                      {expandSections.gistDocuments && (
+                        <div
+                          className={`${styles.expansionPanelInside}`}
+                          style={{ width: "100%", margin: "0px" }}
+                        >
+                          <h3>Gist Documents</h3>
+                          <div style={{ padding: "15px", paddingTop: "4px" }}>
+                            <UploadFileComponent
+                              typeOfDoc="gistDocument"
+                              onChange={this.handleGistDocuments}
+                              accept=".pdf,.doc,.docx "
+                              multiple={false}
+                              maxFileSizeMB={5}
+                              maxTotalSizeMB={5}
+                              data={this.state.secretaryGistDocs}
+
+                              // value={this.state.supportingDocumentfiles}
+                            />
+                            <PrimaryButton
+                              onClick={() => {
+                                this.updateSupportingDocumentFolderItems(
+                                  this.state.secretaryGistDocs,
+                                  `${this._folderName}/GistDocuments`,
+                                  "gistDocument"
+
+                                );
+                              }}
+                            >
+                              UpLoad
+                            </PrimaryButton>
+                          </div>
+                          {/* <div>
+                            {this.state.secretaryGistDocs.length > 0 &&
+                              this.state.secretaryGistDocs.map(({ file, error }) => {
+                                console.log(file)
+                               
+                                return (
+                                  <li
+                                    key={file.name}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                    className={`${styles.basicLi} ${styles.attachementli}`}
+                                  >
+                                    <div
+                                      style={{
+                                        padding: "2px",
+                                        marginBottom: "4px",
+                                        display: "flex",
+                                        justifyContent: "flex-start",
+                                        alignContent: "center",
+                                        flexGrow: "1",
+                                      }}
+                                    >
+                                      
+                                      <div>
+                                        <p
+                                          style={{
+                                            paddingBottom: "0px",
+                                            marginBottom: "0px",
+                                            paddingLeft: "4px",
+                                          }}
+                                        >
+                                          {file.name}
+                                        </p>
+                                        
+                                      </div>
+                                    </div>
+
+                                   
+                                  </li>
+                                );
+                              })}
+                          </div> */}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
                   {/* Workflow Log */}
                   <div className={styles.sectionContainer}>
                     <div
@@ -2172,7 +2487,7 @@ export default class ViewForm extends React.Component<
                         className={`${styles.expansionPanelInside}`}
                         //   style={{ overflowX: "scroll" }}
                       >
-                        <div style={{ padding: "15px",paddingTop:'4px' }}>
+                        <div style={{ padding: "15px", paddingTop: "4px" }}>
                           <WorkFlowLogsTable
                             data={this.state.auditTrail}
                             type="Approver"
@@ -2205,7 +2520,7 @@ export default class ViewForm extends React.Component<
                       <div
                         className={`${styles.expansionPanelInside} ${styles.responsiveContainerheaderForFileAttachment}`}
                       >
-                        <div style={{ padding: "15px",paddingTop:'4px' }}>
+                        <div style={{ padding: "15px", paddingTop: "4px" }}>
                           <h4 className={styles.responsiveHeading}>
                             Main Note Link:
                             <a
@@ -2231,15 +2546,16 @@ export default class ViewForm extends React.Component<
                               </a>
                             </h4>
                           )}
-                          {this.state.supportingDocumentfiles.length>0 &&
-                          <div>
-                             <h4 className={styles.responsiveHeading}>
-                            Support Documents:
-                          </h4>
-                          <FileAttatchmentTable
-                            data={this.state.supportingDocumentfiles}
-                          /></div>}
-                         
+                          {this.state.supportingDocumentfiles.length > 0 && (
+                            <div>
+                              <h4 className={styles.responsiveHeading}>
+                                Support Documents:
+                              </h4>
+                              <FileAttatchmentTable
+                                data={this.state.supportingDocumentfiles}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -2293,10 +2609,10 @@ export default class ViewForm extends React.Component<
                         Call Back
                       </PrimaryButton>
                     )
-                  ) :  this.state.refferredToDetails.length > 0 &&
-                  this.state.refferredToDetails[0]?.email ===
-                    this._currentUserEmail &&
-                  this.state.refferredToDetails[0]?.status === "Refered"? (
+                  ) : this.state.refferredToDetails.length > 0 &&
+                    this.state.refferredToDetails[0]?.email ===
+                      this._currentUserEmail &&
+                    this.state.refferredToDetails[0]?.status === "Refered" ? (
                     <PrimaryButton
                       className={`${styles.responsiveButton}`}
                       iconProps={{ iconName: "Reply" }}
