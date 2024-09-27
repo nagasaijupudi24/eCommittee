@@ -73,6 +73,7 @@ export default class PnPPeoplePicker extends React.Component<
   };
 
   private handleOnAdd = (event: any, type: string): void => {
+    console.log(this.state.peoplePickerData)
     this.props.getDetails(this.state.selectedPeople,this.props.typeOFButton)
     this.setState((prev) => ({
       peoplePickerData: [

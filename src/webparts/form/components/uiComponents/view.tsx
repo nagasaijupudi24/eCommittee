@@ -145,6 +145,8 @@ export interface IViewFormState {
   noteSecretaryDetails:any;
   secretaryGistDocs:any[];
 
+  atrGridData:any;
+
   draftResolutionFieldValue: any;
 }
 
@@ -268,6 +270,8 @@ export default class ViewForm extends React.Component<
       noteSecretaryDetails:[],
       secretaryGistDocs:[],
 
+      atrGridData:[],
+
       draftResolutionFieldValue: "",
     };
     console.log(this._itemId);
@@ -303,15 +307,25 @@ export default class ViewForm extends React.Component<
   private _fetchATRCreatorDetails = async (): Promise<void> => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    
+      
+      
+      // await this.props.sp.web.lists
+      // .getByTitle("ATRCreators")
+      // .items()
+      console.log(
+        await this.props.sp.web.lists
+          .getByTitle("ATRCreators")
+          .items())
 
 
       const atrItems =  (
+
         (await this.props.sp.web.lists
          .getByTitle("ATRCreators")
          .items.select("*", "ATRCreators/Title", "ATRCreators/EMail").expand("ATRCreators")()).map((each: any) => {
            console.log(each);
            // console.log(this._getUserProperties(each.email))
+           return each
  
           
            
@@ -2265,7 +2279,15 @@ export default class ViewForm extends React.Component<
                         <div style={{ padding: "15px" }}>
                           <ATRAssignee sp={this.props.sp}
                             context={this.props.context} 
-                            commentsData={this.state.commentsData}/>
+                            commentsData={this.state.commentsData}
+                            updategirdData= {
+                              (data:any):void=>{
+                                console.log(data)
+                              this.setState({ atrGridData: [data, ...this.state.atrGridData] })
+                              }
+                            }
+                            gridData = {this.state.atrGridData}
+                            />
 
                         </div>
                           

@@ -4,17 +4,20 @@ import * as React from 'react';
 import { DetailsList, IColumn, Stack, IconButton } from '@fluentui/react';
 
 import PnPPeoplePicker from '../peoplePicker/peoplePicker';
+import { v4 } from 'uuid';
 
 // Interface for each table item
 interface ITableItem {
-  key: number;
-  comments: string;
-  assignedTo: string[];
-  status: string;
+  key: any;
+  comments: any;
+  assignedTo: any;
+  status: any;
 }
 
 // Interface for the component's props
 interface IATRAssigneeProps {
+    gridData:any;
+    updategirdData:any;
     commentsData:any;
   sp: any;
   context: any; // This is required by the PeoplePicker
@@ -27,16 +30,18 @@ interface IATRAssigneeState {
   currentRowKey: number | null;
 }
 
+// const tableData = [
+//     { key: 1, comments: 'Initial Comment 1', assignedTo: [], status: 'Open' },
+//     { key: 2, comments: 'Initial Comment 2', assignedTo: [], status: 'Open' },
+//   ]
+
 export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssigneeState> {
   constructor(props: IATRAssigneeProps) {
     super(props);
 
     // Initialize state
     this.state = {
-      tableData: [
-        { key: 1, comments: 'Initial Comment 1', assignedTo: [], status: 'Open' },
-        { key: 2, comments: 'Initial Comment 2', assignedTo: [], status: 'Open' },
-      ],
+      tableData: this.props.gridData,
       selectedUsers: [],
       currentRowKey: null,
     };
@@ -59,7 +64,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       minWidth: 150,
       maxWidth: 300,
       isResizable: true,
-      onRender: (item: ITableItem) => item.assignedTo.join(', '),
+    //   onRender: (item: ITableItem) => item.assignedTo.join(', '),
     },
     {
       key: 'status',
@@ -89,6 +94,8 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
   // Handler when a row is clicked to select it
   private handleRowClick = (rowKey: number): void => {
     this.setState({ currentRowKey: rowKey });
+    console.log(this.props.commentsData)
+    
   };
 
   // Handle row deletion
@@ -115,8 +122,47 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
 //   };
 
   public _getDetailsFromPeoplePicker = (data: any): any => {
+    console.log("function trigered")
     console.log(data)
-    this.setState({ selectedUsers: data });
+    console.log(this.props.commentsData)
+    const joinedCommentsData = this.props.commentsData.filter(
+        (each:any)=>{
+
+            if (each){
+                return each
+            }
+            
+           
+        }   
+    ).map(
+        (each:any)=>{
+
+            if (each){
+                console.log(each)
+                console.log(`${each?.pageNum} ${each?.page} ${each?.comment}`)
+                return `${each?.pageNum} ${each?.page} ${each?.comment}`
+            }
+            
+           
+        }
+    )
+    console.log(joinedCommentsData)
+    console.log(joinedCommentsData.join(' ,'))
+
+    const newTableData = {
+        key:v4(),
+        comments:joinedCommentsData.join(' ,'),
+        assignedTo:data[0].text,
+        status:"submitted"
+
+
+    }
+    this.setState((prev)=>{
+        this.props.updategirdData([...prev.tableData,newTableData])
+        return { selectedUsers: data ,tableData:[...prev.tableData,newTableData]}
+
+    });
+    
   };
 
   public render(): React.ReactElement<IATRAssigneeProps> {
