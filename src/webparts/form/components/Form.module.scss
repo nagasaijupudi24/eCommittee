@@ -5,17 +5,12 @@
 
 
 .form {
-  // overflow: hidden;
-  // padding: 1em;
-  // color: "[theme:bodyText, default: #323130]";
-  // color: var(--bodyText);
-  // &.teams {
-  //   font-family: $ms-font-family-fallbacks;
-  // }
-  // border:3px solid yellow;
+  display: flex;
+  flex-direction: column; /* Arrange child containers in a row */
+  justify-content: space-between; /* Space between child containers */
   padding: 6px;
   min-height: 100vh;
-  // width: 100vw;
+  border: 1px solid red;
 }
 
 .welcome {
@@ -78,7 +73,7 @@
   padding: 10px;
   padding-right: 0px;
   // min-height: 100px;
-  width: 98%;
+  
 
 
 
@@ -89,6 +84,7 @@
   .generalSection {
     /* Adjust padding for tablet */
     padding: 8px;
+    padding-top: 4px;
     /* Reduce border radius for a more compact look */
     border-radius: 7px;
     /* Optional: Adjust flex direction for tablet */
@@ -102,6 +98,7 @@
   .generalSection {
     /* Adjust padding for mobile */
     padding: 6px;
+    padding-top: 3px;
     /* Further reduce border radius for mobile */
     border-radius: 5px;
     /* Flex direction for mobile */
@@ -116,26 +113,27 @@
 /* Base styles */
 .halfWidth {
   width: 48%;
+  border: 1px solid violet;
 }
 
 /* Tablet view */
 @media (max-width: 1024px) {
   .halfWidth {
-    width: 80%;
+    width: 90%;
   }
 }
 
 /* Mobile view */
 @media (max-width: 768px) {
   .halfWidth {
-    width: 80%;
+    width: 90%;
   }
 }
 
 /* Extra small devices (like smaller mobile screens) */
 @media (max-width: 480px) {
   .halfWidth {
-    width: 80%;
+    width: 90%;
   }
 }
 
@@ -276,7 +274,50 @@
 .commonProperties {
   padding: 5px;
   margin-top: 5px;
+  display: flex;
+  flex-direction: row; /* Default to row layout */
+  justify-content: space-between; /* Spread items evenly */
+  align-items: center;
+  box-sizing: border-box;
 }
+
+/* Mobile phones (less than 600px) */
+@media (max-width: 600px) {
+  .commonProperties {
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center;
+    justify-content: flex-start; /* Stack from the top */
+    padding: 10px; /* Increased padding for mobile */
+  }
+}
+
+/* Tablets (600px - 768px) */
+@media (min-width: 600px) and (max-width: 768px) {
+  .commonProperties {
+    flex-direction: column; /* Still vertical but adjusted for tablet size */
+    padding: 8px; /* Slightly reduce padding */
+    justify-content: center; /* Center vertically for tablets */
+  }
+}
+
+/* Small laptops (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .commonProperties {
+    flex-direction: row; /* Row layout on larger screens */
+    justify-content: space-around; /* Spread elements evenly across the container */
+    padding: 6px;
+  }
+}
+
+/* Desktops (above 1024px) */
+@media (min-width: 1024px) {
+  .commonProperties {
+    flex-direction: row; /* Maintain row layout */
+    justify-content: space-between; /* Standard spacing on large screens */
+    padding: 5px;
+  }
+}
+
 
 .status {
   font-size: 14px;

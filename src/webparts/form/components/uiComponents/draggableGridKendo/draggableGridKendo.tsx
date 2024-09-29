@@ -84,7 +84,9 @@ const DraggableTable = (props:any) => {
 
     return (
       <ReorderContext.Provider value={{ reorder, dragStart }}>
-            <div style={{ overflowX: 'auto' }}>
+            <div 
+            // style={{ overflowX: 'auto' }}
+            >
                 <DragAndDrop>
                     <Grid
                         style={{ minWidth: '800px' }} // Sets minimum width for scrolling
