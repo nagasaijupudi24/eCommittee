@@ -10,7 +10,7 @@
   justify-content: space-between; /* Space between child containers */
   padding: 6px;
   min-height: 100vh;
-  border: 1px solid red;
+  // border: 1px solid red;
 }
 
 .welcome {
@@ -113,7 +113,7 @@
 /* Base styles */
 .halfWidth {
   width: 48%;
-  border: 1px solid violet;
+  // border: 1px solid violet;
 }
 
 /* Tablet view */
@@ -271,6 +271,7 @@
   font-size: 16px;
 }
 
+
 .commonProperties {
   padding: 5px;
   margin-top: 5px;
@@ -281,6 +282,13 @@
   box-sizing: border-box;
 }
 
+/* Title styles */
+.title {
+  font-size: 14px;
+  color: "[theme: themePrimary, default: #0078d7]";
+  order: 2; /* Default order for the title */
+}
+
 /* Mobile phones (less than 600px) */
 @media (max-width: 600px) {
   .commonProperties {
@@ -288,6 +296,10 @@
     align-items: center;
     justify-content: flex-start; /* Stack from the top */
     padding: 10px; /* Increased padding for mobile */
+  }
+  
+  .title {
+    order: 1; /* Make title the first item when in column layout */
   }
 }
 
@@ -298,6 +310,10 @@
     padding: 8px; /* Slightly reduce padding */
     justify-content: center; /* Center vertically for tablets */
   }
+
+  .title {
+    order: 1; /* Make title the first item when in column layout */
+  }
 }
 
 /* Small laptops (768px - 1024px) */
@@ -306,6 +322,10 @@
     flex-direction: row; /* Row layout on larger screens */
     justify-content: space-around; /* Spread elements evenly across the container */
     padding: 6px;
+  }
+
+  .title {
+    order: 1; /* Default order for the title */
   }
 }
 
@@ -316,7 +336,13 @@
     justify-content: space-between; /* Standard spacing on large screens */
     padding: 5px;
   }
+
+  .title {
+    order: 2; /* Default order for the title */
+  }
 }
+
+
 
 
 .status {
@@ -327,10 +353,10 @@
   color: red;
 }
 
-.title {
-  font-size: 14px;
-  // border: 1px solid green;
-}
+
+
+
+
 
 @media (max-width: 750px) {
   .status {
@@ -514,7 +540,7 @@
 /* Tablet view */
 @media (max-width: 1024px) {
   .fileInputContainers {
-    width: 80%;
+    width: 100%;
     margin: 12px;
   }
 }

@@ -280,7 +280,7 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
                 PropertyFieldListPicker('listId', {
                   label: 'Select a list',
                   selectedList: this.properties.listId,
-                  includeHidden: true,
+                  includeHidden: false,
                   includeListTitleAndUrl: true,
                   orderBy: PropertyFieldListPickerOrderBy.Id,
                   disabled: false,

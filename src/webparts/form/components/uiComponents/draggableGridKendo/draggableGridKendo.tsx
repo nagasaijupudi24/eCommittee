@@ -89,7 +89,7 @@ const DraggableTable = (props:any) => {
             >
                 <DragAndDrop>
                     <Grid
-                        style={{ minWidth: '800px' }} // Sets minimum width for scrolling
+                        style={{ minWidth: "100%" }} // Sets minimum width for scrolling
                         data={gridData}
                         dataItemKey={"ProductID"}
                         rowRender={(row, rowProps) => (
@@ -98,10 +98,10 @@ const DraggableTable = (props:any) => {
                     >
                         <Column title="" width="50px" cell={DragHandleCell} />
                      
-                        <Column field="text" title={type} width="120px" />
-                        <Column field='srNo' title="SR No" width="120px" />
-                        <Column field="optionalText" title="Designation" width="120px" />
-                        <Column width="120px"
+                        <Column field="text" title={type} width="200px" />
+                        <Column field='srNo' title="SR No" width="200px" />
+                        <Column field="optionalText" title="Designation" width="200px" />
+                        <Column width="200px"
                             cell={(props) => (
                                 <td>
                                     <Button

@@ -15,6 +15,8 @@ import {
   IColumn,
   DetailsList,
   SelectionMode,
+  Dialog,
+  DialogFooter,
 } from "@fluentui/react";
 import styles from "../Form.module.scss";
 // import DraggableTable from "./draggableGridKendo/draggableGridKendo";
@@ -145,7 +147,14 @@ export interface IViewFormState {
   noteSecretaryDetails:any;
   secretaryGistDocs:any[];
 
+  atrCreatorsList:any;
   atrGridData:any;
+
+
+  // reject and return dialog box 
+  isDialogVisible:any;
+  dialogContent:any;
+
 
   draftResolutionFieldValue: any;
 }
@@ -270,7 +279,13 @@ export default class ViewForm extends React.Component<
       noteSecretaryDetails:[],
       secretaryGistDocs:[],
 
+      atrCreatorsList:[],
       atrGridData:[],
+
+      // reject dialog box 
+        isDialogVisible:false,
+        dialogContent:{},
+
 
       draftResolutionFieldValue: "",
     };
@@ -322,25 +337,29 @@ export default class ViewForm extends React.Component<
 
         (await this.props.sp.web.lists
          .getByTitle("ATRCreators")
-         .items.select("*", "ATRCreators/Title", "ATRCreators/EMail").expand("ATRCreators")()).map((each: any) => {
+         .items.select("*", "Author/Title", "Author/EMail","Editor/Title", "Editor/EMail", "ATRCreators/Title", "ATRCreators/EMail").expand("Author","ATRCreators","Editor")()).map((each: any) => {
            console.log(each);
            // console.log(this._getUserProperties(each.email))
+
+           this.setState({atrCreatorsList:[...this.state.atrCreatorsList,{
+            "atrCreatorId": each.Id,
+        "atrCreatorEmail": each.ATRCreators.EMail,
+        "atrCreatorEmailName": each.ATRCreators.Title,
+        "createdDate": each.Created,
+        "createdBy": each.Author.EMail,
+        "modifiedDate": each.Modified,
+        "modifiedBy": each.Author.EMail,
+        "statusMessage": null
+           }]})
            return each
- 
-          
-           
-          
+         
+
          })
        )
         
      console.log(atrItems,"Atr Items fetched")
-
      
 
-      // this.setState({ itemsFromSpList:items });
-      // this.setState(prevState => ({
-      //   itemsFromSpList: [...prevState.itemsFromSpList, ...items]
-      // }));
     } catch (error) {
       console.error("Error fetching list items: ", error);
     }
@@ -1276,10 +1295,42 @@ export default class ViewForm extends React.Component<
 
   }
 
+  private _showDialog = (title: string, message: string, buttonText: string) => {
+    const dialogContent = {
+      title: title,
+      message: message,
+      buttonText: buttonText,
+    };
+  
+    this.setState({
+      isDialogVisible: true,
+      dialogContent: dialogContent,
+    });
+  };
+
+
+  
+
   private handleReject = async (
     statusFromEvent: string,
     statusNumber: string
   ) => {
+
+    const currentUserComment = this.state.commentsData.find(
+      (comment: any) => comment.commentedByEmail === this._currentUserEmail
+    );
+  
+    if (!currentUserComment || currentUserComment.comment.trim() === "") {
+      this._showDialog(
+        'Missing Comments',
+        'Please provide comments before rejecting the request.',
+        'OK'
+      );
+      return; // Stop further execution
+    }
+
+
+
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
@@ -1330,6 +1381,10 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     commentsObj: any
   ) => {
+
+
+  
+
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         console.log(each);
@@ -1499,6 +1554,22 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+
+    // Assuming you want to check for comments before proceeding with return
+  const currentUserComment = this.state.commentsData.find(
+    (comment: any) => comment.commentedByEmail === this._currentUserEmail
+  );
+
+  if (!currentUserComment || currentUserComment.comment.trim() === "") {
+    this._showDialog(
+      'Missing Comments',
+      'Please provide comments before returning the request.',
+      'OK'
+    );
+    return; // Stop further execution
+  }
+
+
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
@@ -1779,8 +1850,8 @@ export default class ViewForm extends React.Component<
     // console.log(this.state.ApproverDetails);
 
     const currentStatusOfApproverDetails = data.filter((each: any) => {
-      // console.log(each);
-      // console.log(each.status);
+      console.log(each);
+      console.log(each.status);
       if (each.status === "pending" || each.status === "Refered") {
         // console.log(each.status);
         return each;
@@ -1993,6 +2064,24 @@ export default class ViewForm extends React.Component<
 
   // }
 
+  private _checkCurrentUserIsAATRAssignee= ():any=>{
+   const checkingATRAvailable =  this.state.atrCreatorsList.some(
+      (each:any)=>{
+        console.log(each)
+        console.log(each.atrCreatorEmail)
+        console.log(this._currentUserEmail)
+        console.log(each.atrCreatorEmail === this._currentUserEmail)
+        if (each.atrCreatorEmail === this._currentUserEmail){
+          console.log(each)
+          return true
+        }
+      }
+    )
+    console.log(checkingATRAvailable)
+    return checkingATRAvailable
+
+  }
+
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
     // this._checkApproveredStatusIsFound()
@@ -2042,7 +2131,30 @@ export default class ViewForm extends React.Component<
           <Stack
             tokens={{ childrenGap: 10 }}
             className={styles.viewFormMainContainer}
-          >
+          > 
+
+            {/* dialog box details */}
+             {/* dialog box details */}
+            <Dialog
+              hidden={!this.state.isDialogVisible}
+              onDismiss={() => this.setState({ isDialogVisible: false })}
+              dialogContentProps={{
+                title: this.state.dialogContent.title,
+              }}
+            >
+              <div>{this.state.dialogContent.message}</div>{" "}
+              {/* Display the dialog message */}
+              <DialogFooter>
+                <PrimaryButton
+                  onClick={() => this.setState({ isDialogVisible: false })}
+                  text={this.state.dialogContent.buttonText} // Use button name from dialogContent
+                />
+              </DialogFooter>
+            </Dialog>
+             {/* dialog box details */}
+              {/* dialog box details */}
+
+              
             {/* Header section */}
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
@@ -2251,7 +2363,7 @@ export default class ViewForm extends React.Component<
                   )}
 
                   {/* ATR Assignees */}
-                  {/* { this._checkCurrentUserIsAATRAssignee? ( */}
+                  {this._checkCurrentUserIsAATRAssignee() && (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -2274,30 +2386,29 @@ export default class ViewForm extends React.Component<
                       {expandSections.atrAssignees && (
                         <div
                           className={`${styles.expansionPanelInside}`}
-                            style={{ overflowX: "scroll" }}
-                        > 
-                        <div style={{ padding: "15px" }}>
-                          <ATRAssignee sp={this.props.sp}
-                            context={this.props.context} 
-                            commentsData={this.state.commentsData}
-                            updategirdData= {
-                              (data:any):void=>{
-                                console.log(data)
-                              this.setState({ atrGridData: [data, ...this.state.atrGridData] })
-                              }
-                            }
-                            gridData = {this.state.atrGridData}
+                          style={{ overflowX: "scroll" }}
+                        >
+                          <div style={{ padding: "15px" }}>
+                            <ATRAssignee
+                              sp={this.props.sp}
+                              context={this.props.context}
+                              commentsData={this.state.commentsData}
+                              updategirdData={(data: any): void => {
+                                console.log(data);
+                                this.setState({
+                                  atrGridData: [
+                                    data,
+                                    ...this.state.atrGridData,
+                                  ],
+                                });
+                              }}
+                              gridData={this.state.atrGridData}
                             />
-
-                        </div>
-                          
+                          </div>
                         </div>
                       )}
                     </div>
-                  {/* ) : 
-                  (
-                    "" */}
-                  {/* )} */}
+                  )}
 
                   {/* Comments Log */}
 
@@ -2410,6 +2521,7 @@ export default class ViewForm extends React.Component<
                           style={{ width: "100%", margin: "0px" }}
                         >
                           <h3>Gist Documents</h3>
+                          {this.state.noteSecretaryDetails}
                           <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <UploadFileComponent
                               typeOfDoc="gistDocument"
@@ -2428,7 +2540,6 @@ export default class ViewForm extends React.Component<
                                   this.state.secretaryGistDocs,
                                   `${this._folderName}/GistDocuments`,
                                   "gistDocument"
-
                                 );
                               }}
                             >
