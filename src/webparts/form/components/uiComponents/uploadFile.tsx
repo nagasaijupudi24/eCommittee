@@ -163,7 +163,7 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
           ref={fileInputRef}
           onChange={handleFileChange}
           accept={accept}
-          style={{ padding: "10px" }}
+          style={{ padding: "10px",paddingTop:'5px' }}
           multiple={multiple}
         />
       </li>

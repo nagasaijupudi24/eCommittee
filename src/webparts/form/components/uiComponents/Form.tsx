@@ -61,6 +61,7 @@ import {
 import { ConfirmationDialog } from "./dialogFluentUi/submitDialog";
 import DraftSuccessDialog from "./dialogFluentUi/draftDialog";
 import CancelConfirmationDialog from "./dialogFluentUi/cancelDialog";
+import SuccessDialog from "./dialogFluentUi/endDialog";
 // import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 
 // const data: any = [
@@ -200,6 +201,9 @@ interface IMainFormState {
 
   //save as draft dialog
   showDialog: boolean;
+
+  //success dialog 
+  isVisibleAlter:boolean;
   
 }
 
@@ -349,6 +353,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // State for cancel confirmation dialog
       showCancelDialog: false, 
+
+      //success dialog 
+      isVisibleAlter:false,
 
       draftResolutionFieldValue: "",
     };
@@ -2076,6 +2083,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           console.log(
             `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
           );
+          this.setState({isVisibleAlter:true})
         } else {
           this.setState({
             isWarning: true,
@@ -2094,19 +2102,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           this.setState({
             eCommitteData: {
-              committeeNameFeildValue: this.state.committeeNameFeildValue,
-              subjectFeildValue: this.state.subjectFeildValue,
-              natureOfNoteFeildValue: this.state.natureOfNoteFeildValue,
-              noteTypeFeildValue: this.state.noteTypeFeildValue,
+              committeeNameFeildValue:[ this.state.committeeNameFeildValue,"CommitteName"],
+              subjectFeildValue: [this.state.subjectFeildValue,"Subject"],
+              natureOfNoteFeildValue:[ this.state.natureOfNoteFeildValue,"Nature Of Note"],
+              noteTypeFeildValue: [this.state.noteTypeFeildValue,"Note Type"],
               typeOfFinancialNoteFeildValue:
-                this.state.typeOfFinancialNoteFeildValue,
-              amountFeildValue: this.state.amountFeildValue,
-              puroposeFeildValue: this.state.puroposeFeildValue,
-              searchTextFeildValue: this.state.searchTextFeildValue,
-              noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles: this.state.wordDocumentfiles,
-              supportingDocumentfiles: this.state.supportingDocumentfiles,
-              AppoverData: this.state.peoplePickerApproverData,
+                [this.state.typeOfFinancialNoteFeildValue,"Type of Financial Note"],
+              amountFeildValue: [this.state.amountFeildValue,"Amount"],
+              puroposeFeildValue: [this.state.puroposeFeildValue,"Purpose"],
+              searchTextFeildValue: [this.state.searchTextFeildValue,"Search Text"],
+              noteTofiles:[ this.state.noteTofiles,"Please select Valid Pdf File"],
+              wordDocumentfiles: [this.state.wordDocumentfiles,"Please select Valid Word Doc File"],
+              supportingDocumentfiles: [this.state.supportingDocumentfiles,""],
+              AppoverData: [this.state.peoplePickerApproverData,"Please select atleast one Approver to submit request"],
             },
           });
         }
@@ -2157,6 +2165,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           // console.log(id)
           console.log("Item added successfully");
+
           this.setState({
             committeeNameFeildValue: "",
             subjectFeildValue: "",
@@ -2188,6 +2197,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           console.log(
             `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
           );
+          this.setState({isVisibleAlter:true})
         } else {
           this.setState({
             isWarning: true,
@@ -2204,18 +2214,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           this.setState({
             eCommitteData: {
-              committeeNameFeildValue: this.state.committeeNameFeildValue,
-              subjectFeildValue: this.state.subjectFeildValue,
-              natureOfNoteFeildValue: this.state.natureOfNoteFeildValue,
-              natureOfApprovalOrSanctionFeildValue:
-                this.state.natureOfApprovalOrSanctionFeildValue,
-              noteTypeFeildValue: this.state.noteTypeFeildValue,
-              searchTextFeildValue: this.state.searchTextFeildValue,
+             committeeNameFeildValue:[ this.state.committeeNameFeildValue,"CommitteName"],
+              subjectFeildValue: [this.state.subjectFeildValue,"Subject"],
+              natureOfNoteFeildValue:[ this.state.natureOfNoteFeildValue,"Nature Of Note"],
+               natureOfApprovalOrSanctionFeildValue:
+                [this.state.natureOfApprovalOrSanctionFeildValue,"Nature Of Appr/Sanc"],
+              noteTypeFeildValue: [this.state.noteTypeFeildValue,"Note Type"],
+              searchTextFeildValue: [this.state.searchTextFeildValue,"Search Text"],
 
-              noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles: this.state.wordDocumentfiles,
-              supportingDocumentfiles: this.state.supportingDocumentfiles,
-              AppoverData: this.state.peoplePickerApproverData,
+             noteTofiles:[ this.state.noteTofiles,"Please select Valid Pdf File"],
+              wordDocumentfiles: [this.state.wordDocumentfiles,"Please select Valid Word Doc File"],
+              supportingDocumentfiles: [this.state.supportingDocumentfiles,""],
+              AppoverData: [this.state.peoplePickerApproverData,"Please select atleast one Approver to submit request"],
             },
           });
         }
@@ -2304,6 +2314,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           console.log(
             `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
           );
+          this.setState({isVisibleAlter:true})
         } else {
           this.setState({
             isWarning: true,
@@ -2321,21 +2332,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           });
           this.setState({
             eCommitteData: {
-              committeeNameFeildValue: this.state.committeeNameFeildValue,
-              subjectFeildValue: this.state.subjectFeildValue,
-              natureOfNoteFeildValue: this.state.natureOfNoteFeildValue,
+             committeeNameFeildValue:[ this.state.committeeNameFeildValue,"CommitteName"],
+              subjectFeildValue: [this.state.subjectFeildValue,"Subject"],
+              natureOfNoteFeildValue:[ this.state.natureOfNoteFeildValue,"Nature Of Note"],
               natureOfApprovalOrSanctionFeildValue:
-                this.state.natureOfApprovalOrSanctionFeildValue,
-              noteTypeFeildValue: this.state.noteTypeFeildValue,
+                [this.state.natureOfApprovalOrSanctionFeildValue,"Nature Of Appr/Sanc"],
+              noteTypeFeildValue: [this.state.noteTypeFeildValue,"Note Type"],
               typeOfFinancialNoteFeildValue:
                 this.state.typeOfFinancialNoteFeildValue,
               amountFeildValue: this.state.amountFeildValue,
-              searchTextFeildValue: this.state.searchTextFeildValue,
+              searchTextFeildValue: [this.state.searchTextFeildValue,"Search Text"],
               puroposeFeildValue: this.state.puroposeFeildValue,
-              noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles: this.state.wordDocumentfiles,
-              supportingDocumentfiles: this.state.supportingDocumentfiles,
-              AppoverData: this.state.peoplePickerApproverData,
+             noteTofiles:[ this.state.noteTofiles,"Please select Valid Pdf File"],
+              wordDocumentfiles: [this.state.wordDocumentfiles,"Please select Valid Word Doc File"],
+              supportingDocumentfiles: [this.state.supportingDocumentfiles,""],
+              AppoverData: [this.state.peoplePickerApproverData,"Please select atleast one Approver to submit request"],
             },
           });
         }
@@ -2428,6 +2439,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           console.log(
             `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
           );
+          this.setState({isVisibleAlter:true})
         } else {
           // alert("Required Fields")
 
@@ -2445,18 +2457,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           });
           this.setState({
             eCommitteData: {
-              committeeNameFeildValue: this.state.committeeNameFeildValue,
-              subjectFeildValue: this.state.subjectFeildValue,
-              natureOfNoteFeildValue: this.state.natureOfNoteFeildValue,
+             committeeNameFeildValue:[ this.state.committeeNameFeildValue,"CommitteName"],
+              subjectFeildValue: [this.state.subjectFeildValue,"Subject"],
+              natureOfNoteFeildValue:[ this.state.natureOfNoteFeildValue,"Nature Of Note"],
 
-              noteTypeFeildValue: this.state.noteTypeFeildValue,
+              noteTypeFeildValue: [this.state.noteTypeFeildValue,"Note Type"],
 
-              searchTextFeildValue: this.state.searchTextFeildValue,
+              searchTextFeildValue: [this.state.searchTextFeildValue,"Search Text"],
 
-              noteTofiles: this.state.noteTofiles,
-              wordDocumentfiles: this.state.wordDocumentfiles,
-              supportingDocumentfiles: this.state.supportingDocumentfiles,
-              AppoverData: this.state.peoplePickerApproverData,
+             noteTofiles:[ this.state.noteTofiles,"Please select Valid Pdf File"],
+              wordDocumentfiles: [this.state.wordDocumentfiles,"Please select Valid Word Doc File"],
+              supportingDocumentfiles: [this.state.supportingDocumentfiles,""],
+              AppoverData: [this.state.peoplePickerApproverData,"Please select atleast one Approver to submit request"],
             },
           });
         }
@@ -2760,6 +2772,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       );
 
       console.log(itemToUpdate, "item updated");
+      this.setState({isVisibleAlter:true})
     } catch (error) {
       console.log(error);
     }
@@ -2940,7 +2953,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         console.log(itemToUpdate);
         // Close the dialog after successful cancellation
         this.setState({ showCancelDialog: false });
-        
+        this.setState({isVisibleAlter:true})
       } catch (error) {
         console.error("Error updating the item:", error);
         // Handle error, possibly show notification
@@ -2950,6 +2963,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // Method to handle confirmation of cancellation
     private handleConfirmCancel = async () => {
       await this.handleCancel("Cancelled", "300"); // Call with appropriate parameters
+    };
+
+
+    public _closeDialogAlter = () => {
+      this.setState({isVisibleAlter:false})
     };
 
   public render(): React.ReactElement<IFormProps> {
@@ -3004,6 +3022,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               statusOfRequest={this.state.status}
             />
             {/* {this.state.isDialogHidden&&<MyDialog  />} */}
+
+             {/* success  dialog */}
+             <SuccessDialog statusOfReq={this.state.status} isVisibleAlter={this.state.isVisibleAlter} onCloseAlter={this._closeDialogAlter}/>
+            {/* success  dialog */}
             <MyDialog
               hidden={this.state.isDialogHidden}
               data={this.state.eCommitteData}
@@ -3138,8 +3160,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <TextField  multiline rows={3}
                     value={this.state.subjectFeildValue}
                     onChange={this.handleSubject}
-                    style={{ height:'28px',}}
+                    style={{ height:'28px'}}
                   />
+                 
                 )}
               </div>
               {/* Nature of Note Sub Section */}

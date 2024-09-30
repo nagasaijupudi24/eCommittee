@@ -44,7 +44,7 @@ const FileAttachmentTable = (props: any) => {
 
   return (
     <div 
-    style={{ overflowX: 'auto' }}
+    // style={{ overflowX: 'auto' }}
     >
       <DetailsList
         items={gridData}
@@ -52,7 +52,7 @@ const FileAttachmentTable = (props: any) => {
         selectionMode={SelectionMode.none}  
     
         styles={{
-          root: { minWidth: '400px',
+          root: { Width: '600px',
             paddingTop:'0px'
            },
         }}

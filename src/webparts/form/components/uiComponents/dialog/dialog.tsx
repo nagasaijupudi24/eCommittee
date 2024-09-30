@@ -49,18 +49,20 @@ const MyDialog: React.FC<MyDialogProps> = ({
     }
   }
 
-  const undefinedData = Object.keys(data).filter((each: string) => {
-    // console.log(each)
+  const undefinedData = Object.keys(data).map((each: string) => {
+    console.log(each)
+    console.log(data[each])
 
-    if (data[each] === "") {
-      // console.log(each)
-      return each;
-    }else if (data[each].length === 0){
-      return each
+    if (data[each][0] === "") {
+      console.log(data[each][1])
+      return data[each][1];
+    }else if (data[each][0].length === 0){
+      console.log(data[each][1])
+      return data[each][1]
     }
-  });
+  }).filter((each:any)=>each);
   // console.log(emptyArray)
-  // console.log(undefinedData);
+  console.log(undefinedData);
 
   return (
     <Dialog
@@ -88,7 +90,8 @@ const MyDialog: React.FC<MyDialogProps> = ({
     <ul>
       {undefinedData.map((each) =>{
         console.log(each)
-        if (each!== "supportingDocumentfiles") {
+        if (each!== "" || each!== undefined) {
+          console.log(each)
 
           return (
         
@@ -99,7 +102,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
         
       } )}
     </ul>
-    <p><strong>Note:</strong>Invalid files are not allowed</p>
+    <p><strong>Note: </strong>Invalid files are not allowed</p>
     
     <DialogFooter>
       <PrimaryButton text="OK" iconProps={{ iconName: 'ReplyMirrored' }} onClick={handleDialogBox} styles={buttonStyles}/>
