@@ -914,7 +914,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 // approversOrder: each.ApproverType === "Approver"?2:1,
                 Title: each.Title,
                 id: each.ApproverId,
-                secretary: each.Secretary,
+                secretary: each.Secretary.Title,
                 srNo:each.Approver.EMail.split("@")[0]
               };
               console.log(newObj);
@@ -1689,6 +1689,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverEmailName: each.text,
             srNo: each.srNo,
             secretary: "IB Test 1",
+            ...each
           };
 
         }else{
@@ -1705,6 +1706,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverEmailName: each.text,
             srNo: each.srNo,
             secretary: "IB Test 1",
+            ...each
           };
         }
         
@@ -1852,7 +1854,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.puroposeFeildValue === "Others"
           ? this.state.othersFieldValue
           : this.state.puroposeFeildValue,
-          NoteApproversDTO: this._getApproverDetails(
+      NoteApproversDTO: this._getApproverDetails(
         this.state.peoplePickerData,
         this.state.peoplePickerApproverData,
         "allDetails"

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
@@ -342,13 +343,13 @@ export default class ViewForm extends React.Component<
            // console.log(this._getUserProperties(each.email))
 
            this.setState({atrCreatorsList:[...this.state.atrCreatorsList,{
-            "atrCreatorId": each.Id,
-        "atrCreatorEmail": each.ATRCreators.EMail,
-        "atrCreatorEmailName": each.ATRCreators.Title,
-        "createdDate": each.Created,
-        "createdBy": each.Author.EMail,
-        "modifiedDate": each.Modified,
-        "modifiedBy": each.Author.EMail,
+            "atrCreatorId": each.ATRCreatorsId,
+          "atrCreatorEmail": each.ATRCreators.EMail,
+          "atrCreatorEmailName": each.ATRCreators.Title,
+          "createdDate": each.Created,
+          "createdBy": each.Author.EMail,
+          "modifiedDate": each.Modified,
+          "modifiedBy": each.Author.EMail,
         "statusMessage": null
            }]})
            return each
@@ -1178,12 +1179,16 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+
+    let previousApprover:any;
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         // console.log(each);
 
         if (each.approverEmail === this._currentUserEmail) {
           // console.log("ednter");
+
+          previousApprover = [{ ...each, status: statusFromEvent, actionDate: new Date(),mainStatus:'Approved',statusNumber:'9000' }]
 
           return { ...each, status: statusFromEvent, actionDate: new Date(),mainStatus:'Approved',statusNumber:'9000' };
         }
@@ -1206,6 +1211,7 @@ export default class ViewForm extends React.Component<
       }
     );
     console.log(modifyApproveDetails);
+    console.log(previousApprover)
 
 
 
@@ -1490,7 +1496,7 @@ export default class ViewForm extends React.Component<
         .items.getById(this._itemId)
         .update({
           Status: statusFromEvent,
-          statusNumber: statusNumber,
+          StatusNumber: statusNumber,
         });
 
       console.log(itemToUpdateStatusToApproved);
@@ -2154,7 +2160,7 @@ export default class ViewForm extends React.Component<
              {/* dialog box details */}
               {/* dialog box details */}
 
-              
+
             {/* Header section */}
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
@@ -2392,6 +2398,7 @@ export default class ViewForm extends React.Component<
                             <ATRAssignee
                               sp={this.props.sp}
                               context={this.props.context}
+                              atrCreatorsList={this.state.atrCreatorsList}
                               commentsData={this.state.commentsData}
                               updategirdData={(data: any): void => {
                                 console.log(data);
@@ -2521,7 +2528,7 @@ export default class ViewForm extends React.Component<
                           style={{ width: "100%", margin: "0px" }}
                         >
                           <h3>Gist Documents</h3>
-                          {this.state.noteSecretaryDetails}
+                          {/* {this.state.noteSecretaryDetails} */}
                           <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <UploadFileComponent
                               typeOfDoc="gistDocument"
