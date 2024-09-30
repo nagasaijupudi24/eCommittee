@@ -150,6 +150,7 @@ export interface IViewFormState {
 
   atrCreatorsList:any;
   atrGridData:any;
+  noteATRAssigneeDetails:any;
 
 
   // reject and return dialog box 
@@ -282,6 +283,7 @@ export default class ViewForm extends React.Component<
 
       atrCreatorsList:[],
       atrGridData:[],
+      noteATRAssigneeDetails:[],
 
       // reject dialog box 
         isDialogVisible:false,
@@ -350,7 +352,9 @@ export default class ViewForm extends React.Component<
           "createdBy": each.Author.EMail,
           "modifiedDate": each.Modified,
           "modifiedBy": each.Author.EMail,
-        "statusMessage": null
+        "statusMessage": null,
+
+       
            }]})
            return each
          
@@ -1009,6 +1013,7 @@ export default class ViewForm extends React.Component<
           setKey="set"
           selectionMode={SelectionMode.none}
           layoutMode={0} // Use detailsListLayoutMode.fixedColumns
+          onRenderDetailsHeader={() => null}
           styles={{
             root: { width: "100%",paddingTop: '4px' },
           }}
@@ -1253,7 +1258,9 @@ export default class ViewForm extends React.Component<
         this.state.ApproverOrder === modifyApproveDetails.length
           ? null
           : currentApproverDetail.id,
-      // PreviousApprover:_getPreviousApproverDetails(Note)
+      PreviousApproverId:previousApprover[0].id,
+      NoteATRAssigneeDTO:this._checkCurrentUserIsAATRAssignee()?JSON.stringify(this.state.noteATRAssigneeDetails):"",
+      PreviousActioner:JSON.stringify(this.props.context.pageContext.user)
     };
     console.log(updateItems);
     const itemToUpdate = await this.props.sp.web.lists
@@ -2404,9 +2411,10 @@ export default class ViewForm extends React.Component<
                                 console.log(data);
                                 this.setState({
                                   atrGridData: [
-                                    data,
+                                    data.comments ,
                                     ...this.state.atrGridData,
                                   ],
+                                  noteATRAssigneeDetails:[...this.state.noteATRAssigneeDetails,{...data,approveremail:this.props.context.pageContext.user.email,atrId:''}]
                                 });
                               }}
                               gridData={this.state.atrGridData}
@@ -2494,6 +2502,9 @@ export default class ViewForm extends React.Component<
                               // value={this.state.supportingDocumentfiles}
                             />
                           </div>
+                          <p className={styles.message} style={{ margin: "0px" }}>
+                  Allowed Formats (pdf,doc,docx,xlsx only) Upto 25MB max.
+                </p>
                         </div>
                       )}
                     </div>
@@ -2527,6 +2538,7 @@ export default class ViewForm extends React.Component<
                           className={`${styles.expansionPanelInside}`}
                           style={{ width: "100%", margin: "0px" }}
                         >
+                          <div style={{ padding: "15px", paddingTop: "4px" }}>
                           <h3>Gist Documents</h3>
                           {/* {this.state.noteSecretaryDetails} */}
                           <div style={{ padding: "15px", paddingTop: "4px" }}>
@@ -2553,6 +2565,10 @@ export default class ViewForm extends React.Component<
                               UpLoad
                             </PrimaryButton>
                           </div>
+                          <p className={styles.message} style={{ margin: "0px" }}>
+                  Allowed Formats (pdf,doc,docx,xlsx only) Upto 5MB max.
+                </p>
+                </div>
                           {/* <div>
                             {this.state.secretaryGistDocs.length > 0 &&
                               this.state.secretaryGistDocs.map(({ file, error }) => {

@@ -12,8 +12,8 @@ const FileAttachmentTable = (props: any) => {
       key: 'column1',
       name: 'Document Link',
       fieldName: 'fileUrl',
-      minWidth: 120,
-      maxWidth: 200, // Set max width for Document Link
+      minWidth: 250,
+      maxWidth: 300, // Set max width for Document Link
       onRender: (item: any) => (
         <a href={item.fileUrl} download>
           {item.name}

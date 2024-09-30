@@ -33,6 +33,7 @@ interface IATRAssigneeState {
   selectedUsers: any;
   currentRowKey: any;
   selectedStatus: any;
+  selectedValue:any
 }
 
 // ComboBox options for status
@@ -50,6 +51,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       selectedUsers: [],
       currentRowKey: null,
       selectedStatus: undefined,
+      selectedValue:'',
     };
 
     this._updateStatusOptions()
@@ -146,25 +148,27 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
             // "strATRStatus": "Pending",
             // "atrStatus": 1
     }])
-    this.setState({ selectedStatus: {...filterATRData[0],
-        "atrAssigneeId":0,
+    this.setState({ selectedStatus:filterATRData[0].atrCreatorEmail ,selectedValue:newStatus});
+//        {...filterATRData[0],
+//         "atrAssigneeId":0,
       
-       "atrAssignerEmail":this.props.context.pageContext.user.email,
-       "atrAssignerEmailName": this.props.context.pageContext.user.displayName,
+//        "atrAssignerEmail":this.props.context.pageContext.user.email,
+//        "atrAssignerEmailName": this.props.context.pageContext.user.displayName,
       
-       "modifiedDate": new Date(),
-       "modifiedBy": this.props.context.pageContext.user.email,
-       "statusMessage": null,
+//        "modifiedDate": new Date(),
+//        "modifiedBy": this.props.context.pageContext.user.email,
+//        "statusMessage": null,
       
        
-       // "approverType": 2,
-       // "approverOrder": 1,
-       // "approverStatus": 3,
-       // "approverEmail": "ib.test2@xencia.com",
-       // "noteApproverComments": "1",
-       // "strATRStatus": "Pending",
-       // "atrStatus": 1
-} });
+//        // "approverType": 2,
+//        // "approverOrder": 1,
+//        // "approverStatus": 3,
+//        // "approverEmail": "ib.test2@xencia.com",
+//        // "noteApproverComments": "1",
+//        // "strATRStatus": "Pending",
+//        // "atrStatus": 1
+// }
+
   };
 
   // Handler when a row is clicked to select it
@@ -180,6 +184,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
   };
 
   public _getDetailsFromPeoplePicker = (data: any): any => {
+    console.log("add btn triggered in ATR Assignee")
     const joinedCommentsData = this.props.commentsData
       .filter((each: any) => !!each)
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
@@ -187,18 +192,22 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
     const newTableData = {
       key: v4(),
       comments: joinedCommentsData.join(', '),
-      assignedTo: data[0].text,
+      assignedTo: this.state.selectedValue,
       status: 'submitted',
     };
 
-    this.setState((prev) => {
-      this.props.updategirdData([...prev.tableData, newTableData]);
-      return { selectedUsers: data, tableData: [...prev.tableData, newTableData] };
-    });
+    // this.setState((prev) => {
+    //   this.props.updategirdData([...prev.tableData, newTableData]);
+    //   return { selectedUsers: data, tableData: [...prev.tableData, newTableData] };
+
+  this.props.updategirdData({atrassigneemail:this.state.selectedStatus,comments:newTableData});
+    // });
+    this.setState({selectedValue :'',tableData:[...this.state.tableData,newTableData]})
+    
   };
 
   public render(): React.ReactElement<IATRAssigneeProps> {
-    const { tableData, selectedStatus } = this.state;
+    const { tableData } = this.state;
     console.log(statusOptions)
     console.log(this.state)
     console.log(this.props)
@@ -219,12 +228,12 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
           <ComboBox
             placeholder="Select Status"
             options={statusOptions}
-            selectedKey={selectedStatus}
+            selectedKey={this.state.selectedValue}
             onChange={(event, option) => this.handleStatusChange(option)}
-            autoComplete="on"
-            allowFreeform
+            // autoComplete="on"
+            // allowFreeform
           />
-          <DefaultButton iconProps={{iconName:"Add"}}>Add</DefaultButton>
+          <DefaultButton iconProps={{iconName:"Add"}} onClick={this._getDetailsFromPeoplePicker}>Add</DefaultButton>
          
         </Stack>
         

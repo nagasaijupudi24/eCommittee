@@ -8,7 +8,7 @@ import {
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { DefaultButton } from "@fluentui/react";
-import styles from "../../Form.module.scss";
+// import styles from "../../Form.module.scss";
 
 export interface IPnPPeoplePickerProps {
   context: WebPartContext;
@@ -159,11 +159,12 @@ export default class PnPPeoplePicker extends React.Component<
         />
         <DefaultButton
           type="button"
-          className={`${styles.commonBtn2} ${styles.addBtn}`}
+          // className={`${styles.commonBtn2} ${styles.addBtn}`}
           onClick={(e) => {
             this.handleOnAdd(e, "reveiwer");
             this._clearPeoplePicker();
           }}
+          style={{marginLeft:'4px'}}
           iconProps={{ iconName: "Add" }}
         >
           Add

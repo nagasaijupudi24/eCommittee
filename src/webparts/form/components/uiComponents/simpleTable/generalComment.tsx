@@ -230,7 +230,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
               onChange={(e) => this.handleInputChange(e, "pageNumValue")}
             />
             <TextField
-              label="Page"
+              label="Doc Reference"
               value={this.state.pageValue}
               onChange={(e) => this.handleInputChange(e, "pageValue")}
             />
