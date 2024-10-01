@@ -62,6 +62,8 @@ import { ConfirmationDialog } from "./dialogFluentUi/submitDialog";
 import DraftSuccessDialog from "./dialogFluentUi/draftDialog";
 import CancelConfirmationDialog from "./dialogFluentUi/cancelDialog";
 import SuccessDialog from "./dialogFluentUi/endDialog";
+import TableComponent from "./tableSwap";
+import {  DetailsListDragDropExample } from "./draggableGridKendo/dragAndDropFluent";
 
 
 
@@ -3134,6 +3136,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <TextField  multiline rows={1}
                       value={this.state.subjectFeildValue}
                       onChange={this.handleSubject}
+                      styles={{ fieldGroup: { height: 50 } }}
                       // style={{ height:'28px',}}
                     />
                   ) : (
@@ -3145,6 +3148,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       onChange={this.handleSubjectRed}
                       // onChange={(e)=>this.handletextBoxChange(e,"Subject")}
                       style={{
+                        // fieldGroup: { height: 50 },
                         // border: '2px solid #4CAF50',
                         border: "2px solid red",
                         height:'28px',
@@ -3158,10 +3162,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     value={this.state.subjectFeildValue}
                     onChange={this.handleSubject}
                     // style={{ height:'28px'}}
+                    styles={{ fieldGroup: { height: 50 } }}
                   />
                  
                 )}
               </div>
+              <TextField multiline rows={1} styles={{ fieldGroup:  { height: '20px',width:'100%' }, field: { height: '100%' } }} />
               {/* Nature of Note Sub Section */}
 
               <div
@@ -3727,6 +3733,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   </span>
                 </div>
               </div>
+              <TableComponent/>
               <div className={`${styles.tableContainer}`}>
                 {/* <TableComponent /> */}
                 {this.state.isWarningPeoplePicker ? (
@@ -3844,6 +3851,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         removeDataFromGrid={this.removeDataFromGrid}
                         type="Approver"
                       />
+
+        {/* <DetailsListDragDropExample
+          data={this.state.peoplePickerApproverData}
+          reOrderData={this.reOrderData}
+          removeDataFromGrid={this.removeDataFromGrid}
+          type="Approver"
+        /> */}
+
+        <DetailsListDragDropExample  data={this.state.peoplePickerApproverData}
+                        reOrderData={this.reOrderData}
+                        removeDataFromGrid={this.removeDataFromGrid}
+                        type="Approver"/>
+                     
                     </div>
                   )}
 

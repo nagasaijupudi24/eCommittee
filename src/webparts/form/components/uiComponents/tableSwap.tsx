@@ -96,10 +96,10 @@ const TableComponent: React.FC = () => {
                         style={{
                           ...provided.draggableProps.style,
                           userSelect: 'none',
-                          padding: '16px',
-                          margin: '0 0 8px 0',
-                          background: 'white',
-                          border: '1px solid lightgrey',
+                          // padding: '16px',
+                          // margin: '0 0 8px 0',
+                          // background: 'white',
+                          // border: '1px solid lightgrey',
                         }}
                       >
                         <DetailsRow {...props} styles={rowStyles} />
