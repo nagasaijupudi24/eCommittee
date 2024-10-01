@@ -10,7 +10,7 @@ import styles from "../Form.module.scss";
 // import * as MicrosoftGraph from '@microsoft/microsoft-graph-types';
 // import { SPFI } from "@pnp/sp";
 import { IFormProps } from "../IFormProps";
-import { DefaultButton, TextField } from "@fluentui/react";
+import {  DefaultButton, Dropdown, Icon, Stack, TextField } from "@fluentui/react";
 import { IDropdownOption } from "office-ui-fabric-react";
 // import {  InputChangeEvent } from '@progress/kendo-react-inputs';
 import { TextBox, TextBoxChangeEvent } from "@progress/kendo-react-inputs";
@@ -62,6 +62,15 @@ import { ConfirmationDialog } from "./dialogFluentUi/submitDialog";
 import DraftSuccessDialog from "./dialogFluentUi/draftDialog";
 import CancelConfirmationDialog from "./dialogFluentUi/cancelDialog";
 import SuccessDialog from "./dialogFluentUi/endDialog";
+
+
+
+// const customTheme = createTheme({
+//   palette: {
+//     themePrimary: '#d29200',  
+//   },
+// });
+
 // import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 
 // const data: any = [
@@ -121,7 +130,7 @@ interface IMainFormState {
   getAllDropDownOptions: any;
   natureOfNote: string[];
   natureOfApprovalSancation: string[];
-  committename: string[];
+  committename: IDropdownOption[];
   typeOfFinancialNote: string[];
   noteType: string[];
   purpose: any;
@@ -146,7 +155,7 @@ interface IMainFormState {
   // eslint-disable-next-line @rushstack/no-new-null
   supportingFile: File | null;
   isWarning: boolean;
-  isWarningCommittteeName: boolean;
+  isWarningCommitteeName : boolean;
   isWarningSubject: boolean;
   isWarningNatureOfNote: boolean;
   isWarningNatureOfApporvalOrSanction: boolean;
@@ -225,7 +234,7 @@ export const FormContext = React.createContext<any>(null);
 
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
-  const Id = params.get("ItemId");
+  const Id = params.get("itemId");
   // const Id = params.get("itemId");
   console.log(Id);
   return Id;
@@ -257,6 +266,10 @@ const getFromType = (): any => {
 //     />
 //   );
 // }
+
+// const dropdownStyles: Partial<IDropdownStyles> = {
+//   dropdown: { width: 300 },
+// };
 
 export default class Form extends React.Component<IFormProps, IMainFormState> {
   private _peopplePicker: IPeoplePickerContext;
@@ -306,7 +319,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       notePdfFile: null,
       supportingFile: null,
       isWarning: false,
-      isWarningCommittteeName: false,
+      isWarningCommitteeName : false,
       isWarningSubject: false,
       isWarningNatureOfNote: false,
       isWarningNatureOfApporvalOrSanction: false,
@@ -723,7 +736,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       const fieldDetails = await this.props.sp.web.lists
         .getByTitle(this.props.listId)
         .fields.filter("Hidden eq false and ReadOnlyField eq false")();
-      // console.log(fieldDetails)
+      console.log(fieldDetails)
 
       const profile = await this.props.sp.profiles.myProperties();
       console.log(profile);
@@ -747,12 +760,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           return [_x.InternalName, _x.Choices];
         }
       });
+      console.log(filtering)
       const finalList = filtering?.filter((each) => {
         if (typeof each !== "undefined") {
           // console.log(each);
           return each;
         }
       });
+      console.log(finalList)
 
       finalList?.map((each) => {
         // console.log(each)
@@ -799,8 +814,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           } else if (each[0] === "CommitteeName") {
             // console.log(each[1]);
             const committenameArray = each[1].map((item, index) => {
-              return item;
+              return {key:item,text:item};
             });
+            committenameArray
 
             this.setState({ committename: committenameArray });
           }
@@ -815,6 +831,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // each[1].map(item => console.log(item));
         }
       });
+      console.log(finalList)
       // finalList?.map((each) => {
       //   // console.log(each)
       //   if (
@@ -1273,7 +1290,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //   console.log("Dropdown clicked");
   //   const value = event.value;
   //   console.log(value);
-  //   this.setState({ isWarningCommittteeName: false, committeeNameFeildValue: value });
+  //   this.setState({ isWarningCommitteeName: false, committeeNameFeildValue: value });
   // };
 
   // general section --------handling
@@ -1286,23 +1303,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //   this.setState({committeeNameFeildValue:value})
   // }
 
-  private handleCommittename = (event: any): void => {
-    const value = event.value;
+  private handleCommittename = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
+    const value = option ? option.text : '';
     console.log(value);
-    this.setState({ committeeNameFeildValue: value });
-  };
 
-  private handleCommittenameRedBorder = (event: any): void => {
-    // Handle click event
-    console.log("Dropdown clicked");
-    const value = event.value;
-    console.log(value);
     this.setState({
-      isWarningCommittteeName: false,
       committeeNameFeildValue: value,
+      isWarningCommitteeName : !value, // Set warning state if value is empty
     });
   };
-
   // private closeDialog = (): void => {
   //   this.setState({isDialogHidden:true})
   // };
@@ -2066,7 +2075,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this._fetchApproverDetails();
           this.setState({
             isWarning: false,
-            isWarningCommittteeName: false,
+            isWarningCommitteeName: false,
             isWarningSubject: false,
             isWarningNatureOfNote: false,
             isWarningNoteType: false,
@@ -2087,7 +2096,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         } else {
           this.setState({
             isWarning: true,
-            isWarningCommittteeName: true,
+            isWarningCommitteeName: true,
             isWarningSubject: true,
             isWarningNatureOfNote: true,
             isWarningNoteType: true,
@@ -2183,7 +2192,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this._fetchApproverDetails();
           this.setState({
             isWarning: false,
-            isWarningCommittteeName: false,
+            isWarningCommitteeName: false,
             isWarningSubject: false,
             isWarningNatureOfNote: false,
             isWarningNatureOfApporvalOrSanction: false,
@@ -2201,7 +2210,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         } else {
           this.setState({
             isWarning: true,
-            isWarningCommittteeName: true,
+            isWarningCommitteeName: true,
             isWarningSubject: true,
             isWarningNatureOfNote: true,
             isWarningNatureOfApporvalOrSanction: true,
@@ -2298,7 +2307,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this._fetchApproverDetails();
           this.setState({
             isWarning: false,
-            isWarningCommittteeName: false,
+            isWarningCommitteeName: false,
             isWarningSubject: false,
             isWarningNatureOfNote: false,
             isWarningNatureOfApporvalOrSanction: false,
@@ -2318,7 +2327,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         } else {
           this.setState({
             isWarning: true,
-            isWarningCommittteeName: true,
+            isWarningCommitteeName: true,
             isWarningSubject: true,
             isWarningNatureOfNote: true,
             isWarningNatureOfApporvalOrSanction: true,
@@ -2424,7 +2433,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           console.log("Item added successfully");
           this.setState({
             isWarning: false,
-            isWarningCommittteeName: false,
+            isWarningCommitteeName: false,
             isWarningSubject: false,
             isWarningNatureOfNote: false,
 
@@ -2445,7 +2454,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           this.setState({
             isWarning: true,
-            isWarningCommittteeName: true,
+            isWarningCommitteeName: true,
             isWarningSubject: true,
             isWarningNatureOfNote: true,
 
@@ -2970,6 +2979,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.setState({isVisibleAlter:false})
     };
 
+    private onRenderCaretDown = (): JSX.Element => {
+      return this.state.committeeNameFeildValue?<Icon iconName="Cancel" onClick={()=>{this.setState({committeeNameFeildValue:''})}}/>:<Icon iconName="ChevronDown" onClick={()=>{this.setState({committeeNameFeildValue:''})}}/>;
+    };
+
   public render(): React.ReactElement<IFormProps> {
     console.log(this.state);
     console.log(this.props.formType, "Type of Form");
@@ -2987,6 +3000,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // );
 
     return (
+      // <ThemeProvider theme={customTheme}>
       <div>
         {this.state.isLoading ? (
           // <Stack
@@ -3013,7 +3027,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           </div>
         ) : (
           // </Stack>
-          <div className={styles.form}>
+          <div className={styles.form} >
             {/* <Header /> */}
             <Title
               itemId={this._itemId}
@@ -3061,12 +3075,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         />
 
             {/* General Section */}
+            <Stack>
 
-            <div className={`${styles.generalSectionMainContainer}`} style={{ flexGrow: 1, margin: '10 10px' }}>
-              <h1 style={{ textAlign: "center", fontSize: "16px" }}>
+            <div className={`${styles.generalSectionMainContainer}`} style={{ flexGrow: 1, margin: '10 10px', }}>
+              <h1 style={{ textAlign: "center", fontSize: "16px",marginTop:'5px',marginBottom:'5px' }}>
                 General Section
               </h1>
             </div>
+            </Stack>
 
             <div className={`${styles.generalSection}`} style={{ flexGrow: 1, margin: '10 10px',boxSizing: 'border-box' }}>
               {/* <div className={`${styles.generalSectionContainer1}`}> */}
@@ -3080,46 +3096,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
               >
-                <label>
-                  Committee Name
-                  <SpanComponent />
-                </label>
+                
 
-                {this.state.isWarningCommittteeName ? (
-                  this.state.committeeNameFeildValue !== "" ? (
-                    <DropDownList
-                      // data={committename}
-                      style={{
-                        borderRadius: "0px", // Rounded corners
-                      }}
-                      data={this.state.committename}
-                      onChange={this.handleCommittename}
-                      value={this.state.committeeNameFeildValue}
-                    />
-                  ) : (
-                    <DropDownList
-                      // data={committename}
-                      style={{
-                        // border: '2px solid #4CAF50',
-                        border: "2px solid red",
-                        borderRadius: "0px", // Rounded corners
-                      }}
-                      data={this.state.committename}
-                      value={this.state.committeeNameFeildValue}
-                      onChange={this.handleCommittenameRedBorder}
-                    />
-                  )
-                ) : (
-                  <DropDownList
-                    // data={committename}
-                    style={{
-                      borderRadius: "0px", // Rounded corners
-                    }}
-                    data={this.state.committename}
+                <Dropdown
+                    placeholder="Select an option"
+                    label="Committee Name"
+                    options={this.state.committename}
+                    selectedKey={this.state.committeeNameFeildValue}
                     onChange={this.handleCommittename}
-                    value={this.state.committeeNameFeildValue}
+                    onRenderCaretDown={this.onRenderCaretDown}
+                    styles={
+                      {
+                        dropdown: {
+                          // width: 300,
+                          borderRadius: '0px',
+                          fontSize: '16px',
+                          // fontFamily: 'Poppins',
+                          border: this.state.isWarningCommitteeName && this.state.committeeNameFeildValue === '' ? '2px solid red' : 'none',
+                        },
+                      }
+                    }
                   />
-                )}
               </div>
               {/* Subject Sub Section */}
 
@@ -3134,10 +3131,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 {this.state.isWarningSubject ? (
                   this.state.subjectFeildValue ? (
                     
-                    <TextField  multiline rows={3}
+                    <TextField  multiline rows={1}
                       value={this.state.subjectFeildValue}
                       onChange={this.handleSubject}
-                      style={{ height:'28px',}}
+                      // style={{ height:'28px',}}
                     />
                   ) : (
                     <TextField  multiline rows={3}
@@ -3157,10 +3154,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     />
                   )
                 ) : (
-                  <TextField  multiline rows={3}
+                  <TextField  multiline rows={1}
                     value={this.state.subjectFeildValue}
                     onChange={this.handleSubject}
-                    style={{ height:'28px'}}
+                    // style={{ height:'28px'}}
                   />
                  
                 )}
@@ -3684,7 +3681,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             {/* Approver Details Section */}
             <div className={`${styles.generalSectionMainContainer}`} style={{ flexGrow: 1, margin: '10 10px' }}>
-              <h1 style={{ textAlign: "center", fontSize: "16px" }}>
+              <h1 style={{ textAlign: "center", fontSize: "16px",marginTop:'5px',marginBottom:'5px' }}>
                 Approver Details
               </h1>
             </div>
@@ -3859,7 +3856,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             {this.props.formType === "BoardNoteNew" && (
               <div style={{ flexGrow: 1, margin: '10 10px' }}>
                 <div className={`${styles.generalSectionMainContainer}`}>
-                  <h1 style={{ textAlign: "center", fontSize: "16px" }}>
+                  <h1 style={{ textAlign: "center", fontSize: "16px" ,marginTop:'5px',marginBottom:'5px'}}>
                     Draft Resoultion
                   </h1>
                 </div>
@@ -3876,7 +3873,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             {/*  File Attachments Section */}
             <div className={`${styles.generalSectionMainContainer}`} style={{ flexGrow: 1, margin: '10 10px' }}>
-              <h1 style={{ textAlign: "center", fontSize: "16px" }}>
+              <h1 style={{ textAlign: "center", fontSize: "16px",marginTop:'5px',marginBottom:'5px' }}>
                 File Attachments
               </h1>
             </div>
@@ -4157,6 +4154,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         </div> */}
         {/* <PdfViewer pdfUrl="https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB"/> */}
       </div>
+
+      // </ThemeProvider>
     );
   }
 }

@@ -165,7 +165,7 @@ export interface IViewFormState {
 
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
-  const Id = params.get("ItemId");
+  const Id = params.get("itemId");
   // const Id = params.get("itemId");
   console.log(Id);
   return Id;
@@ -954,10 +954,10 @@ export default class ViewForm extends React.Component<
 
       //Gist documents
       console.log(
-        "------------------Supporting Document-----------------------------------"
+        "------------------Gist Document-----------------------------------"
       );
 
-      console.log(`${this._folderName}/SupportingDocument`);
+      console.log(`${this._folderName}/GistDocuments`);
       const GistDocument = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/GistDocuments`)
         .files.select("*")
@@ -1292,9 +1292,9 @@ export default class ViewForm extends React.Component<
 
     console.log(itemToUpdate);
     this.updateSupportingDocumentFolderItems(
-      this.state.supportingDocumentfiles,
-      `${this._folderName}/gistDocument`,
-      "gistDocument"
+      this.state.supportingFilesInViewForm,
+      `${this._folderName}/SupportingDocument`,
+      "Supporting documents"
     );
 
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
@@ -1317,22 +1317,38 @@ export default class ViewForm extends React.Component<
     return this.state.noteSecretaryDetails.some((each: any) => {
       console.log(each);
       console.log(this._currentUserEmail);
-      console.log(each.approverEmail === this._currentUserEmail);
-      if (each.approverEmail === this._currentUserEmail) {
+      console.log(each.secretaryEmail === this._currentUserEmail || each.approverEmail === this._currentUserEmail);
+      if (each.secretaryEmail === this._currentUserEmail || each.approverEmail === this._currentUserEmail) {
         return true;
       }
     });
   };
 
   private _checkingCurrentUserIsSecretaryDTO = (): any => {
-    return this.state.noteSecretaryDetails.some((each: any) => {
+
+
+    const currentUserisApproved = this.state.ApproverDetails.some(
+      (each:any)=>{
+        console.log(each)
+        if (each.approverEmail  && (each.status !== 'Approved')){
+          return each
+        }
+      }
+    )
+    console.log(currentUserisApproved)
+
+    const userIsSec = (this.state.noteSecretaryDetails.some((each: any) => {
       console.log(each);
       console.log(this._currentUserEmail);
       console.log(each.secretaryEmail === this._currentUserEmail);
       if (each.secretaryEmail === this._currentUserEmail) {
         return true;
       }
-    });
+    }))
+    console.log(userIsSec)
+    
+    console.log(userIsSec && currentUserisApproved)
+    return userIsSec && currentUserisApproved;
   };
 
   private _showDialog = (
@@ -1835,7 +1851,7 @@ export default class ViewForm extends React.Component<
               this._handleApproverButton,
               this._closeDialog
             );
-            this.setState({ status: "Approved", statusNumber: "9000" });
+            // this.setState({ status: "Approved", statusNumber: "9000" });
           }}
         >
           Approve
@@ -1843,7 +1859,7 @@ export default class ViewForm extends React.Component<
 
         <PrimaryButton
           className={`${styles.responsiveButton}`}
-          iconProps={{ iconName: "Remove" }} // Icon for Reject
+          iconProps={{ iconName: "Cancel" }} // Icon for Reject
           styles={{
             root: {
               backgroundColor: "#f31700",
@@ -1867,7 +1883,7 @@ export default class ViewForm extends React.Component<
               this.handleReject,
               this._closeDialog
             );
-            this.setState({ status: "Rejected", statusNumber: "8000" });
+            // this.setState({ status: "Rejected", statusNumber: "8000" });
           }}
         >
           Reject
@@ -1875,7 +1891,7 @@ export default class ViewForm extends React.Component<
 
         <PrimaryButton
           className={`${styles.responsiveButton}`}
-          iconProps={{ iconName: "People" }} // Icon for Refer
+          iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
             this._hanldeFluentDialog(
               "Refer",
@@ -1885,7 +1901,7 @@ export default class ViewForm extends React.Component<
               this.handleRefer,
               this._closeDialog
             );
-            this.setState({ status: "Refered", statusNumber: "4000" });
+            // this.setState({ status: "Refered", statusNumber: "4000" });
           }}
         >
           Refer
@@ -1893,7 +1909,7 @@ export default class ViewForm extends React.Component<
 
         <PrimaryButton
           className={`${styles.responsiveButton}`}
-          iconProps={{ iconName: "Back" }} // Icon for Return
+          iconProps={{ iconName: "ReturnToSession" }} // Icon for Return
           onClick={(e) => {
             this._hanldeFluentDialog(
               "Return",
@@ -1903,7 +1919,7 @@ export default class ViewForm extends React.Component<
               this.handleReturn,
               this._closeDialog
             );
-            this.setState({ status: "Returned", statusNumber: "5000" });
+            // this.setState({ status: "Returned", statusNumber: "5000" });
           }}
         >
           Return
@@ -2051,7 +2067,7 @@ export default class ViewForm extends React.Component<
       if (files.length > 0) {
         this.setState({
           supportingFilesInViewForm: [...filesArray],
-          supportingDocumentfiles: [...filesArray],
+          // supportingDocumentfiles: [...filesArray],
         });
       }
     }
@@ -2074,10 +2090,10 @@ export default class ViewForm extends React.Component<
       //     ...filesArray,
       //   ],
       // }));
-      console.log(files);
+      console.log(filesArray);
       if (files.length > 0) {
         this.setState({
-          secretaryGistDocs: [...filesArray],
+          secretaryGistDocs: filesArray,
         });
       }
     }
@@ -2659,49 +2675,56 @@ export default class ViewForm extends React.Component<
                             </div>
                           </div>
                           <div>
-                            {this.state.secretaryGistDocs.length > 0 &&
-                              this.state.secretaryGistDocs.map(({ file }) => {
-                                console.log(file);
-                                return (
-                                  <li
-                                    key={file.name}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                    className={`${styles.basicLi} ${styles.attachementli}`}
-                                  >
-                                    <div
-                                      style={{
-                                        padding: "2px",
-                                        marginBottom: "4px",
-                                        display: "flex",
-                                        justifyContent: "flex-start",
-                                        alignContent: "center",
-                                        flexGrow: "1",
-                                      }}
-                                    >
-                                      <div>
-                                        <a
-                                          href={file.url || "#"}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          style={{
-                                            paddingBottom: "0px",
-                                            marginBottom: "0px",
-                                            paddingLeft: "4px",
-                                            textDecoration: "none", // Optional: removes underline
-                                            color: "#0078d4", // Optional: sets Fluent UI link color
-                                          }}
-                                        >
-                                          {file.name}
-                                        </a>
-                                      </div>
-                                    </div>
-                                  </li>
-                                );
-                              })}
-                          </div>
+  {this.state.secretaryGistDocs.length > 0 &&
+    this.state.secretaryGistDocs.map((file, index) => {
+      // Check if file exists and has the expected properties
+      if (!file || !file.name) {
+        return null; // Skip this iteration if the file is invalid
+      }
+
+      console.log(file);
+
+      return (
+        <li
+          key={index} // Use index as the key here, assuming files are unique
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+          className={`${styles.basicLi} ${styles.attachementli}`}
+        >
+          <div
+            style={{
+              padding: "2px",
+              marginBottom: "4px",
+              display: "flex",
+              justifyContent: "flex-start",
+              alignContent: "center",
+              flexGrow: "1",
+            }}
+          >
+            <div>
+              <a
+                href={file.url || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  paddingBottom: "0px",
+                  marginBottom: "0px",
+                  paddingLeft: "4px",
+                  textDecoration: "none", // Optional: removes underline
+                  color: "#0078d4", // Optional: sets Fluent UI link color
+                }}
+              >
+                {file.name}
+              </a>
+            </div>
+          </div>
+        </li>
+      );
+    })}
+</div>
+
                         </div>
                       )}
                     </div>
@@ -2836,10 +2859,10 @@ export default class ViewForm extends React.Component<
                             this._closeDialog
                           );
                           //  this.handleChangeApprover( "ChangedApprover", "7500");
-                          this.setState({
-                            status: "changedApprover",
-                            statusNumber: "7500",
-                          });
+                          // this.setState({
+                          //   status: "changedApprover",
+                          //   statusNumber: "7500",
+                          // });
                         }}
                       >
                         Change Approver
@@ -2851,10 +2874,10 @@ export default class ViewForm extends React.Component<
                         onClick={(e) => {
                           console.log("Call Back btn Triggered");
                           this.handleCallBack(e, "Call Back", "7000");
-                          this.setState({
-                            status: "Call Back",
-                            statusNumber: "200",
-                          });
+                          // this.setState({
+                          //   status: "Call Back",
+                          //   statusNumber: "200",
+                          // });
                         }}
                       >
                         Call Back
@@ -2890,10 +2913,10 @@ export default class ViewForm extends React.Component<
                           this.handleReferBack,
                           this._closeDialog
                         );
-                        this.setState({
-                          status: "Refered Back",
-                          statusNumber: "6000",
-                        });
+                        // this.setState({
+                        //   status: "Refered Back",
+                        //   statusNumber: "6000",
+                        // });
                         // this._handleApproverButton(e,"Approved")
                       }}
                     >

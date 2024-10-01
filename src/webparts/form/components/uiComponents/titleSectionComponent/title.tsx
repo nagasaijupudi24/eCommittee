@@ -62,7 +62,7 @@ const Title: React.FC<TitleProps> = (
         </p>
       </div>
       <span className={`${styles.field}`}>
-        <strong style={{fontSize:'8px'}}>All fields marked "*" are mandatory</strong>
+        <strong style={{fontSize:'12px'}}>All fields marked "*" are mandatory</strong>
       </span>
     </div>
   );
