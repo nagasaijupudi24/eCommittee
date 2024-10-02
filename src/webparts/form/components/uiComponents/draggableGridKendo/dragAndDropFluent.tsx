@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from 'react';
-import { Link } from '@fluentui/react/lib/Link';
+// import { Link } from '@fluentui/react/lib/Link';
 import {
   DetailsList,
   Selection,
@@ -13,23 +13,24 @@ import {
  
   IDragDropEvents,
   IDragDropContext,
+  SelectionMode,
 } from '@fluentui/react/lib/DetailsList';
-import { MarqueeSelection } from '@fluentui/react/lib/MarqueeSelection';
+// import { MarqueeSelection } from '@fluentui/react/lib/MarqueeSelection';
 // import { createListItems, IExampleItem } from '@fluentui/example-data';
 
 
-import { getTheme, mergeStyles } from '@fluentui/react/lib/Styling';
+// import { getTheme, mergeStyles } from '@fluentui/react/lib/Styling';
 import { Icon, IconButton } from '@fluentui/react';
 
-const theme = getTheme();
+// const theme = getTheme();
 
-const dragEnterClass = mergeStyles({
-  backgroundColor: theme.palette.neutralLight,
-});
-const controlWrapperClass = mergeStyles({
-  display: 'flex',
-  flexWrap: 'wrap',
-});
+// const dragEnterClass = mergeStyles({
+//   backgroundColor: theme.palette.neutralLight,
+// });
+// const controlWrapperClass = mergeStyles({
+//   display: 'flex',
+//   flexWrap: 'wrap',
+// });
 
 
 
@@ -136,7 +137,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       isResizable: true,
     },
     {
-      key: 'designation',
+      key: 'optionalText',
       name: 'Designation',
       fieldName: 'optionalText',
       minWidth: 200,
@@ -191,26 +192,29 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
 
     return (
       <div>
-        <div className={controlWrapperClass}>
+        <div 
+        // className={controlWrapperClass}
+        >
           
 
           
         </div>
-        <MarqueeSelection selection={this._selection}>
+        {/* <MarqueeSelection selection={this._selection}> */}
           <DetailsList
             setKey="items"
             items={this.props.data}
             columns={columns}
             selection={this._selection}
-            selectionPreservedOnEmptyClick={true}
-            onRenderItemColumn={this._onRenderItemColumn}
+            selectionMode={SelectionMode.none}
+            // selectionPreservedOnEmptyClick={true}
+            // onRenderItemColumn={this._onRenderItemColumn}
             dragDropEvents={this._dragDropEvents}
             // columnReorderOptions={this.state.isColumnReorderEnabled ? this._getColumnReorderOptions() : undefined}
-            ariaLabelForSelectionColumn="Toggle selection"
-            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-            checkButtonAriaLabel="select row"
+            // ariaLabelForSelectionColumn="Toggle selection"
+            // ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+            // checkButtonAriaLabel="select row"
           />
-        </MarqueeSelection>
+        {/* </MarqueeSelection> */}
       </div>
     );
   }
@@ -230,10 +234,10 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       canDrag: (item?: any) => {
         return true;
       },
-      onDragEnter: (item?: any, event?: DragEvent) => {
-        // return string is the css classes that will be added to the entering element.
-        return dragEnterClass;
-      },
+    //   onDragEnter: (item?: any, event?: DragEvent):void => {
+    //     // return string is the css classes that will be added to the entering element.
+    //     // return dragEnterClass;
+    //   },
       onDragLeave: (item?: any, event?: DragEvent) => {
         return;
       },
@@ -253,18 +257,18 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
     };
   }
 
-  private _onRenderItemColumn = (item: any, index: number, column: IColumn): JSX.Element | string => {
-    const key = column.key as keyof any;
-    if (key === 'name') {
-      return (
-        <Link data-selection-invoke={true} underline>
-          {item[key]}
-        </Link>
-      );
-    }
+//   private _onRenderItemColumn = (item: any, index: number, column: IColumn): JSX.Element | string => {
+//     const key = column.key as keyof any;
+//     if (key === 'name') {
+//       return (
+//         <Link data-selection-invoke={true} underline>
+//           {item[key]}
+//         </Link>
+//       );
+//     }
 
-    return String(item[key]);
-  };
+//     return String(item[key]);
+//   };
 
   private _insertBeforeItem(item: any): void {
     const draggedItems = this._selection.isIndexSelected(this._draggedIndex)

@@ -14,7 +14,7 @@ import {  DefaultButton, Dropdown, Icon, Stack, TextField } from "@fluentui/reac
 import { IDropdownOption } from "office-ui-fabric-react";
 // import {  InputChangeEvent } from '@progress/kendo-react-inputs';
 import { TextBox, TextBoxChangeEvent } from "@progress/kendo-react-inputs";
-import { DropDownList } from "@progress/kendo-react-dropdowns";
+
 // import PdfViewer from "../pdfVeiwer/pdfVeiwer";
 import { PrimaryButton } from "@fluentui/react/lib/Button";
 
@@ -130,11 +130,11 @@ interface IMainFormState {
   new: string;
   itemsFromSpList: any[];
   getAllDropDownOptions: any;
-  natureOfNote: string[];
-  natureOfApprovalSancation: string[];
+  natureOfNote: IDropdownOption[];
+  natureOfApprovalSancation: IDropdownOption[];
   committename: IDropdownOption[];
-  typeOfFinancialNote: string[];
-  noteType: string[];
+  typeOfFinancialNote: IDropdownOption[];
+  noteType: IDropdownOption[];
   purpose: any;
   othersFieldValue: any;
   isPuroposeVisable: boolean;
@@ -151,7 +151,7 @@ interface IMainFormState {
   typeOfFinancialNoteFeildValue: string;
   searchTextFeildValue: string | number | readonly string[];
   amountFeildValue: any;
-  puroposeFeildValue: string | number | readonly string[];
+  puroposeFeildValue: any;
   // eslint-disable-next-line @rushstack/no-new-null
   notePdfFile: File | null;
   // eslint-disable-next-line @rushstack/no-new-null
@@ -782,14 +782,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           if (each[0] === "NatureOfNote") {
             // console.log(each[1]);
             const natureOfNoteArray = each[1].map((item, index) => {
-              return item;
+              return {key:item,text:item};
             });
 
             this.setState({ natureOfNote: natureOfNoteArray });
           } else if (each[0] === "NoteType") {
             // console.log(each[1]);
             const noteTypeArray = each[1].map((item, index) => {
-              return item;
+              return {key:item,text:item};
             });
 
             // console.log(noteTypeArray);
@@ -799,7 +799,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // console.log(each[1]);
             const typeOfNatureOfApprovalSancation = each[1].map(
               (item, index) => {
-                return item;
+                return {key:item,text:item};
               }
             );
 
@@ -809,7 +809,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           } else if (each[0] === "FinancialType") {
             // console.log(each[1]);
             const typeOfFinancialNoteArray = each[1].map((item, index) => {
-              return item;
+              return {key:item,text:item};
             });
 
             this.setState({ typeOfFinancialNote: typeOfFinancialNoteArray });
@@ -818,14 +818,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             const committenameArray = each[1].map((item, index) => {
               return {key:item,text:item};
             });
-            committenameArray
+            
 
             this.setState({ committename: committenameArray });
           }
           else if (each[0] === "Purpose") {
             console.log(each[1]);
             const purposeArray = each[1].map((item, index) => {
-              return item;
+              return  {key:item,text:item};
             });
 
             this.setState({ purpose: purposeArray });
@@ -1348,87 +1348,33 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     this.setState({ subjectFeildValue: value, isWarningSubject: false });
   };
 
-  private handleNatureOfNote = (event: any): void => {
-    const item = event.value;
-    console.log(item);
-    if (item === "Sanction" || item === "Approval") {
-      this.setState({
-        natureOfNoteFeildValue: item,
-        isNatureOfApprovalOrSanction: true,
-        isPuroposeVisable: true,
-      });
-    } else {
-      this.setState({
-        natureOfNoteFeildValue: item,
-        isNatureOfApprovalOrSanction: false,
-        isPuroposeVisable: false,
-      });
-    }
-    this.setState({ puroposeFeildValue: "" });
-  };
-
-  private handleNatureOfNoteRed = (event: any): void => {
-    const item = event.value;
-    console.log(item);
-    console.log(item === "Sanction" || item === "Approval");
-    if (item === "Sanction" || item === "Approval") {
-      this.setState({
-        natureOfNoteFeildValue: item,
-        isNatureOfApprovalOrSanction: true,
-        isPuroposeVisable: true,
-        isWarningNatureOfNote: false,
-      });
-    } else {
-      this.setState({
-        natureOfNoteFeildValue: item,
-        isNatureOfApprovalOrSanction: false,
-        isPuroposeVisable: false,
-        isWarningNatureOfNote: false,
-      });
-    }
-  };
-
-  private handleNatureOfApprovalOrSanction = (event: any): void => {
-    const value = event.value;
+  private handleNatureOfNoteChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
+    const value = option ? option.text : '';
     console.log(value);
-    this.setState({ natureOfApprovalOrSanctionFeildValue: value });
-  };
-
-  private handleNatureOfApprovalOrSanctionRed = (event: any): void => {
-    const value = event.value;
-    console.log(value);
+    
     this.setState({
-      natureOfApprovalOrSanctionFeildValue: value,
-      isWarningNatureOfApporvalOrSanction: false,
+      natureOfNoteFeildValue: value,
+      isWarningNatureOfNote: !value, // Set warning state if value is empty
     });
   };
 
-  private handleNoteType = (event: any): void => {
-    const item = event.value; // Kendo UI passes the selected value directly
-    console.log(item);
-    this.setState({ noteTypeFeildValue: item });
-    // if (item === "Financial") {
-    //   console.log(item);
-    //   this.setState({
-    //     noteTypeFeildValue: item,
-    //     isTypeOfFinacialNote: true,
-    //     isAmountVisable: true,
-    //   });
-    // } else {
-    //   this.setState({
-    //     noteTypeFeildValue: item,
-    //     isTypeOfFinacialNote: false,
-    //     isAmountVisable: false,
-    //   });
-    // }
+  private handleNatureOfApprovalOrSanctionChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
+    const value = option ? option.text : '';
+    console.log(value);
+
+    this.setState({
+      natureOfApprovalOrSanctionFeildValue: value,
+      isWarningNatureOfApporvalOrSanction: !value, // Set warning if no value is selected
+    });
   };
 
-  private handleNoteTypeRed = (event: any): void => {
-    const value = event.value;
+  private handleNoteTypeChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
+    const value = option ? option.text : '';
     console.log(value);
+
     this.setState({
-      isWarningNoteType: false,
       noteTypeFeildValue: value,
+      isWarningNoteType: !value, // Set warning state if value is empty
     });
   };
 
@@ -1453,18 +1399,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       },
     }));
   };
-  private handleTypeOfFinancialNote = (event: any): void => {
-    const value = event.value;
-    console.log(value);
-    this.setState({ typeOfFinancialNoteFeildValue: value });
-  };
-
-  private handleTypeOfFinancialNoteRed = (event: any): void => {
-    const value = event.value;
-    console.log(value);
+  private handleTypeOfFinancialNote = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
+    const selectedKey = option ? option.key.toString() : '';
+    const isWarning = !selectedKey;
     this.setState({
-      isWarningTypeOfFinancialNote: false,
-      typeOfFinancialNoteFeildValue: value,
+      typeOfFinancialNoteFeildValue: selectedKey,
+      isWarningTypeOfFinancialNote: isWarning,
     });
   };
 
@@ -1504,17 +1444,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     this.setState({ isWarningAmountField: false, amountFeildValue: value });
   };
 
-  private handlePurposeDropDown = (event: any) => {
-    const value = event.value;
-    console.log(value);
-    this.setState({ puroposeFeildValue: value });
-  };
-
-  private handlePurposeDropDownRed = (event: any): void => {
-    const value = event.value;
-    console.log(value);
+  private handlePurposeDropDown = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption): void => {
+    const selectedKey = option ? option.key.toString() : '';
     this.setState({
-      puroposeFeildValue: value,
+      noteTypeFeildValue: selectedKey,
+      isWarningNoteType: !selectedKey, // Set warning if no value is selected
     });
   };
 
@@ -2981,9 +2915,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.setState({isVisibleAlter:false})
     };
 
-    private onRenderCaretDown = (): JSX.Element => {
+    private onRenderCaretDowncommitteeNameFeildValue = (): JSX.Element => {
       return this.state.committeeNameFeildValue?<Icon iconName="Cancel" onClick={()=>{this.setState({committeeNameFeildValue:''})}}/>:<Icon iconName="ChevronDown" onClick={()=>{this.setState({committeeNameFeildValue:''})}}/>;
     };
+
+    private onRenderCaretDownnatureOfNoteFeildValue = (): JSX.Element => {
+      return this.state.natureOfNoteFeildValue?<Icon iconName="Cancel" onClick={()=>{this.setState({natureOfNoteFeildValue:''})}}/>:<Icon iconName="ChevronDown" onClick={()=>{this.setState({natureOfNoteFeildValue:''})}}/>;
+    };
+
+    
 
   public render(): React.ReactElement<IFormProps> {
     console.log(this.state);
@@ -3106,7 +3046,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     options={this.state.committename}
                     selectedKey={this.state.committeeNameFeildValue}
                     onChange={this.handleCommittename}
-                    onRenderCaretDown={this.onRenderCaretDown}
+                    onRenderCaretDown={
+                      ()=>this.onRenderCaretDowncommitteeNameFeildValue()
+                    }
                     styles={
                       {
                         dropdown: {
@@ -3178,35 +3120,24 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   Nature of Note
                   <SpanComponent />
                 </label>
-                {this.state.isWarningNatureOfNote ? (
-                  this.state.natureOfNoteFeildValue !== "" ? (
-                    <DropDownList
-                      // data={committename}
-                      data={this.state.natureOfNote}
-                      onChange={this.handleNatureOfNote}
-                      value={this.state.natureOfNoteFeildValue}
-                    />
-                  ) : (
-                    <DropDownList
-                      // data={committename}
-                      data={this.state.natureOfNote}
-                      onChange={this.handleNatureOfNoteRed}
-                      style={{
-                        // border: '2px solid #4CAF50',
-                        border: "2px solid red",
-                        borderRadius: "0px", // Rounded corners
-                      }}
-                      value={this.state.natureOfNoteFeildValue}
-                    />
-                  )
-                ) : (
-                  <DropDownList
-                    // data={committename}
-                    data={this.state.natureOfNote}
-                    onChange={this.handleNatureOfNote}
-                    value={this.state.natureOfNoteFeildValue}
-                  />
-                )}
+                <Dropdown
+        placeholder="Select nature of note"
+        // label="Nature of Note"
+        options={this.state.natureOfNote}
+        selectedKey={this.state.natureOfNoteFeildValue}
+        onChange={this.handleNatureOfNoteChange}
+        onRenderCaretDown={
+          ()=>this.onRenderCaretDownnatureOfNoteFeildValue()
+        }
+        styles={{
+          dropdown: {
+            borderRadius: '0px',
+            fontSize: '16px',
+            // fontFamily: 'Poppins',
+            border: this.state.isWarningNatureOfNote && this.state.natureOfNoteFeildValue === '' ? '2px solid red' : 'none',
+          },
+        }}
+      />
               </div>
 
               {/* Nature of Approval/Sanction Sub Section */}
@@ -3220,48 +3151,25 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     Nature of Approval/Sanction
                     <SpanComponent />
                   </label>
-                  {this.state.isWarningNatureOfApporvalOrSanction ? (
-                    this.state.natureOfApprovalOrSanctionFeildValue !== "" ? (
-                      <DropDownList
-                        data={this.state.natureOfApprovalSancation} // This should be an array of objects with `text` and `value` properties
-                        // textField="text"  // The field from data items to display in the dropdown
-                        // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handleNatureOfApprovalOrSanction}
-                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                        style={{
-                          border: "1px solid rgb(211, 211, 211)",
-                          borderRadius: "0px",
-                        }} // Inline styles
-                        value={this.state.natureOfApprovalOrSanctionFeildValue}
-                      />
-                    ) : (
-                      <DropDownList
-                        data={this.state.natureOfApprovalSancation} // This should be an array of objects with `text` and `value` properties
-                        // textField="text"  // The field from data items to display in the dropdown
-                        // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handleNatureOfApprovalOrSanctionRed}
-                        value={this.state.natureOfApprovalOrSanctionFeildValue}
-                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                        style={{
-                          border: "1px solid red",
-                          borderRadius: "0px",
-                        }} // Inline styles
-                      />
-                    )
-                  ) : (
-                    <DropDownList
-                      data={this.state.natureOfApprovalSancation} // This should be an array of objects with `text` and `value` properties
-                      // textField="text"  // The field from data items to display in the dropdown
-                      // dataItemKey="value"  // The field from data items to use as the key
-                      onChange={this.handleNatureOfApprovalOrSanction}
-                      value={this.state.natureOfApprovalOrSanctionFeildValue}
-                      // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                      style={{
-                        border: "1px solid rgb(211, 211, 211)",
-                        borderRadius: "0px",
-                      }} // Inline styles
-                    />
-                  )}
+                  <Dropdown
+        placeholder="Select an approval or sanction type"
+        // label="Nature of Approval or Sanction"
+        label={ <label>
+          Nature of Approval/Sanction
+          <SpanComponent />
+        </label>}
+        options={this.state.natureOfApprovalSancation}
+        selectedKey={this.state.natureOfApprovalOrSanctionFeildValue}
+        onChange={this.handleNatureOfApprovalOrSanctionChange}
+        styles={{
+          dropdown: {
+            border: this.state.isWarningNatureOfApporvalOrSanction && this.state.natureOfApprovalOrSanctionFeildValue === '' ? '1px solid red' : '1px solid rgb(211, 211, 211)',
+            borderRadius: '0px',
+            fontSize: '16px',
+            // fontFamily: 'Poppins',
+          },
+        }}
+      />
                 </div>
               ) : (
                 ""
@@ -3275,48 +3183,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   Note Type
                   <SpanComponent />
                 </label>
-                {this.state.isWarningNoteType ? (
-                  this.state.noteTypeFeildValue ? (
-                    <DropDownList
-                      data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
-                      // textField="text"  // The field from data items to display in the dropdown
-                      // dataItemKey="value"  // The field from data items to use as the key
-                      onChange={this.handleNoteType}
-                      value={this.state.noteTypeFeildValue}
-                      // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                      style={{
-                        border: "1px solid rgb(211, 211, 211)",
-                        borderRadius: "0px",
-                      }} // Inline styles
-                    />
-                  ) : (
-                    <DropDownList
-                      data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
-                      // textField="text"  // The field from data items to display in the dropdown
-                      // dataItemKey="value"  // The field from data items to use as the key
-                      onChange={this.handleNoteTypeRed}
-                      value={this.state.noteTypeFeildValue}
-                      // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                      style={{
-                        border: "1px solid red",
-                        borderRadius: "0px",
-                      }} // Inline styles
-                    />
-                  )
-                ) : (
-                  <DropDownList
-                    data={this.state.noteType} // This should be an array of objects with `text` and `value` properties
-                    // textField="text"  // The field from data items to display in the dropdown
-                    // dataItemKey="value"  // The field from data items to use as the key
-                    onChange={this.handleNoteType}
-                    value={this.state.noteTypeFeildValue}
-                    // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                    style={{
-                      border: "1px solid rgb(211, 211, 211)",
-                      borderRadius: "0px",
-                    }} // Inline styles
-                  />
-                )}
+                <Dropdown
+        placeholder="Select a note type"
+        label="Note Type"
+        options={this.state.noteType}
+        selectedKey={this.state.noteTypeFeildValue}
+        onChange={this.handleNoteTypeChange}
+        styles={{
+          dropdown: {
+            border: this.state.isWarningNoteType && this.state.noteTypeFeildValue === '' ? '1px solid red' : '1px solid rgb(211, 211, 211)',
+            borderRadius: '0px',
+            fontSize: '16px',
+            // fontFamily: 'Poppins',
+          },
+        }}
+      />
               </div>
               {/*  Type of Financial Note Sub Section */}
               {this.state.noteTypeFeildValue === "Financial" && (
@@ -3328,48 +3209,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     Type of Financial Note
                     <SpanComponent />
                   </label>
-                  {this.state.isWarningTypeOfFinancialNote ? (
-                    this.state.typeOfFinancialNoteFeildValue !== "" ? (
-                      <DropDownList
-                        data={this.state.typeOfFinancialNote} // This should be an array of objects with `text` and `value` properties
-                        // textField="text"  // The field from data items to display in the dropdown
-                        // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handleTypeOfFinancialNote}
-                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                        style={{
-                          border: "1px solid rgb(211, 211, 211)",
-                          borderRadius: "0px",
-                        }} // Inline styles
-                        value={this.state.typeOfFinancialNoteFeildValue}
-                      />
-                    ) : (
-                      <DropDownList
-                        data={this.state.typeOfFinancialNote} // This should be an array of objects with `text` and `value` properties
-                        // textField="text"  // The field from data items to display in the dropdown
-                        // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handleTypeOfFinancialNoteRed}
-                        value={this.state.typeOfFinancialNoteFeildValue}
-                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                        style={{
-                          border: "1px solid red",
-                          borderRadius: "0px",
-                        }} // Inline styles
-                      />
-                    )
-                  ) : (
-                    <DropDownList
-                      data={this.state.typeOfFinancialNote} // This should be an array of objects with `text` and `value` properties
-                      // textField="text"  // The field from data items to display in the dropdown
-                      // dataItemKey="value"  // The field from data items to use as the key
-                      onChange={this.handleTypeOfFinancialNote}
-                      // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                      style={{
-                        border: "1px solid rgb(211, 211, 211)",
-                        borderRadius: "0px",
-                      }} // Inline styles
-                      value={this.state.typeOfFinancialNoteFeildValue}
-                    />
-                  )}
+                  <Dropdown
+        placeholder="Select a financial note"
+        label="Type of Financial Note"
+        options={this.state.typeOfFinancialNote}
+        selectedKey={this.state.typeOfFinancialNoteFeildValue}
+        onChange={this.handleTypeOfFinancialNote}
+        styles={{
+          dropdown: {
+            border: `1px solid ${this.state.isWarningTypeOfFinancialNote && !this.state.typeOfFinancialNoteFeildValue ? 'red' : 'rgb(211, 211, 211)'}`,
+            borderRadius: '0px',
+          },
+        }}
+      />
                 </div>
               )}
               {/* {this.state.isTypeOfFinacialNote? 
@@ -3498,45 +3350,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       Purpose
                       <SpanComponent />
                     </label>
-                    {this.state.isWarningNoteType ? (
-                      this.state.noteTypeFeildValue ? (
-                        <DropDownList
-                          data={this.state.purpose.slice(0, 4)} // This should be an array of objects with `text` and `value` properties
-                          // textField="text"  // The field from data items to display in the dropdown
-                          // dataItemKey="value"  // The field from data items to use as the key
-                          onChange={this.handlePurposeDropDown}
-                          // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                          style={{
-                            border: "1px solid rgb(211, 211, 211)",
-                            borderRadius: "0px",
-                          }} // Inline styles
-                        />
-                      ) : (
-                        <DropDownList
-                          data={this.state.purpose.slice(0, 4)} // This should be an array of objects with `text` and `value` properties
-                          // textField="text"  // The field from data items to display in the dropdown
-                          // dataItemKey="value"  // The field from data items to use as the key
-                          onChange={this.handlePurposeDropDownRed}
-                          // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                          style={{
-                            border: "1px solid red",
-                            borderRadius: "0px",
-                          }} // Inline styles
-                        />
-                      )
-                    ) : (
-                      <DropDownList
-                        data={this.state.purpose.slice(0, 4)} // This should be an array of objects with `text` and `value` properties
-                        // textField="text"  // The field from data items to display in the dropdown
-                        // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handlePurposeDropDown}
-                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                        style={{
-                          border: "1px solid rgb(211, 211, 211)",
-                          borderRadius: "0px",
-                        }} // Inline styles
-                      />
-                    )}
+                    <Dropdown
+        placeholder="Select a purpose"
+        label="Purpose"
+        options={this.state.purpose.slice(0, 4)}
+        selectedKey={this.state.puroposeFeildValue}
+        onChange={this.handlePurposeDropDown}
+        styles={{
+          dropdown: {
+            border: `1px solid ${this.state.isWarningNoteType && !this.state.noteTypeFeildValue ? 'red' : 'rgb(211, 211, 211)'}`,
+            borderRadius: '0px',
+          },
+        }}
+      />
                   </div>
                 ) : (
                   <div
@@ -3547,57 +3373,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       Purpose
                       <SpanComponent />
                     </label>
-                    {this.state.isWarningNoteType ? (
-                      this.state.noteTypeFeildValue ? (
-                        <DropDownList
-                          value={this.state.puroposeFeildValue}
-                          data={this.state.purpose.slice(
-                            4,
-                            this.state.purpose.length
-                          )} // This should be an array of objects with `text` and `value` properties
-                          // textField="text"  // The field from data items to display in the dropdown
-                          // dataItemKey="value"  // The field from data items to use as the key
-                          onChange={this.handlePurposeDropDown}
-                          // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                          style={{
-                            border: "1px solid rgb(211, 211, 211)",
-                            borderRadius: "0px",
-                          }} // Inline styles
-                        />
-                      ) : (
-                        <DropDownList
-                          value={this.state.puroposeFeildValue}
-                          data={this.state.purpose.slice(
-                            4,
-                            this.state.purpose.length
-                          )} // This should be an array of objects with `text` and `value` properties
-                          // textField="text"  // The field from data items to display in the dropdown
-                          // dataItemKey="value"  // The field from data items to use as the key
-                          onChange={this.handlePurposeDropDownRed}
-                          // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                          style={{
-                            border: "1px solid red",
-                            borderRadius: "0px",
-                          }} // Inline styles
-                        />
-                      )
-                    ) : (
-                      <DropDownList
-                        value={this.state.puroposeFeildValue}
-                        data={this.state.purpose.slice(
-                          4,
-                          this.state.purpose.length
-                        )} // This should be an array of objects with `text` and `value` properties
-                        // textField="text"  // The field from data items to display in the dropdown
-                        // dataItemKey="value"  // The field from data items to use as the key
-                        onChange={this.handlePurposeDropDown}
-                        // value={this.state.noteTypeValue}  // Assuming noteTypeValue is an object with a `value` field
-                        style={{
-                          border: "1px solid rgb(211, 211, 211)",
-                          borderRadius: "0px",
-                        }} // Inline styles
-                      />
-                    )}
+                    <Dropdown
+        placeholder="Select a purpose"
+        label="Purpose"
+        options={this.state.purpose.slice(4)} // Slice starting from index 4 to get remaining items
+        selectedKey={this.state.puroposeFeildValue}
+        onChange={this.handlePurposeDropDown}
+        styles={{
+          dropdown: {
+            border: `1px solid ${this.state.isWarningNoteType && !this.state.puroposeFeildValue ? 'red' : 'rgb(211, 211, 211)'}`,
+            borderRadius: '0px',
+          },
+        }}
+      />
                   </div>
                 )
               ) : (
