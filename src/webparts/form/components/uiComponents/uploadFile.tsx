@@ -158,14 +158,32 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
   return (
     <ul className={`${styles.fileAttachementsUl}`}>
       <li className={`${styles.basicLi} ${styles.inputField}`}>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept={accept}
-          style={{ padding: "10px",paddingTop:'5px' }}
-          multiple={multiple}
-        />
+        <div style={{padding:'8px'}}>
+        <button
+  type="button"
+  onClick={() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }}
+>
+  Upload File
+</button>
+
+    {/* Hidden file input */}
+    <input
+      type="file"
+      ref={fileInputRef}
+      onChange={handleFileChange}
+      accept={accept}
+      multiple={multiple}
+      style={{ display: "none" }} // Hide the input element
+    />
+
+        </div>
+        
+     
+    
       </li>
 
       {selectedFiles.length > 0 &&

@@ -122,7 +122,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
     },
     {
       key: 'text',
-      name: "type", // replace 'type' with your actual title
+      name:this.props.type, // replace 'type' with your actual title
       fieldName: 'text',
       minWidth: 200,
       maxWidth: 200,

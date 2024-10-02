@@ -165,7 +165,7 @@ export interface IViewFormState {
 
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
-  const Id = params.get("itemId");
+  const Id = params.get("ItemId");
   // const Id = params.get("itemId");
   console.log(Id);
   return Id;

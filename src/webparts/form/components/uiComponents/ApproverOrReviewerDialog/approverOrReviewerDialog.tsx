@@ -4,83 +4,76 @@ import * as React from "react";
 import {
   Dialog,
   DialogFooter,
-  DialogType,
   PrimaryButton,
-  Stack,
   
-  // IStackItemStyles, 
-  IStackStyles,
-  Icon 
+ 
+  DialogType,
 } from "@fluentui/react";
 
 interface MyDialogProps {
   hidden: boolean;
   handleDialogBox: () => void;
-  
-  // undefindedData:any;
 }
-
-
 
 const ApproverOrReviewerDialog: React.FC<MyDialogProps> = ({
   hidden,
- 
   handleDialogBox,
 }) => {
-  // console.log(data);
-  // const [undefinedData, setUndefinedData] = React.useState<string[]>([]);
+  // Styles for the header stack
+  // const stackStyles: IStackStyles = {
+  //   root: {
+  //     display: "flex",
+  //     flexDirection: "row",
+  //     padding: "8px 12px", // Reduced padding for compactness
+  //     borderBottom: "1px solid #ddd",
+  //     justifyContent: "space-between",
+  //     alignItems: "center",
+  //     width: "100%",
+  //   },
+  // };
 
-  const stackStyles: IStackStyles = {
-    root: {
-      display: 'flex',
-      flexDirection: 'row', // or 'column' for vertical stacking
-      // background: '#f3f2f1',
-      padding: 10,
-      borderBottom: '1px solid #ddd',
-      justifyContent: 'space-between', // Adjust as needed
-      alignItems: 'center', // Adjust as needed
+  // Responsive dialog styles
+  const dialogStyles = {
+    main: {
+      minWidth: "300px",
+      maxWidth: "80vw",
+      width: "100%",
+      "@media (min-width: 768px)": {
+        maxWidth: "500px", // Adjust width for medium screens
+      },
+      "@media (min-width: 1024px)": {
+        maxWidth: "700px", // Adjust width for larger screens
+      },
     },
   };
 
-  const buttonStyles: IStackStyles = {
-    root:{
-      background:'red'
-    }
-  }
-
-  
-  // console.log(emptyArray)
-  // console.log(undefinedData);
-
   return (
     <Dialog
-    hidden={hidden}
-    //   onDismiss={onClose}
-    dialogContentProps={{
-      type: DialogType.largeHeader,
-      // title: "Sample Dialog",
-      // subText: "This is a sample dialog using Fluent UI.",
-    }}
-    modalProps={{
-      isBlocking: true,
-    }}
-  >
-     <Stack>
-      <Stack styles={stackStyles}>
-        <p>Alert!</p>
-  
-        <Icon iconName="Cancel" onClick={handleDialogBox}/>
-        
-      </Stack>
-     
-    </Stack>
-    <h1>Data already Exist in Reviewer Table or Approver Table</h1>
-    <DialogFooter>
-      <PrimaryButton text="OK" onClick={handleDialogBox} styles={buttonStyles}/>
-      {/* <DefaultButton  text="Cancel" /> */}
-    </DialogFooter>
-  </Dialog>
-   
+      hidden={hidden}
+      modalProps={{
+        isBlocking: true,
+        styles: dialogStyles, // Applying custom responsive styles
+      }}
+      dialogContentProps={{
+        type: DialogType.normal,
+        title: "Alert",
+        closeButtonAriaLabel: "Close",
+      }}
+    >
+      {/* Dialog content */}
+      <p style={{ margin: "16px 0",fontSize: "14px "}}>
+        The selected approver cannot be the same as existing Reviewers, Requester, or Current Actioner.
+      </p>
+
+      {/* Footer with only the OK button */}
+      <DialogFooter>
+        <PrimaryButton
+          text="OK"
+          onClick={handleDialogBox}
+          ariaLabel="Confirm action"
+        />
+      </DialogFooter>
+    </Dialog>
   );
 };
 
