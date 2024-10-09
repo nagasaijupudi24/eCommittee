@@ -2,7 +2,9 @@
 
 
 
-
+*{
+  box-sizing: border-box;
+}
 
 .form {
   display: flex;
@@ -113,6 +115,8 @@
 /* Base styles */
 .halfWidth {
   width: 48%;
+  gap:'10px'
+
   // border: 1px solid violet;
 }
 
@@ -350,7 +354,9 @@
 }
 
 .field {
-  color: red;
+  color: #f31700;
+    font-size: 12px;
+    font-style: italic;
 }
 
 
@@ -675,6 +681,18 @@
 
 
 }
+
+
+.sectionContainer {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-weight: 400;
+  padding: 5px;
+}
+
+
 
 .btnsContainer{
 

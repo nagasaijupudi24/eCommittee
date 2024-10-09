@@ -1,3 +1,4 @@
+/* eslint-disable react/self-closing-comp */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 import * as React from "react";
@@ -21,48 +22,29 @@ const Title: React.FC<TitleProps> = (
   }-${currentDate.getFullYear()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
 
   return (
-    <div  style={{ flexGrow: 1, margin: '10 10px' }}>
+    <div style={{ flexGrow: 1, margin: "10 10px" }}>
       <div
         className={`${styles.noteTitle} ${styles.commonProperties}`}
         style={{
-          display: "flex",
-          justifyContent: "space-between",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
           width: "100%",
         }}
       >
-        <p
-          className={`${styles.status}`}
-          style={{ flex: 1, textAlign: "left" }}
-        >
-          Status: {props.statusOfRequest}
-        </p>
-
-        {props.propPaneformType === "BoardNoteNew" ? (
-          <h1
-            className={`${styles.title}`}
-            style={{ flex: 1, textAlign: "center" }}
-          >
-            Board Note - {props.itemId ? "Edit" : "New"}
-          </h1>
-        ) : (
-          <h1
-            className={`${styles.title}`}
-            style={{ flex: 1, textAlign: "center" }}
-          >
-            eCommittee Note - {props.itemId ? "Edit" : "New"}
-          </h1>
-        )}
-
-        <p
-          className={`${styles.title}`}
-          style={{ flex: 1, textAlign: "right" }}
-        >
+        <div></div> {/* Empty div to take up space on the left */}
+        <h1 className={`${styles.title}`} style={{ textAlign: "center" }}>
+          {props.propPaneformType === "BoardNoteNew"
+            ? `Board Note - ${props.itemId ? "Edit" : "New"}`
+            : `eCommittee Note - ${props.itemId ? "Edit" : "New"}`}
+        </h1>
+        <p className={`${styles.title}`} style={{ textAlign: "right" }}>
           Date: {formattedDate}
         </p>
       </div>
+
       <span className={`${styles.field}`}>
-        <strong style={{fontSize:'12px'}}>All fields marked "*" are mandatory</strong>
+        All fields marked "*" are mandatory
       </span>
     </div>
   );

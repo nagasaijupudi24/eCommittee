@@ -3,113 +3,87 @@
 // MyDialog.tsx
 import * as React from "react";
 import {
-  Dialog,
-  DialogFooter,
-  DialogType,
+  Modal,
   PrimaryButton,
   Stack,
-  
-  // IStackItemStyles, 
   IStackStyles,
-  Icon 
+  Icon,
+
 } from "@fluentui/react";
+import { Info16Regular } from "@fluentui/react-icons";
+
+
+
 
 interface MyDialogProps {
   hidden: boolean;
   handleDialogBox: () => void;
   data: any;
-  // undefindedData:any;
 }
-
-
 
 const MyDialog: React.FC<MyDialogProps> = ({
   hidden,
   data,
   handleDialogBox,
 }) => {
-  // console.log(data);
-  // const [undefinedData, setUndefinedData] = React.useState<string[]>([]);
-
   const stackStyles: IStackStyles = {
     root: {
       display: 'flex',
-      flexDirection: 'row', // or 'column' for vertical stacking
-      // background: '#f3f2f1',
+      flexDirection: 'row',
       padding: 10,
       borderBottom: '1px solid #ddd',
-      justifyContent: 'space-between', // Adjust as needed
-      alignItems: 'center', // Adjust as needed
+      justifyContent: 'space-between',
+      alignItems: 'center',
     },
   };
 
   const buttonStyles: IStackStyles = {
-    root:{
-      // background:'red'
+    root: {
+      // background: 'red'
     }
-  }
+  };
+
+  const modalStyles = {
+    main: {
+      width: '90%',
+      maxWidth: '520px',
+      padding: '20px', // Added padding
+      '@media (max-width: 768px)': {
+        width: '270px',
+      },
+    },
+  };
 
   const undefinedData = Object.keys(data).map((each: string) => {
-    console.log(each)
-    console.log(data[each])
-
-    if (data[each][0] === "") {
-      console.log(data[each][1])
+    if (data[each][0] === "" || data[each][0].length === 0) {
       return data[each][1];
-    }else if (data[each][0].length === 0){
-      console.log(data[each][1])
-      return data[each][1]
     }
-  }).filter((each:any)=>each);
-  // console.log(emptyArray)
-  console.log(undefinedData);
+  }).filter((each: any) => each);
 
   return (
-    <Dialog
-    hidden={hidden}
-    //   onDismiss={onClose}
-    dialogContentProps={{
-      type: DialogType.largeHeader,
-      // title: "Sample Dialog",
-      // subText: "This is a sample dialog using Fluent UI.",
-    }}
-    modalProps={{
-      isBlocking: true,
-    }}
-  >
-     <Stack>
-      <Stack styles={stackStyles}>
-        <p>Alert!</p>
-  
-        <Icon iconName="Cancel" onClick={handleDialogBox}/>
-        
+    <Modal
+      isOpen={!hidden}
+      onDismiss={handleDialogBox}
+      isBlocking={true}
+      styles={modalStyles}
+    >
+      <Stack>
+        <Stack styles={stackStyles}>
+          <p style={{fontSize:'16px'}}> <Info16Regular style={{marginTop:'6px'}}/>{" "}Alert!</p>
+          <Icon iconName="Cancel" onClick={handleDialogBox} />
+        </Stack>
       </Stack>
-     
-    </Stack>
-    <h4>Please fill up all the mandatory fields</h4>
-    <ul>
-      {undefinedData.map((each) =>{
-        console.log(each)
-        if (each!== "" || each!== undefined) {
-          console.log(each)
-
-          return (
-        
-            <li key={each}>{each}</li>
-          )
-
-        }
-        
-      } )}
-    </ul>
-    <p><strong>Note: </strong>Invalid files are not allowed</p>
-    
-    <DialogFooter>
-      <PrimaryButton text="OK" iconProps={{ iconName: 'ReplyMirrored' }} onClick={handleDialogBox} styles={buttonStyles}/>
-      {/* <DefaultButton  text="Cancel" /> */}
-    </DialogFooter>
-  </Dialog>
-   
+      <h4>Please fill up all the mandatory fields</h4>
+      <ul>
+        {undefinedData.map((each) => (
+          <li key={each}>{each}</li>
+        ))}
+      </ul>
+      <p><strong>Note: </strong>Invalid files are not allowed</p>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+        <PrimaryButton text="OK" iconProps={{ iconName: 'ReplyMirrored' }} onClick={handleDialogBox} styles={buttonStyles} />
+      </div>
+    </Modal>
   );
 };
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/self-closing-comp */
 /* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable no-unused-expressions */
@@ -19,7 +20,7 @@ import {
 } from "@fluentui/react";
 import { IDropdownOption } from "office-ui-fabric-react";
 // import {  InputChangeEvent } from '@progress/kendo-react-inputs';
-import { TextBox, TextBoxChangeEvent } from "@progress/kendo-react-inputs";
+
 
 // import PdfViewer from "../pdfVeiwer/pdfVeiwer";
 import { PrimaryButton } from "@fluentui/react/lib/Button";
@@ -392,7 +393,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.getfield();
     // this.props.formType === "Edit" && this._getItemData(this._itemId, this._folderName);
-    this._getItemData(this._itemId, this._folderName);
+    this._itemId && this._getItemData(this._itemId, this._folderName);
     // this.props.formType === "Edit" && this._getItemDocumentsData();
     this._getItemDocumentsData();
     // this._GetMyProfile("421")
@@ -1384,6 +1385,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(value);
 
     this.setState({
+      isPuroposeVisable:true,
       natureOfNoteFeildValue: value,
       isWarningNatureOfNote: !value, // Set warning state if value is empty
     });
@@ -1470,7 +1472,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     });
   };
 
-  private handleAmountChange = (event: TextBoxChangeEvent) => {
+  private handleAmountChange = (event: any) => {
     const { value } = event.target;
     const isWarning = !value && this.state.isWarningAmountField;
 
@@ -1815,6 +1817,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     status: string,
     statusNumber: any
   ): INoteObject => {
+    console.log(status)
     const ecommitteObject: any = {
       Department: this.state.department,
       CommitteeName: this.state.committeeNameFeildValue,
@@ -3236,12 +3239,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 style={{ flexGrow: 1, margin: "10 10px" }}
               >
                 <h1
-                  style={{
-                    textAlign: "center",
-                    fontSize: "16px",
-                    marginTop: "5px",
-                    marginBottom: "5px",
-                  }}
+                className={styles.sectionContainer}
+                
                 >
                   General Section
                 </h1>
@@ -3263,7 +3262,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 style={{ margin: "4px", marginTop: "18px" }}
               >
                 Department<span className={styles.warning}>*</span>
-                <h4 style={{ marginLeft: "20px" }}>{this.state.department}</h4>
+                <h4 style={{margin:'5px', marginLeft: "20px" }}>{this.state.department}</h4>
               </div>
               {/* Committee Name Sub Section */}
               <div
@@ -3272,7 +3271,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               >
                 <Dropdown
                   placeholder="Select an option"
-                  label="Committee Name"
+                  
+                  label={
+                    <label>
+                      Committee Name
+                      <SpanComponent />
+                    </label>
+                  }
                   options={this.state.committename}
                   selectedKey={this.state.committeeNameFeildValue}
                   onChange={this.handleCommittename}
@@ -3300,29 +3305,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
               >
-                <label style={{ fontWeight: "600" }}>
+                <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                   Subject <SpanComponent />
                 </label>
-                {/* <TextField onChange={this.handleSubject} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
-                <TextField
-                  multiline
-                  rows={
-                    this.state.isWarningSubject && !this.state.subjectFeildValue
-                      ? 3
-                      : 1
-                  }
-                  value={this.state.subjectFeildValue}
-                  onChange={this.handleSubjectChange}
-                  styles={{
-                    fieldGroup: {
-                      height: 50,
-                      border: this.state.isWarningSubject
+                <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
-                        : "1px solid black",
-                      borderRadius: "0px",
-                    },
-                  }}
-                />
+                        : "1px solid black",}}  value={this.state.subjectFeildValue}
+                  onChange={this.handleSubjectChange}></textarea>
+                {/* <TextField onChange={this.handleSubject} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
+                
               </div>
               {/* <TextField multiline rows={1} styles={{ fieldGroup:  { height: '20px',width:'100%' }, field: { height: '100%' } }} /> */}
               {/* Nature of Note Sub Section */}
@@ -3331,13 +3322,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
               >
-                <label>
-                  Nature of Note
-                  <SpanComponent />
-                </label>
+                
                 <Dropdown
                   placeholder="Select nature of note"
                   // label="Nature of Note"
+                  label={
+                    <label>
+                      Nature of Note
+                      <SpanComponent />
+                    </label>
+                  }
                   options={this.state.natureOfNote}
                   selectedKey={this.state.natureOfNoteFeildValue}
                   onChange={this.handleNatureOfNoteChange}
@@ -3405,13 +3399,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
               >
-                <label>
-                  Note Type
-                  <SpanComponent />
-                </label>
+               
                 <Dropdown
                   placeholder="Select a note type"
-                  label="Note Type"
+                  
+                  label={
+                    <label>
+                    Note Type
+                    <SpanComponent />
+                  </label>
+                  }
                   options={this.state.noteType}
                   selectedKey={this.state.noteTypeFeildValue}
                   onChange={this.handleNoteTypeChange}
@@ -3439,13 +3436,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
                 >
-                  <label>
-                    Type of Financial Note
-                    <SpanComponent />
-                  </label>
+                  
                   <Dropdown
                     placeholder="Select a financial note"
-                    label="Type of Financial Note"
+                    label={
+                      <label>
+                      Type of Financial Note
+                      <SpanComponent />
+                    </label>
+                    }
+                   
                     options={this.state.typeOfFinancialNote}
                     selectedKey={this.state.typeOfFinancialNoteFeildValue}
                     onRenderCaretDown={() =>
@@ -3488,13 +3488,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 className={styles.halfWidth}
                 style={{ margin: "4px", marginTop: "18px" }}
               >
-                <label style={{ fontWeight: "600" }}>
+                <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                   Search Text
                   <SpanComponent />
                 </label>
                 {/* <TextField onChange={this.handleSearchText} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
-                <TextField
-                  multiline
+                <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                        ? "2px solid red"
+                        : "1px solid black",}}
                   rows={
                     this.state.isWarningSearchText &&
                     !this.state.searchTextFeildValue
@@ -3503,15 +3504,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   } // Adjust rows based on warning state
                   value={this.state.searchTextFeildValue}
                   onChange={this.handleSearchTextChange}
-                  styles={{
-                    fieldGroup: {
-                      height: 50,
-                      border: this.state.isWarningSearchText
-                        ? "1px solid red"
-                        : "1px solid black", // Apply red border if in warning state
-                      borderRadius: "0px",
-                    },
-                  }}
+                  
                 />
               </div>
 
@@ -3521,19 +3514,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
                 >
-                  <label style={{ fontWeight: "600" }}>
+                  <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                     Amount
                     <SpanComponent />
                   </label>
-                  <TextBox
+                  <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                        ? "2px solid red"
+                        : "1px solid black",}}
                     onChange={this.handleAmountChange}
                     value={this.state.amountFeildValue}
-                    style={{
-                      border: this.state.isWarningAmountField
-                        ? "1px solid red"
-                        : "1px solid black", // Apply red border if in warning state
-                      borderRadius: "0px",
-                    }}
+                   
                   />
                 </div>
               )}
@@ -3555,20 +3545,25 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           )} */}
 
               {/* Purpose Sub Section */}
-              {this.state.natureOfNoteFeildValue === "Approval" ||
+
+              {this.state.isPuroposeVisable &&
+             ( this.state.natureOfNoteFeildValue === "Approval" ||
               this.state.natureOfNoteFeildValue === "Information" ? (
                 this.state.natureOfNoteFeildValue === "Approval" ? (
                   <div
                     className={styles.halfWidth}
                     style={{ margin: "4px", marginTop: "18px" }}
                   >
-                    <label>
-                      Purpose
-                      <SpanComponent />
-                    </label>
+                   
                     <Dropdown
                       placeholder="Select a purpose"
-                      label="Purpose"
+                     
+                      label={
+                        <label>
+                        Purpose
+                        <SpanComponent />
+                      </label>
+                      }
                       options={this.state.purpose.slice(0, 4)}
                       selectedKey={this.state.puroposeFeildValue}
                       onChange={this.handlePurposeDropDown}
@@ -3593,13 +3588,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     className={styles.halfWidth}
                     style={{ margin: "4px", marginTop: "18px" }}
                   >
-                    <label>
-                      Purpose
-                      <SpanComponent />
-                    </label>
+                    
                     <Dropdown
                       placeholder="Select a purpose"
-                      label="Purpose"
+                      label={
+                        <label>
+                        Purpose
+                        <SpanComponent />
+                      </label>
+                      }
                       options={this.state.purpose.slice(4)} // Slice starting from index 4 to get remaining items
                       selectedKey={this.state.puroposeFeildValue}
                       onChange={this.handlePurposeDropDown}
@@ -3625,12 +3622,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "18px" }}
                 >
-                  <label style={{ fontWeight: "600" }}>
+                  <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                     Purpose
                     <SpanComponent />
                   </label>
-                  <TextField
-                    multiline
+                  <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                        ? "2px solid red"
+                        : "1px solid black",}}
                     rows={
                       this.state.isWarningPurposeField &&
                       !this.state.puroposeFeildValue
@@ -3639,17 +3637,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     }
                     value={this.state.puroposeFeildValue}
                     onChange={this.handlePurposeChange}
-                    styles={{
-                      fieldGroup: {
-                        border: this.state.isWarningPurposeField
-                          ? "2px solid red"
-                          : "1px solid black", // Apply red border if in warning state
-                        borderRadius: "0px",
-                      },
-                    }}
+                   
                   />
                 </div>
-              )}
+              ))
+              }
               {this.state.natureOfNoteFeildValue === "Approval" &&
               this.state.puroposeFeildValue === "Others" ? (
                 <div
@@ -3694,12 +3686,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               style={{ flexGrow: 1, margin: "10 10px" }}
             >
               <h1
-                style={{
-                  textAlign: "center",
-                  fontSize: "16px",
-                  marginTop: "5px",
-                  marginBottom: "5px",
-                }}
+               className={styles.sectionContainer}
+               
               >
                 Approver Details
               </h1>
@@ -3819,12 +3807,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               <div style={{ flexGrow: 1, margin: "10 10px" }}>
                 <div className={`${styles.generalSectionMainContainer}`}>
                   <h1
-                    style={{
-                      textAlign: "center",
-                      fontSize: "16px",
-                      marginTop: "5px",
-                      marginBottom: "5px",
-                    }}
+                    className={styles.sectionContainer}
                   >
                     Draft Resoultion
                   </h1>
@@ -3846,12 +3829,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               style={{ flexGrow: 1, margin: "10 10px" }}
             >
               <h1
-                style={{
-                  textAlign: "center",
-                  fontSize: "16px",
-                  marginTop: "5px",
-                  marginBottom: "5px",
-                }}
+               className={styles.sectionContainer}
+                
               >
                 File Attachments
               </h1>

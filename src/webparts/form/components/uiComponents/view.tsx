@@ -2245,17 +2245,17 @@ export default class ViewForm extends React.Component<
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
               style={{ padding: "10px" }}
             >
-              <h1 className={`${styles.generalHeader} `}>
+              <h1 className={`${styles.generalHeader} ${styles.sectionContainer}`}>
                 pending:{" "}
                 {this.state.status !== "Rejected" &&
                   this._getPendingStatus(this.state.ApproverDetails)}
               </h1>
 
-              <h1 className={`${styles.generalHeader} `}>
+              <h1 className={`${styles.generalHeader} ${styles.sectionContainer} `}>
                 eCommittee Note - {this.state.title}
               </h1>
 
-              <h1 className={`${styles.generalHeader} `}>
+              <h1 className={`${styles.generalHeader} ${styles.sectionContainer}`}>
                 Status: {this.state.status}
               </h1>
             </div>
