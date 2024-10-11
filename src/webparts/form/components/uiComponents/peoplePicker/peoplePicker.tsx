@@ -7,7 +7,7 @@ import {
   PeoplePicker,
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
-import { DefaultButton } from "@fluentui/react";
+// import { DefaultButton } from "@fluentui/react";
 // import styles from "../../Form.module.scss";
 
 export interface IPnPPeoplePickerProps {
@@ -39,9 +39,9 @@ export default class PnPPeoplePicker extends React.Component<
 
   
 
-  private _clearPeoplePicker = () => {
-    this.setState({ selectedPeople: [], key: this.state.key + 1 }); // Update the key to force re-render
-  };
+  // private _clearPeoplePicker = () => {
+  //   this.setState({ selectedPeople: [], key: this.state.key + 1 }); // Update the key to force re-render
+  // };
 
   private _getUserProperties = async (loginName: any): Promise<any> => {
     // console.log(loginName)
@@ -72,17 +72,17 @@ export default class PnPPeoplePicker extends React.Component<
     return [designation, email];
   };
 
-  private handleOnAdd = (event: any, type: string): void => {
-    console.log(this.state.peoplePickerData)
-    this.props.getDetails(this.state.selectedPeople,this.props.typeOFButton)
-    this.setState((prev) => ({
-      peoplePickerData: [
+  // private handleOnAdd = (event: any, type: string): void => {
+  //   console.log(this.state.peoplePickerData)
+  //   this.props.getDetails(this.state.selectedPeople,this.props.typeOFButton)
+  //   this.setState((prev) => ({
+  //     peoplePickerData: [
        
-        ...this.state.selectedPeople,
-      ],
-    }));
+  //       ...this.state.selectedPeople,
+  //     ],
+  //   }));
 
-  };
+  // };
 
   private _getPeoplePickerItems = async (items: any[]) => {
     console.log("Items:", items);
@@ -127,7 +127,9 @@ export default class PnPPeoplePicker extends React.Component<
         };
       });
       // console.log(newItemsData)
+      this.props.getDetails(newItemsData,this.props.typeOFButton)
       this.setState({ selectedPeople: newItemsData });
+      // this._clearPeoplePicker();
     }
   };
 
@@ -143,7 +145,7 @@ export default class PnPPeoplePicker extends React.Component<
     
 
     return (
-      <div style={{ display: "flex" }}>
+      <div style={{ width:'100%' }}>
         <PeoplePicker
           key={this.state.key}
           context={peoplePickerContext}
@@ -157,7 +159,7 @@ export default class PnPPeoplePicker extends React.Component<
           principalTypes={[PrincipalType.User]}
           resolveDelay={1000}
         />
-        <DefaultButton
+        {/* <DefaultButton
           type="button"
           // className={`${styles.commonBtn2} ${styles.addBtn}`}
           onClick={(e) => {
@@ -168,7 +170,7 @@ export default class PnPPeoplePicker extends React.Component<
           iconProps={{ iconName: "Add" }}
         >
           Add
-        </DefaultButton>
+        </DefaultButton> */}
         {/* <button onClick={this._clearPeoplePicker}>Clear People Picker</button> */}
       </div>
     );

@@ -707,7 +707,7 @@ export default class ViewForm extends React.Component<
           this._currentUserEmail
         ) {
           if (
-            each.status === "Refered" &&
+            each.status === "Refered" ||
             this.state.refferredToDetails[0]?.status === "Refered Back"
           ) {
             switch (each.status) {
@@ -1230,8 +1230,8 @@ export default class ViewForm extends React.Component<
             status: "pending",
             mainStatus:
               each.approverType === "Approver"
-                ? "pending with Approver"
-                : "pending with Reviewer",
+                ? "Pending With Approver"
+                : "Pending With Reviewer",
             statusNumber: each.approverType === "Approver" ? "3000" : "2000",
           };
         }
@@ -2243,7 +2243,7 @@ export default class ViewForm extends React.Component<
             {/* Header section */}
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
-              style={{ padding: "10px" }}
+              // style={{ padding: "10px" }}
             >
               <h1 className={`${styles.generalHeader} ${styles.sectionContainer}`}>
                 pending:{" "}
@@ -2886,7 +2886,7 @@ export default class ViewForm extends React.Component<
                   ) : this.state.refferredToDetails.length > 0 &&
                     this.state.refferredToDetails[0]?.email ===
                       this._currentUserEmail &&
-                    this.state.refferredToDetails[0]?.status === "Refered" ? (
+                    this.state.statusNumber === "4000" ? (
                     <PrimaryButton
                       className={`${styles.responsiveButton}`}
                       iconProps={{ iconName: "Reply" }}
