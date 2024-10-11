@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
-const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
+const ReferBackCommentDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
   const styles = mergeStyleSets({
     modal: {
       padding: '10px',
@@ -60,7 +60,7 @@ const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => voi
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        <p>The request for committee note has been {statusOfReq} successfully.</p>
+        <p>Please fill in comments then click on Refer Back.</p>
       </div>
       <div className={styles.footer}>
         <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
@@ -69,4 +69,4 @@ const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => voi
   );
 };
 
-export default SuccessDialog;
+export default ReferBackCommentDialog;

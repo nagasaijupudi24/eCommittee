@@ -42,6 +42,7 @@ import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 import { v4 } from "uuid";
 import { ATRAssignee } from "./ATR/atr";
 import SuccessDialog from "./dialogFluentUi/endDialog";
+import ReferBackCommentDialog from "./dialogFluentUi/referBackCommentDialog";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
@@ -159,6 +160,9 @@ export interface IViewFormState {
 
   // success alert
   isVisibleAlter: boolean;
+
+  // referback dialog
+  isReferBackAlterDialog:boolean;
 
   draftResolutionFieldValue: any;
 }
@@ -293,6 +297,11 @@ export default class ViewForm extends React.Component<
 
       // success alert
       isVisibleAlter: false,
+
+       // referback dialog
+      isReferBackAlterDialog:false,
+
+      
 
       draftResolutionFieldValue: "",
     };
@@ -665,10 +674,11 @@ export default class ViewForm extends React.Component<
   ): any => {
     commentsData = JSON.parse(commentsData);
     console.log(commentsData);
+    const lenOfCommentData = commentsData.length
     if (typeOfReferee === "to") {
-      return commentsData[0].referredTo;
+      return commentsData[lenOfCommentData-1].referredTo;
     }
-    return commentsData[0].referredFrom;
+    return commentsData[lenOfCommentData-1].referredFrom;
   };
 
   private _getCurrentApproverDetails = (
@@ -1461,6 +1471,7 @@ export default class ViewForm extends React.Component<
     );
 
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    const referedId = v4();
     console.log(updateAuditTrial);
     console.log([
       {
@@ -1483,7 +1494,7 @@ export default class ViewForm extends React.Component<
         noteId: this._itemId,
 
         noteReferrerCommentDTO: null,
-        noteReferrerId: v4(),
+        noteReferrerId: referedId,
         noteSupportingDocumentsDTO: null,
         referrerEmail:
           this.state.refferredToDetails[0].email ||
@@ -1491,10 +1502,10 @@ export default class ViewForm extends React.Component<
         referrerEmailName:
           this.state.refferredToDetails[0].text ||
           this.state.refferredToDetails[0].approverEmailName,
-        referrerStatus: 2,
+        referrerStatus: 1,
         referrerStatusType: this.state.refferredToDetails[0].status,
-        referredTo: this.state.refferredToDetails,
-        referredFrom: this.state.referredFromDetails,
+        referredTo:[{... this.state.refferredToDetails[0],noteReferrerId: referedId}],
+        referredFrom: [{...this.state.referredFromDetails[0],noteReferrerId: referedId}],
       },
     ]);
 
@@ -1508,6 +1519,7 @@ export default class ViewForm extends React.Component<
         commentsObj,
       ]),
       NoteReferrerDTO: JSON.stringify([
+        ...this.state.noteReferrerDTO,
         {
           approverEmail:
             this.state.referredFromDetails[0].email ||
@@ -1527,7 +1539,7 @@ export default class ViewForm extends React.Component<
           noteApproverId: this.state.referredFromDetails[0].id,
           noteId: this._itemId,
 
-          noteReferrerCommentDTO: null,
+          noteReferrerCommentDTO: commentsObj,
           noteReferrerId: v4(),
           noteSupportingDocumentsDTO: null,
           referrerEmail:
@@ -1538,8 +1550,8 @@ export default class ViewForm extends React.Component<
             this.state.refferredToDetails[0].approverEmailName,
           referrerStatus: 2,
           referrerStatusType: this.state.refferredToDetails[0].status,
-          referredTo: this.state.refferredToDetails,
-          referredFrom: this.state.referredFromDetails,
+          referredTo:[{... this.state.refferredToDetails[0],noteReferrerId: referedId}],
+        referredFrom: [{...this.state.referredFromDetails[0],noteReferrerId: referedId}],
         },
       ]),
       // referredTo: JSON.stringify(this.state.refferredToDetails),
@@ -2159,7 +2171,7 @@ export default class ViewForm extends React.Component<
   };
 
   public _closeDialogAlter = () => {
-    this.setState({ isVisibleAlter: false });
+    this.setState({ isVisibleAlter: false,isReferBackAlterDialog:false });
   };
 
   public render(): React.ReactElement<IViewFormProps> {
@@ -2219,6 +2231,16 @@ export default class ViewForm extends React.Component<
               onCloseAlter={this._closeDialogAlter}
             />
             {/* success  dialog */}
+
+            {/* refer back comment  dialog */}
+            <ReferBackCommentDialog
+              statusOfReq={this.state.status}
+              isVisibleAlter={this.state.isReferBackAlterDialog}
+              onCloseAlter={this._closeDialogAlter}
+            />
+            {/* refer back comment  dialog */}
+
+
             {/* dialog box details */}
             {/* dialog box details */}
             <Dialog
@@ -2949,11 +2971,31 @@ export default class ViewForm extends React.Component<
             context={this.props.context}
             fetchAnydata={(data: any, typeOfBtnTriggered: any, status: any) => {
               console.log(data);
+              console.log(this.state.currentApprover)
+            //   const currentRefferedDetails =  {
+            //     "noteReferrerId": 0,
+            //     "noteApproverId": 4740,
+            //     "noteId": 0,
+            //     "approverType": 0,
+            //     "referrerEmail": data[0].email || data[0].secondaryText,
+            //     "approverEmail": this.state.currentApprover[0].approverEmail || this.state.currentApprover[0].email || this.state.currentApprover[0].secondaryText,
+            //     "approverEmailName": this.state.currentApprover[0].approverEmailName || this.state.currentApprover[0].text,
+            //     "referrerEmailName": data[0].text,
+            //     "referrerStatus": 2,
+            //     "createdDate": new Date(),
+            //     "createdBy":  this.state.currentApprover[0].approverEmail || this.state.currentApprover[0].email || this.state.currentApprover[0].secondaryText,
+            //     "modifiedDate": "2024-10-11T10:31:00",
+            //     "modifiedBy": new Date(),
+            //     "noteReferrerCommentDTO": null,
+            //     // "noteSupportingDocumentsDTO": null,
+            //     // "statusMessage": null
+            // }
               console.log(typeOfBtnTriggered);
               if (typeOfBtnTriggered === "Refer") {
                 this.setState({
                   refferredToDetails: [{ ...data[0], status: status }],
                   referredFromDetails: this.state.currentApprover,
+                  // noteReferrerDTO:[...this.state.noteReferrerDTO,currentRefferedDetails]
                 });
               } else {
                 this.setState({ currentApprover: data });
