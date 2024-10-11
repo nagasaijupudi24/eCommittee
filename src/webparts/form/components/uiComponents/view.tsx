@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -162,6 +163,7 @@ export interface IViewFormState {
   isVisibleAlter: boolean;
 
   // referback dialog
+  noteReferrerCommentsDTO:any;
   isReferBackAlterDialog:boolean;
 
   draftResolutionFieldValue: any;
@@ -299,6 +301,7 @@ export default class ViewForm extends React.Component<
       isVisibleAlter: false,
 
        // referback dialog
+       noteReferrerCommentsDTO:[],
       isReferBackAlterDialog:false,
 
       
@@ -654,6 +657,8 @@ export default class ViewForm extends React.Component<
         item.NoteSecretaryDTO !== null ? JSON.parse(item.NoteSecretaryDTO) : [],
       noteReferrerDTO:
         item.NoteReferrerDTO !== null ? JSON.parse(item.NoteReferrerDTO) : [],
+        noteReferrerCommentsDTO:
+        item.NoteReferrerCommentsDTO !== null ? JSON.parse(item.NoteReferrerCommentsDTO) : [],
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
       // ?  []
       // : JSON.parse(item.CommentsLog),
@@ -708,10 +713,23 @@ export default class ViewForm extends React.Component<
     return `${formattedDate} ${formattedTime}`;
   };
 
+  private _checkRefereeAvailable = ():any =>{
+    const currrentReferee = this.state.noteReferrerDTO[this.state.noteReferrerDTO.length -1]
+    console.log(currrentReferee)
+    console.log(currrentReferee.referrerEmail )
+    console.log( this._currentUserEmail)
+
+    console.log(currrentReferee.referrerEmail === this._currentUserEmail)
+
+    return currrentReferee.referrerEmail === this._currentUserEmail
+
+
+  }
+
   private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest =
     (): any => {
       return this.state.ApproverDetails.filter((each: any) => {
-        // console.log(each);
+        console.log(each);
         if (
           (each.approverEmail || each.approverEmailName || each.email) ===
           this._currentUserEmail
@@ -1472,6 +1490,7 @@ export default class ViewForm extends React.Component<
 
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     const referedId = v4();
+    
     console.log(updateAuditTrial);
     console.log([
       {
@@ -1540,7 +1559,7 @@ export default class ViewForm extends React.Component<
           noteId: this._itemId,
 
           noteReferrerCommentDTO: commentsObj,
-          noteReferrerId: v4(),
+          noteReferrerId: referedId,
           noteSupportingDocumentsDTO: null,
           referrerEmail:
             this.state.refferredToDetails[0].email ||
@@ -1548,7 +1567,7 @@ export default class ViewForm extends React.Component<
           referrerEmailName:
             this.state.refferredToDetails[0].text ||
             this.state.refferredToDetails[0].approverEmailName,
-          referrerStatus: 2,
+          referrerStatus: 1,
           referrerStatusType: this.state.refferredToDetails[0].status,
           referredTo:[{... this.state.refferredToDetails[0],noteReferrerId: referedId}],
         referredFrom: [{...this.state.referredFromDetails[0],noteReferrerId: referedId}],
@@ -1583,60 +1602,121 @@ export default class ViewForm extends React.Component<
     this.setState({ isVisibleAlter: true });
   };
 
+
+  private _checkNoteReferIdHavingComments = ():any=>{
+    const filterReferCommentId =this.state.noteReferrerDTO.filter((each:any)=>{
+      console.log(each)
+      console.log(each.noteReferrerId)
+      console.log(this.state.referredFromDetails[0].noteReferrerId)
+      console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
+      return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
+    })
+    console.log(filterReferCommentId)
+
+    const filterReferCommentsDTO =this.state.noteReferrerCommentsDTO.filter(
+      (each:any)=>{
+        console.log(each)
+        console.log(each.noteReferrerId)
+        console.log(this.state.referredFromDetails[0].noteReferrerId)
+        console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
+        return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
+
+      }
+    )
+    console.log(filterReferCommentsDTO)
+    
+    console.log(filterReferCommentId[0].noteReferrerId ===( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
+
+    return (filterReferCommentId[0].noteReferrerId === ( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
+    
+
+  }
+
+
+  // private _getLastCommnet = ():any =>{
+
+  //   this.state.noteReferrerCommentsDTO.map()
+  //   return [...this.state.noteReferrerCommentsDTO,this.state.commentsData[this.state.commentsData.length-1]]
+  // }
+
   private handleReferBack = async (
     statusFromEvent: string,
     statusNumber: string,
     commentsObj: any
   ) => {
-    const modifyReferredToDetails = this.state.referredFromDetails.map(
-      (each: any, index: number) => {
-        console.log(each);
-        return { ...each, status: statusFromEvent, actionDate: new Date() };
-      }
-    );
+    console.log(this._checkNoteReferIdHavingComments())
+    
 
-    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
-    console.log(updateAuditTrial);
+    if (this._checkNoteReferIdHavingComments()){
 
-    const obj = {
-      Status: statusFromEvent,
-      StatusNumber: statusNumber,
-      AuditTrail: updateAuditTrial,
-      NoteApproverCommentsDTO: JSON.stringify([
-        ...this.state.commentsData,
-        commentsObj,
-      ]),
-      NoteReferrerDTO: JSON.stringify([
-        {
-          referredTo: modifyReferredToDetails,
-          referredFrom: this.state.referredFromDetails,
-        },
-      ]),
-    };
-    console.log(obj);
 
-    const itemToUpdate = await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
-      .items.getById(this._itemId)
-      .update(obj)
-      .then((resu) => console.log(resu));
+      const modifyReferredToDetails = this.state.referredFromDetails.map(
+        (each: any, _index: number) => {
+          console.log(each);
+          return { ...each, status: statusFromEvent, actionDate: new Date() };
+        }
+      );
 
-    console.log(itemToUpdate);
 
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
-      this.setState({ status: statusFromEvent });
-      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+      const updateCurrentReferDTO = this.state.noteReferrerDTO.map(
+        (each:any)=>{
+          console.log(each)
+          if (each.noteReferrerId === this.state.refferredToDetails[0].noteReferrerId){
+            return {...each, referredTo: modifyReferredToDetails,
+              referredFrom: this.state.referredFromDetails,referrerStatus:2,referrerStatusType:statusFromEvent}
+          }
+        }
+      )
+  
+      const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+      console.log(updateAuditTrial);
+  
+      const obj = {
+        Status: statusFromEvent,
+        StatusNumber: statusNumber,
+        AuditTrail: updateAuditTrial,
+        NoteApproverCommentsDTO: JSON.stringify([
+          ...this.state.commentsData,
+          commentsObj,
+        ]),
+        NoteReferrerCommentsDTO:JSON.stringify([
+          this.state.noteReferrerCommentsDTO
+        ]),
+        NoteReferrerDTO: JSON.stringify(updateCurrentReferDTO),
+      };
+      console.log(obj);
+  
+      const itemToUpdate = await this.props.sp.web.lists
         .getByTitle(this.props.listId)
         .items.getById(this._itemId)
-        .update({
-          Status: statusFromEvent,
-          StatusNumber: statusNumber,
-        });
+        .update(obj)
+        .then((resu) => console.log(resu));
+  
+      console.log(itemToUpdate);
+  
+      if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
+        this.setState({ status: statusFromEvent });
+        const itemToUpdateStatusToApproved = await this.props.sp.web.lists
+          .getByTitle(this.props.listId)
+          .items.getById(this._itemId)
+          .update({
+            Status: statusFromEvent,
+            StatusNumber: statusNumber,
+          });
+  
+        console.log(itemToUpdateStatusToApproved);
+      }
+      this._closeDialog();
+      this.setState({ isVisibleAlter: true });
+     
+    
+    }else{
+      this.setState({isReferBackAlterDialog:true})
 
-      console.log(itemToUpdateStatusToApproved);
+     
+
     }
-    this._closeDialog();
-    this.setState({ isVisibleAlter: true });
+   
   };
 
   private handleReturn = async (
@@ -2010,9 +2090,16 @@ export default class ViewForm extends React.Component<
       this.setState((prev) => {
         console.log(commentsData);
         console.log(prev.commentsData);
+        if (this.state.statusNumber === '4000'){
+          this.setState({noteReferrerCommentsDTO:[...this.state.noteReferrerCommentsDTO,{
+            ...commentsData,...this.state.noteReferrerDTO[this.state.noteReferrerDTO.length-1]
+          }]})
+
+        }
         return {
           commentsData: [...prev.commentsData, commentsData],
         };
+       
       });
     } else if (type === "delete") {
       console.log("entered into delete");
@@ -2425,8 +2512,8 @@ export default class ViewForm extends React.Component<
                   </div>
                   {/*General Comments */}
 
-                  {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                  this._currentUserEmail !== this.state.createdByEmail ? (
+                  {(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                  this._currentUserEmail !== this.state.createdByEmail)||this._checkRefereeAvailable() ? (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}

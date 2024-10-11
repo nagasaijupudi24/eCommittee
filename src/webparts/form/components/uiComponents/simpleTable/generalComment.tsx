@@ -209,9 +209,9 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     console.log(this.props)
 
     return (
-      <div>
+      <div style={{ display: "flex",flexDirection:'column' }}>
         {/* Add Button to Open Dialog */}
-        <PrimaryButton text="Add Comment" onClick={this.handleAddBtn} />
+        <PrimaryButton style={{ alignSelf:'flex-end' }} text="Add Comment" onClick={this.handleAddBtn} />
 
         {/* Fluent UI Dialog */}
         <Dialog
@@ -223,7 +223,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
             closeButtonAriaLabel: "Close",
           }}
         >
-          <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+          <div style={{ display: "flex",flexDirection:'column', gap: "8px", marginBottom: "16px" }}>
             <TextField
               label="Page#"
               value={this.state.pageNumValue}
