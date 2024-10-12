@@ -44,6 +44,8 @@ import { v4 } from "uuid";
 import { ATRAssignee } from "./ATR/atr";
 import SuccessDialog from "./dialogFluentUi/endDialog";
 import ReferBackCommentDialog from "./dialogFluentUi/referBackCommentDialog";
+import RejectBtnCommentCheckDialog from "./dialogFluentUi/rejectCommentsCheckDialog";
+import ReturnBtnCommentCheckDialog from "./dialogFluentUi/returnCommentsCheck";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
@@ -166,6 +168,12 @@ export interface IViewFormState {
   noteReferrerCommentsDTO:any;
   isReferBackAlterDialog:boolean;
 
+  //reject comments check dialog
+  isRejectCommentsCheckAlterDialog:boolean;
+
+  //return comments check dialog
+  isReturnCommentsCheckAlterDialog:boolean;
+
   draftResolutionFieldValue: any;
 }
 
@@ -269,7 +277,7 @@ export default class ViewForm extends React.Component<
       statusNumber: null,
       auditTrail: [],
       filesClear: [],
-      expandSections: {}, // Keeps track of expanded sections
+      expandSections: {"generalSection":true}, // Keeps track of expanded sections
       pdfLink: "",
 
       // "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/Pdf/E0300SBIBZ.pdf",
@@ -303,6 +311,12 @@ export default class ViewForm extends React.Component<
        // referback dialog
        noteReferrerCommentsDTO:[],
       isReferBackAlterDialog:false,
+
+        //reject comments check dialog
+  isRejectCommentsCheckAlterDialog:false,
+
+  //return comments check dialog
+  isReturnCommentsCheckAlterDialog:false,
 
       
 
@@ -714,14 +728,20 @@ export default class ViewForm extends React.Component<
   };
 
   private _checkRefereeAvailable = ():any =>{
-    const currrentReferee = this.state.noteReferrerDTO[this.state.noteReferrerDTO.length -1]
-    console.log(currrentReferee)
-    console.log(currrentReferee.referrerEmail )
-    console.log( this._currentUserEmail)
+    if (this.state.noteReferrerDTO.length > 0){
+      const currrentReferee = this.state.noteReferrerDTO[this.state.noteReferrerDTO.length -1]
+      console.log(currrentReferee)
+      console.log(currrentReferee.referrerEmail )
+      console.log( this._currentUserEmail)
+  
+      console.log(currrentReferee.referrerEmail === this._currentUserEmail)
+  
+      return currrentReferee.referrerEmail === this._currentUserEmail
 
-    console.log(currrentReferee.referrerEmail === this._currentUserEmail)
-
-    return currrentReferee.referrerEmail === this._currentUserEmail
+    }else{
+      return undefined
+    }
+   
 
 
   }
@@ -747,7 +767,7 @@ export default class ViewForm extends React.Component<
                 return false;
               case "Refered":
                 console.log(each.status);
-                return true;
+                return false;
               case "pending":
                 console.log(each.status);
                 return true;
@@ -1379,39 +1399,54 @@ export default class ViewForm extends React.Component<
     return userIsSec && currentUserisApproved;
   };
 
-  private _showDialog = (
-    title: string,
-    message: string,
-    buttonText: string
-  ) => {
-    const dialogContent = {
-      title: title,
-      message: message,
-      buttonText: buttonText,
-    };
+  // private _showDialog = (
+  //   title: string,
+  //   message: string,
+  //   buttonText: string
+  // ) => {
+  //   const dialogContent = {
+  //     title: title,
+  //     message: message,
+  //     buttonText: buttonText,
+  //   };
 
-    this.setState({
-      isDialogVisible: true,
-      dialogContent: dialogContent,
-    });
-  };
+  //   this.setState({
+  //     isDialogVisible: true,
+  //     dialogContent: dialogContent,
+  //   });
+  // };
+
+
+  private _checkLastCommentByCurrentUser = ()=>{
+
+    const { commentsData } = this.state;
+    const filteredComments = commentsData.filter((comment: any) => comment !== null);
+    if (filteredComments.length === 0) {
+      return true;
+    }
+    
+    const lastComment = filteredComments[filteredComments.length - 1];
+    console.log(lastComment)
+    return !(lastComment.commentedByEmail === this._currentUserEmail);
+
+  }
 
   private handleReject = async (
     statusFromEvent: string,
     statusNumber: string
   ) => {
-    const currentUserComment = this.state.commentsData.find(
-      (comment: any) => comment.commentedByEmail === this._currentUserEmail
-    );
+    // const currentUserComment = this.state.commentsData.find(
+    //   (comment: any) => comment.commentedByEmail === this._currentUserEmail
+    // );
 
-    if (!currentUserComment || currentUserComment.comment.trim() === "") {
-      this._showDialog(
-        "Missing Comments",
-        "Please provide comments before rejecting the request.",
-        "OK"
-      );
-      return; // Stop further execution
-    }
+    // if (!currentUserComment || currentUserComment.comment.trim() === "") {
+    //   this._showDialog(
+    //     "Missing Comments",
+    //     "Please provide comments before rejecting the request.",
+    //     "OK"
+    //   );
+    //   return; // Stop further execution
+    // }
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -1594,6 +1629,7 @@ export default class ViewForm extends React.Component<
         .update({
           Status: statusFromEvent,
           StatusNumber: statusNumber,
+          
         });
 
       console.log(itemToUpdateStatusToApproved);
@@ -1603,34 +1639,34 @@ export default class ViewForm extends React.Component<
   };
 
 
-  private _checkNoteReferIdHavingComments = ():any=>{
-    const filterReferCommentId =this.state.noteReferrerDTO.filter((each:any)=>{
-      console.log(each)
-      console.log(each.noteReferrerId)
-      console.log(this.state.referredFromDetails[0].noteReferrerId)
-      console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
-      return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
-    })
-    console.log(filterReferCommentId)
+  // private _checkNoteReferIdHavingComments = ():any=>{
+  //   const filterReferCommentId =this.state.noteReferrerDTO.filter((each:any)=>{
+  //     console.log(each)
+  //     console.log(each.noteReferrerId)
+  //     console.log(this.state.referredFromDetails[0].noteReferrerId)
+  //     console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
+  //     return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
+  //   })
+  //   console.log(filterReferCommentId)
 
-    const filterReferCommentsDTO =this.state.noteReferrerCommentsDTO.filter(
-      (each:any)=>{
-        console.log(each)
-        console.log(each.noteReferrerId)
-        console.log(this.state.referredFromDetails[0].noteReferrerId)
-        console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
-        return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
+  //   const filterReferCommentsDTO =this.state.noteReferrerCommentsDTO.filter(
+  //     (each:any)=>{
+  //       console.log(each)
+  //       console.log(each.noteReferrerId)
+  //       console.log(this.state.referredFromDetails[0].noteReferrerId)
+  //       console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
+  //       return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
 
-      }
-    )
-    console.log(filterReferCommentsDTO)
+  //     }
+  //   )
+  //   console.log(filterReferCommentsDTO)
     
-    console.log(filterReferCommentId[0].noteReferrerId ===( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
+  //   console.log(filterReferCommentId[0].noteReferrerId ===( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
 
-    return (filterReferCommentId[0].noteReferrerId === ( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
+  //   return (filterReferCommentId[0].noteReferrerId === ( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
     
 
-  }
+  // }
 
 
   // private _getLastCommnet = ():any =>{
@@ -1644,10 +1680,33 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     commentsObj: any
   ) => {
-    console.log(this._checkNoteReferIdHavingComments())
+    
     
 
-    if (this._checkNoteReferIdHavingComments()){
+    // if (this._checkNoteReferIdHavingComments()){
+      const modifyApproveDetails = this.state.ApproverDetails.map(
+        (each: any, index: number) => {
+          console.log(each);
+          console.log(each.approverEmail);
+          console.log(this._currentUserEmail);
+          console.log(
+            (each.approverEmail || each.approverEmailName) ===
+              this._currentUserEmail
+          );
+          if (
+            (each.approverEmail || each.approverEmailName) ===
+            this._currentUserEmail
+          ) {
+            console.log("Entered -----", statusFromEvent);
+            return { ...each, status: 'pending', actionDate: new Date() };
+          }
+          if (each.approverOrder === this.state.ApproverOrder + 1) {
+            return { ...each, status: "waiting" };
+          }
+  
+          return each;
+        }
+      );
 
 
       const modifyReferredToDetails = this.state.referredFromDetails.map(
@@ -1661,10 +1720,14 @@ export default class ViewForm extends React.Component<
       const updateCurrentReferDTO = this.state.noteReferrerDTO.map(
         (each:any)=>{
           console.log(each)
-          if (each.noteReferrerId === this.state.refferredToDetails[0].noteReferrerId){
-            return {...each, referredTo: modifyReferredToDetails,
-              referredFrom: this.state.referredFromDetails,referrerStatus:2,referrerStatusType:statusFromEvent}
+          if (each !== null){
+            if (each.noteReferrerId === this.state.refferredToDetails[0].noteReferrerId){
+              return {...each, referredTo: modifyReferredToDetails,
+                referredFrom: this.state.referredFromDetails,referrerStatus:2,referrerStatusType:statusFromEvent}
+            }
+
           }
+        
         }
       )
   
@@ -1672,6 +1735,7 @@ export default class ViewForm extends React.Component<
       console.log(updateAuditTrial);
   
       const obj = {
+        NoteApproversDTO: JSON.stringify(modifyApproveDetails),
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
@@ -1710,12 +1774,12 @@ export default class ViewForm extends React.Component<
       this.setState({ isVisibleAlter: true });
      
     
-    }else{
-      this.setState({isReferBackAlterDialog:true})
+    // }else{
+    //   this.setState({isReferBackAlterDialog:true})
 
      
 
-    }
+    // }
    
   };
 
@@ -1724,18 +1788,18 @@ export default class ViewForm extends React.Component<
     statusNumber: string
   ) => {
     // Assuming you want to check for comments before proceeding with return
-    const currentUserComment = this.state.commentsData.find(
-      (comment: any) => comment.commentedByEmail === this._currentUserEmail
-    );
+    // const currentUserComment = this.state.commentsData.find(
+    //   (comment: any) => comment.commentedByEmail === this._currentUserEmail
+    // );
 
-    if (!currentUserComment || currentUserComment.comment.trim() === "") {
-      this._showDialog(
-        "Missing Comments",
-        "Please provide comments before returning the request.",
-        "OK"
-      );
-      return; // Stop further execution
-    }
+    // if (!currentUserComment || currentUserComment.comment.trim() === "") {
+    //   this._showDialog(
+    //     "Missing Comments",
+    //     "Please provide comments before returning the request.",
+    //     "OK"
+    //   );
+    //   return; // Stop further execution
+    // }
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -1967,14 +2031,21 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            this._hanldeFluentDialog(
-              "Reject",
-              "Rejected",
-              "8000",
-              "click on Confirm button to reject request.",
-              this.handleReject,
-              this._closeDialog
-            );
+            if (this._checkLastCommentByCurrentUser()){
+              this.setState({isRejectCommentsCheckAlterDialog:true})
+            }else{
+              this._hanldeFluentDialog(
+                "Reject",
+                "Rejected",
+                "8000",
+                "click on Confirm button to reject request.",
+                this.handleReject,
+                this._closeDialog
+              );
+
+            }
+
+           
             // this.setState({ status: "Rejected", statusNumber: "8000" });
           }}
         >
@@ -1985,14 +2056,19 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
-            this._hanldeFluentDialog(
-              "Refer",
-              "Refered",
-              "4000",
-              ["Add Referee", "Comments"],
-              this.handleRefer,
-              this._closeDialog
-            );
+
+            
+              this._hanldeFluentDialog(
+                "Refer",
+                "Refered",
+                "4000",
+                ["Add Referee", "Comments"],
+                this.handleRefer,
+                this._closeDialog
+              );
+
+            
+           
             // this.setState({ status: "Refered", statusNumber: "4000" });
           }}
         >
@@ -2003,14 +2079,21 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "ReturnToSession" }} // Icon for Return
           onClick={(e) => {
-            this._hanldeFluentDialog(
-              "Return",
-              "Returned",
-              "5000",
-              "click on Confirm button to Return request.",
-              this.handleReturn,
-              this._closeDialog
-            );
+
+            if (this._checkLastCommentByCurrentUser()){
+              this.setState({isReturnCommentsCheckAlterDialog:true})
+            }else{
+              this._hanldeFluentDialog(
+                "Return",
+                "Returned",
+                "5000",
+                "click on Confirm button to Return request.",
+                this.handleReturn,
+                this._closeDialog
+              );
+
+            }
+           
             // this.setState({ status: "Returned", statusNumber: "5000" });
           }}
         >
@@ -2023,32 +2106,41 @@ export default class ViewForm extends React.Component<
   private _getPendingStatus = (data: any): any => {
     // console.log(this.state.ApproverDetails);
 
-    const currentStatusOfApproverDetails = data.filter((each: any) => {
-      console.log(each);
-      console.log(each.status);
-      if (each.status === "pending" || each.status === "Refered") {
-        // console.log(each.status);
-        return each;
+    if (this.state.statusNumber ==='4000'){
+      const lastRefereeDetails = this.state.noteReferrerDTO[this.state.noteReferrerDTO.length - 1];
+    return lastRefereeDetails.referrerEmailName;
+
+    }else{
+      const currentStatusOfApproverDetails = data.filter((each: any) => {
+        console.log(each);
+        console.log(each.status);
+        if (each.status === "pending" || each.status === "Refered") {
+          // console.log(each.status);
+          return each;
+        }
+        // return each.status === "pending" && each.approverEmailName
+      });
+      console.log(currentStatusOfApproverDetails);
+  
+      if (currentStatusOfApproverDetails.length > 0) {
+        // console.log(
+        //   currentStatusOfApproverDetails[0].approverEmailName,
+        //   currentStatusOfApproverDetails[0].text,"---",
+        //   currentStatusOfApproverDetails[0].approverEmailName ||currentStatusOfApproverDetails[0].text,
+        //   "currentStatusOfApproverDetails"
+        // );
+  
+        return (
+          currentStatusOfApproverDetails[0].text ||
+          currentStatusOfApproverDetails[0].approverEmailName
+        );
+      } else {
+        return "";
       }
-      // return each.status === "pending" && each.approverEmailName
-    });
-    console.log(currentStatusOfApproverDetails);
 
-    if (currentStatusOfApproverDetails.length > 0) {
-      // console.log(
-      //   currentStatusOfApproverDetails[0].approverEmailName,
-      //   currentStatusOfApproverDetails[0].text,"---",
-      //   currentStatusOfApproverDetails[0].approverEmailName ||currentStatusOfApproverDetails[0].text,
-      //   "currentStatusOfApproverDetails"
-      // );
-
-      return (
-        currentStatusOfApproverDetails[0].text ||
-        currentStatusOfApproverDetails[0].approverEmailName
-      );
-    } else {
-      return "";
     }
+
+    
   };
 
   private _closeDialog = () => {
@@ -2103,7 +2195,9 @@ export default class ViewForm extends React.Component<
       });
     } else if (type === "delete") {
       console.log("entered into delete");
-      const updatingCommentData = this.state.commentsData.filter(
+      const filteredComments = this.state.commentsData.filter((comment: any) => comment !== null);
+
+      const updatingCommentData = filteredComments.filter(
         (each: any) => {
           console.log(each);
           console.log(each.id);
@@ -2114,9 +2208,7 @@ export default class ViewForm extends React.Component<
       );
       console.log(updatingCommentData);
       this.setState({
-        commentsData: this.state.commentsData.filter(
-          (each: any) => each.id !== id
-        ),
+        commentsData: updatingCommentData
       });
     } else {
       console.log("entered into save");
@@ -2258,8 +2350,15 @@ export default class ViewForm extends React.Component<
   };
 
   public _closeDialogAlter = () => {
-    this.setState({ isVisibleAlter: false,isReferBackAlterDialog:false });
+    this.setState({ isVisibleAlter: false,isReferBackAlterDialog:false,isRejectCommentsCheckAlterDialog:false,isReturnCommentsCheckAlterDialog:false });
   };
+
+  private getMainStatus=(): any=> {
+    const approver = this.state.ApproverDetails.find((detail: any) => (detail.approverEmail|| detail.email|| detail.secondaryText) === (this.state.currentApprover[0].approverEmail|| this.state.currentApprover[0].email|| this.state.currentApprover[0].secondaryText));
+   console.log(approver)
+    return approver ? approver.mainStatus : undefined;
+
+  }
 
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
@@ -2328,6 +2427,28 @@ export default class ViewForm extends React.Component<
             {/* refer back comment  dialog */}
 
 
+            {/* reject back comment  dialog */}
+
+            <RejectBtnCommentCheckDialog
+            statusOfReq={this.state.status}
+            isVisibleAlter={this.state.isRejectCommentsCheckAlterDialog}
+            onCloseAlter={this._closeDialogAlter}
+            />
+
+             {/* reject back comment  dialog */}
+
+
+              {/* return back comment  dialog */}
+
+            <ReturnBtnCommentCheckDialog
+            statusOfReq={this.state.status}
+            isVisibleAlter={this.state.isReturnCommentsCheckAlterDialog}
+            onCloseAlter={this._closeDialogAlter}
+            />
+
+             {/* return back comment  dialog */}
+
+
             {/* dialog box details */}
             {/* dialog box details */}
             <Dialog
@@ -2354,18 +2475,18 @@ export default class ViewForm extends React.Component<
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
               // style={{ padding: "10px" }}
             >
-              <h1 className={`${styles.generalHeader} ${styles.sectionContainer}`}>
+              <h1 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}>
                 pending:{" "}
                 {this.state.status !== "Rejected" &&
                   this._getPendingStatus(this.state.ApproverDetails)}
               </h1>
 
-              <h1 className={`${styles.generalHeader} ${styles.sectionContainer} `}>
+              <h1 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer} `}>
                 eCommittee Note - {this.state.title}
               </h1>
 
-              <h1 className={`${styles.generalHeader} ${styles.sectionContainer}`}>
-                Status: {this.state.status}
+              <h1 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}>
+                Status: {this.state.statusNumber === '6000'?this.getMainStatus():this.state.status}
               </h1>
             </div>
 
@@ -3014,14 +3135,23 @@ export default class ViewForm extends React.Component<
                         },
                       }}
                       onClick={(e) => {
-                        this._hanldeFluentDialog(
-                          "Refer Back",
-                          "Refered Back",
-                          "6000",
-                          "Please check the details filled along with attachment and click on Confirm button to approve request.",
-                          this.handleReferBack,
-                          this._closeDialog
-                        );
+                        // console.log(this._checkNoteReferIdHavingComments())
+                        if (this._checkLastCommentByCurrentUser()){
+                          this.setState({isReferBackAlterDialog:true})
+
+                        }else{
+
+                          this._hanldeFluentDialog(
+                            "Refer Back",
+                            "Refered Back",
+                            "6000",
+                            "Please check the details filled along with attachment and click on Confirm button to approve request.",
+                            this.handleReferBack,
+                            this._closeDialog
+                          );
+
+                        }
+                        
                         // this.setState({
                         //   status: "Refered Back",
                         //   statusNumber: "6000",

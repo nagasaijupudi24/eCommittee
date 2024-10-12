@@ -24,7 +24,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
         { key: 'text', name: type, fieldName: 'text', minWidth: 60, maxWidth: 120, isResizable: true },
         { key: 'srNo', name: 'SR No', fieldName: 'srNo', minWidth: 60, maxWidth: 120, isResizable: true },
         { key: 'optionalText', name: 'Designation', fieldName: 'optionalText', minWidth: 80, maxWidth: 150, isResizable: true },
-        { key: 'mainStatus', name: 'Status', fieldName: 'mainStatus', minWidth: 100, maxWidth: 80, isResizable: true },
+        { key: 'mainStatus', name: 'Status', fieldName: 'mainStatus', minWidth: 100, maxWidth: 150, isResizable: true },
         { key: 'actionDate', name: 'Action Date', fieldName: 'actionDate', minWidth: 100, maxWidth: 150, isResizable: true ,
             onRender: (item) => {
                 console.log(item)

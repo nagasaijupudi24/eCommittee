@@ -722,6 +722,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         item.SearchKeyword !== null ? item.SearchKeyword : "",
       amountFeildValue: item.Amount !== null ? item.Amount : null,
       puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
+      isPuroposeVisable:item.Purpose !== null ? true : false,
       // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
       peoplePickerData: this._getJsonifyReviewer(
         item.NoteApproversDTO,
@@ -735,6 +736,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       auditTrail: JSON.parse(item.AuditTrail),
       statusNumber: item.StatusNumber,
       draftResolutionFieldValue: item.DraftResolution,
+      eCommitteData: {
+        ...(item.CommitteeName !== null && { CommitteeName: item.CommitteeName }),
+        ...(item.Subject !== null && { Subject: item.Subject }),
+        ...(item.NatureOfNote !== null && { NatureOfNote: item.NatureOfNote }),
+        ...(item.NoteType !== null && { NoteType: item.NoteType }),
+        ...(item.NatureOfApprovalOrSanction !== null && { NatureOfApprovalOrSanction: item.NatureOfApprovalOrSanction }),
+        ...(item.FinancialType !== null && { FinancialType: item.FinancialType }),
+        ...(item.SearchKeyword !== null && { SearchKeyword: item.SearchKeyword }),
+        ...(item.Amount !== null && { Amount: item.Amount }),
+        ...(item.Purpose !== null && { Purpose: item.Purpose }),
+        // Add more properties if needed
+      }
     });
     return item;
   };
@@ -1665,7 +1678,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverStatus: 1,
             id: each.id,
             status: index === 0 ? "pending" : "waiting",
-            mainStatus: index === 0 ? "pending with Reviewer" : "waiting",
+            mainStatus: index === 0 ? "Pending With Reviewer" : "waiting",
             email: each.secondaryText,
             designation: each.optionalText,
             approverEmailName: each.text,
@@ -1681,7 +1694,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverStatus: 1,
             id: each.id,
             status: index === 0 ? "pending" : "waiting",
-            mainStatus: index === 0 ? "pending with Approver" : "waiting",
+            mainStatus: index === 0 ? "Pending With Approver" : "waiting",
             email: each.secondaryText,
             designation: each.optionalText,
             approverEmailName: each.text,
@@ -3239,7 +3252,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 style={{ flexGrow: 1, margin: "10 10px" }}
               >
                 <h1
-                className={styles.sectionContainer}
+                className={styles.viewFormHeaderSectionContainer
+
+                }
                 
                 >
                   General Section
@@ -3686,7 +3701,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               style={{ flexGrow: 1, margin: "10 10px" }}
             >
               <h1
-               className={styles.sectionContainer}
+               className={styles.viewFormHeaderSectionContainer}
                
               >
                 Approver Details
@@ -3807,7 +3822,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               <div style={{ flexGrow: 1, margin: "10 10px" }}>
                 <div className={`${styles.generalSectionMainContainer}`}>
                   <h1
-                    className={styles.sectionContainer}
+                    className={styles.viewFormHeaderSectionContainer}
                   >
                     Draft Resoultion
                   </h1>
@@ -3829,7 +3844,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               style={{ flexGrow: 1, margin: "10 10px" }}
             >
               <h1
-               className={styles.sectionContainer}
+               className={styles.viewFormHeaderSectionContainer}
                 
               >
                 File Attachments

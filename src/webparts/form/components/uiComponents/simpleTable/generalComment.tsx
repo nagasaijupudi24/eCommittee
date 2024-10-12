@@ -141,7 +141,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       });
     }
   };
-
+  
   // Save the Edited row
   private handleSaveBtn = () => {
     const { editRowId, pageNumValue, pageValue, commentValue } = this.state;
@@ -178,7 +178,10 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     
     // Call the function passed from the parent component
     this.props.handleCommentDataFuntion(this.state.rowsData.filter(
-      (item: { id: any }) => item.id === id
+      (item: { id: any }) =>{
+        console.log(item)
+        return item.id === id
+      } 
     ), "delete", id);
   };
 
