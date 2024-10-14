@@ -736,17 +736,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       auditTrail: JSON.parse(item.AuditTrail),
       statusNumber: item.StatusNumber,
       draftResolutionFieldValue: item.DraftResolution,
+      noteSecretaryDetails:JSON.parse(item.NoteSecretaryDTO),
       eCommitteData: {
-        ...(item.CommitteeName !== null && { CommitteeName: item.CommitteeName }),
-        ...(item.Subject !== null && { Subject: item.Subject }),
-        ...(item.NatureOfNote !== null && { NatureOfNote: item.NatureOfNote }),
-        ...(item.NoteType !== null && { NoteType: item.NoteType }),
-        ...(item.NatureOfApprovalOrSanction !== null && { NatureOfApprovalOrSanction: item.NatureOfApprovalOrSanction }),
-        ...(item.FinancialType !== null && { FinancialType: item.FinancialType }),
-        ...(item.SearchKeyword !== null && { SearchKeyword: item.SearchKeyword }),
-        ...(item.Amount !== null && { Amount: item.Amount }),
-        ...(item.Purpose !== null && { Purpose: item.Purpose }),
-        // Add more properties if needed
+        ...(item.CommitteeName !== null && { CommitteeName: [item.CommitteeName, "Committee Name"] }),
+        ...(item.Subject !== null && { Subject: [item.Subject, "Subject"] }),
+        ...(item.NatureOfNote !== null && { NatureOfNote: [item.NatureOfNote, "Nature of Note"] }),
+        ...(item.NoteType !== null && { NoteType: [item.NoteType, "Note Type"] }),
+        ...(item.NatureOfApprovalOrSanction !== null && { NatureOfApprovalOrSanction: [item.NatureOfApprovalOrSanction, "Nature of Approval or Sanction"] }),
+        ...(item.FinancialType !== null && { FinancialType: [item.FinancialType, "Financial Type"] }),
+        ...(item.SearchKeyword !== null && { SearchKeyword: [item.SearchKeyword, "Search Keyword"] }),
+        ...(item.Amount !== null && { Amount: [item.Amount, "Amount"] }),
+        ...(item.Purpose !== null && { Purpose: [item.Purpose, "Purpose"] }),
+        // Add more properties as needed
       }
     });
     return item;
@@ -1437,7 +1438,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // Non-Financial
     if(value==='Non-Financial'){
       console.log("entered")
-      this.setState({typeOfFinancialNoteFeildValue:'',amountFeildValue:''})
+      this.setState({typeOfFinancialNoteFeildValue:'',amountFeildValue:null})
     }
   };
 
@@ -1852,7 +1853,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "allDetails"
       ),
       Status: status,
-      StatusNumber: status === "Submitted" ? statusNumber : "100",
+      StatusNumber: status === "Submitted" ? statusNumber : "300",
       AuditTrail:
         this.state.status === "Call Back"
           ? this._getAuditTrail("Re-submitted")
@@ -1920,7 +1921,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     statusOfForm: string
   ): Promise<void> => {
     // event.preventDefault();
-    console.log(event);
+  console.log(statusOfForm)
     console.log("Event Triggered");
     const {
       committeeNameFeildValue,
@@ -1954,9 +1955,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       ",check.........................."
     );
 
-    if (statusOfForm === 'Draft'){
+    if (statusOfForm === 'Drafted'){
       let id;
-      let status;
+     
     
         // eslint-disable-next-line prefer-const
         id = await this.props.sp.web.lists
@@ -1964,7 +1965,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           .items.add(this.createEcommitteeObject(statusOfForm, "300"));
         console.log(id.Id, "id");
       
-      console.log(id.Id, "id -----", status, "Status");
+      console.log(id.Id, "id -----", statusOfForm, "Status");
 
     
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -1974,6 +1975,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       console.log("Item Drafted successfully");
       this.setState({ isVisibleAlter: true });
     }
+
+    
+    
 
     else{
       try {
@@ -2002,7 +2006,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   
             // this.isNatureOfApprovalOrSanction()
           ) {
-            this.setState({ status: "Submitted", statusNumber: "1000" });
+            // this.setState({ status: "Submitted", statusNumber: "1000" });
   
             let id;
             let status;
@@ -2011,36 +2015,41 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(status, "2500"));
-            } else {
+            }
+
+            else if(statusOfForm === 'update') {
+              console.log('entered into updatee else if block')
+              await this.handleUpdate()
+        
+            }
+
+
+            
+            
+            else {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
+              console.log(id.Id, "id -----", status, "Status");
+  
+          
+              await this._generateRequsterNumber(id.Id);
+    
+              // console.log(id)
+              console.log("Item added successfully");
+              console.log(
+                `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+              );
             }
-            console.log(id.Id, "id -----", status, "Status");
-  
-            this.state.peoplePickerData.map(async (each: any) => {
-              console.log(each);
-              // const listItem = await this.props.sp.web.lists
-              //   .getByTitle(this.props.listId)
-              //   .items.add({
-              //     Title: `${each.id}`,
-              //     // Approvers:each.text
-              //   });
-              // console.log(listItem);
-            });
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            await this._generateRequsterNumber(id.Id);
-  
-            // console.log(id)
-            console.log("Item added successfully");
+           
             this.setState({
               committeeNameFeildValue: "",
               subjectFeildValue: "",
               natureOfNoteFeildValue: "",
               noteTypeFeildValue: "",
               typeOfFinancialNoteFeildValue: "",
-              amountFeildValue: "",
+              amountFeildValue: null,
               searchTextFeildValue: "",
               noteTofiles: [],
               wordDocumentfiles: [],
@@ -2066,9 +2075,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               isWarningWordDocumentFiles: false,
               // isWarningPeoplePicker: false,
             });
-            console.log(
-              `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-            );
+            
             this.setState({ isVisibleAlter: true });
           } else {
             this.setState({
@@ -2151,28 +2158,31 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(status, "2500"));
-            } else {
+            }      else if(statusOfForm === 'update') {
+              console.log('entered into updatee else if block')
+              await this.handleUpdate()
+        
+            }
+
+
+            
+            
+            else {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
-            }
-            console.log(id.Id, "id -----", status, "Status");
-            this.state.peoplePickerData.map(async (each: any) => {
-              console.log(each);
-              // const listItem = await this.props.sp.web.lists
-              //   .getByTitle(this.props.listId)
-              //   .items.add({
-              //     Title: `${each.id}`,
-              //     // Approvers:each.text
-              //   });
-              // console.log(listItem);
-            });
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            await this._generateRequsterNumber(id.Id);
+              console.log(id.Id, "id -----", status, "Status");
   
-            // console.log(id)
-            console.log("Item added successfully");
+          
+              await this._generateRequsterNumber(id.Id);
+    
+              // console.log(id)
+              console.log("Item added successfully");
+              console.log(
+                `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+              );
+            }
   
             this.setState({
               committeeNameFeildValue: "",
@@ -2202,9 +2212,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               isWarningWordDocumentFiles: false,
               isWarningPeoplePicker: false,
             });
-            console.log(
-              `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-            );
+           
             this.setState({ isVisibleAlter: true });
           } else {
             this.setState({
@@ -2286,28 +2294,31 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(status, "2500"));
-            } else {
+            }     else if(statusOfForm === 'update') {
+              console.log('entered into updatee else if block')
+              await this.handleUpdate()
+        
+            }
+
+
+            
+            
+            else {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
-            }
-            console.log(id.Id, "id -----", status, "Status");
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            await this._generateRequsterNumber(id.Id);
-            this.state.peoplePickerData.map(async (each: any) => {
-              console.log(each);
-              // const listItem = await this.props.sp.web.lists
-              //   .getByTitle(this.props.listId)
-              //   .items.add({
-              //     Title: `${each.id}`,
-              //     // Approvers:each.text
-              //   });
-              // console.log(listItem);
-            });
+              console.log(id.Id, "id -----", status, "Status");
   
-            // console.log(id)
-            console.log("Item added successfully");
+          
+              await this._generateRequsterNumber(id.Id);
+    
+              // console.log(id)
+              console.log("Item added successfully");
+              console.log(
+                `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+              );
+            }
             this.setState({
               committeeNameFeildValue: "",
               subjectFeildValue: "",
@@ -2315,7 +2326,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               natureOfApprovalOrSanctionFeildValue: "",
               noteTypeFeildValue: "",
               typeOfFinancialNoteFeildValue: "",
-              amountFeildValue: 0,
+              amountFeildValue: null,
               searchTextFeildValue: "",
               puroposeFeildValue: "",
               noteTofiles: [],
@@ -2340,9 +2351,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               isWarningWordDocumentFiles: false,
               isWarningPeoplePicker: false,
             });
-            console.log(
-              `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-            );
+           
             this.setState({ isVisibleAlter: true });
           } else {
             this.setState({
@@ -2376,13 +2385,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 ],
                 noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
                 typeOfFinancialNoteFeildValue:
-                  this.state.typeOfFinancialNoteFeildValue,
-                amountFeildValue: this.state.amountFeildValue,
+                  [this.state.typeOfFinancialNoteFeildValue,"Type of Financial Note"],
+                amountFeildValue: [this.state.amountFeildValue,"Amount"],
                 searchTextFeildValue: [
                   this.state.searchTextFeildValue,
                   "Search Text",
                 ],
-                puroposeFeildValue: this.state.puroposeFeildValue,
+                puroposeFeildValue: [this.state.puroposeFeildValue,"Purpose"],
                 noteTofiles: [
                   this.state.noteTofiles,
                   "Please select Valid Pdf File",
@@ -2435,25 +2444,31 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(status, "2500"));
-            } else {
+            }      else if(statusOfForm === 'update') {
+              console.log('entered into updatee else if block')
+              await this.handleUpdate()
+        
+            }
+
+
+            
+            
+            else {
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
+              console.log(id.Id, "id -----", status, "Status");
+  
+          
+              await this._generateRequsterNumber(id.Id);
+    
+              // console.log(id)
+              console.log("Item added successfully");
+              console.log(
+                `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+              );
             }
-            console.log(id.Id, "id -----", status, "Status");
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            await this._generateRequsterNumber(id.Id);
-            this.state.peoplePickerData.map(async (each: any) => {
-              console.log(each);
-              // const listItem = await this.props.sp.web.lists
-              //   .getByTitle(this.props.listId)
-              //   .items.add({
-              //     Title: `${each.id}`,
-              //     // // Approvers:each.text
-              //   });
-              // console.log(listItem);
-            });
   
             this.setState({
               committeeNameFeildValue: "",
@@ -2471,8 +2486,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             });
             this._fetchApproverDetails();
   
-            // console.log(id)
-            console.log("Item added successfully");
+           
             this.setState({
               isWarning: false,
               isWarningCommitteeName: false,
@@ -2487,9 +2501,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               isWarningWordDocumentFiles: false,
               isWarningPeoplePicker: false,
             });
-            console.log(
-              `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-            );
+           
             this.setState({ isVisibleAlter: true });
           } else {
             // alert("Required Fields")
@@ -2541,7 +2553,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             });
           }
         }
-        this.setState({ status: "" });
+        // this.setState({ status: "" });
       } catch (error) {
         console.error("Error adding item: ", error);
       }
@@ -2615,6 +2627,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private async updatePdfFolderItems(libraryName: any[], folderPath: string) {
     await this.clearFolder(libraryName, folderPath);
+    console.log(libraryName)
 
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
@@ -2780,10 +2793,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }
 
   private handleUpdate = async (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    
   ): Promise<void> => {
-    event.preventDefault();
-    console.log(event);
+    
     console.log("Update Event Triggered");
 
     const {
@@ -2815,7 +2827,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(puroposeFeildValue, "-----------puroposeFeildValue");
 
     try {
-      this.setState({ status: "Edited", statusNumber: "2000" });
+      this.setState({ status: "Updated", statusNumber: "1000" });
 
       // Update SharePoint item
       console.log(
@@ -2828,15 +2840,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         .update(this.getObject());
 
       // Usage example
-      this.updatePdfFolderItems(
+      await this.updatePdfFolderItems(
         this.state.noteTofiles,
         `${this._folderName}/Pdf`
       );
-      this.updateSupportingDocumentFolderItems(
+      await this.updateSupportingDocumentFolderItems(
         this.state.supportingDocumentfiles,
         `${this._folderName}/SupportingDocument`
       );
-      this.updateWordDocumentFolderItems(
+      await this.updateWordDocumentFolderItems(
         this.state.wordDocumentfiles,
         `${this._folderName}/WordDocument`
       );
@@ -3328,9 +3340,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                   Subject <SpanComponent />
                 </label>
-                <textarea placeholder="Enter" style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                <textarea  style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
-                        : "1px solid black",}}  value={this.state.subjectFeildValue}
+                        : "1px solid rgb(133, 133, 133)",}}  value={this.state.subjectFeildValue}
                   onChange={this.handleSubjectChange}></textarea>
                 {/* <TextField onChange={this.handleSubject} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
                 
@@ -3515,7 +3527,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 {/* <TextField onChange={this.handleSearchText} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
                 <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
-                        : "1px solid black",}}
+                        : "1px solid rgb(133, 133, 133)",}}
                   rows={
                     this.state.isWarningSearchText &&
                     !this.state.searchTextFeildValue
@@ -3540,7 +3552,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   </label>
                   <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
-                        : "1px solid black",}}
+                        : "1px solid rgb(133, 133, 133)",}}
                     onChange={this.handleAmountChange}
                     value={this.state.amountFeildValue}
                    
@@ -3648,7 +3660,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   </label>
                   <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
-                        : "1px solid black",}}
+                        : "1px solid rgb(133, 133, 133)",}}
                     rows={
                       this.state.isWarningPurposeField &&
                       !this.state.puroposeFeildValue
@@ -4051,7 +4063,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                   ) => {
                     e.preventDefault()
-                    this.handleSubmit( "Draft");
+                    this.handleSubmit( "Drafted");
                   }}
                 >
                   Save as Draft
@@ -4074,7 +4086,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                   ) => {
                     e.preventDefault()
-                    this.handleSubmit( "Draft");
+                    this.handleSubmit( "Drafted");
                   }}
                 >
                   Save as Draft
@@ -4084,7 +4096,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 <PrimaryButton
                   type="button"
                   className={`${styles.responsiveButton}`}
-                  onClick={this.handleUpdate}
+                  onClick={
+                    (e:any)=>{
+                      e.preventDefault()
+                      this.handleSubmit("update")
+                    }
+                  }
                   iconProps={{ iconName: "Send" }}
                 >
                   Edit Submit
@@ -4096,6 +4113,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   onClick={(
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                   ) => {
+                    // this.setState({status:'Submitted',statusNumber:'1000'})  
                     e.preventDefault()
                     this.showDialog()
                     // this.handleSubmit( "Submitted");

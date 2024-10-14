@@ -95,6 +95,7 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
   }, [data, maxFileSizeMB, maxTotalSizeMB, multiple]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.files)
     if (e.target.files) {
       const files = Array.from(e.target.files);
       const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
@@ -129,10 +130,10 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
       const updatedFiles = multiple
         ? [...selectedFiles, ...validFiles]
         : validFiles;
-
+      console.log(updatedFiles)
       setSelectedFiles(updatedFiles);
       onChange(
-        updatedFiles.filter((fileWithError) => !fileWithError.error).map((f) => f.file),
+        updatedFiles.map((f) => f.file),
         typeOfDoc
       );
 

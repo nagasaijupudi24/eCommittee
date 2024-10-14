@@ -2486,7 +2486,7 @@ export default class ViewForm extends React.Component<
             {/* Header section */}
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
-              // style={{ padding: "10px" }}
+              style={{ paddingLeft: "10px",paddingRight: "10px" }}
             >
               <h1 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}>
                 pending:{" "}
