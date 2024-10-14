@@ -30,7 +30,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
     root: {
       display: 'flex',
       flexDirection: 'row',
-      padding: 10,
+      padding: 2,
       borderBottom: '1px solid #ddd',
       justifyContent: 'space-between',
       alignItems: 'center',

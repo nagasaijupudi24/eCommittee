@@ -26,6 +26,7 @@ export interface IFormWebPartProps {
   description: string;
   listId:any;
   libraryId:any;
+  homePageUrl:any;
 }
 
 export {};
@@ -65,7 +66,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           context: this.context, // Pass the WebPartContext
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
-          formType:this.properties.FormType
+          formType:this.properties.FormType,
+          homePageUrl:this.properties.homePageUrl
         }
       );
      
@@ -83,7 +85,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           context: this.context, // Pass the WebPartContext
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
-          formType:this.properties.FormType
+          formType:this.properties.FormType,
+          homePageUrl:this.properties.homePageUrl
         }
       );
      
@@ -101,7 +104,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           context: this.context, // Pass the WebPartContext
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
-          formType:this.properties.FormType
+          formType:this.properties.FormType,
+          homePageUrl:this.properties.homePageUrl
 
         }
       );
@@ -123,6 +127,7 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
+          homePageUrl:this.properties.homePageUrl
         }
       );
      
@@ -141,7 +146,9 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
           
-          formType:this.properties.FormType
+          formType:this.properties.FormType,
+          
+          homePageUrl:this.properties.homePageUrl
          
         }
       );
@@ -261,6 +268,13 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
               groupFields: [
                 PropertyPaneTextField('description', {
                   label: strings.DescriptionFieldLabel
+                }),
+                PropertyPaneTextField('homePageUrl', {
+                  label: "Home Page URL",
+                  // Use a default value for the home URL if the description is not provided.
+                  value: this.properties.homePageUrl,
+                  resizable: true,
+                  // placeholder: "Enter home URL or description here"
                 }),
                 PropertyPaneDropdown('FormType', {
                   label: "FormType",

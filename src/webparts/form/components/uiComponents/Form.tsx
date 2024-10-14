@@ -3031,6 +3031,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public _closeDialogAlter = () => {
+    const pageURL: string = this.props.homePageUrl;
+    console.log(pageURL)
+    window.location.href = `${pageURL}`;
     this.setState({ isVisibleAlter: false });
   };
 
@@ -3198,12 +3201,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             {/* success  dialog */}
             <SuccessDialog
+           
               statusOfReq={this.state.status}
               isVisibleAlter={this.state.isVisibleAlter}
               onCloseAlter={this._closeDialogAlter}
             />
             {/* success  dialog */}
             <MyDialog
+           
               hidden={this.state.isDialogHidden}
               data={this.state.eCommitteData}
               handleDialogBox={this.handleDialogBox}
@@ -3323,7 +3328,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                   Subject <SpanComponent />
                 </label>
-                <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                <textarea placeholder="Enter" style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
                         : "1px solid black",}}  value={this.state.subjectFeildValue}
                   onChange={this.handleSubjectChange}></textarea>
@@ -3508,7 +3513,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 {/* <TextField onChange={this.handleSearchText} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
-                <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
                         : "1px solid black",}}
                   rows={
@@ -3533,7 +3538,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     Amount
                     <SpanComponent />
                   </label>
-                  <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                  <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
                         : "1px solid black",}}
                     onChange={this.handleAmountChange}
@@ -3641,7 +3646,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     Purpose
                     <SpanComponent />
                   </label>
-                  <textarea style={{display:'block',padding:'2px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                  <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
                         ? "2px solid red"
                         : "1px solid black",}}
                     rows={
@@ -4103,6 +4108,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
               <DefaultButton
                 // type="button"
+                onClick={() => {
+                  const pageURL: string = this.props.homePageUrl;
+                  window.location.href = `${pageURL}`;
+                }}
                 className={`${styles.responsiveButton} `}
                 iconProps={{ iconName: "Cancel" }}
               >

@@ -38,7 +38,9 @@ const Title: React.FC<TitleProps> = (
             ? `Board Note - ${props.itemId ? "Edit" : "New"}`
             : `eCommittee Note - ${props.itemId ? "Edit" : "New"}`}
         </h1>
-        <p className={`${styles.title}`} style={{ textAlign: "right" }}>
+        <p 
+        className={`${styles.titleDate}`} 
+        style={{ textAlign: "right" }}>
           Date: {formattedDate}
         </p>
       </div>

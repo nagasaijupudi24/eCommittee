@@ -33,7 +33,7 @@ import FileAttatchmentTable from "./simpleTable/fileAttatchmentsTable";
 
 import { Spinner } from "@fluentui/react/lib/Spinner";
 // import AdobePdfWebPart from "../../../adobePdf/AdobePdfWebPart";
-import AdobePdfViewer from "../adobe/adobepdf";
+// import AdobePdfViewer from "../adobe/adobepdf";
 import { DialogBlockingExample } from "./dialogFluentUi/dialogFluentUi";
 import { format } from "date-fns";
 // import PdfViewer from "../pdfVeiwer/pdfreact";
@@ -46,6 +46,7 @@ import SuccessDialog from "./dialogFluentUi/endDialog";
 import ReferBackCommentDialog from "./dialogFluentUi/referBackCommentDialog";
 import RejectBtnCommentCheckDialog from "./dialogFluentUi/rejectCommentsCheckDialog";
 import ReturnBtnCommentCheckDialog from "./dialogFluentUi/returnCommentsCheck";
+import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
@@ -1081,7 +1082,9 @@ export default class ViewForm extends React.Component<
   private _renderPDFView = (): JSX.Element => {
     // const { pdfLink } = this.state;
     return (
-      <div className={styles.pdfViewer}>
+      <div 
+      // className={styles.pdfViewer}
+      >
         {/* <iframe
           src={pdfLink}
           width="100%"
@@ -1089,12 +1092,13 @@ export default class ViewForm extends React.Component<
           style={{ border: "none" }}
           title="PDF Viewer"
         /> */}
-        <AdobePdfViewer
+        <ViewPdf pdfUrl={this.state.pdfLink}/>
+        {/* <AdobePdfViewer
           clientId={"e32773e52b624acba0e9bd777c8dd310"}
           fileUrl={this.state.pdfLink}
           // height={800}
           defaultViewMode={"FIT_PAGE"}
-        />
+        /> */}
       </div>
     );
   };
@@ -1237,6 +1241,7 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+    
     let previousApprover: any;
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -1358,6 +1363,7 @@ export default class ViewForm extends React.Component<
       console.log(itemToUpdateStatusToApproved);
     }
     this._closeDialog();
+    
     this.setState({ isVisibleAlter: true });
   };
 
@@ -1999,6 +2005,7 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
+            this.setState({status:'Approved'})
             this._hanldeFluentDialog(
               "Approve",
               "Approved",
@@ -2034,6 +2041,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()){
               this.setState({isRejectCommentsCheckAlterDialog:true})
             }else{
+              this.setState({status:'Rejected'})
               this._hanldeFluentDialog(
                 "Reject",
                 "Rejected",
@@ -2057,7 +2065,7 @@ export default class ViewForm extends React.Component<
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
 
-            
+            this.setState({status:'Refered'})
               this._hanldeFluentDialog(
                 "Refer",
                 "Refered",
@@ -2083,6 +2091,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()){
               this.setState({isReturnCommentsCheckAlterDialog:true})
             }else{
+              this.setState({status:'Returned'})
               this._hanldeFluentDialog(
                 "Return",
                 "Returned",
@@ -2350,6 +2359,9 @@ export default class ViewForm extends React.Component<
   };
 
   public _closeDialogAlter = () => {
+    const pageURL: string = this.props.homePageUrl;
+    console.log(pageURL)
+    window.location.href = `${pageURL}`;
     this.setState({ isVisibleAlter: false,isReferBackAlterDialog:false,isRejectCommentsCheckAlterDialog:false,isReturnCommentsCheckAlterDialog:false });
   };
 
@@ -2412,6 +2424,7 @@ export default class ViewForm extends React.Component<
           >
             {/* success  dialog */}
             <SuccessDialog
+              // homePageUrl = {this.props.homePageUrl}
               statusOfReq={this.state.status}
               isVisibleAlter={this.state.isVisibleAlter}
               onCloseAlter={this._closeDialogAlter}

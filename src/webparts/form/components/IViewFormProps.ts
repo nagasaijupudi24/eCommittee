@@ -15,6 +15,7 @@ export interface IViewFormProps {
     listId:any;
     libraryId:any;
     formType:any;
+    homePageUrl:any;
   }
 
 

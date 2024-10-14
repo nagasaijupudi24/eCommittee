@@ -13,6 +13,7 @@ export interface IFormProps {
   listId:any;
   libraryId:any;
   formType:any;
+  homePageUrl:any;
 }
 
 // pdfLink: 'https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB' // Link to the PDF

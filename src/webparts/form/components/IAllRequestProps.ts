@@ -15,7 +15,9 @@ export interface IAllRequestProps {
     listId:any;
     libraryId:any;
     
-          formType:any
+          formType:any,
+          
+          homePageUrl:any
   }
 
 

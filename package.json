@@ -44,7 +44,7 @@
     "bootstrap-icons": "^1.11.3",
     "date-fns": "^3.6.0",
     "fluentui-editable-grid": "^1.12.1",
-    "pdfjs-dist": "^3.11.174",
+    "pdfjs-dist": "^4.6.82",
     "pspdfkit": "^2024.5.2",
     "react": "17.0.1",
     "react-beautiful-dnd": "^13.1.1",
