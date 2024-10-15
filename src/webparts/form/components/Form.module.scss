@@ -161,9 +161,9 @@
 }
 
 
-.approverDetailsSection {
-  // border: 1px solid pink
-}
+// .approverDetailsSection {
+//   // border: 1px solid pink
+// }
 
 .headerContainer {
   display: flex;
@@ -189,6 +189,7 @@
   // border: 1px solid yellow;
   /* Uncomment the height if needed */
   /* height: 100%; */
+  width:'100%';
 }
 
 /* Expanding Container */
@@ -196,13 +197,14 @@
   width: 50%; /* Default width for larger screens */
   height: 100%;
   /* Uncomment the border if needed */
-  /* border: 1px solid red; */
+  // border: 1px solid red; 
   gap: 0px;
   margin: 4px;
 }
 
 /* PDF Container */
 .pdfContainer {
+  height: 88vh;
   border: 1px solid rgb(211, 211, 211);
   margin:4px;
   width: 50%; /* Default width for larger screens */
@@ -800,7 +802,7 @@
   }
 }
 .pdfContainer {
-  width: 100%;
+  // width: 100%;
   height: 88vh;
   overflow-y: auto; // Enable vertical scrolling
   padding: 10px;
@@ -835,7 +837,7 @@ canvas {
 
 .header {
   display: flex;
-  // width: 100%;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   cursor: pointer; // Make the header clickable
@@ -857,6 +859,7 @@ canvas {
   // padding-left:'22px';
   // border: 1px solid #ddd;
   padding-top: '0px';
+  width: '100%';
 
 }
 
@@ -909,8 +912,8 @@ canvas {
 
 .richTextContainer {
   position: relative;
-  max-width: 600px; /* Optional: Limit the width of the RichText field */
-  margin: 0 auto;
+  // max-width: 600px; /* Optional: Limit the width of the RichText field */
+  // margin: 0 auto;
 
   .msRichTextToolbar {
     position: sticky; /* Makes the toolbar stick to the top */
@@ -973,6 +976,33 @@ canvas {
   align-items: center; /* Center content vertically */
   justify-content: center;
   }
+}
+
+
+.passcodeModalContainer {
+  width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.headerPass {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.closeButton {
+  color: #000;
+}
+
+.body {
+  margin-top: 20px;
+}
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
 }
 
 

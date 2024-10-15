@@ -46,7 +46,11 @@ import SuccessDialog from "./dialogFluentUi/endDialog";
 import ReferBackCommentDialog from "./dialogFluentUi/referBackCommentDialog";
 import RejectBtnCommentCheckDialog from "./dialogFluentUi/rejectCommentsCheckDialog";
 import ReturnBtnCommentCheckDialog from "./dialogFluentUi/returnCommentsCheck";
-import ViewPdf from "../pdfVeiwer/viewPdf";
+import PDFViewer from "./pdfviewPdfDist/pdfDist";
+// import PDFViewerComponent from "./pdfviewPdfDist/ibpdf";
+import PasscodeModal from "./passCode/passCode";
+// import ViewPdf from "../pdfVeiwer/viewPdf";
+// import PasscodeModal from "./passCode/passCode";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
 // import PnPPeoplePicker from "./peoplePicker/peoplePicker";
 // import PnPPeoplePicker2 from "./peoplePicker/people";
@@ -176,6 +180,12 @@ export interface IViewFormState {
   isReturnCommentsCheckAlterDialog:boolean;
 
   draftResolutionFieldValue: any;
+
+  // pass code 
+  isPasscodeModalOpen: boolean;
+  isPasscodeValidated:boolean;
+
+ 
 }
 
 const getIdFromUrl = (): any => {
@@ -322,6 +332,11 @@ export default class ViewForm extends React.Component<
       
 
       draftResolutionFieldValue: "",
+
+      // pass code 
+      isPasscodeModalOpen: false,
+      isPasscodeValidated: false, // New state to check if passcode is validated
+
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -952,12 +967,12 @@ export default class ViewForm extends React.Component<
       // this.setState({noteTofiles:[folderItem]})
 
       const tempFilesPdf: IFileDetails[] = [];
-      folderItemsPdf.forEach((values) => {
+       folderItemsPdf.forEach((values) => {
         tempFilesPdf.push(this._getFileObj(values));
         this.setState({ pdfLink: this._getFileObj(values).fileUrl });
       });
 
-      // console.log(tempFilesPdf);
+      console.log(tempFilesPdf);
       this.setState({ noteTofiles: tempFilesPdf });
 
       //Word Documents
@@ -1016,10 +1031,10 @@ export default class ViewForm extends React.Component<
       // console.log(SupportingDocument[0]);
 
       const tempFilesGistDocument: IFileDetails[] = [];
-      SupportingDocument.forEach((values) => {
-        tempFilesSupportingDocument.push(this._getFileObj(values));
+      GistDocument.forEach((values) => {
+        tempFilesGistDocument.push(this._getFileObj(values));
       });
-      // console.log(tempFilesSupportingDocument);
+      console.log(tempFilesGistDocument);
       this.setState({ secretaryGistDocs: tempFilesGistDocument });
     } catch {
       console.log("failed to fetch");
@@ -1092,13 +1107,14 @@ export default class ViewForm extends React.Component<
           style={{ border: "none" }}
           title="PDF Viewer"
         /> */}
-        <ViewPdf pdfUrl={this.state.pdfLink}/>
+        {/* <ViewPdf pdfUrl={this.state.pdfLink}/> */}
         {/* <AdobePdfViewer
           clientId={"e32773e52b624acba0e9bd777c8dd310"}
           fileUrl={this.state.pdfLink}
           // height={800}
           defaultViewMode={"FIT_PAGE"}
         /> */}
+        <PDFViewer pdfPath={this.state.pdfLink}/>
       </div>
     );
   };
@@ -1241,6 +1257,11 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+
+    if (!this.state.isPasscodeValidated) {
+        this.setState({ isPasscodeModalOpen: true }); // Open the modal
+        return; // Prevent the method from proceeding until passcode is validated
+    }
     
     let previousApprover: any;
     const modifyApproveDetails = this.state.ApproverDetails.map(
@@ -1336,6 +1357,7 @@ export default class ViewForm extends React.Component<
         ? JSON.stringify(this.state.noteATRAssigneeDetails)
         : "",
       PreviousActioner: JSON.stringify(this.props.context.pageContext.user),
+      startProcessing:true,
     };
     console.log(updateItems);
     const itemToUpdate = await this.props.sp.web.lists
@@ -1358,6 +1380,7 @@ export default class ViewForm extends React.Component<
         .update({
           Status: statusFromEvent,
           StatusNumber: statusNumber,
+
         });
 
       console.log(itemToUpdateStatusToApproved);
@@ -1578,6 +1601,8 @@ export default class ViewForm extends React.Component<
         ...this.state.commentsData,
         commentsObj,
       ]),
+      
+      startProcessing:true,
       NoteReferrerDTO: JSON.stringify([
         ...this.state.noteReferrerDTO,
         {
@@ -1613,6 +1638,7 @@ export default class ViewForm extends React.Component<
           referredTo:[{... this.state.refferredToDetails[0],noteReferrerId: referedId}],
         referredFrom: [{...this.state.referredFromDetails[0],noteReferrerId: referedId}],
         },
+        
       ]),
       // referredTo: JSON.stringify(this.state.refferredToDetails),
       // referredFrom: JSON.stringify(this.state.referredFromDetails),
@@ -1753,6 +1779,8 @@ export default class ViewForm extends React.Component<
           this.state.noteReferrerCommentsDTO
         ]),
         NoteReferrerDTO: JSON.stringify(updateCurrentReferDTO),
+  
+      startProcessing:true,
       };
       console.log(obj);
   
@@ -1834,6 +1862,8 @@ export default class ViewForm extends React.Component<
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
+        
+      startProcessing:true,
       });
 
     console.log(itemToUpdate);
@@ -1865,6 +1895,7 @@ export default class ViewForm extends React.Component<
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
+        startProcessing:true,
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
@@ -1958,6 +1989,7 @@ export default class ViewForm extends React.Component<
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
+        startProcessing:true,
         CurrentApproverId: currentApproverId,
         AuditTrail: updateAuditTrial,
         NoteApproversDTO: JSON.stringify(modifyApproverDetails),
@@ -2372,6 +2404,14 @@ export default class ViewForm extends React.Component<
 
   }
 
+
+  public handlePasscodeSuccess = () => {
+    this.setState({ isPasscodeValidated: true, isPasscodeModalOpen: false }, () => {
+        // Re-run the _handleApproverButton function now that the passcode is validated
+        this._handleApproverButton('Approved', '9000');
+    });
+};
+
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
     // this._checkApproveredStatusIsFound()
@@ -2422,6 +2462,16 @@ export default class ViewForm extends React.Component<
             tokens={{ childrenGap: 10 }}
             className={styles.viewFormMainContainer}
           >
+
+            {/* Passcode Modal */}
+            <PasscodeModal
+                isOpen={this.state.isPasscodeModalOpen}
+                onClose={() => this.setState({ isPasscodeModalOpen: false })}
+                onSuccess={this.handlePasscodeSuccess} // Pass this function as the success handler
+                sp={this.props.sp}
+                user={this.props.context.pageContext.user}
+                />
+
             {/* success  dialog */}
             <SuccessDialog
               // homePageUrl = {this.props.homePageUrl}
@@ -2438,6 +2488,12 @@ export default class ViewForm extends React.Component<
               onCloseAlter={this._closeDialogAlter}
             />
             {/* refer back comment  dialog */}
+            {/* <PasscodeModal sp={this.props.sp} 
+             isOpen={this.state.isPasscodeModalOpen}
+             onClose={() => this.setState({ isPasscodeModalOpen: false })}
+             onSuccess={this.handlePasscodeSuccess} 
+            
+            /> */}
 
 
             {/* reject back comment  dialog */}
@@ -2926,7 +2982,7 @@ export default class ViewForm extends React.Component<
       }
 
       console.log(file);
-
+      console.log(file.fileUrl)
       return (
         <li
           key={index} // Use index as the key here, assuming files are unique
@@ -2948,7 +3004,7 @@ export default class ViewForm extends React.Component<
           >
             <div>
               <a
-                href={file.url || "#"}
+                href={file.fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -3042,7 +3098,7 @@ export default class ViewForm extends React.Component<
                             Main Note Link:
                             <a
                               href={this.state.noteTofiles[0]?.fileUrl}
-                              download
+                              target="_blank" rel="noopener noreferrer"
                             >
                               {" "}
                               {this.state.noteTofiles[0]?.name}
@@ -3056,7 +3112,7 @@ export default class ViewForm extends React.Component<
                               Word Documents:
                               <a
                                 href={this.state.wordDocumentfiles[0]?.fileUrl}
-                                download
+                                target="_blank" rel="noopener noreferrer"
                               >
                                 {" "}
                                 {this.state.wordDocumentfiles[0]?.name}
@@ -3186,6 +3242,11 @@ export default class ViewForm extends React.Component<
                   className={`${styles.responsiveButton} `}
                   style={{ marginLeft: "10px" }}
                   iconProps={{ iconName: "Cancel" }}
+
+                  onClick={() => {
+                    const pageURL: string = this.props.homePageUrl;
+                    window.location.href = `${pageURL}`;
+                  }}
                 >
                   Exit
                 </DefaultButton>
@@ -3233,6 +3294,10 @@ export default class ViewForm extends React.Component<
             }}
           />
         )}
+
+        {/* <PDFViewerComponent path={this.state.pdfLink} sp={this.props.sp}/> */}
+
+{/* <PDFViewer pdfPath={this.state.pdfLink}/> */}
         {/* <PSPDFKitViewer documentURL={this.state.pdfLink} sp={this.props.sp}/> */}
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}

@@ -15,9 +15,11 @@ import { IFormProps } from './components/IFormProps';
 import { IViewFormProps } from './components/IViewFormProps';
 
 import { spfi, SPFx } from "@pnp/sp";
+import "@pnp/sp/files";  
 import "@pnp/sp/webs"; // Import webs functionality
 import "@pnp/sp/lists"; // Import lists functionality
 import "@pnp/sp/items"; // Import items functionality
+import "@pnp/sp/files/web"
 import { AllRequest } from './components/uiComponents/allRequest';
 // import PSPDFKitViewer from './components/psdpdfKit/psdPDF';
 

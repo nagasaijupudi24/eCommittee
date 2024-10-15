@@ -33,7 +33,8 @@ interface IATRAssigneeState {
   selectedUsers: any;
   currentRowKey: any;
   selectedStatus: any;
-  selectedValue:any
+  selectedValue:any;
+  commentsData:any;
 }
 
 // ComboBox options for status
@@ -52,19 +53,26 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       currentRowKey: null,
       selectedStatus: undefined,
       selectedValue:'',
+      commentsData:this.props.commentsData
     };
 
     this._updateStatusOptions()
   }
 
-  private _updateStatusOptions =()=>{
-    this.props.atrCreatorsList.map(
-        (each:any)=>{
-            console.log(each)
-            statusOptions.push({key:each.atrCreatorEmailName,text:each.atrCreatorEmailName,id:each.atrCreatorId})
-        }
-    )
-
+  private _updateStatusOptions = () => {
+    this.props.atrCreatorsList.forEach((each: any) => {
+      // Check if the item with the same key already exists
+      const exists = statusOptions.some(option => option.key === each.atrCreatorEmailName);
+      
+      // Only push if it doesn't already exist
+      if (!exists) {
+        statusOptions.push({
+          key: each.atrCreatorEmailName,
+          text: each.atrCreatorEmailName,
+          id: each.atrCreatorId
+        });
+      }
+    });
   }
 
   // Define the columns for the DetailsList
@@ -185,7 +193,8 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
 
   public _getDetailsFromPeoplePicker = (data: any): any => {
     console.log("add btn triggered in ATR Assignee")
-    const joinedCommentsData = this.props.commentsData
+    console.log(this.state.commentsData)
+    const joinedCommentsData = this.state.commentsData
       .filter((each: any) => !!each)
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
 

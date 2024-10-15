@@ -25,7 +25,7 @@ const ReferBackCommentDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: 
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '10px 0',
+      // padding: '10px 0',
       borderBottom: '1px solid #ddd',
     },
     body: {
