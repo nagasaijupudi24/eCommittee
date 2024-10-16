@@ -8,6 +8,7 @@ import { Icon, IIconProps, Stack, TextField } from "@fluentui/react";
 import PnPPeoplePicker from "../peoplePicker/peoplePicker";
 import { IconButton, Text, TooltipHost } from "@fluentui/react";
 import { v4 } from "uuid";
+import ReferCommentsMandatoryDialog from "./referCommentsMandiatory";
 
 interface IDialogProps {
   hiddenProp: any;
@@ -57,8 +58,15 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
       },
     },
   };
+  const [data, setData] =
+    React.useState<any>('');
+    const [isVisibleAlter, setIsVisableAlter] =
+    React.useState<any>(false);
   const [referredCommentTextBoxValue, setReferredCommentTextBoxValue] =
-    React.useState<any>({});
+    React.useState<any>('');
+
+    const [type, setType] =
+    React.useState<any>('');
 
   const handleConfirmBtn = () => {
     console.log("Confirm btn triggered");
@@ -88,8 +96,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
           <IconButton iconProps={closeIcon} onClick={dialogDetails.closeFunction} />
         </div>
         <div style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center', marginTop: '20px' }}>
-          <p>{dialogDetails.subText}</p>
-          <p>{dialogDetails.message}</p>
+          <p >{dialogDetails.subText}</p>
+          <p style={{textAlign:'center'}}>{dialogDetails.message}</p>
         </div>
         <div style={{ borderTop: '1px solid #ccc', marginTop: '20px',paddingTop:'10px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
           <PrimaryButton onClick={handleConfirmBtn} text="Confirm" style={{ flex: '1' }} />
@@ -104,6 +112,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
   const _getDetails = (data: any, typeOFButtonTriggererd: any): any => {
     console.log("Referrer function is Triggered");
     console.log(data, typeOFButtonTriggererd);
+    setData(data)
     fetchAnydata(data, typeOFButtonTriggererd, dialogDetails.status);
   };
 
@@ -122,17 +131,20 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
       dialogDetails.statusNumber,
       referredCommentTextBoxValue
     );
+   
   };
 
   const getChangeApproverJsx = (): any => {
     console.log("Change Approver is triggered");
     return (
+     
       <Modal
         isOpen={!hiddenProp}
         onDismiss={dialogDetails.closeFunction}
         isBlocking={true}
         styles={modalPropsStyles}
       >
+       
         <div>
           <h2>Change Approver</h2>
           <p>{dialogDetails.message}</p>
@@ -167,6 +179,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
         isBlocking={true}
         styles={modalPropsStyles}
       >
+          <ReferCommentsMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/>
         <div>
           <Header onClose={dialogDetails.closeFunction} />
           <div
@@ -230,7 +243,20 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
             }}
           >
             <PrimaryButton
-              onClick={handleReferData}
+              onClick={()=>{
+                if (data ===''){
+
+                  setType("data")
+                  setIsVisableAlter(true)
+                }else if(referredCommentTextBoxValue===''){
+                  setType("comments")
+                  setIsVisableAlter(true)
+                  
+                }else{
+                  handleReferData()
+                }
+
+              }}
               text="Submit"
               styles={{ root: { flex: 1 } }}
             />

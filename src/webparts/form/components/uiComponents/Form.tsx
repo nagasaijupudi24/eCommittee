@@ -292,7 +292,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }/${this._folderNameGenerate(this._itemId)}`;
   // private _folderName:string;
 
+  private title:any;
+  
+
   constructor(props: IFormProps) {
+   
     super(props);
     this.state = {
       isLoading: true,
@@ -381,6 +385,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(this._itemId);
     console.log(this._formType);
     console.log(this._folderName);
+    console.log(this.props.formType)
     this._generateRequsterNumber = this._generateRequsterNumber.bind(this);
     this._folderNameGenerate = this._folderNameGenerate.bind(this);
 
@@ -704,6 +709,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(this._getJsonifyReviewer(item.NoteApproversDTO, "Reviewer"));
     console.log(this._getJsonifyApprover(item.NoteApproversDTO, "Approver"));
     console.log(item.Purpose);
+    this.title = item.Title
 
     this.setState({
       committeeNameFeildValue:
@@ -1384,6 +1390,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private handleSubjectChange = (event: any) => {
     const { value } = event.target;
     const isWarning = !value && this.state.isWarningSubject;
+    console.log(isWarning)
 
     this.setState({
       subjectFeildValue: value,
@@ -1679,6 +1686,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverStatus: 1,
             id: each.id,
             status: index === 0 ? "pending" : "waiting",
+            statusNumber: index === 0 ? "2000" : "",
             mainStatus: index === 0 ? "Pending With Reviewer" : "waiting",
             email: each.secondaryText,
             designation: each.optionalText,
@@ -1694,6 +1702,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverOrder: index + 1,
             approverStatus: 1,
             id: each.id,
+            statusNumber: index === 0 ? "3000" : "",
             status: index === 0 ? "pending" : "waiting",
             mainStatus: index === 0 ? "Pending With Approver" : "waiting",
             email: each.secondaryText,
@@ -1902,7 +1911,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // };
 
    // Show the dialog
-   private showDialog = () => {
+   private showDialog = 
+   () => {
     this.setState({ isConfirmationDialogVisible: true });
   };
 
@@ -2864,7 +2874,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private async _generateRequsterNumber(id: number) {
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
-    const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;
+    const requesterNo =
+    this.props.formType==="BoardNoteNew"? `DEP/${currentyear}-${nextYear}/B${id}`: `DEP/${currentyear}-${nextYear}/C${id}`;
     // const requesterNo=`AD1/${currentyear}-${nextYear}/C${id}`
 
     const currentItem = await this._getItemData(id, "");
@@ -2879,7 +2890,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       console.log(updatedSecretaryDTO);
       return updatedSecretaryDTO;
     };
-
+    this.title = requesterNo
     await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(id)
@@ -2898,7 +2909,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   public _folderNameGenerate(id: any): any {
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
-    const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;
+    
+    const requesterNo = this.props.formType==="BoardNoteNew"? `DEP/${currentyear}-${nextYear}/B${id}`:`DEP/${currentyear}-${nextYear}/C${id}`;
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
@@ -3208,6 +3220,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               formType={this._formType}
               propPaneformType={this.props.formType}
               statusOfRequest={this.state.status}
+              title={this.title}
             />
             {/* {this.state.isDialogHidden&&<MyDialog  />} */}
 
@@ -3340,7 +3353,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                   Subject <SpanComponent />
                 </label>
-                <textarea  style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                <textarea  style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject && this.state.subjectFeildValue===''
                         ? "2px solid red"
                         : "1px solid rgb(133, 133, 133)",}}  value={this.state.subjectFeildValue}
                   onChange={this.handleSubjectChange}></textarea>
@@ -3525,7 +3538,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 {/* <TextField onChange={this.handleSearchText} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
-                <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSearchText && this.state.searchTextFeildValue ===''
                         ? "2px solid red"
                         : "1px solid rgb(133, 133, 133)",}}
                   rows={
@@ -3550,7 +3563,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     Amount
                     <SpanComponent />
                   </label>
-                  <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
+                  <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningAmountField && this.state.amountFeildValue ===''
                         ? "2px solid red"
                         : "1px solid rgb(133, 133, 133)",}}
                     onChange={this.handleAmountChange}
@@ -4104,8 +4117,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   }
                   iconProps={{ iconName: "Send" }}
                 >
-                  Edit Submit
+               Submit
                 </PrimaryButton>
+                    // Edit submit is above
               ) : (
                 <PrimaryButton
                   type="button"

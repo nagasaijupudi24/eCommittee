@@ -9,6 +9,7 @@ interface TitleProps {
   formType: string;
   statusOfRequest: string;
   propPaneformType: any;
+  title:any;
 }
 
 const Title: React.FC<TitleProps> = (
@@ -32,11 +33,21 @@ const Title: React.FC<TitleProps> = (
           width: "100%",
         }}
       >
-        <div></div> {/* Empty div to take up space on the left */}
+        <div>
+          {props.itemId ?
+          <p
+          className={`${styles.status}`}
+          // style={{ flex: 1, textAlign: "left" }}
+        >
+          Status: {props.statusOfRequest}
+        </p>:''}
+        
+          
+          </div> {/* Empty div to take up space on the left */}
         <h1 className={`${styles.title}`} style={{ textAlign: "center" }}>
           {props.propPaneformType === "BoardNoteNew"
-            ? `Board Note - ${props.itemId ? "Edit" : "New"}`
-            : `eCommittee Note - ${props.itemId ? "Edit" : "New"}`}
+            ? `Board Note - ${props.itemId ? props.title: "New"}`
+            : `eCommittee Note - ${props.itemId ?  props.title : "New"}`}
         </h1>
         <p 
         className={`${styles.titleDate}`} 

@@ -14,6 +14,7 @@ import {
 } from "@fluentui/react";
 import * as React from "react";
 import { v4 } from "uuid";
+import CommentsMandatoryDialog from "../dialogFluentUi/generalCommentsMandiatoryDialog";
 
 interface IGridRow {
   id: string;
@@ -33,6 +34,7 @@ interface IGridProps {
 }
 
 interface IGridState {
+  isVisibleAlter:any;
   pageNumValue: string;
   pageValue: string;
   commentValue: string;
@@ -49,6 +51,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
   constructor(props: IGridProps) {
     super(props);
     this.state = {
+      isVisibleAlter:false,
       pageNumValue: "",
       pageValue: "",
       commentValue: "",
@@ -98,13 +101,15 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     if (this.state.isEditMode) {
       this.handleSaveBtn();
     } else {
-      this.handleAddNewComment();
+
+      this.state.commentValue !== ''?this.handleAddNewComment():this.setState({isVisibleAlter:true});
     }
   };
 
   // Add a new comment
   private handleAddNewComment = () => {
     const { pageNumValue, pageValue, commentValue } = this.state;
+    
     const commentsObj: IGridRow = {
       id: v4(),
       pageNum: pageNumValue,
@@ -192,7 +197,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
   public render(): React.ReactElement<any> {
     const columns: IColumn[] = [
       { key: "pageNum", name: "Page#", fieldName: "pageNum", minWidth: 100, maxWidth: 150, isResizable: true },
-      { key: "page", name: "Page", fieldName: "page", minWidth: 100, maxWidth: 150, isResizable: true },
+      { key: "page", name: "Doc Reference", fieldName: "page", minWidth: 100, maxWidth: 150, isResizable: true },
       { key: "comment", name: "Comment", fieldName: "comment", minWidth: 200, maxWidth: 300, isResizable: true },
       {
         key: "actions",
@@ -215,7 +220,11 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       <div style={{ display: "flex",flexDirection:'column' }}>
         {/* Add Button to Open Dialog */}
         <PrimaryButton style={{ alignSelf:'flex-end' }} text="Add Comment" onClick={this.handleAddBtn} />
-
+        <CommentsMandatoryDialog isVisibleAlter={this.state.isVisibleAlter} onCloseAlter={
+          ()=>{
+            this.setState({ isVisibleAlter: false});
+          }
+        } statusOfReq={"undefined"}/>
         {/* Fluent UI Dialog */}
         <Dialog
           hidden={!this.state.isDialogOpen}

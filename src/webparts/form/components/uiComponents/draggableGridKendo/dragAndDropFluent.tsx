@@ -20,13 +20,13 @@ import {
 
 
 // import { getTheme, mergeStyles } from '@fluentui/react/lib/Styling';
-import { Icon, IconButton } from '@fluentui/react';
+import { getTheme, Icon, IconButton, mergeStyles } from '@fluentui/react';
 
-// const theme = getTheme();
+const theme = getTheme();
 
-// const dragEnterClass = mergeStyles({
-//   backgroundColor: theme.palette.neutralLight,
-// });
+const dragEnterClass = mergeStyles({
+  backgroundColor: theme.palette.neutralLight,
+});
 // const controlWrapperClass = mergeStyles({
 //   display: 'flex',
 //   flexWrap: 'wrap',
@@ -206,7 +206,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
             columns={columns}
             selection={this._selection}
             selectionMode={SelectionMode.none}
-            // selectionPreservedOnEmptyClick={true}
+            selectionPreservedOnEmptyClick={true}
             // onRenderItemColumn={this._onRenderItemColumn}
             dragDropEvents={this._dragDropEvents}
             // columnReorderOptions={this.state.isColumnReorderEnabled ? this._getColumnReorderOptions() : undefined}
@@ -234,13 +234,13 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       canDrag: (item?: any) => {
         return true;
       },
-    //   onDragEnter: (item?: any, event?: DragEvent):void => {
-    //     // return string is the css classes that will be added to the entering element.
-    //     // return dragEnterClass;
-    //   },
-      onDragLeave: (item?: any, event?: DragEvent) => {
-        return;
+      onDragEnter: (item?: any, event?: DragEvent) => {
+        // return string is the css classes that will be added to the entering element.
+        return dragEnterClass;
       },
+      // onDragLeave: (item?: any, event?: DragEvent) => {
+      //   return;
+      // },
       onDrop: (item?: any, event?: DragEvent) => {
         if (this._draggedItem) {
           this._insertBeforeItem(item);

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @rushstack/no-new-null */
 /* eslint-disable prefer-const */
-import React, { useEffect,useRef, useState } from "react";
+import React, {useEffect, useRef, useState } from "react";
 import { IconButton, Icon } from "@fluentui/react";
 import styles from "../Form.module.scss";
 
@@ -52,6 +52,8 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFiles, setSelectedFiles] = useState<FileWithError[]>([]);
+  const [cummError,setCummError] = useState<any>('');
+  console.log(cummError)
 
   const isFileNameValid = (name: string): boolean => {
     const regex = /^[a-zA-Z0-9._-]+$/;
@@ -65,7 +67,7 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
     const maxTotalSizeBytes = maxTotalSizeMB
       ? maxTotalSizeMB * 1024 * 1024
       : undefined;
-
+      console.log(maxTotalSizeBytes)
     let validFiles: FileWithError[] = [];
     let currentTotalSize = selectedFiles.reduce(
       (acc, fileWithError) => acc + fileWithError.file.size,
@@ -75,21 +77,31 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       let error: string | null = null;
-
-      if (file.size > maxFileSizeBytes) {
-        error = `File size exceeds ${maxFileSizeMB}MB`;
-      } else if (!isFileNameValid(file.name)) {
-        error = "File name contains invalid characters";
-      } else if (
+      console.log(file.size)
+      console.log(
         maxTotalSizeBytes &&
         currentTotalSize + file.size > maxTotalSizeBytes
-      ) {
-        error = `Total file size exceeds ${maxTotalSizeMB}MB`;
-      }
 
+      )
+
+
+      const allowedFileTypes = ['.pdf', '.doc', '.docx', '.xlsx']; 
+      if (file.size > maxFileSizeBytes) {
+          error = `File size exceeds ${maxFileSizeMB}MB`;
+      } else if (!isFileNameValid(file.name)) {
+          error = "File name contains invalid characters";
+      } else if (!allowedFileTypes.includes(file.name.substring(file.name.lastIndexOf('.')))) {
+        error = "File type is not allowed";
+    }else if (
+          maxTotalSizeBytes &&
+          currentTotalSize + file.size > maxTotalSizeBytes
+      ) {
+        
+          setCummError('Cumulative size of all the supporting documents should not be exceeded 25 MB.')
+      }
+      
       currentTotalSize += file.size;
-      validFiles.push({ file, error });
-    }
+      validFiles.push({ file, error });}
 
     setSelectedFiles(validFiles);
   }, [data, maxFileSizeMB, maxTotalSizeMB, multiple]);
@@ -102,7 +114,7 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
       const maxTotalSizeBytes = maxTotalSizeMB
         ? maxTotalSizeMB * 1024 * 1024
         : undefined;
-
+      console.log(maxTotalSizeBytes)
       let validFiles: FileWithError[] = [];
       let currentTotalSize = selectedFiles.reduce(
         (acc, fileWithError) => acc + fileWithError.file.size,
@@ -111,17 +123,23 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
 
       files.forEach((file) => {
         let error: string | null = null;
+        console.log(file.size)
+        console.log( maxTotalSizeBytes &&
+          currentTotalSize + file.size > maxTotalSizeBytes)
 
-        if (file.size > maxFileSizeBytes) {
-          error = `File size exceeds ${maxFileSizeMB}MB`;
-        } else if (!isFileNameValid(file.name)) {
-          error = "File name contains invalid characters";
-        } else if (
-          maxTotalSizeBytes &&
-          currentTotalSize + file.size > maxTotalSizeBytes
-        ) {
-          error = `Total file size exceeds ${maxTotalSizeMB}MB`;
-        }
+          const allowedFileTypes = ['.pdf', '.doc', '.docx', '.xlsx'];       if (file.size > maxFileSizeBytes) {
+        error = `File size exceeds ${maxFileSizeMB}MB`;
+    } else if (!isFileNameValid(file.name)) {
+        error = "File name contains invalid characters";
+    } else if (!allowedFileTypes.includes(file.name.substring(file.name.lastIndexOf('.')))) {
+      error = "File type is not allowed";
+  } else if (
+        maxTotalSizeBytes &&
+        currentTotalSize + file.size > maxTotalSizeBytes
+    ) {
+      
+        setCummError('Cumulative size of all the supporting documents should not be exceeded 25 MB.')
+    }
 
         currentTotalSize += file.size;
         validFiles.push({ file, error });
@@ -150,8 +168,10 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
     );
     setSelectedFiles(updatedFiles);
 
+    
+
     onChange(
-      updatedFiles.filter((fileWithError) => !fileWithError.error).map((f) => f.file),
+      updatedFiles.map((f) => f.file),
       typeOfDoc
     );
   };
@@ -160,6 +180,7 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
     <ul className={`${styles.fileAttachementsUl}`}>
       <li className={`${styles.basicLi} ${styles.inputField}`}>
         <div style={{padding:'8px'}}>
+          <div>
         <button
   type="button"
   onClick={() => {
@@ -180,6 +201,18 @@ const UploadFileComponent: React.FC<UploadFileProps> = ({
       multiple={multiple}
       style={{ display: "none" }} // Hide the input element
     />
+    </div>
+
+    {typeOfDoc==='supportingDocument' && <span
+                      style={{
+                        color: "red",
+                        fontSize: "10px",
+                        paddingLeft: "4px",
+                        margin: "0px",
+                      }}
+                    >
+                      {cummError}
+                    </span>}
 
         </div>
         

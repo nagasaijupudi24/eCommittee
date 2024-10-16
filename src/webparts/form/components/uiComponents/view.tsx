@@ -49,6 +49,7 @@ import ReturnBtnCommentCheckDialog from "./dialogFluentUi/returnCommentsCheck";
 import PDFViewer from "./pdfviewPdfDist/pdfDist";
 // import PDFViewerComponent from "./pdfviewPdfDist/ibpdf";
 import PasscodeModal from "./passCode/passCode";
+import GistDocsConfirmation from "./dialogFluentUi/gistDocsConfirmationDialog";
 // import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PasscodeModal from "./passCode/passCode";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
@@ -184,6 +185,9 @@ export interface IViewFormState {
   // pass code 
   isPasscodeModalOpen: boolean;
   isPasscodeValidated:boolean;
+
+  // gist document dialog
+  isGistDocCnrf:boolean;
 
  
 }
@@ -337,6 +341,9 @@ export default class ViewForm extends React.Component<
       isPasscodeModalOpen: false,
       isPasscodeValidated: false, // New state to check if passcode is validated
 
+      // / gist document dialog
+  isGistDocCnrf:false
+
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -422,7 +429,8 @@ export default class ViewForm extends React.Component<
   public _folderNameGenerate(id: any): any {
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
-    const requesterNo = `DEP/${currentyear}-${nextYear}/C${id}`;
+    
+    const requesterNo = this.props.formType==="BoardNoteView"? `DEP/${currentyear}-${nextYear}/B${id}`:`DEP/${currentyear}-${nextYear}/C${id}`;
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
@@ -613,6 +621,7 @@ export default class ViewForm extends React.Component<
     // console.log(dataApproverInfo);
     // console.log(item.CommentsLog);
     // console.log(typeof item.CommentsLog);
+    console.log(item.DraftResolution)
 
     this.setState({
       committeeNameFeildValue:
@@ -682,7 +691,7 @@ export default class ViewForm extends React.Component<
           ? this._getReferedFromAndToDetails(item.NoteReferrerDTO, "to")
           : [],
 
-      draftResolutionFieldValue: item.DraftResoultion,
+      draftResolutionFieldValue: item.DraftResolution,
       noteSecretaryDetails:
         item.NoteSecretaryDTO !== null ? JSON.parse(item.NoteSecretaryDTO) : [],
       noteReferrerDTO:
@@ -762,127 +771,54 @@ export default class ViewForm extends React.Component<
 
   }
 
-  private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest =
-    (): any => {
-      return this.state.ApproverDetails.filter((each: any) => {
-        console.log(each);
-        if (
-          (each.approverEmail || each.approverEmailName || each.email) ===
-          this._currentUserEmail
-        ) {
-          if (
-            each.status === "Refered" ||
-            this.state.refferredToDetails[0]?.status === "Refered Back"
-          ) {
-            switch (each.status) {
-              case "Approved":
-                console.log(each.status);
-                return false;
-              case "Rejected":
-                console.log(each.status);
-                return false;
-              case "Refered":
-                console.log(each.status);
-                return false;
-              case "pending":
-                console.log(each.status);
-                return true;
-              case "Refered Back":
-                console.log(each.status);
-                return true;
+  private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest = (): boolean | null => {
+    let result: boolean | null = null; // Declare result variable
+  
+    this.state.ApproverDetails.forEach((each: any) => {
+      if (
+        (each.approverEmail || each.approverEmailName || each.email) ===
+        this._currentUserEmail
+      ) {
 
-              default:
-                console.log("default");
-                return false;
-            }
-          } else {
-            switch (each.status) {
-              case "Approved":
-                console.log(each.status);
-                return false;
-              case "Rejected":
-                console.log(each.status);
-                return false;
-              case "Refered":
-                console.log(each.status);
-                return false;
-              case "pending":
-                console.log(each.status);
-                return true;
-              case "Refered Back":
-                console.log(each.status);
-                return true;
-
-              default:
-                console.log("default");
-                return false;
-            }
-          }
+        //                 Draft -  100
+// Call back - 200
+// Cancel - 300
+// Submit - 1000
+// Pending Reviewer - 2000
+// Pending Approver - 3000
+// Refer - 4000
+// Return - 5000
+// Reject - 8000
+// Approved - 9000
+        switch (this.state.statusNumber) {
+          case "9000"://Approved
+            console.log(this.state.statusNumber, this.state.status);
+            result = false;
+            break;
+          case "1000"://submitted
+          case "2000"://pending reviewer
+          case "3000"://pending approver
+          case "6000"://referback
+            console.log(this.state.statusNumber, this.state.status);
+            result = true;
+            break;
+          case "4000"://refer
+          case "5000"://return
+          case "8000"://reject
+            console.log(this.state.statusNumber, this.state.status);
+            result = false;
+            break;
+          default:
+            console.log("default");
+            result = false;
+            break;
         }
-      })[0];
-
-      // const checkItem = this.state.ApproverDetails.filter((each: any) => {
-      //   console.log(each);
-      //   // console.log( each.approverEmailName)
-      //   // console.log(each.approverEmail)
-      //   // console.log(each.approverEmail || each.approverEmailName)
-      //   // console.log( this._currentUserEmail)
-      //   // console.log((each.approverEmail || each.approverEmailName) === this._currentUserEmail)
-      //   // console.log(each.status)
-      //   // console.log((
-      //   //   (each.approverEmail || each.approverEmailName) === this._currentUserEmail &&
-      //   //   (each.status === "Approved"||each.status === "Refered"||each.status === "Rejected")
-      //   // ))
-      //   console.log(each.status === "Approved","Approved" )
-      //   console.log(each.status === "Returned" ,"Returned")
-      //   console.log(each.status === "Referred Back","Referred Back" )
-      //   console.log(each.status === "pending" ,"pending")
-      //   console.log(each.status === "Refered","Refered" )
-      //   console.log(  (each.status === "Approved" ||each.status === "Returned" ||
-      //     (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
-      //     each.status === "pending" || each.status === 'Refered' ))
-
-      //     console.log(
-      //       (each.approverEmail || each.approverEmailName) ===
-      //       (this._currentUserEmail &&
-      //     (each.status === "Approved" ||each.status === "Returned" ||
-      //       (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
-      //       each.status === "pending" || each.status === 'Refered' ))
-
-      //     )
-      //     if (
-      //       (each.approverEmail || each.approverEmailName) ===
-      //       (this._currentUserEmail &&
-      //     (each.status === "Approved" ||each.status === "Returned" ||
-      //       (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
-      //       each.status === "pending" || each.status === 'Refered' ))
-      //     ){
-      //       return each
-      //     }
-      //   // return (
-      //   //   (each.approverEmail || each.approverEmailName) ===
-      //   //     (this._currentUserEmail &&
-      //   //   (each.status === "Approved" ||each.status === "Returned" ||
-      //   //     (each.status === "Referred Back"||( this.state.refferredToDetails[0]?.status ==="Referred Back")) ||
-      //   //     each.status === "pending" || each.status === 'Refered' ))
-      //   // );
-      // });
-      // console.log(checkItem);
-
-      // if (checkItem) {
-      //   console.log(checkItem);
-      //   // console.log(checkItem.approverEmail);
-      //   // console.log(this._currentUserEmail);
-      //   // Return or perform actions based on checkItem
-      //   return (
-      //     (checkItem.approverEmail || checkItem.approverEmailName) ===
-      //     this._currentUserEmail
-      //   );
-      // } else {
-      //   // console.log("No matching approver found.");
-      //   return null; // Or handle it appropriately
-      // }
-    };
+      }
+    });
+  
+    return result; // Return the final result
+  };
+  
 
   // private _getApproverOrder = (data: any,statusNum:any): any => {
   //   console.log(statusNum)
@@ -1258,10 +1194,10 @@ export default class ViewForm extends React.Component<
     statusNumber: string
   ) => {
 
-    if (!this.state.isPasscodeValidated) {
-        this.setState({ isPasscodeModalOpen: true }); // Open the modal
-        return; // Prevent the method from proceeding until passcode is validated
-    }
+    // if (!this.state.isPasscodeValidated) {
+    //     this.setState({ isPasscodeModalOpen: true }); // Open the modal
+    //     return; // Prevent the method from proceeding until passcode is validated
+    // }
     
     let previousApprover: any;
     const modifyApproveDetails = this.state.ApproverDetails.map(
@@ -1366,7 +1302,7 @@ export default class ViewForm extends React.Component<
       .update(updateItems);
 
     console.log(itemToUpdate);
-    this.updateSupportingDocumentFolderItems(
+    await this.updateSupportingDocumentFolderItems(
       this.state.supportingFilesInViewForm,
       `${this._folderName}/SupportingDocument`,
       "Supporting documents"
@@ -1505,6 +1441,11 @@ export default class ViewForm extends React.Component<
       });
 
     console.log(itemToUpdate);
+    await this.updateSupportingDocumentFolderItems(
+      this.state.supportingFilesInViewForm,
+      `${this._folderName}/SupportingDocument`,
+      "Supporting documents"
+    );
 
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
@@ -1653,6 +1594,12 @@ export default class ViewForm extends React.Component<
 
     console.log(itemToUpdate);
 
+    await this.updateSupportingDocumentFolderItems(
+      this.state.supportingFilesInViewForm,
+      `${this._folderName}/SupportingDocument`,
+      "Supporting documents"
+    );
+
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
       const itemToUpdateStatusToApproved = await this.props.sp.web.lists
@@ -1775,9 +1722,9 @@ export default class ViewForm extends React.Component<
           ...this.state.commentsData,
           commentsObj,
         ]),
-        NoteReferrerCommentsDTO:JSON.stringify([
+        NoteReferrerCommentsDTO:JSON.stringify(
           this.state.noteReferrerCommentsDTO
-        ]),
+        ),
         NoteReferrerDTO: JSON.stringify(updateCurrentReferDTO),
   
       startProcessing:true,
@@ -1791,6 +1738,12 @@ export default class ViewForm extends React.Component<
         .then((resu) => console.log(resu));
   
       console.log(itemToUpdate);
+
+      await this.updateSupportingDocumentFolderItems(
+        this.state.supportingFilesInViewForm,
+        `${this._folderName}/SupportingDocument`,
+        "Supporting documents"
+      );
   
       if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
         this.setState({ status: statusFromEvent });
@@ -1902,6 +1855,13 @@ export default class ViewForm extends React.Component<
       });
 
     console.log(itemToUpdate);
+
+
+    await this.updateSupportingDocumentFolderItems(
+      this.state.supportingFilesInViewForm,
+      `${this._folderName}/SupportingDocument`,
+      "Supporting documents"
+    );
     this._closeDialog();
     this.setState({ isVisibleAlter: true });
   };
@@ -2024,15 +1984,15 @@ export default class ViewForm extends React.Component<
           iconProps={{ iconName: "CheckMark" }} // Icon for Approve
           styles={{
             root: {
-              backgroundColor: "#37b400",
+              // backgroundColor: "#37b400",
               border: "none",
             },
             rootHovered: {
-              backgroundColor: "#37b400",
+              // backgroundColor: "#37b400",
               border: "none",
             },
             rootPressed: {
-              backgroundColor: "#37b400",
+              // backgroundColor: "#37b400",
               border: "none",
             },
           }}
@@ -2057,15 +2017,15 @@ export default class ViewForm extends React.Component<
           iconProps={{ iconName: "Cancel" }} // Icon for Reject
           styles={{
             root: {
-              backgroundColor: "#f31700",
+              // backgroundColor: "#f31700",
               border: "none",
             },
             rootHovered: {
-              backgroundColor: "#f31700",
+              // backgroundColor: "#f31700",
               border: "none",
             },
             rootPressed: {
-              backgroundColor: "#f31700",
+              // backgroundColor: "#f31700",
               border: "none",
             },
           }}
@@ -2390,10 +2350,17 @@ export default class ViewForm extends React.Component<
     return checkingATRAvailable;
   };
 
-  public _closeDialogAlter = () => {
-    const pageURL: string = this.props.homePageUrl;
-    console.log(pageURL)
-    window.location.href = `${pageURL}`;
+  public _closeDialogAlter = (type: string) => {
+    if (type==='success'){
+      const pageURL: string = this.props.homePageUrl;
+      console.log(pageURL)
+      window.location.href = `${pageURL}`;
+
+    }
+    else if (type==='commentsNeeded'){
+      this.setState({expandSections:{"generalComments":true,"generalSection":false}})
+    }
+   
     this.setState({ isVisibleAlter: false,isReferBackAlterDialog:false,isRejectCommentsCheckAlterDialog:false,isReturnCommentsCheckAlterDialog:false });
   };
 
@@ -2477,7 +2444,9 @@ export default class ViewForm extends React.Component<
               // homePageUrl = {this.props.homePageUrl}
               statusOfReq={this.state.status}
               isVisibleAlter={this.state.isVisibleAlter}
-              onCloseAlter={this._closeDialogAlter}
+              onCloseAlter={()=>{
+                this._closeDialogAlter("success")
+              }}
             />
             {/* success  dialog */}
 
@@ -2485,7 +2454,9 @@ export default class ViewForm extends React.Component<
             <ReferBackCommentDialog
               statusOfReq={this.state.status}
               isVisibleAlter={this.state.isReferBackAlterDialog}
-              onCloseAlter={this._closeDialogAlter}
+              onCloseAlter={()=>{
+                this._closeDialogAlter("commentsNeeded")
+              }}
             />
             {/* refer back comment  dialog */}
             {/* <PasscodeModal sp={this.props.sp} 
@@ -2495,13 +2466,32 @@ export default class ViewForm extends React.Component<
             
             /> */}
 
+            <GistDocsConfirmation isVisibleAlter={this.state.isGistDocCnrf} onCloseAlter={() => {
+                this.setState({ isGistDocCnrf: false });
+              } }
+              handleConfirmatBtn={
+                ()=>{
+                  this.updateSupportingDocumentFolderItems(
+                    this.state.secretaryGistDocs,
+                    `${this._folderName}/GistDocuments`,
+                    "gistDocument"
+                  )
+
+                }
+                
+                } statusOfReq={undefined}
+                
+            />
+
 
             {/* reject back comment  dialog */}
 
             <RejectBtnCommentCheckDialog
             statusOfReq={this.state.status}
             isVisibleAlter={this.state.isRejectCommentsCheckAlterDialog}
-            onCloseAlter={this._closeDialogAlter}
+            onCloseAlter={()=>{
+              this._closeDialogAlter("commentsNeeded")
+            }}
             />
 
              {/* reject back comment  dialog */}
@@ -2512,7 +2502,9 @@ export default class ViewForm extends React.Component<
             <ReturnBtnCommentCheckDialog
             statusOfReq={this.state.status}
             isVisibleAlter={this.state.isReturnCommentsCheckAlterDialog}
-            onCloseAlter={this._closeDialogAlter}
+            onCloseAlter={()=>{
+              this._closeDialogAlter("commentsNeeded")
+            }}
             />
 
              {/* return back comment  dialog */}
@@ -2839,8 +2831,8 @@ export default class ViewForm extends React.Component<
                     )}
                   </div>
                   {/*Attach Supporting Documents */}
-                  {this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                  this._currentUserEmail !== this.state.createdByEmail ? (
+                  {(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                  this._currentUserEmail !== this.state.createdByEmail)||this._checkRefereeAvailable()  ? (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -2957,24 +2949,9 @@ export default class ViewForm extends React.Component<
                                   5MB max.
                                 </p>
                               )}
-                              {this._checkingCurrentUserIsSecretaryDTO() && (
-                                <PrimaryButton
-                                  style={{ alignSelf: "flex-end" }}
-                                  onClick={() => {
-                                    this.updateSupportingDocumentFolderItems(
-                                      this.state.secretaryGistDocs,
-                                      `${this._folderName}/GistDocuments`,
-                                      "gistDocument"
-                                    );
-                                  }}
-                                >
-                                  Submit
-                                </PrimaryButton>
-                              )}
+                             
                             </div>
-                          </div>
-                          <div>
-  {this.state.secretaryGistDocs.length > 0 &&
+                            {this.state.secretaryGistDocs.length > 0 &&
     this.state.secretaryGistDocs.map((file, index) => {
       // Check if file exists and has the expected properties
       if (!file || !file.name) {
@@ -3022,6 +2999,9 @@ export default class ViewForm extends React.Component<
         </li>
       );
     })}
+                          </div>
+                          <div>
+  
 </div>
 
                         </div>
@@ -3191,15 +3171,15 @@ export default class ViewForm extends React.Component<
                       iconProps={{ iconName: "Reply" }}
                       styles={{
                         root: {
-                          backgroundColor: "#37b400",
+                          // backgroundColor: "#37b400",
                           border: "none",
                         },
                         rootHovered: {
-                          backgroundColor: "#37b400", // Set hover background color
+                          // backgroundColor: "#37b400", // Set hover background color
                           border: "none",
                         },
                         rootPressed: {
-                          backgroundColor: "#37b400", // Set pressed background color
+                          // backgroundColor: "#37b400", // Set pressed background color
                           border: "none",
                         },
                       }}
@@ -3235,6 +3215,19 @@ export default class ViewForm extends React.Component<
                     this._getApproverAndReviewerStageButton()
                   ))}
                 {/* {this._getApproverAndReviewerStageButton()} */}
+
+                {this._checkingCurrentUserIsSecretaryDTO() && (
+                                <PrimaryButton
+                                  style={{ alignSelf: "flex-end" }}
+                                  onClick={async() => {
+                                    this.setState({isGistDocCnrf:true})
+
+                                   
+                                  }}
+                                >
+                                  Submit
+                                </PrimaryButton>
+                              )}
 
                 <DefaultButton
                   type="button"

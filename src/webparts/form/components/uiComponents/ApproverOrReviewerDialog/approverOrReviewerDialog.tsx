@@ -1,80 +1,113 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// MyDialog.tsx
+// MyModal.tsx
 import * as React from "react";
 import {
-  Dialog,
-  DialogFooter,
+  Modal,
   PrimaryButton,
-  
- 
-  DialogType,
+  IconButton,
+  IIconProps,
+  IModalStyles,
+  Stack,
+  Text,
+  FontIcon,
 } from "@fluentui/react";
 
-interface MyDialogProps {
+// Define the interface for the component props
+interface MyModalProps {
   hidden: boolean;
   handleDialogBox: () => void;
 }
 
-const ApproverOrReviewerDialog: React.FC<MyDialogProps> = ({
+// Close and info icons
+const closeIcon: IIconProps = { iconName: 'Cancel' };
+const okIcon: IIconProps = { iconName: 'CheckMark' }; // Icon for the OK button
+
+const ApproverOrReviewerModal: React.FC<MyModalProps> = ({
   hidden,
   handleDialogBox,
 }) => {
   // Styles for the header stack
-  // const stackStyles: IStackStyles = {
-  //   root: {
-  //     display: "flex",
-  //     flexDirection: "row",
-  //     padding: "8px 12px", // Reduced padding for compactness
-  //     borderBottom: "1px solid #ddd",
-  //     justifyContent: "space-between",
-  //     alignItems: "center",
-  //     width: "100%",
-  //   },
-  // };
+  const headerStyles: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "8px 12px",
+    borderBottom: "1px solid #ddd", // Bottom border for the header
+  };
 
-  // Responsive dialog styles
-  const dialogStyles = {
+  // Styles for aligning the icon and alert text
+  const alertStyles: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px", // Space between the icon and the alert text
+  };
+
+  // Styles for the footer stack (align OK button to the left)
+  const footerStyles: React.CSSProperties = {
+    display: "flex",
+    justifyContent: "flex-end", // Align button to the left
+    padding: "12px 16px",
+    borderTop: "1px solid #ddd", // Top border for the footer
+  };
+
+  // Responsive modal styles
+  const modalStyles: IModalStyles = {
     main: {
-      minWidth: "300px",
-      maxWidth: "80vw",
-      width: "100%",
+      width: "100%", // Takes 100% width of the container
+      maxWidth: "290px", // Default width below 768px
       "@media (min-width: 768px)": {
-        maxWidth: "500px", // Adjust width for medium screens
-      },
-      "@media (min-width: 1024px)": {
-        maxWidth: "700px", // Adjust width for larger screens
+        maxWidth: "580px", // Width for screens 768px and above
       },
     },
+    root: "",
+    scrollableContent: "",
+    layer: "",
+    keyboardMoveIconContainer: "",
+    keyboardMoveIcon: ""
   };
 
   return (
-    <Dialog
-      hidden={hidden}
-      modalProps={{
-        isBlocking: true,
-        styles: dialogStyles, // Applying custom responsive styles
-      }}
-      dialogContentProps={{
-        type: DialogType.normal,
-        title: "Alert",
-        closeButtonAriaLabel: "Close",
-      }}
+    <Modal
+      isOpen={!hidden}
+      isBlocking={true}
+      onDismiss={handleDialogBox}
+      styles={modalStyles} // Applying custom responsive styles
     >
-      {/* Dialog content */}
-      <p style={{ margin: "16px 0",fontSize: "14px "}}>
-        The selected approver cannot be the same as existing Reviewers, Requester, or Current Actioner.
-      </p>
+      {/* Modal header with alert and close icons */}
+      <div style={headerStyles}>
+        {/* Info icon and alert text next to each other */}
+        <div style={alertStyles}>
+          <FontIcon iconName="Info" style={{ fontSize: 20, }} />
+          <Text variant="large">Alert</Text>
+        </div>
 
-      {/* Footer with only the OK button */}
-      <DialogFooter>
+        {/* Right-side close icon */}
+        <IconButton
+          iconProps={closeIcon}
+          ariaLabel="Close modal"
+          onClick={handleDialogBox}
+        />
+      </div>
+
+      {/* Modal content, centered in the body */}
+      <Stack tokens={{ padding: "16px" }} horizontalAlign="center" verticalAlign="center">
+        <Text style={{ margin: "16px 0", fontSize: "14px", textAlign: "center" }}>
+          The selected approver cannot be the same as existing Reviewers/ Approver/ Requester/ Current Actioner.
+        </Text>
+      </Stack>
+
+      {/* Footer with the OK button aligned to the left */}
+      <div style={footerStyles}>
         <PrimaryButton
           text="OK"
+          iconProps={okIcon} // Adding icon to the OK button
           onClick={handleDialogBox}
           ariaLabel="Confirm action"
         />
-      </DialogFooter>
-    </Dialog>
+      </div>
+    </Modal>
   );
 };
 
-export default ApproverOrReviewerDialog;
+export default ApproverOrReviewerModal;

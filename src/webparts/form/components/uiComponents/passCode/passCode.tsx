@@ -23,7 +23,8 @@ export interface IPasscodeModalState {
 
 export default class PasscodeModal extends React.Component<IPasscodeModalProps, IPasscodeModalState> {
   private encryptionKey: string = 'default_secret_key'; // Use a secure key in production
-
+  private key = CryptoJS.enc.Utf8.parse('b75524255a7f54d2726a951bb39204df');
+  private iv = CryptoJS.enc.Utf8.parse('1583288699248111');
   constructor(props: IPasscodeModalProps) {
     super(props);
 
@@ -113,7 +114,7 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
   };
 
   private decrypt = (encryptedText: string): string => {
-    const bytes = CryptoJS.AES.decrypt(encryptedText, this.encryptionKey);
+    const bytes = CryptoJS.AES.decrypt(encryptedText, this.key, { iv: this.iv });
     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
     console.log(`Decrypted text: ${decrypted}`);
     return decrypted;
@@ -160,6 +161,9 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
 
     try {
       const decryptedPasscode = userPasscode.passcode;
+      console.log(decryptedPasscode)
+      console.log(userPasscode.passcode)
+      console.log(passcode)
 
       if (decryptedPasscode === passcode) {
         console.log("Passcode validated successfully.");
