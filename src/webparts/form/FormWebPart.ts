@@ -16,6 +16,7 @@ import { IViewFormProps } from './components/IViewFormProps';
 
 import { spfi, SPFx } from "@pnp/sp";
 import "@pnp/sp/files";  
+import "@pnp/sp/site-users/web";
 import "@pnp/sp/webs"; // Import webs functionality
 import "@pnp/sp/lists"; // Import lists functionality
 import "@pnp/sp/items"; // Import items functionality

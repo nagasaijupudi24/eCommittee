@@ -1,4 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from 'react';
+import "@pnp/sp/files";  
+import "@pnp/sp/site-users/web";
+import "@pnp/sp/webs"; // Import webs functionality
+import "@pnp/sp/lists"; // Import lists functionality
+import "@pnp/sp/items"; // Import items functionality
+import "@pnp/sp/files/web"
+
+
 import { TextField, PrimaryButton, DefaultButton, MessageBar, MessageBarType, Modal, IconButton } from '@fluentui/react';
 import styles from './PasscodeModal.module.scss'; // Custom styles
 import CryptoJS from 'crypto-js'; // Import crypto-js
@@ -58,11 +68,14 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
   };
 
   private fetchStoredPasscodes = async () => {
+    const user = await this.props.sp?.web.currentUser();
+    
+
     try {
       console.log("Fetching stored passcodes...");
       const items: any[] = await this.props.sp.web.lists
         .getByTitle("passcodes")
-        .items
+        .items.filter(`UserId eq ${user.Id}`)
         .select("User/EMail", "User/Title", "passcode")
         .expand("User")();
         console.log(items)

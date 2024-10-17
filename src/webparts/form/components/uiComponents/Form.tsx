@@ -1006,10 +1006,23 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           }
         }
 
-        //  else {
-        //   this.setState({ peoplePickerData: [newObj] });
+         else {
 
-        // }
+          const newObj = {
+            text: each.Approver.Title,
+            email: each.Approver.EMail,
+            ApproversId: each.ApproverId,
+            approverType: each.ApproverType,
+            // approversOrder: each.ApproverType === "Approver"?2:1,
+            Title: each.Title,
+            id: each.ApproverId,
+            secretary: each.Secretary.Title,
+            srNo: each.Approver.EMail.split("@")[0],
+          };
+          console.log(newObj);
+          this.setState({ peoplePickerData: [newObj] });
+
+        }
       });
 
       console.log(items);
@@ -1085,6 +1098,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverTypeNum: 1,
             approverType: "Reviewer",
             email: obj.secondaryText,
+            srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
           };
         }
       );
@@ -1144,7 +1158,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       console.log(newItemsDataNA);
       this.setState({ approverInfo: newItemsDataNA });
     } else {
-      const newItemsData = items.map((obj: { loginName: any }) => {
+      const newItemsData = items.map((obj: {
+        secondaryText: any; loginName: any 
+}) => {
         console.log(obj);
         return {
           ...obj,
@@ -1152,6 +1168,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           approverTypeNum: 2,
           approverType: "Approver",
           email: dataRec[1],
+          srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
         };
       });
       // console.log(newItemsData)
@@ -1887,6 +1904,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         ],
         "FinalOrderApproverDetails"
       ),
+      startProcessing:true,
+
     };
     console.log(ecommitteObject);
     return ecommitteObject;
@@ -2472,6 +2491,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   
           
               await this._generateRequsterNumber(id.Id);
+             
     
               // console.log(id)
               console.log("Item added successfully");

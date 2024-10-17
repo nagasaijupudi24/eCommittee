@@ -50,6 +50,7 @@ import PDFViewer from "./pdfviewPdfDist/pdfDist";
 // import PDFViewerComponent from "./pdfviewPdfDist/ibpdf";
 import PasscodeModal from "./passCode/passCode";
 import GistDocsConfirmation from "./dialogFluentUi/gistDocsConfirmationDialog";
+import GistBtnCnrfSubmit from "./dialogFluentUi/gistDocs";
 // import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PasscodeModal from "./passCode/passCode";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
@@ -170,6 +171,8 @@ export interface IViewFormState {
   // success alert
   isVisibleAlter: boolean;
 
+  isGistVisibleAlter:boolean;
+
   // referback dialog
   noteReferrerCommentsDTO:any;
   isReferBackAlterDialog:boolean;
@@ -185,6 +188,8 @@ export interface IViewFormState {
   // pass code 
   isPasscodeModalOpen: boolean;
   isPasscodeValidated:boolean;
+
+  passCodeValidationFrom:any;
 
   // gist document dialog
   isGistDocCnrf:boolean;
@@ -322,6 +327,7 @@ export default class ViewForm extends React.Component<
 
       // success alert
       isVisibleAlter: false,
+      isGistVisibleAlter:false,
 
        // referback dialog
        noteReferrerCommentsDTO:[],
@@ -340,7 +346,7 @@ export default class ViewForm extends React.Component<
       // pass code 
       isPasscodeModalOpen: false,
       isPasscodeValidated: false, // New state to check if passcode is validated
-
+      passCodeValidationFrom:'',
       // / gist document dialog
   isGistDocCnrf:false
 
@@ -773,7 +779,8 @@ export default class ViewForm extends React.Component<
 
   private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest = (): boolean | null => {
     let result: boolean | null = null; // Declare result variable
-  
+    console.log('btn visablity',this.state.statusNumber, this.state.status)
+    console.log()
     this.state.ApproverDetails.forEach((each: any) => {
       if (
         (each.approverEmail || each.approverEmailName || each.email) ===
@@ -799,6 +806,7 @@ export default class ViewForm extends React.Component<
           case "2000"://pending reviewer
           case "3000"://pending approver
           case "6000"://referback
+          case "4900"://referback
             console.log(this.state.statusNumber, this.state.status);
             result = true;
             break;
@@ -971,7 +979,7 @@ export default class ViewForm extends React.Component<
         tempFilesGistDocument.push(this._getFileObj(values));
       });
       console.log(tempFilesGistDocument);
-      this.setState({ secretaryGistDocs: tempFilesGistDocument });
+      // this.setState({ secretaryGistDocs: tempFilesGistDocument });
     } catch {
       console.log("failed to fetch");
     }
@@ -1194,10 +1202,10 @@ export default class ViewForm extends React.Component<
     statusNumber: string
   ) => {
 
-    // if (!this.state.isPasscodeValidated) {
-    //     this.setState({ isPasscodeModalOpen: true }); // Open the modal
-    //     return; // Prevent the method from proceeding until passcode is validated
-    // }
+    if (!this.state.isPasscodeValidated) {
+        this.setState({ isPasscodeModalOpen: true ,passCodeValidationFrom:statusNumber}); // Open the modal
+        return; // Prevent the method from proceeding until passcode is validated
+    }
     
     let previousApprover: any;
     const modifyApproveDetails = this.state.ApproverDetails.map(
@@ -1413,6 +1421,12 @@ export default class ViewForm extends React.Component<
     //   return; // Stop further execution
     // }
 
+    
+    if (!this.state.isPasscodeValidated) {
+      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+      return; // Prevent the method from proceeding until passcode is validated
+  }
+
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
@@ -1469,6 +1483,12 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     commentsObj: any
   ) => {
+
+    
+  //   if (!this.state.isPasscodeValidated) {
+  //     this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+  //     return; // Prevent the method from proceeding until passcode is validated
+  // }
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         console.log(each);
@@ -1660,6 +1680,11 @@ export default class ViewForm extends React.Component<
     commentsObj: any
   ) => {
     
+    if (!this.state.isPasscodeValidated) {
+      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+      return; // Prevent the method from proceeding until passcode is validated
+  }
+    
     
 
     // if (this._checkNoteReferIdHavingComments()){
@@ -1774,6 +1799,12 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+
+    
+    if (!this.state.isPasscodeValidated) {
+      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+      return; // Prevent the method from proceeding until passcode is validated
+  }
     // Assuming you want to check for comments before proceeding with return
     // const currentUserComment = this.state.commentsData.find(
     //   (comment: any) => comment.commentedByEmail === this._currentUserEmail
@@ -1838,10 +1869,17 @@ export default class ViewForm extends React.Component<
   };
 
   private handleCallBack = async (
-    e: any,
+   
     statusFromEvent: string,
     statusNumber: string
   ) => {
+
+    
+    if (!this.state.isPasscodeValidated) {
+      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+      return; // Prevent the method from proceeding until passcode is validated
+  }
+
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
@@ -1875,6 +1913,12 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     data: any
   ) => {
+
+    
+    if (!this.state.isPasscodeValidated) {
+      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+      return; // Prevent the method from proceeding until passcode is validated
+  }
     // console.log(data)
     // this.setState({currentApprover:data})
     const updateCurrentApprover = (): any => {
@@ -1997,7 +2041,7 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            this.setState({status:'Approved'})
+            // this.setState({status:'Approved'})
             this._hanldeFluentDialog(
               "Approve",
               "Approved",
@@ -2033,7 +2077,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()){
               this.setState({isRejectCommentsCheckAlterDialog:true})
             }else{
-              this.setState({status:'Rejected'})
+              // this.setState({status:'Rejected'})
               this._hanldeFluentDialog(
                 "Reject",
                 "Rejected",
@@ -2057,7 +2101,7 @@ export default class ViewForm extends React.Component<
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
 
-            this.setState({status:'Refered'})
+            // this.setState({status:'Refered'})
               this._hanldeFluentDialog(
                 "Refer",
                 "Refered",
@@ -2083,7 +2127,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()){
               this.setState({isReturnCommentsCheckAlterDialog:true})
             }else{
-              this.setState({status:'Returned'})
+              // this.setState({status:'Returned'})
               this._hanldeFluentDialog(
                 "Return",
                 "Returned",
@@ -2361,7 +2405,7 @@ export default class ViewForm extends React.Component<
       this.setState({expandSections:{"generalComments":true,"generalSection":false}})
     }
    
-    this.setState({ isVisibleAlter: false,isReferBackAlterDialog:false,isRejectCommentsCheckAlterDialog:false,isReturnCommentsCheckAlterDialog:false });
+    this.setState({ isVisibleAlter: false,isGistVisibleAlter:false,isReferBackAlterDialog:false,isRejectCommentsCheckAlterDialog:false,isReturnCommentsCheckAlterDialog:false });
   };
 
   private getMainStatus=(): any=> {
@@ -2375,7 +2419,40 @@ export default class ViewForm extends React.Component<
   public handlePasscodeSuccess = () => {
     this.setState({ isPasscodeValidated: true, isPasscodeModalOpen: false }, () => {
         // Re-run the _handleApproverButton function now that the passcode is validated
-        this._handleApproverButton('Approved', '9000');
+        
+       
+       
+        switch (this.state.passCodeValidationFrom) {
+          case "9000"://Approved
+            this._handleApproverButton('Approved', '9000');
+            break;
+          case "1000"://submitted
+          case "2000"://pending reviewer
+          case "3000"://pending approver
+          case "6000"://referback
+          case "4900"://referback
+          this.handleReferBack('Referred Back', '6000', {}); 
+              break;
+          case "4000"://refer
+          this.handleRefer('Refered', '4000',{});
+          break;
+          case "5000"://return
+
+          this.handleReturn('Returned', '5000');
+          break
+          case "8000"://reject
+          this.handleReject('Rejected', '8000');
+            console.log(this.state.statusNumber, this.state.status);
+            // result = false;
+            break;
+            case "200"://reject
+            this.handleCallBack( "Call Back", "200");
+            break;
+          default:
+            console.log("default");
+            // result = false;
+            break;
+        }
     });
 };
 
@@ -2482,6 +2559,12 @@ export default class ViewForm extends React.Component<
                 } statusOfReq={undefined}
                 
             />
+
+
+            <GistBtnCnrfSubmit  isVisibleAlter={this.state.isGistVisibleAlter}
+              onCloseAlter={()=>{
+                this._closeDialogAlter("success")
+              }} statusOfReq={undefined}/>
 
 
             {/* reject back comment  dialog */}
@@ -3152,7 +3235,7 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Refresh" }}
                         onClick={(e) => {
                           console.log("Call Back btn Triggered");
-                          this.handleCallBack(e, "Call Back", "7000");
+                          this.handleCallBack( "Call Back", "200");
                           // this.setState({
                           //   status: "Call Back",
                           //   statusNumber: "200",
@@ -3221,6 +3304,12 @@ export default class ViewForm extends React.Component<
                                   style={{ alignSelf: "flex-end" }}
                                   onClick={async() => {
                                     this.setState({isGistDocCnrf:true})
+
+                                    this.updateSupportingDocumentFolderItems(
+                                      this.state.secretaryGistDocs,
+                                      `${this._folderName}/GistDocuments`,
+                                      "gistDocument"
+                                    )
 
                                    
                                   }}
