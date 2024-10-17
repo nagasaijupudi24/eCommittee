@@ -121,6 +121,17 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       ),
     },
     {
+      key: 'serialNo',
+      name: 'S.No',
+      
+      minWidth: 50,
+      maxWidth: 50,
+      isResizable: false,
+      onRender: (_item: any, _index?: number) => (
+        <span>{(_index !== undefined ? _index : 0) + 1}</span>
+      ),
+    },
+    {
       key: 'text',
       name:this.props.type, // replace 'type' with your actual title
       fieldName: 'text',

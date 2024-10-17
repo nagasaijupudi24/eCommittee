@@ -3083,9 +3083,8 @@ export default class ViewForm extends React.Component<
       );
     })}
                           </div>
-                          <div>
-  
-</div>
+                          {''}
+                          <div />
 
                         </div>
                       )}

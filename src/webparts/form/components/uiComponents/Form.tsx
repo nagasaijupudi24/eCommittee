@@ -221,6 +221,11 @@ interface IMainFormState {
 
   //success dialog
   isVisibleAlter: boolean;
+
+  // auto save
+
+  itemId: any;
+  autoSaveStatus: string;
 }
 
 // let fetchedData:any[];
@@ -279,6 +284,7 @@ const getFromType = (): any => {
 // };
 
 export default class Form extends React.Component<IFormProps, IMainFormState> {
+  private autoSaveInterval: NodeJS.Timeout | null = null;
   private _peopplePicker: IPeoplePickerContext;
   private _userName: string;
   private _role: string;
@@ -299,6 +305,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
    
     super(props);
     this.state = {
+      // auto save
+      itemId: null,
+      autoSaveStatus: 'Drafted',
       isLoading: true,
       department: "",
       isNoteType: false,
@@ -405,6 +414,38 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // eslint-disable-next-line no-void
     // void this.createFolder();
   }
+
+
+
+  public componentDidMount(): void {
+    this.autoSaveInterval = setInterval(this.autoSave, 15000);
+
+    console.log(this._itemId > 0);
+    this._itemId === 0 &&
+      this._fetchApproverDetails()
+        .then(() => {
+          console.log("List items fetched successfully.");
+        })
+        .catch((error) => {
+          console.error("Error fetching list items: ", error);
+        });
+  }
+
+  public componentWillUnmount(): void {
+    if (this.autoSaveInterval) {
+      clearInterval(this.autoSaveInterval);
+    }
+  }
+
+
+  private autoSave = async (): Promise<void> => {
+    try {
+      await this.handleSubmit(this.state.autoSaveStatus, false);
+      console.log('Auto-saved successfully');
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    }
+  };
   //
 
   // private handleAdd = (event: UploadOnAddEvent) => {
@@ -931,19 +972,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
-  public componentDidMount = (): void => {
-    console.log(this._itemId > 0);
-    this._itemId === 0 &&
-      this._fetchApproverDetails()
-        .then(() => {
-          console.log("List items fetched successfully.");
-        })
-        .catch((error) => {
-          console.error("Error fetching list items: ", error);
-        });
-  };
+  
 
   private _fetchApproverDetails = async (): Promise<void> => {
+    // const user = await this.props.sp?.web.currentUser();
+    // console.log(user)
+    // const dataRec = await this._getUserProperties(user.LoginName);
+    // console.log(dataRec[0])
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const items = (
@@ -957,9 +992,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Secretary/EMail"
           )
           .expand("Approver", "Secretary")()
-      ).map((each: any) => {
+      ).map(async(each: any) => {
         console.log(each);
         // console.log(this._getUserProperties(each.email))
+        const user = await this.props.sp.web.siteUsers.getById(each.ApproverId)();
+        console.log(user)
+        const dataRec = await this._getUserProperties(user.LoginName);
+        console.log(dataRec)
+        console.log(dataRec[0])
         if (each.ApproverType === "Approver") {
           const newObj = {
             text: each.Approver.Title,
@@ -971,6 +1011,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             id: each.ApproverId,
             secretary: each.Secretary.Title,
             srNo: each.Approver.EMail.split("@")[0],
+            optionalText: dataRec[0],
           };
           console.log(newObj);
           const secretaryObj = {
@@ -1007,6 +1048,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         }
 
          else {
+          const user = await this.props.sp.web.siteUsers.getById(each.ApproverId)();
+          console.log(user)
+          const dataRec = await this._getUserProperties(user.LoginName);
+          console.log(dataRec)
+          console.log(dataRec[0])
 
           const newObj = {
             text: each.Approver.Title,
@@ -1017,6 +1063,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             Title: each.Title,
             id: each.ApproverId,
             secretary: each.Secretary.Title,
+            optionalText: dataRec[0],
             srNo: each.Approver.EMail.split("@")[0],
           };
           console.log(newObj);
@@ -1561,21 +1608,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private createSubFolder = async (parentFolderPath: string): Promise<void> => {
     console.log(parentFolderPath);
-
+  
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
         return await file.arrayBuffer();
       } else {
         // Ensure the file is a Blob before reading it
         let blob: Blob;
-
+  
         if (file instanceof Blob) {
           blob = file;
         } else {
           // Convert the file to Blob if it's not already
           blob = new Blob([file]);
         }
-
+  
         // Use FileReader to read the file as an ArrayBuffer
         return new Promise<ArrayBuffer>((resolve, reject) => {
           const reader = new FileReader();
@@ -1591,7 +1638,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         });
       }
     }
-
+  
     try {
       const { sp } = this.props;
       const filesDataArray = [
@@ -1608,29 +1655,54 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           files: this.state.wordDocumentfiles,
         },
       ];
-
-      this.state.noteSecretaryDetails.length > 0 &&
-        (async function () {
-          await sp.web.rootFolder.folders.addUsingPath(
-            `${parentFolderPath}/GistDocuments`
-          );
-          console.log(`folder is created ${parentFolderPath}/GistDocuments`);
-        })();
-
+  
+      if (this.state.noteSecretaryDetails.length > 0) {
+        const gistFolderPath = `${parentFolderPath}/GistDocuments`;
+        try {
+          await sp.web.getFolderByServerRelativePath(gistFolderPath)();
+          console.log(`Folder '${gistFolderPath}' already exists`);
+        } catch (error) {
+          if (error.status === 404) {
+            await sp.web.rootFolder.folders.addUsingPath(gistFolderPath);
+            console.log(`Folder '${gistFolderPath}' created successfully`);
+          } else {
+            throw error;
+          }
+        }
+      }
+  
       for (const { folderName, files } of filesDataArray) {
         const siteUrl = `${parentFolderPath}/${folderName}`;
         console.log(siteUrl);
-
-        // Create the folder in SharePoint
-        await sp.web.rootFolder.folders.addUsingPath(siteUrl);
-
+  
+        // Check if the folder already exists
+        let folderExists = false;
+        try {
+          await sp.web.getFolderByServerRelativePath(siteUrl)();
+          folderExists = true;
+        } catch (error) {
+          if (error.status === 404) {
+            folderExists = false;
+          } else {
+            throw error;
+          }
+        }
+  
+        if (!folderExists) {
+          // Create the folder if it doesn't exist
+          await sp.web.rootFolder.folders.addUsingPath(siteUrl);
+          console.log(`Folder '${folderName}' created successfully in list`);
+        } else {
+          console.log(`Folder '${folderName}' already exists`);
+        }
+  
         for (const file of files) {
           console.log(file);
-
+  
           // Get the ArrayBuffer of the file
           const arrayBuffer = await getFileArrayBuffer(file);
           console.log(arrayBuffer);
-
+  
           // Upload the file to the SharePoint Library
           await sp.web
             .getFolderByServerRelativePath(siteUrl)
@@ -1638,52 +1710,54 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               Overwrite: true,
             });
         }
-
-        console.log(
-          `Folder -----${folderName}---- created successfully in list`
-        );
+  
+        console.log(`Folder '${folderName}' created successfully in list`);
       }
     } catch (error) {
       console.error(`Error creating folder: ${error}`);
     }
   };
+  
 
   private createFolder = async (req: string): Promise<void> => {
     const folderName = req.replace(/\//g, "-");
     try {
-      // const url = "/sites/uco/Shared Documents/MyFolder"
       console.log(this.props.context.pageContext.web.serverRelativeUrl);
       const absUrl = this.props.context.pageContext.web.serverRelativeUrl;
       this._folderName = `${absUrl}/${this.props.libraryId}/${folderName}`;
-
+  
       const siteUrl = `${absUrl}/${this.props.libraryId}/${folderName}`;
       console.log(siteUrl);
-      // const filesData = this.state.files;
-      // const folderId =
-      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
-      //   .then(async (res) => {
-      //     for (let i = 0; i < filesData.length; i++) {
-      //       const file = filesData[i];
-      //       const arrayBuffer = await file.arrayBuffer();
-      //       // Upload a file to the SharePoint Library
-      //       await this.props.sp.web
-      //         .getFolderByServerRelativePath(siteUrl)
-      //         .files.addUsingPath(file.name, arrayBuffer, { Overwrite: true });
-      //     }
-      //   }
-      // );
-
-      // creates a new folder for web with specified server relative url
-      // const folderAddResult = await this.props.sp.web.folders.addUsingPath(url);
-
-      console.log(`Folder '${folderName}' created successfully in list `);
+  
+      // Check if the folder already exists
+      let folderExists = false;
+      try {
+        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+        folderExists = true;
+      } catch (error) {
+        if (error.status === 404) {
+          folderExists = false;
+        } else {
+          throw error;
+        }
+      }
+  
+      if (!folderExists) {
+        // Create the folder if it doesn't exist
+        await this.props.sp.web.folders.addUsingPath(siteUrl);
+        console.log(`Folder '${folderName}' created successfully in list`);
+      } else {
+        console.log(`Folder '${folderName}' already exists`);
+      }
+  
       // eslint-disable-next-line no-void
       void this.createSubFolder(siteUrl);
     } catch (error) {
       console.error(`Error creating folder: ${error}`);
     }
   };
-
+  
+  
   private _getApproverDetails = (
     reveiwerData: any,
     apporverData: any,
@@ -1940,14 +2014,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     this.setState({ isConfirmationDialogVisible: false });
   };
 
-  private handleConfirmSubmit = async () => {
+  private handleConfirmSubmit = async (): Promise<void> => {
     this.handleCancelDialog(); // Hide the dialog
-    this.handleSubmit('Submitted');
+    if (this.state.itemId) {
+      await this.handleUpdate(true);
+    } else {
+      await this.handleSubmit('Submitted', true);
+    }
   };
-
   private handleSubmit = async (
     // event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    statusOfForm: string
+    statusOfForm: string,
+    showAlert: boolean = true
   ): Promise<void> => {
     // event.preventDefault();
   console.log(statusOfForm)
@@ -1986,23 +2064,29 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     if (statusOfForm === 'Drafted'){
       let id;
-     
-    
-        // eslint-disable-next-line prefer-const
-        id = await this.props.sp.web.lists
+      if (this.state.itemId) {
+        // Update existing item
+        await this.handleUpdate(showAlert);
+        console.log(this.state.itemId, "id updated");
+      } else {
+        // Create new item
+        const response = await this.props.sp.web.lists
           .getByTitle(this.props.listId)
           .items.add(this.createEcommitteeObject(statusOfForm, "300"));
-        console.log(id.Id, "id");
-      
-      console.log(id.Id, "id -----", statusOfForm, "Status");
+        id = response.Id;
+        this.setState({ itemId: id });
+        console.log(id, "id created");
+        await this._generateRequsterNumber(this.state.itemId || id);
+        
+      }
 
-    
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      await this._generateRequsterNumber(id.Id);
-
-      // console.log(id)
+     
       console.log("Item Drafted successfully");
-      this.setState({ isVisibleAlter: true });
+
+      if (showAlert) {
+        this.setState({ isVisibleAlter: true });
+      }
+     
     }
 
     
@@ -2822,10 +2906,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   }
 
-  private handleUpdate = async (
-    
-  ): Promise<void> => {
-    
+  private handleUpdate = async (showAlert: boolean=true): Promise<void> => {
     console.log("Update Event Triggered");
 
     const {
@@ -2864,10 +2945,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.getObject(),
         "*********************Edited passed Object*********************"
       );
-      const itemToUpdate = await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
-        .items.getById(this._itemId)
-        .update(this.getObject());
+
+      const itemToUpdate = this.state.itemId
+        ? await this.props.sp.web.lists
+            .getByTitle(this.props.listId)
+            .items.getById(this.state.itemId)
+            .update(this.getObject())
+        : await this.props.sp.web.lists
+            .getByTitle(this.props.listId)
+            .items.getById(this._itemId)
+            .update(this.getObject());
 
       // Usage example
       await this.updatePdfFolderItems(
@@ -2884,7 +2971,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       );
 
       console.log(itemToUpdate, "item updated");
-      this.setState({ isVisibleAlter: true });
+
+      if (showAlert) {
+        this.setState({ isVisibleAlter: true });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -3327,7 +3417,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 style={{ margin: "4px", marginTop: "18px" }}
               >
                 Department<span className={styles.warning}>*</span>
-                <h4 style={{margin:'5px', marginLeft: "20px" }}>{this.state.department}</h4>
+                <p style={{margin:'5px', marginLeft: "20px" }}>{this.state.department}</p>
               </div>
               {/* Committee Name Sub Section */}
               <div
