@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 /* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-lines */
@@ -170,7 +171,7 @@ export interface IViewFormState {
 
   // success alert
   isVisibleAlter: boolean;
-
+  successStatus:any;
   isGistVisibleAlter:boolean;
 
   // referback dialog
@@ -328,6 +329,7 @@ export default class ViewForm extends React.Component<
       // success alert
       isVisibleAlter: false,
       isGistVisibleAlter:false,
+      successStatus:'',
 
        // referback dialog
        noteReferrerCommentsDTO:[],
@@ -783,8 +785,8 @@ export default class ViewForm extends React.Component<
     console.log()
     this.state.ApproverDetails.forEach((each: any) => {
       if (
-        (each.approverEmail || each.approverEmailName || each.email) ===
-        this._currentUserEmail
+        ((each.approverEmail || each.approverEmailName || each.email) ===
+        this._currentUserEmail) && (each.approverOrder === this.state.ApproverOrder)
       ) {
 
         //                 Draft -  100
@@ -1197,6 +1199,55 @@ export default class ViewForm extends React.Component<
     }
   }
 
+  private async updateNoteID(itemId: number): Promise<void> {
+    try {
+      const itemUpdateResult = await this.props.sp.web.lists.getByTitle("ATRRequests").items.getById(itemId).update({
+        NoteID: `${itemId}`,
+        ATRNoteID: `${itemId}`
+      });
+      console.log(itemUpdateResult)
+      console.log(`Item with ID ${itemId} updated with new NoteID: ${itemId}`);
+    } catch (error) {
+      console.error("Error updating NoteID: ", error);
+    }
+  }
+
+
+  private _updateATRRequest = async ():Promise<void>=>{
+    this.state.atrGridData.map(
+      async(each:any)=>{
+        console.log(each)
+        try {
+          
+          const itemAddResult = await this.props.sp.web.lists.getByTitle("ATRRequests").items.add({
+            Title: this.state.title,
+            NoteTo: "Sample NoteTo",
+            Status: "Pending",
+            ATRNoteID: '',
+            // Department: "Sample Department",
+            // Subject: "Sample Subject",
+            // AssignedBy: "Sample AssignedBy",
+            // Remarks: "Sample Remarks",
+            // Comments: "Sample Comments",
+            // ActionTaken: "Sample ActionTaken",
+            // ActionTakenDate: new Date(),
+            // AuditTrail: "Sample AuditTrail",
+            // Assignee: "Sample Assignee",
+            // StatusNumber: 1,
+            // NoteID: "Sample NoteID",
+            // CurrentApprover: "Sample Approver",
+            // NoteType: "Sample NoteType"
+          });
+          console.log(itemAddResult)
+          console.log(`Item added with ID: ${itemAddResult.Id}`);
+          await this.updateNoteID(itemAddResult.Id);
+        } catch (error) {
+          console.error("Error adding item: ", error);
+        }
+      }
+    )
+  }
+
   private _handleApproverButton = async (
     statusFromEvent: string,
     statusNumber: string
@@ -1310,6 +1361,8 @@ export default class ViewForm extends React.Component<
       .update(updateItems);
 
     console.log(itemToUpdate);
+
+    this.state.atrGridData.length > 0 && await this._updateATRRequest()
     await this.updateSupportingDocumentFolderItems(
       this.state.supportingFilesInViewForm,
       `${this._folderName}/SupportingDocument`,
@@ -2041,7 +2094,7 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            // this.setState({status:'Approved'})
+            this.setState({successStatus:'Approved'})
             this._hanldeFluentDialog(
               "Approve",
               "Approved",
@@ -2077,7 +2130,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()){
               this.setState({isRejectCommentsCheckAlterDialog:true})
             }else{
-              // this.setState({status:'Rejected'})
+              this.setState({successStatus:'Rejected'})
               this._hanldeFluentDialog(
                 "Reject",
                 "Rejected",
@@ -2101,7 +2154,7 @@ export default class ViewForm extends React.Component<
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
 
-            // this.setState({status:'Refered'})
+            this.setState({successStatus:'Refered'})
               this._hanldeFluentDialog(
                 "Refer",
                 "Refered",
@@ -2127,7 +2180,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()){
               this.setState({isReturnCommentsCheckAlterDialog:true})
             }else{
-              // this.setState({status:'Returned'})
+              this.setState({successStatus:'Returned'})
               this._hanldeFluentDialog(
                 "Return",
                 "Returned",
@@ -2431,10 +2484,10 @@ export default class ViewForm extends React.Component<
           case "3000"://pending approver
           case "6000"://referback
           case "4900"://referback
-          this.handleReferBack('Referred Back', '6000', {}); 
+          this.handleReferBack('Referred Back', '4900',this.state.commentsData[this.state.commentsData.length-1]); 
               break;
           case "4000"://refer
-          this.handleRefer('Refered', '4000',{});
+          this.handleRefer('Refered', '4000',this.state.commentsData[this.state.commentsData.length-1]);
           break;
           case "5000"://return
 
@@ -2519,7 +2572,7 @@ export default class ViewForm extends React.Component<
             {/* success  dialog */}
             <SuccessDialog
               // homePageUrl = {this.props.homePageUrl}
-              statusOfReq={this.state.status}
+              statusOfReq={this.state.successStatus}
               isVisibleAlter={this.state.isVisibleAlter}
               onCloseAlter={()=>{
                 this._closeDialogAlter("success")
@@ -3211,6 +3264,7 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Edit" }}
                         onClick={(e) => {
                           console.log("Change Approver btn Triggered");
+                          this.setState({successStatus:'Approver Changed'})
                           this._hanldeFluentDialog(
                             "Change Approver",
                             "changeApprover",
@@ -3234,6 +3288,7 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Refresh" }}
                         onClick={(e) => {
                           console.log("Call Back btn Triggered");
+                          this.setState({successStatus:'Call Backed'})
                           this.handleCallBack( "Call Back", "200");
                           // this.setState({
                           //   status: "Call Back",
@@ -3275,7 +3330,7 @@ export default class ViewForm extends React.Component<
                           this._hanldeFluentDialog(
                             "Refer Back",
                             "Refered Back",
-                            "6000",
+                            "4900",
                             "Please check the details filled along with attachment and click on Confirm button to approve request.",
                             this.handleReferBack,
                             this._closeDialog
@@ -3341,6 +3396,12 @@ export default class ViewForm extends React.Component<
             dialogDetails={this.state.dialogDetails}
             sp={this.props.sp}
             context={this.props.context}
+            fetchReferData={
+              (data:any)=>{
+                console.log(data)
+                this.setState({commentsData:[...this.state.commentsData,data]})
+              }
+            }
             fetchAnydata={(data: any, typeOfBtnTriggered: any, status: any) => {
               console.log(data);
               console.log(this.state.currentApprover)

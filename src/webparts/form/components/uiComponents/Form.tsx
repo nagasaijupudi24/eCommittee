@@ -813,7 +813,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this._role = profile.Title;
 
       profile.UserProfileProperties.filter((element: any) => {
-        // console.log(element)
+        console.log(element)
+        console.log(element.Key)
+        console.log(element.Value)
         if (element.Key === "Department") {
           // console.log(element)
           //
@@ -1979,6 +1981,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "FinalOrderApproverDetails"
       ),
       startProcessing:true,
+      CommitteeType:this.props.formType==='BoardNoteNew'?"Board":"Committee"
 
     };
     console.log(ecommitteObject);
@@ -2709,6 +2712,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       [...this.state.peoplePickerData, ...this.state.peoplePickerApproverData],
       "FinalOrderApproverDetails"
     ),
+    CommitteeType:this.props.formType==='BoardNoteNew'?"Board":"Committee"
   });
 
   public async clearFolder(
@@ -3422,7 +3426,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               {/* Committee Name Sub Section */}
               <div
                 className={styles.halfWidth}
-                style={{ margin: "4px", marginTop: "18px" }}
+                style={{ margin: "4px" }}
               >
                 <Dropdown
                   placeholder="Select an option"

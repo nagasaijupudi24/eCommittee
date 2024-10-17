@@ -16,6 +16,7 @@ interface IDialogProps {
   sp: any;
   context: any;
   fetchAnydata: any;
+  fetchReferData:any
 }
 
 const Header = (props: any) => (
@@ -37,14 +38,16 @@ const Header = (props: any) => (
   </Stack>
 );
 
-export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
-  hiddenProp,
-  dialogDetails,
-  context,
-  sp,
-  fetchAnydata,
-}) => {
-  console.log(dialogDetails);
+export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (props,) => {
+  const {
+    hiddenProp,
+    dialogDetails,
+    context,
+    sp,
+    fetchAnydata,
+  } = props
+  console.log(props)
+  console.log(props.dialogDetails);
 
   // CSS for responsive design
   const modalPropsStyles = {
@@ -131,6 +134,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
       dialogDetails.statusNumber,
       referredCommentTextBoxValue
     );
+
+    props.fetchReferData(referredCommentTextBoxValue)
    
   };
 
@@ -271,7 +276,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = ({
     );
   };
 
-  switch (dialogDetails.type) {
+  switch (props.dialogDetails.type) {
+   
     case "Change Approver":
       return getChangeApproverJsx();
     case "Refer":

@@ -13,6 +13,7 @@ import {
   DialogType,
   DefaultButton,
 } from "@fluentui/react";
+
 import * as React from "react";
 import { v4 } from "uuid";
 import CommentsMandatoryDialog from "../dialogFluentUi/generalCommentsMandiatoryDialog";
@@ -23,19 +24,19 @@ interface IGridRow {
   page: string;
   comment: string;
   commentedBy: string;
-  commentedByEmail:any;
-  commentsFrom:any
+  commentedByEmail: any;
+  commentsFrom: any;
 }
 
 interface IGridProps {
   data: any;
   currentUserDetails: any;
-  type:any;
+  type: any;
   handleCommentDataFuntion: (data: any, action: any, id?: any) => void; // Pass the function as a prop
 }
 
 interface IGridState {
-  isVisibleAlter:any;
+  isVisibleAlter: any;
   pageNumValue: string;
   pageValue: string;
   commentValue: string;
@@ -52,7 +53,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
   constructor(props: IGridProps) {
     super(props);
     this.state = {
-      isVisibleAlter:false,
+      isVisibleAlter: false,
       pageNumValue: "",
       pageValue: "",
       commentValue: "",
@@ -64,11 +65,9 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
   }
 
   private _getCurentUserComment = (): IGridRow[] => {
-    console.log(this.props.currentUserDetails)
-    console.log(this.props.data)
-    if (
-      this.props.data.length > 0
-    ) {
+    console.log(this.props.currentUserDetails);
+    console.log(this.props.data);
+    if (this.props.data.length > 0) {
       return this.props.data?.filter(
         (each: any) =>
           each?.commentedBy === this.props.currentUserDetails.displayName &&
@@ -102,21 +101,22 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     if (this.state.isEditMode) {
       this.handleSaveBtn();
     } else {
-
-      this.state.commentValue !== ''?this.handleAddNewComment():this.setState({isVisibleAlter:true});
+      this.state.commentValue !== ""
+        ? this.handleAddNewComment()
+        : this.setState({ isVisibleAlter: true });
     }
   };
 
   // Add a new comment
   private handleAddNewComment = () => {
     const { pageNumValue, pageValue, commentValue } = this.state;
-    
+
     const commentsObj: IGridRow = {
       id: v4(),
       pageNum: pageNumValue,
       page: pageValue,
       comment: commentValue,
-      commentsFrom:'generalComments',
+      commentsFrom: "generalComments",
       commentedBy: this.props.currentUserDetails.displayName,
       commentedByEmail: this.props.currentUserDetails.email,
     };
@@ -147,7 +147,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       });
     }
   };
-  
+
   // Save the Edited row
   private handleSaveBtn = () => {
     const { editRowId, pageNumValue, pageValue, commentValue } = this.state;
@@ -181,14 +181,16 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
   private handleDelete = (id: string) => {
     const filteredRows = this.state.rowsData.filter((row) => row.id !== id);
     this.setState({ rowsData: filteredRows });
-    
+
     // Call the function passed from the parent component
-    this.props.handleCommentDataFuntion(this.state.rowsData.filter(
-      (item: { id: any }) =>{
-        console.log(item)
-        return item.id === id
-      } 
-    ), "delete", id);
+    this.props.handleCommentDataFuntion(
+      this.state.rowsData.filter((item: { id: any }) => {
+        console.log(item);
+        return item.id === id;
+      }),
+      "delete",
+      id
+    );
   };
 
   private closeDialog = () => {
@@ -197,9 +199,30 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
 
   public render(): React.ReactElement<any> {
     const columns: IColumn[] = [
-      { key: "pageNum", name: "Page#", fieldName: "pageNum", minWidth: 100, maxWidth: 150, isResizable: true },
-      { key: "page", name: "Doc Reference", fieldName: "page", minWidth: 100, maxWidth: 150, isResizable: true },
-      { key: "comment", name: "Comment", fieldName: "comment", minWidth: 200, maxWidth: 300, isResizable: true },
+      {
+        key: "pageNum",
+        name: "Page#",
+        fieldName: "pageNum",
+        minWidth: 100,
+        maxWidth: 150,
+        isResizable: true,
+      },
+      {
+        key: "page",
+        name: "Doc Reference",
+        fieldName: "page",
+        minWidth: 100,
+        maxWidth: 150,
+        isResizable: true,
+      },
+      {
+        key: "comment",
+        name: "Comment",
+        fieldName: "comment",
+        minWidth: 200,
+        maxWidth: 300,
+        isResizable: true,
+      },
       {
         key: "actions",
         name: "Actions",
@@ -208,24 +231,40 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
 
         onRender: (item: IGridRow) => (
           <>
-            <PrimaryButton text="Edit" onClick={() => this.handleEdit(item.id)} />
-            <PrimaryButton text="Delete" onClick={() => this.handleDelete(item.id)} style={{ marginLeft: 8 }} />
+            <PrimaryButton
+              text="Edit"
+              onClick={() => this.handleEdit(item.id)}
+              iconProps={{ iconName: "Edit" }}
+            />
+            <PrimaryButton
+              text="Delete"
+              onClick={() => this.handleDelete(item.id)}
+              style={{ marginLeft: 8 }}
+              iconProps={{ iconName: "Delete" }}
+            />
           </>
         ),
       },
     ];
-    console.log(this.state)
-    console.log(this.props)
+    console.log(this.state);
+    console.log(this.props);
 
     return (
-      <div style={{ display: "flex",flexDirection:'column' }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         {/* Add Button to Open Dialog */}
-        <PrimaryButton style={{ alignSelf:'flex-end' }} text="Add Comment" onClick={this.handleAddBtn} />
-        <CommentsMandatoryDialog isVisibleAlter={this.state.isVisibleAlter} onCloseAlter={
-          ()=>{
-            this.setState({ isVisibleAlter: false});
-          }
-        } statusOfReq={"undefined"}/>
+        <PrimaryButton
+          style={{ alignSelf: "flex-end" }}
+          text="Add Comment"
+          onClick={this.handleAddBtn}
+          iconProps={{ iconName: "Comment" }}
+        />
+        <CommentsMandatoryDialog
+          isVisibleAlter={this.state.isVisibleAlter}
+          onCloseAlter={() => {
+            this.setState({ isVisibleAlter: false });
+          }}
+          statusOfReq={"undefined"}
+        />
         {/* Fluent UI Dialog */}
         <Dialog
           hidden={!this.state.isDialogOpen}
@@ -236,7 +275,14 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
             closeButtonAriaLabel: "Close",
           }}
         >
-          <div style={{ display: "flex",flexDirection:'column', gap: "8px", marginBottom: "16px" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              marginBottom: "16px",
+            }}
+          >
             <TextField
               label="Page#"
               value={this.state.pageNumValue}
@@ -261,8 +307,13 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
             <PrimaryButton
               text={this.state.isEditMode ? "Save" : "Add"}
               onClick={this.handleSave}
+              iconProps={{ iconName: this.state.isEditMode ? 'Save' : 'Add' }}
             />
-            <DefaultButton text="Cancel" onClick={this.closeDialog} />
+            <DefaultButton
+              text="Cancel"
+              onClick={this.closeDialog}
+              iconProps={{ iconName: "Cancel" }}
+            />
           </DialogFooter>
         </Dialog>
 
