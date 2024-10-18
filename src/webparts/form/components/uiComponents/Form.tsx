@@ -764,6 +764,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     this.title = item.Title
 
     this.setState({
+      itemId:this._itemId,
       committeeNameFeildValue:
         item.CommitteeName !== null ? item.CommitteeName : "",
       subjectFeildValue: item.Subject !== null ? item.Subject : "",
@@ -2078,6 +2079,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     if (statusOfForm === 'Drafted'){
       let id;
+
       if (this.state.itemId) {
         // Update existing item
         await this.handleUpdate(showAlert);
@@ -2691,7 +2693,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
    
   };
 
-  private getObject = (): any => ({
+  private getObject = (status:any,statusNumber:any): any => ({
     Department: this.state.department,
     CommitteeName: this.state.committeeNameFeildValue,
     Subject: this.state.subjectFeildValue,
@@ -2707,9 +2709,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.peoplePickerApproverData,
       "allDetails"
     ),
-    Status: "Submitted",
-    StatusNumber: "1000",
-    AuditTrail: this._getAuditTrail("ReSubmitted"),
+    Status:this._itemId?this.state.status: status,
+    StatusNumber:this._itemId?statusNumber: statusNumber,
+    AuditTrail:this.state.itemId ?JSON.stringify(this.state.auditTrail): this._getAuditTrail("ReSubmitted"),
     // Reviewer:{result:this._getReviewerId()}
     ReviewersId: this._getReviewerId(),
     ApproversId: this._getApproverId(),
@@ -2953,23 +2955,25 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(puroposeFeildValue, "-----------puroposeFeildValue");
 
     try {
-      this.setState({ status: "Updated", statusNumber: "1000" });
+      // this.setState({ status: "Updated", statusNumber: "1000" });
 
       // Update SharePoint item
-      console.log(
-        this.getObject(),
-        "*********************Edited passed Object*********************"
-      );
+      // console.log(
+      //   this.getObject(),
+      //   "*********************Edited passed Object*********************"
+      // );
 
-      const itemToUpdate = this.state.itemId
-        ? await this.props.sp.web.lists
+      const itemToUpdate = this._itemId
+        ?  await this.props.sp.web.lists
+        .getByTitle(this.props.listId)
+        .items.getById(this._itemId)
+        .update(this.getObject("Submitted",'1000')):
+        
+        await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.getById(this.state.itemId)
-            .update(this.getObject())
-        : await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
-            .items.getById(this._itemId)
-            .update(this.getObject());
+            .update(this.getObject('Drafted','100'))
+        
 
       // Usage example
       await this.updatePdfFolderItems(
