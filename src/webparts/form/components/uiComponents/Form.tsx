@@ -131,6 +131,7 @@ export interface IFileDetails {
 interface IMainFormState {
   isLoading: boolean;
   department: string;
+  departmentAlias:string;
   noteTypeValue?: IDropdownOption;
   isNoteType: boolean;
   new: string;
@@ -293,9 +294,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private _currentUserEmail = this.props.context.pageContext.user.email;
 
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
-  private _folderName: string = `${this._absUrl}/${
-    this.props.libraryId
-  }/${this._folderNameGenerate(this._itemId)}`;
+  private _folderName: any = '';
   // private _folderName:string;
 
   private title:any;
@@ -310,6 +309,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       autoSaveStatus: 'Drafted',
       isLoading: true,
       department: "",
+      departmentAlias:'',
       isNoteType: false,
       noteTypeValue: undefined,
       new: "",
@@ -409,7 +409,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // this.props.formType === "Edit" && this._getItemData(this._itemId, this._folderName);
     this._itemId && this._getItemData(this._itemId, this._folderName);
     // this.props.formType === "Edit" && this._getItemDocumentsData();
-    this._getItemDocumentsData();
+    
+    this._fetchDepartmentAlias().then(async()=>{
+      console.log(this.state.departmentAlias)
+     
+      this._folderName =await `${this._absUrl}/${
+        this.props.libraryId
+      }/${this._folderNameGenerate(this._itemId)}`
+
+      await this._getItemDocumentsData();
+      
+
+    });
     // this._GetMyProfile("421")
     // eslint-disable-next-line no-void
     // void this.createFolder();
@@ -2075,7 +2086,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // Create new item
         const response = await this.props.sp.web.lists
           .getByTitle(this.props.listId)
-          .items.add(this.createEcommitteeObject(statusOfForm, "300"));
+          .items.add(this.createEcommitteeObject(statusOfForm, "100"));
         id = response.Id;
         this.setState({ itemId: id });
         console.log(id, "id created");
@@ -2984,12 +2995,49 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
+  private _fetchDepartmentAlias = async (): Promise<void> => {
+    try {
+      console.log("Starting to fetch department alias...");
+ 
+      // Step 1: Fetch items from the Departments list
+      const items: any[] = await this.props.sp.web.lists
+        .getByTitle("Departments")
+        .items
+        .select("Department", "DepartmentAlias", "Admin/EMail", "Admin/Title") // Fetching relevant fields
+        .expand("Admin")();
+ 
+      console.log("Fetched items from Departments:", items);
+ 
+      // Step 2: Find the department entry where the Title or Department contains "Development"
+      const specificDepartment = items.find((each: any) =>
+        each.Department.includes("Development") || each.Title?.includes("Development")
+      );
+ 
+      if (specificDepartment) {
+        const departmentAlias = specificDepartment.DepartmentAlias;
+        console.log("Department alias for department with 'Development' in title:", departmentAlias);
+ 
+        // Step 3: Update state with the department alias
+        this.setState({
+          departmentAlias: departmentAlias, // Store the department alias
+        }, () => {
+          console.log("Updated state with department alias:", this.state.departmentAlias);
+        });
+      } else {
+        console.log("No department found with 'Development' in title.");
+      }
+ 
+    } catch (error) {
+      console.error("Error fetching department alias: ", error);
+    }
+  };
+
   // Generate Request Number
   private async _generateRequsterNumber(id: number) {
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
     const requesterNo =
-    this.props.formType==="BoardNoteNew"? `DEP/${currentyear}-${nextYear}/B${id}`: `DEP/${currentyear}-${nextYear}/C${id}`;
+    this.props.formType==="BoardNoteNew"? `${this.state.departmentAlias}/${currentyear}-${nextYear}/B${id}`: `${this.state.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
     // const requesterNo=`AD1/${currentyear}-${nextYear}/C${id}`
 
     const currentItem = await this._getItemData(id, "");
@@ -3021,10 +3069,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }
 
   public _folderNameGenerate(id: any): any {
+    console.log(this.state.departmentAlias)
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
     
-    const requesterNo = this.props.formType==="BoardNoteNew"? `DEP/${currentyear}-${nextYear}/B${id}`:`DEP/${currentyear}-${nextYear}/C${id}`;
+    // const requesterNo = this.props.formType==="BoardNoteView"? `DEP/${currentyear}-${nextYear}/B${id}`:`DEP/${currentyear}-${nextYear}/C${id}`;
+    // console.log(requesterNo)
+
+    const requesterNo = this.props.formType==="BoardNoteView"? `${this.state.departmentAlias}/${currentyear}-${nextYear}/B${id}`:`${this.state.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
+    console.log(requesterNo)
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
