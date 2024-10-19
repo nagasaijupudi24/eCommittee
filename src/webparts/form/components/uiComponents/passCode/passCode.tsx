@@ -1,51 +1,65 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import * as React from 'react';
-import "@pnp/sp/files";  
+import * as React from "react";
+import "@pnp/sp/files";
 import "@pnp/sp/site-users/web";
-import "@pnp/sp/webs"; // Import webs functionality
-import "@pnp/sp/lists"; // Import lists functionality
-import "@pnp/sp/items"; // Import items functionality
-import "@pnp/sp/files/web"
+import "@pnp/sp/webs";
+import "@pnp/sp/lists";
+import "@pnp/sp/items";
+import "@pnp/sp/files/web";
 
-
-import { TextField, PrimaryButton, DefaultButton, MessageBar, MessageBarType, Modal, IconButton } from '@fluentui/react';
-import styles from './PasscodeModal.module.scss'; // Custom styles
-import CryptoJS from 'crypto-js'; // Import crypto-js
+import {
+  TextField,
+  PrimaryButton,
+  DefaultButton,
+  MessageBar,
+  MessageBarType,
+  Modal,
+  IconButton,
+} from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react/lib/Styling";
+import CryptoJS from "crypto-js";
 
 export interface IPasscodeModalProps {
   sp: any;
   user: any;
-  isOpen: boolean; // Control modal visibility
-  onClose: () => void; // Callback to close the modal
-  onSuccess: () => void; // Callback when passcode is validated successfully
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
 export interface IPasscodeModalState {
   userId: any;
   passcode: string;
-  newPasscode: string; // State for creating a new passcode
+  newPasscode: string;
   errorMessage: string;
-  userPasscodes: Array<{ username: string, passcode: string }>; // Store an array of objects with username and passcode
-  userEmail: string; // Store the current user's email
-  isCreating: boolean; // Control the state for creating a new passcode
+  userPasscodes: Array<{ username: string; passcode: string }>;
+  userEmail: string;
+  isCreating: boolean;
+  isPasswordVisible: boolean;
+  isNewPasswordVisible: boolean;
 }
 
-export default class PasscodeModal extends React.Component<IPasscodeModalProps, IPasscodeModalState> {
-  private encryptionKey: string = 'default_secret_key'; // Use a secure key in production
+export default class PasscodeModal extends React.Component<
+  IPasscodeModalProps,
+  IPasscodeModalState
+> {
+  // private encryptionKey: string = 'default_secret_key'; // Use a secure key in production
   private key = CryptoJS.enc.Utf8.parse('b75524255a7f54d2726a951bb39204df');
   private iv = CryptoJS.enc.Utf8.parse('1583288699248111');
   constructor(props: IPasscodeModalProps) {
     super(props);
 
     this.state = {
-      passcode: '',
-      newPasscode: '',
-      errorMessage: '',
-      userPasscodes: [], // Initialize an empty array for storing passcodes
-      userEmail: this.props.user.email, // Initialize user email state
-      userId: '',
-      isCreating: false // Initialize creation state
+      passcode: "",
+      newPasscode: "",
+      errorMessage: "",
+      userPasscodes: [],
+      userEmail: this.props.user.email,
+      userId: "",
+      isCreating: false,
+      isPasswordVisible: false,
+      isNewPasswordVisible: false,
     };
   }
 
@@ -57,9 +71,7 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
 
   private getUserIdByEmail = async (email: string): Promise<number> => {
     try {
-      console.log(`Fetching user ID for email: ${email}`);
       const user = await this.props.sp.web.siteUsers.getByEmail(email)();
-      console.log(`User ID fetched: ${user.Id}`);
       return user.Id;
     } catch (error) {
       console.error("Error fetching user ID:", error);
@@ -69,67 +81,74 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
 
   private fetchStoredPasscodes = async () => {
     const user = await this.props.sp?.web.currentUser();
-    
 
     try {
-      console.log("Fetching stored passcodes...");
       const items: any[] = await this.props.sp.web.lists
         .getByTitle("passcodes")
         .items.filter(`UserId eq ${user.Id}`)
         .select("User/EMail", "User/Title", "passcode")
         .expand("User")();
-        console.log(items)
 
-      const userPasscodes: Array<{ username: string, passcode: string }> = items.map(item => {
+      const userPasscodes = items.map((item) => {
         const decryptedPasscode = this.decrypt(item.passcode);
-        console.log(`Decrypted passcode for user ${item.User.Title}: ${decryptedPasscode}`);
         return {
-          username: item.User.Title,  // Use User/Title for username
-          passcode: decryptedPasscode // Decrypt passcode before storing
+          username: item.User.Title,
+          passcode: decryptedPasscode,
         };
       });
 
       this.setState({ userPasscodes }, this.checkUserPasscode);
-      console.log("Stored passcodes fetched:", userPasscodes);
-
     } catch (error) {
       console.error("Error fetching passcodes:", error);
-      this.setState({ errorMessage: 'Failed to fetch passcodes.' });
+      this.setState({ errorMessage: "Failed to fetch passcodes." });
     }
   };
 
   private checkUserPasscode = () => {
-    const {  userPasscodes } = this.state;
+    const { userPasscodes } = this.state;
+    const userPasscode = userPasscodes.find(
+      (up) => up.username === this.props.user.displayName
+    );
 
-    const userPasscode = userPasscodes.find(up => up.username === this.props.user.displayName);
-
-    console.log(`Checking passcode for user: ${this.props.user.displayName}`);
     if (!userPasscode) {
-      console.log("No passcode found for user. Enabling passcode creation.");
-      this.setState({ isCreating: true }); // Show option to create a new passcode
+      this.setState({ isCreating: true });
     }
   };
 
-  private onPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-    console.log("Passcode input changed:", newValue);
-    this.setState({ passcode: newValue || '', errorMessage: '' });
+  private onPasscodeChange = (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    newValue?: string
+  ) => {
+    this.setState({ passcode: newValue || "", errorMessage: "" });
   };
 
-  private onNewPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-    console.log("New passcode input changed:", newValue);
-    this.setState({ newPasscode: newValue || '', errorMessage: '' });
+  private onNewPasscodeChange = (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    newValue?: string
+  ) => {
+    this.setState({ newPasscode: newValue || "", errorMessage: "" });
+  };
+
+  private togglePasswordVisibility = () => {
+    this.setState({ isPasswordVisible: !this.state.isPasswordVisible });
+  };
+
+  private toggleNewPasswordVisibility = () => {
+    this.setState({ isNewPasswordVisible: !this.state.isNewPasswordVisible });
   };
 
   private encrypt = (text: string): string => {
-    const encrypted = CryptoJS.AES.encrypt(text, this.encryptionKey).toString();
-    console.log(`Encrypted passcode: ${encrypted}`);
+    const encrypted = CryptoJS.AES.encrypt(text,  this.key, {
+      iv: this.iv,
+    }).toString();
     return encrypted;
   };
 
   private decrypt = (encryptedText: string): string => {
-    const bytes = CryptoJS.AES.decrypt(encryptedText, this.key, { iv: this.iv });
+    const bytes = CryptoJS.AES.decrypt(encryptedText, this.key, {
+      iv: this.iv,
+    });
     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-    console.log(`Decrypted text: ${decrypted}`);
     return decrypted;
   };
 
@@ -137,81 +156,111 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
     const { newPasscode } = this.state;
 
     if (!newPasscode) {
-      this.setState({ errorMessage: 'Please enter a passcode.' });
+      this.setState({ errorMessage: "Please enter a passcode." });
       return;
     }
 
     const encryptedPasscode = this.encrypt(newPasscode);
 
     try {
-      console.log(`Saving new passcode for user: ${this.props.user.displayName}`);
       await this.props.sp.web.lists.getByTitle("passcodes").items.add({
         UserId: this.state.userId,
         passcode: encryptedPasscode,
-        Title: this.props.user.displayName
+        Title: this.props.user.displayName,
       });
 
-      this.setState({ isCreating: false, newPasscode: '', errorMessage: '' });
-      this.props.onSuccess(); // Call the success callback on saving
-      this.props.onClose(); // Close the modal
-      console.log("New passcode saved successfully.");
+      this.setState({ isCreating: false, newPasscode: "", errorMessage: "" });
+      this.props.onSuccess();
+      this.props.onClose();
     } catch (error) {
-      console.error("Error saving new passcode:", error);
-      this.setState({ errorMessage: 'Failed to save new passcode.' });
+      this.setState({ errorMessage: "Failed to save new passcode." });
     }
   };
 
   private validatePasscode = () => {
     const { passcode, userPasscodes } = this.state;
+    const userPasscode = userPasscodes.find(
+      (up) => up.username === this.props.user.displayName
+    );
 
-    const userPasscode = userPasscodes.find(up => up.username === this.props.user.displayName);
-
-    console.log(`Validating passcode for user: ${this.props.user.displayName}`);
     if (!userPasscode) {
-      this.setState({ errorMessage: 'No passcode found for this user.' });
+      this.setState({ errorMessage: "No passcode found for this user." });
       return;
     }
 
-    try {
-      const decryptedPasscode = userPasscode.passcode;
-      console.log(decryptedPasscode)
-      console.log(userPasscode.passcode)
-      console.log(passcode)
-
-      if (decryptedPasscode === passcode) {
-        console.log("Passcode validated successfully.");
-        this.props.onSuccess(); // Call the success callback on validation
-        this.props.onClose(); // Close the modal
-      } else {
-        console.log("Invalid passcode entered.");
-        this.setState({ errorMessage: 'Invalid passcode. Please try again.' });
-      }
-    } catch (error) {
-      console.error("Error validating passcode:", error);
-      this.setState({ errorMessage: 'Failed to validate passcode.' });
+    if (userPasscode.passcode === passcode) {
+      this.props.onSuccess();
+      this.props.onClose();
+    } else {
+      this.setState({ errorMessage: "Invalid passcode. Please try again." });
     }
   };
 
   public render(): React.ReactElement<IPasscodeModalProps> {
     const { isOpen, onClose } = this.props;
-    const { passcode, errorMessage, isCreating, newPasscode } = this.state;
-    console.log(this.state)
+    const {
+      passcode,
+      errorMessage,
+      isCreating,
+      newPasscode,
+      isPasswordVisible,
+      isNewPasswordVisible,
+    } = this.state;
+
+    const styles = mergeStyleSets({
+      modal: {
+        padding: "10px",
+        minWidth: "300px",
+        maxWidth: "80vw",
+        width: "100%",
+        "@media (min-width: 768px)": {
+          maxWidth: "580px",
+        },
+        "@media (max-width: 767px)": {
+          maxWidth: "290px",
+        },
+        margin: "auto",
+        backgroundColor: "white",
+        borderRadius: "4px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.26)",
+      },
+      header: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottom: "1px solid #ddd",
+      },
+      body: {
+        display: "flex",
+        flexDirection: "column",
+        padding: "20px 0",
+      },
+      footer: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginTop: "20px",
+        borderTop: "1px solid #ddd", // Similar footer style as in ConfirmationDialog
+        paddingTop: "10px",
+      },
+      button: {
+        flex: "1 1 50%", // Ensures each button takes up 50% of the footer width
+        margin: "0 5px", // Adds some space between the buttons
+      },
+      iconButton: {
+        marginRight: "10px",
+      },
+    });
 
     return (
       <Modal
         isOpen={isOpen}
         onDismiss={onClose}
-        isBlocking={false}
-        containerClassName={styles.passcodeModalContainer}
+        isBlocking={true}
+        containerClassName={styles.modal}
       >
         <div className={styles.header}>
-          <span>Enter Passcode</span>
-          <IconButton
-            iconProps={{ iconName: 'Cancel' }}
-            ariaLabel="Close"
-            onClick={onClose}
-            className={styles.closeButton}
-          />
+          <h2>Passcode Authentication</h2>
+          <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
         </div>
         <div className={styles.body}>
           {isCreating ? (
@@ -220,32 +269,56 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
                 label="Create New Passcode"
                 value={newPasscode}
                 onChange={this.onNewPasscodeChange}
-                type="password"
+                type={isNewPasswordVisible ? "text" : "password"}
+                onRenderSuffix={() => (
+                  <IconButton
+                    iconProps={{
+                      iconName: isNewPasswordVisible ? "Hide" : "RedEye",
+                    }}
+                    onClick={this.toggleNewPasswordVisibility}
+                  />
+                )}
               />
               <MessageBar messageBarType={MessageBarType.info}>
                 You do not have a passcode. Please create one.
               </MessageBar>
-              <div className={styles.buttons}>
-                <PrimaryButton text="Save" onClick={this.saveNewPasscode} />
-                <DefaultButton text="Cancel" onClick={onClose} />
+              <div className={styles.footer}>
+                <PrimaryButton text="Save"  className={styles.button} onClick={this.saveNewPasscode} />
+                <DefaultButton text="Cancel"  className={styles.button} onClick={onClose} />
               </div>
             </>
           ) : (
             <>
               <TextField
-                label="Passcode"
+                label="Enter Passcode"
                 value={passcode}
                 onChange={this.onPasscodeChange}
-                type="password"
-              />
+                type={isPasswordVisible ? "text" : "password"}
+                onRenderSuffix={() => (
+                  <IconButton
+                    iconProps={{
+                      iconName: isPasswordVisible ? "Hide" : "RedEye",
+                    }}
+                    onClick={this.togglePasswordVisibility}
+                  />
+                )}
+              />{" "}
               {errorMessage && (
                 <MessageBar messageBarType={MessageBarType.error}>
                   {errorMessage}
                 </MessageBar>
               )}
-              <div className={styles.buttons}>
-                <PrimaryButton text="Submit" onClick={this.validatePasscode} />
-                <DefaultButton text="Cancel" onClick={onClose} />
+              <div className={styles.footer}>
+                <PrimaryButton
+                  className={styles.button}
+                  text="Submit"
+                  onClick={this.validatePasscode}
+                />
+                <DefaultButton
+                  className={styles.button}
+                  text="Cancel"
+                  onClick={onClose}
+                />
               </div>
             </>
           )}
@@ -254,700 +327,3 @@ export default class PasscodeModal extends React.Component<IPasscodeModalProps, 
     );
   }
 }
-
-
-
-
-// import * as React from 'react';
-// import { TextField, PrimaryButton, DefaultButton, MessageBar, MessageBarType, Modal, IconButton } from '@fluentui/react';
-// import styles from './PasscodeModal.module.scss'; // Custom styles
-// import CryptoJS from 'crypto-js'; // Import crypto-js
-
-// export interface IPasscodeModalProps {
-//   sp: any;
-//   user: any;
-//   isOpen: boolean; // Control modal visibility
-//   onClose: () => void; // Callback to close the modal
-//   onSuccess: () => void; // Callback when passcode is validated successfully
-// }
-
-// export interface IPasscodeModalState {
-//   userId: any;
-//   passcode: string;
-//   newPasscode: string; // State for creating a new passcode
-//   errorMessage: string;
-//   userPasscodes: Array<{ username: string, passcode: string }>; // Store an array of objects with username and passcode
-//   userEmail: string; // Store the current user's email
-//   isCreating: boolean; // Control the state for creating a new passcode
-// }
-
-// export default class PasscodeModal extends React.Component<IPasscodeModalProps, IPasscodeModalState> {
-//   private encryptionKey: string = 'default_secret_key'; // Use a secure key in production
-
-//   constructor(props: IPasscodeModalProps) {
-//     super(props);
-
-//     this.state = {
-//       passcode: '',
-//       newPasscode: '',
-//       errorMessage: '',
-//       userPasscodes: [], // Initialize an empty array for storing passcodes
-//       userEmail: this.props.user.email, // Initialize user email state
-//       userId: '',
-//       isCreating: false // Initialize creation state
-//     };
-//   }
-
-//   public async componentDidMount() {
-//     await this.fetchStoredPasscodes();
-//     const userId = await this.getUserIdByEmail(this.props.user.email);
-//     this.setState({ userId });
-//   }
-
-//   private getUserIdByEmail = async (email: string): Promise<number> => {
-//     try {
-//       const user = await this.props.sp.web.siteUsers.getByEmail(email)();
-//       return user.Id;
-//     } catch (error) {
-//       console.error("Error fetching user ID:", error);
-//       throw error;
-//     }
-//   };
-
-//   private fetchStoredPasscodes = async () => {
-//     try {
-//       const items: any[] = await this.props.sp.web.lists
-//         .getByTitle("passcodes")
-//         .items
-//         .select("User/EMail", "User/Title", "passcode")
-//         .expand("User")();
-
-//       const userPasscodes: Array<{ username: string, passcode: string }> = items.map(item => {
-//         const decryptedPasscode = this.decrypt(item.passcode);
-//         return {
-//           username: item.User.Title,  // Use User/Title for username
-//           passcode: decryptedPasscode // Decrypt passcode before storing
-//         };
-//       });
-
-//       this.setState({ userPasscodes }, this.checkUserPasscode);
-
-//     } catch (error) {
-//       console.error("Error fetching passcodes:", error);
-//       this.setState({ errorMessage: 'Failed to fetch passcodes.' });
-//     }
-//   };
-
-//   private checkUserPasscode = () => {
-//     const {  userPasscodes } = this.state;
-
-//     const userPasscode = userPasscodes.find(up => up.username === this.props.user.displayName);
-
-//     if (!userPasscode) {
-//       this.setState({ isCreating: true }); // Show option to create a new passcode
-//     }
-//   };
-
-//   private onPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-//     this.setState({ passcode: newValue || '', errorMessage: '' });
-//   };
-
-//   private onNewPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-//     this.setState({ newPasscode: newValue || '', errorMessage: '' });
-//   };
-
-//   private encrypt = (text: string): string => {
-//     const encrypted = CryptoJS.AES.encrypt(text, this.encryptionKey).toString();
-//     return encrypted;
-//   };
-
-//   private decrypt = (encryptedText: string): string => {
-//     const bytes = CryptoJS.AES.decrypt(encryptedText, this.encryptionKey);
-//     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-//     return decrypted;
-//   };
-
-//   private saveNewPasscode = async () => {
-//     const { newPasscode } = this.state;
-
-//     if (!newPasscode) {
-//       this.setState({ errorMessage: 'Please enter a passcode.' });
-//       return;
-//     }
-
-//     const encryptedPasscode = this.encrypt(newPasscode);
-
-//     try {
-//       await this.props.sp.web.lists.getByTitle("passcodes").items.add({
-//         UserId: this.state.userId,
-//         passcode: encryptedPasscode,
-//         Title: this.props.user.displayName
-//       });
-
-//       this.setState({ isCreating: false, newPasscode: '', errorMessage: '' });
-//       this.props.onSuccess(); // Call the success callback on saving
-//       this.props.onClose(); // Close the modal
-//     } catch (error) {
-//       console.error("Error saving new passcode:", error);
-//       this.setState({ errorMessage: 'Failed to save new passcode.' });
-//     }
-//   };
-
-//   private validatePasscode = () => {
-//     const { passcode, userPasscodes } = this.state;
-
-//     const userPasscode = userPasscodes.find(up => up.username === this.props.user.displayName);
-
-//     if (!userPasscode) {
-//       this.setState({ errorMessage: 'No passcode found for this user.' });
-//       return;
-//     }
-
-//     try {
-//       const decryptedPasscode = userPasscode.passcode;
-
-//       if (decryptedPasscode === passcode) {
-//         this.props.onSuccess(); // Call the success callback on validation
-//         this.props.onClose(); // Close the modal
-//       } else {
-//         this.setState({ errorMessage: 'Invalid passcode. Please try again.' });
-//       }
-//     } catch (error) {
-//       console.error("Error validating passcode:", error);
-//       this.setState({ errorMessage: 'Failed to validate passcode.' });
-//     }
-//   };
-
-//   public render(): React.ReactElement<IPasscodeModalProps> {
-//     const { isOpen, onClose } = this.props;
-//     const { passcode, errorMessage, isCreating, newPasscode } = this.state;
-//     console.log(this.state)
-
-//     return (
-//       <Modal
-//         isOpen={isOpen}
-//         onDismiss={onClose}
-//         isBlocking={false}
-//         containerClassName={styles.passcodeModalContainer}
-//       >
-//         <div className={styles.header}>
-//           <span>Enter Passcode</span>
-//           <IconButton
-//             iconProps={{ iconName: 'Cancel' }}
-//             ariaLabel="Close"
-//             onClick={onClose}
-//             className={styles.closeButton}
-//           />
-//         </div>
-//         <div className={styles.body}>
-//           {isCreating ? (
-//             <>
-//               <TextField
-//                 label="Create New Passcode"
-//                 value={newPasscode}
-//                 onChange={this.onNewPasscodeChange}
-//                 type="password"
-//               />
-//               <MessageBar messageBarType={MessageBarType.info}>
-//                 You do not have a passcode. Please create one.
-//               </MessageBar>
-//               <div className={styles.buttons}>
-//                 <PrimaryButton text="Save" onClick={this.saveNewPasscode} />
-//                 <DefaultButton text="Cancel" onClick={onClose} />
-//               </div>
-//             </>
-//           ) : (
-//             <>
-//               <TextField
-//                 label="Passcode"
-//                 value={passcode}
-//                 onChange={this.onPasscodeChange}
-//                 type="password"
-//               />
-//               {errorMessage && (
-//                 <MessageBar messageBarType={MessageBarType.error}>
-//                   {errorMessage}
-//                 </MessageBar>
-//               )}
-//               <div className={styles.buttons}>
-//                 <PrimaryButton text="Submit" onClick={this.validatePasscode} />
-//                 <DefaultButton text="Cancel" onClick={onClose} />
-//               </div>
-//             </>
-//           )}
-//         </div>
-//       </Modal>
-//     );
-//   }
-// }
-
-
-
-
-
-// import * as React from 'react';
-// import { TextField, PrimaryButton, DefaultButton, MessageBar, MessageBarType, Modal, IconButton } from '@fluentui/react';
-// import styles from './PasscodeModal.module.scss'; // Custom styles
-// import CryptoJS from 'crypto-js'; // Import crypto-js
-
-// export interface IPasscodeModalProps {
-//   sp: any;
-//   user: any;
-//   isOpen: boolean; // Control modal visibility
-//   onClose: () => void; // Callback to close the modal
-//   onSuccess: () => void; // Callback when passcode is validated successfully
-// }
-
-// export interface IPasscodeModalState {
-//   userId: any;
-//   passcode: string;
-//   newPasscode: string; // State for creating a new passcode
-//   errorMessage: string;
-//   storedPasscodes: { [email: string]: string }; // Store encrypted passcodes with emails
-//   userEmail: string; // Store the current user's email
-//   isCreating: boolean; // Control the state for creating a new passcode
-// }
-
-// export default class PasscodeModal extends React.Component<IPasscodeModalProps, IPasscodeModalState> {
-//   private encryptionKey: string = 'default_secret_key'; // Use a secure key in production
-
-//   constructor(props: IPasscodeModalProps) {
-//     super(props);
-
-//     this.state = {
-//       passcode: '',
-//       newPasscode: '',
-//       errorMessage: '',
-//       storedPasscodes: {}, // Initialize an empty object for stored passcodes
-//       userEmail: this.props.user.email, // Initialize user email state
-//       userId: '',
-//       isCreating: false // Initialize creation state
-//     };
-//   }
-
-//   private getUserIdByEmail = async (email: string): Promise<number> => {
-//     try {
-//       const user = await this.props.sp.web.siteUsers.getByEmail(email)();
-//       return user.Id;
-//     } catch (error) {
-//       console.error("Error fetching user ID:", error);
-//       throw error;
-//     }
-//   };
-
-//   public async componentDidMount() {
-//     await this.fetchStoredPasscodes();
-//     const userId = await this.getUserIdByEmail(this.props.user.email);
-//     this.setState({ userId });
-//   }
-
-//   private fetchStoredPasscodes = async () => {
-//     try {
-//       const items: any[] = await this.props.sp.web.lists
-//         .getByTitle("passcodes")
-//         .items
-//         .select("User/EMail", "User/Title", "passcode")
-//         .expand("User")();
-
-
-//         console.log(items)
-
-//       const storedPasscodes: { [email: string]: string } = {};
-//       items.forEach(item => {
-//         storedPasscodes[item.User.EMail] = item.passcode;
-//       });
-
-//       this.setState({ storedPasscodes }, this.checkUserPasscode);
-//     } catch (error) {
-//       console.error("Error fetching passcodes:", error);
-//       this.setState({ errorMessage: 'Failed to fetch passcodes.' });
-//     }
-//   };
-
-//   private checkUserPasscode = () => {
-//     const { userEmail, storedPasscodes } = this.state;
-
-//     if (!storedPasscodes[userEmail]) {
-//       this.setState({ isCreating: true }); // Show option to create a new passcode
-//     }
-//   };
-
-//   private onPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-//     this.setState({ passcode: newValue || '', errorMessage: '' });
-//   };
-
-//   private onNewPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-//     this.setState({ newPasscode: newValue || '', errorMessage: '' });
-//   };
-
-//   private encrypt = (text: string): string => {
-//     const encrypted = CryptoJS.AES.encrypt(text, this.encryptionKey).toString();
-//     return encrypted;
-//   };
-
-//   private decrypt = (encryptedText: string): string => {
-//     const bytes = CryptoJS.AES.decrypt(encryptedText, this.encryptionKey);
-//     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-//     console.log(decrypted)
-//     return decrypted;
-//   };
-
-
-
-//   private saveNewPasscode = async () => {
-//     const { newPasscode } = this.state;
-
-//     if (!newPasscode) {
-//       this.setState({ errorMessage: 'Please enter a passcode.' });
-//       return;
-//     }
-
-//     const encryptedPasscode = this.encrypt(newPasscode);
-
-//     try {
-//       await this.props.sp.web.lists.getByTitle("passcodes").items.add({
-//         UserId: this.state.userId,
-//         passcode: encryptedPasscode,
-//         Title: this.props.user.displayName
-//       });
-
-//       this.setState({ isCreating: false, newPasscode: '', errorMessage: '' });
-//       this.props.onSuccess(); // Call the success callback on saving
-//       this.props.onClose(); // Close the modal
-//     } catch (error) {
-//       console.error("Error saving new passcode:", error);
-//       this.setState({ errorMessage: 'Failed to save new passcode.' });
-//     }
-//   };
-
-//   private validatePasscode = () => {
-//     const { passcode, storedPasscodes, userEmail } = this.state;
-
-//     const encryptedPasscode = storedPasscodes[userEmail];
-
-//     if (!encryptedPasscode) {
-//       this.setState({ errorMessage: 'No passcode found for this user.' });
-//       return;
-//     }
-
-//     try {
-//       const decryptedPasscode = this.decrypt(encryptedPasscode);
-//       console.log(decryptedPasscode)
-
-//       if (decryptedPasscode === passcode) {
-//         this.props.onSuccess(); // Call the success callback on validation
-//         this.props.onClose(); // Close the modal
-//       } else {
-//         this.setState({ errorMessage: 'Invalid passcode. Please try again.' });
-//       }
-//     } catch (error) {
-//       console.error("Error decrypting passcode:", error);
-//       this.setState({ errorMessage: 'Failed to validate passcode.' });
-//     }
-//   };
-
-//   public render(): React.ReactElement<IPasscodeModalProps> {
-//     const { isOpen, onClose } = this.props;
-//     const { passcode, errorMessage, isCreating, newPasscode } = this.state;
-//     console.log(this.state)
-
-//     return (
-//       <Modal
-//         isOpen={isOpen}
-//         onDismiss={onClose}
-//         isBlocking={false}
-//         containerClassName={styles.passcodeModalContainer}
-//       >
-//         <div className={styles.header}>
-//           <span>Enter Passcode</span>
-//           <IconButton
-//             iconProps={{ iconName: 'Cancel' }}
-//             ariaLabel="Close"
-//             onClick={onClose}
-//             className={styles.closeButton}
-//           />
-//         </div>
-//         <div className={styles.body}>
-//           {isCreating ? (
-//             <>
-//               <TextField
-//                 label="Create New Passcode"
-//                 value={newPasscode}
-//                 onChange={this.onNewPasscodeChange}
-//                 type="password"
-//               />
-//               <MessageBar messageBarType={MessageBarType.info}>
-//                 You do not have a passcode. Please create one.
-//               </MessageBar>
-//               <div className={styles.buttons}>
-//                 <PrimaryButton text="Save" onClick={this.saveNewPasscode} />
-//                 <DefaultButton text="Cancel" onClick={onClose} />
-//               </div>
-//             </>
-//           ) : (
-//             <>
-//               <TextField
-//                 label="Passcode"
-//                 value={passcode}
-//                 onChange={this.onPasscodeChange}
-//                 type="password"
-//               />
-//               {errorMessage && (
-//                 <MessageBar messageBarType={MessageBarType.error}>
-//                   {errorMessage}
-//                 </MessageBar>
-//               )}
-//               <div className={styles.buttons}>
-//                 <PrimaryButton text="Submit" onClick={this.validatePasscode} />
-//                 <DefaultButton text="Cancel" onClick={onClose} />
-//               </div>
-//             </>
-//           )}
-//         </div>
-//       </Modal>
-//     );
-//   }
-// }
-
-
-// import * as React from 'react';
-// import { TextField, PrimaryButton, DefaultButton, MessageBar, MessageBarType, Modal, IconButton } from '@fluentui/react';
-// import styles from './PasscodeModal.module.scss'; // Custom styles
-// import CryptoJS from 'crypto-js'; // Import crypto-js
-
-// export interface IPasscodeModalProps {
-//   sp: any;
-//   user: any;
-//   isOpen: boolean; // Control modal visibility
-//   onClose: () => void; // Callback to close the modal
-//   onSuccess: () => void; // Callback when passcode is validated successfully
-// }
-
-// export interface IPasscodeModalState {
-//   userId: any;
-//   passcode: string;
-//   newPasscode: string; // State for creating a new passcode
-//   errorMessage: string;
-//   storedPasscodes: { [email: string]: string }; // Store encrypted passcodes with emails
-//   userEmail: string; // Store the current user's email
-//   isCreating: boolean; // Control the state for creating a new passcode
-// }
-
-// export default class PasscodeModal extends React.Component<IPasscodeModalProps, IPasscodeModalState> {
-//   private encryptionKey: string = 'default_secret_key'; // Use a secure key in production
-
-//   constructor(props: IPasscodeModalProps) {
-//     super(props);
-
-//     this.state = {
-//       passcode: '',
-//       newPasscode: '',
-//       errorMessage: '',
-//       storedPasscodes: {}, // Initialize an empty object for stored passcodes
-//       userEmail: this.props.user.email, // Initialize user email state
-//       userId: '',
-//       isCreating: false // Initialize creation state
-//     };
-
-//     // Fetch and decrypt passcode on construction
-//     this.fetchAndDecryptPasscode();
-//   }
-
-//   private fetchAndDecryptPasscode = async () => {
-//     try {
-//       // Fetch stored passcodes
-//       await this.fetchStoredPasscodes();
-
-//       // Fetch the userId
-//       const userId = await this.getUserIdByEmail(this.state.userEmail);
-//       this.setState({ userId });
-
-//       // Check if passcode exists for the user and decrypt it
-//       const { userEmail, storedPasscodes } = this.state;
-//       if (storedPasscodes[userEmail]) {
-//         const encryptedPasscode = storedPasscodes[userEmail];
-//         const decryptedPasscode = this.decrypt(encryptedPasscode);
-//         this.setState({ passcode: decryptedPasscode });
-//       }
-//     } catch (error) {
-//       console.error("Error fetching and decrypting passcode:", error);
-//       this.setState({ errorMessage: 'Failed to fetch or decrypt passcode.' });
-//     }
-//   };
-
-//   private getUserIdByEmail = async (email: string): Promise<number> => {
-//     try {
-//       const user = await this.props.sp.web.siteUsers.getByEmail(email)();
-//       return user.Id;
-//     } catch (error) {
-//       console.error("Error fetching user ID:", error);
-//       throw error;
-//     }
-//   };
-
-//   public async componentDidMount() {
-//     // Fetch stored passcodes already handled in fetchAndDecryptPasscode()
-//   }
-
-//   private fetchStoredPasscodes = async () => {
-//     try {
-//       const items: any[] = await this.props.sp.web.lists
-//         .getByTitle("passcodes")
-//         .items
-//         .select("User/EMail", "User/Title", "passcode")
-//         .expand("User")();
-
-//       const storedPasscodes: { [email: string]: string } = {};
-//       items.forEach(item => {
-//         storedPasscodes[item.User.EMail] = item.passcode;
-//       });
-
-//       this.setState({ storedPasscodes }, this.checkUserPasscode);
-//     } catch (error) {
-//       console.error("Error fetching passcodes:", error);
-//       this.setState({ errorMessage: 'Failed to fetch passcodes.' });
-//     }
-//   };
-
-//   private checkUserPasscode = () => {
-//     const { userEmail, storedPasscodes } = this.state;
-
-//     if (!storedPasscodes[userEmail]) {
-//       this.setState({ isCreating: true }); // Show option to create a new passcode
-//     }
-//   };
-
-//   private onPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-//     this.setState({ passcode: newValue || '', errorMessage: '' });
-//   };
-
-//   private onNewPasscodeChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-//     this.setState({ newPasscode: newValue || '', errorMessage: '' });
-//   };
-
-//   private encrypt = (text: string): string => {
-//     const encrypted = CryptoJS.AES.encrypt(text, this.encryptionKey).toString();
-//     return encrypted;
-//   };
-
-//   private decrypt = (encryptedText: string): string => {
-//     const bytes = CryptoJS.AES.decrypt(encryptedText, this.encryptionKey);
-//     const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-//     return decrypted;
-//   };
-
-//   private saveNewPasscode = async () => {
-//     const { newPasscode } = this.state;
-
-//     if (!newPasscode) {
-//       this.setState({ errorMessage: 'Please enter a passcode.' });
-//       return;
-//     }
-
-//     const encryptedPasscode = this.encrypt(newPasscode);
-
-//     try {
-//       await this.props.sp.web.lists.getByTitle("passcodes").items.add({
-//         UserId: this.state.userId,
-//         passcode: encryptedPasscode,
-//         Title: this.props.user.displayName
-//       });
-
-//       this.setState({ isCreating: false, newPasscode: '', errorMessage: '' });
-//       this.props.onSuccess(); // Call the success callback on saving
-//       this.props.onClose(); // Close the modal
-//     } catch (error) {
-//       console.error("Error saving new passcode:", error);
-//       this.setState({ errorMessage: 'Failed to save new passcode.' });
-//     }
-//   };
-
-//   private validatePasscode = () => {
-//     const { passcode, storedPasscodes, userEmail } = this.state;
-
-//     const encryptedPasscode = storedPasscodes[userEmail];
-
-//     if (!encryptedPasscode) {
-//       this.setState({ errorMessage: 'No passcode found for this user.' });
-//       return;
-//     }
-
-//     try {
-//       const decryptedPasscode = this.decrypt(encryptedPasscode);
-
-//       if (decryptedPasscode === passcode) {
-//         this.props.onSuccess(); // Call the success callback on validation
-//         this.props.onClose(); // Close the modal
-//       } else {
-//         this.setState({ errorMessage: 'Invalid passcode. Please try again.' });
-//       }
-//     } catch (error) {
-//       console.error("Error decrypting passcode:", error);
-//       this.setState({ errorMessage: 'Failed to validate passcode.' });
-//     }
-//   };
-
-//   public render(): React.ReactElement<IPasscodeModalProps> {
-//     const { isOpen, onClose } = this.props;
-//     const { passcode, errorMessage, isCreating, newPasscode } = this.state;
-//     console.log(this.state)
-
-//     return (
-//       <Modal
-//         isOpen={isOpen}
-//         onDismiss={onClose}
-//         isBlocking={false}
-//         containerClassName={styles.passcodeModalContainer}
-//       >
-//         <div className={styles.header}>
-//           <span>Enter Passcode</span>
-//           <IconButton
-//             iconProps={{ iconName: 'Cancel' }}
-//             ariaLabel="Close"
-//             onClick={onClose}
-//             className={styles.closeButton}
-//           />
-//         </div>
-//         <div className={styles.body}>
-//           {isCreating ? (
-//             <>
-//               <TextField
-//                 label="Create New Passcode"
-//                 value={newPasscode}
-//                 onChange={this.onNewPasscodeChange}
-//                 type="password"
-//               />
-//               <MessageBar messageBarType={MessageBarType.info}>
-//                 You do not have a passcode. Please create one.
-//               </MessageBar>
-//               <div className={styles.buttons}>
-//                 <PrimaryButton text="Save" onClick={this.saveNewPasscode} />
-//                 <DefaultButton text="Cancel" onClick={onClose} />
-//               </div>
-//             </>
-//           ) : (
-//             <>
-//               <TextField
-//                 label="Passcode"
-//                 value={passcode}
-//                 onChange={this.onPasscodeChange}
-//                 type="password"
-//               />
-//               {errorMessage && (
-//                 <MessageBar messageBarType={MessageBarType.error}>
-//                   {errorMessage}
-//                 </MessageBar>
-//               )}
-//               <div className={styles.buttons}>
-//                 <PrimaryButton text="Submit" onClick={this.validatePasscode} />
-//                 <DefaultButton text="Cancel" onClick={onClose} />
-//               </div>
-//             </>
-//           )}
-//         </div>
-//       </Modal>
-//     );
-//   }
-// }
-
-

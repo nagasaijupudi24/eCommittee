@@ -2,7 +2,7 @@
 /* eslint-disable @rushstack/no-new-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-import { DetailsList, IColumn, Stack, IconButton, DefaultButton } from '@fluentui/react';
+import { DetailsList, IColumn, Stack, IconButton, DefaultButton, SelectionMode } from '@fluentui/react';
 import { IComboBoxOption } from '@fluentui/react/lib/ComboBox';
 
 import PnPPeoplePicker from '../peoplePicker/peoplePicker';
@@ -279,7 +279,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
           columns={this.columns}
           setKey="set"
           layoutMode={0} // Justified layout
-          selectionPreservedOnEmptyClick={true}
+          selectionMode={SelectionMode.none}
           ariaLabelForSelectionColumn="Toggle selection"
           ariaLabelForSelectAllCheckbox="Toggle selection for all items"
           onItemInvoked={(item: ITableItem) => this.handleRowClick(item.key)} // Click to select row

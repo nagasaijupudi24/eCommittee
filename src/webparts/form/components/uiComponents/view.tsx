@@ -53,6 +53,10 @@ import PasscodeModal from "./passCode/passCode";
 import GistDocsConfirmation from "./dialogFluentUi/gistDocsConfirmationDialog";
 import GistBtnCnrfSubmit from "./dialogFluentUi/gistDocs";
 import { MarkInfo } from "./markInfo/markInfo";
+
+
+import '@pnp/sp/profiles';
+
 // import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PasscodeModal from "./passCode/passCode";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
@@ -603,6 +607,33 @@ export default class ViewForm extends React.Component<
     return extractedValue;
   };
 
+  private _getdataofMarkedInfo = async (data: any, idData: any): Promise<any> => {
+    console.log("*********************************************************************************************************");
+    console.log(data);
+
+    // Create an array of promises using Promise.all
+    const ids = await Promise.all(
+        data.map(async (each: any) => {
+            console.log(each);
+            // Create a new object with text and email
+            const userInfo = { text: each.Title, email: each.EMail };
+            // Fetch the user by email
+            const users = await this.props.sp.web.siteUsers.getByEmail(userInfo.email)();
+            console.log(users);
+            // Get the user ID
+            const id = users.Id;
+            console.log(id);
+            // Return the new object with the ID
+            return { ...userInfo, id };
+        })
+    );
+
+    console.log(ids); // Log the resolved array of user information
+
+    return ids; // Return the array of resolved objects
+};
+
+
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
@@ -616,10 +647,12 @@ export default class ViewForm extends React.Component<
         "Reviewers/Title",
         "Approvers/EMail",
         "Reviewers/EMail",
+        "NoteMarkedInfoDTO/Title",
+        "NoteMarkedInfoDTO/EMail",
         "CurrentApprover/Title",
         "CurrentApprover/EMail"
       )
-      .expand("Author", "Approvers", "Reviewers", "CurrentApprover")();
+      .expand("Author", "Approvers", "Reviewers", "CurrentApprover","NoteMarkedInfoDTO")();
 
     console.log(`${id} ------Details`, item);
     console.log(folderPath);
@@ -785,6 +818,10 @@ export default class ViewForm extends React.Component<
         noteReferrerCommentsDTO:
         item.NoteReferrerCommentsDTO !== null ? JSON.parse(item.NoteReferrerCommentsDTO) : [],
         noteATRAssigneeDetails:item.NoteATRAssigneeDTO !==null?JSON.parse(item.NoteATRAssigneeDTO):[],
+        noteMarkedInfoDTOState:item.NoteMarkedInfoDTO !==null?this._getdataofMarkedInfo(item.NoteMarkedInfoDTO,item.
+          NoteMarkedInfoDTOStringId
+          ):[],
+        
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
       // ?  []
       // : JSON.parse(item.CommentsLog),
@@ -2055,6 +2092,34 @@ export default class ViewForm extends React.Component<
   // private updateCurrentApprover = ()=>{
   //   this.setState(cur)
   // }
+
+
+  private _getNoteMarkedId = ():any=>{
+    const ids = this.state.noteMarkedInfoDTOState.map(
+      (each:any)=>{
+        console.log(each)
+        console.log(each.id)
+        return each.id
+      }
+    )
+
+    console.log(ids)
+    return ids
+  }
+
+  private _handleMarkInfoSubmit =async ():Promise<any>=>{
+    const updateAuditTrial = await this._getAuditTrail("Marked Info Added");
+    const itemToUpdate = await this.props.sp.web.lists
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update({
+        NoteMarkedInfoDTOId:this._getNoteMarkedId(),
+        AuditTrail: updateAuditTrial,
+      });
+
+    console.log(itemToUpdate);
+
+  }
 
   private handleChangeApprover = async (
     statusFromEvent: string,
@@ -3381,7 +3446,7 @@ export default class ViewForm extends React.Component<
                   </div>
 
                     {/* Mark for Information Section */}
-                    {this.state.statusNumber ==='9000' && (
+                    {(this.state.statusNumber ==='9000' && (this.state.createdByEmail === this.props.context.pageContext.user.email))&& (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -3411,47 +3476,45 @@ export default class ViewForm extends React.Component<
 
                               sp={this.props.sp}
                               context={this.props.context}
-                              atrCreatorsList={this.state.atrCreatorsList}
-                              commentsData={this.state.commentsData}
-                              artCommnetsGridData={this.state.atrGridData}
+                              
+                              submitFunctionForMarkInfo={this._handleMarkInfoSubmit}
+                              artCommnetsGridData={this.state.noteMarkedInfoDTOState}
                               deletedGridData ={
                                 (data:any)=>{
-                                  this.setState({atrGridData:data})
+                                  this.setState({noteMarkedInfoDTOState:data})
                                 }
                               }
                               updategirdData={(data: any): void => {
                                 console.log(data);
 
-                                const currentAtrCreator = this.state.atrCreatorsList.filter((each:any)=>each.atrCreatorEmail === this.props.context.pageContext.user.email)
-                                console.log(currentAtrCreator)
+                             
                                 const {markInfoassigneeDetails} = data
                                 this.setState({
-                                  atrGridData:data.comments,
-                                  //  [
-                                  //   data.comments,
-                                  //   ...this.state.atrGridData,
-                                  // ],
-                                  noteMarkedInfoDTOState: [
-                                    ...this.state.noteMarkedInfoDTOState,
-                                    {
+                                  
+                                  noteMarkedInfoDTOState:[...this.state.noteMarkedInfoDTOState,markInfoassigneeDetails]
+                                
+                                  
+                                  // noteMarkedInfoDTOState: [
+                                  //   ...this.state.noteMarkedInfoDTOState,
+                                  //   {
                                       
                                       
                                     
-                                      "markedEmail": markInfoassigneeDetails.email,  
-                                      "markedEmailName": markInfoassigneeDetails.text,
+                                  //     "markedEmail": markInfoassigneeDetails.email,  
+                                  //     "markedEmailName": markInfoassigneeDetails.text,
                                       
                                      
-                                      "createdDate": new Date(),
-                                      "createdBy": this.props.context.pageContext.user.email,
-                                      "modifiedDate": new Date(),
-                                      "modifiedBy": this.props.context.pageContext.user.email,
-                                      "statusMessage": null,
-                                      "noteMarkedInformationId": '',
-                                      'noteId':this._itemId,
+                                  //     "createdDate": new Date(),
+                                  //     "createdBy": this.props.context.pageContext.user.email,
+                                  //     "modifiedDate": new Date(),
+                                  //     "modifiedBy": this.props.context.pageContext.user.email,
+                                  //     "statusMessage": null,
+                                  //     "noteMarkedInformationId": '',
+                                  //     'noteId':this._itemId,
                                      
 
-                                    },
-                                  ],
+                                  //   },
+                                  // ],
                                 });
                               }}
                               gridData={this.state.atrGridData}

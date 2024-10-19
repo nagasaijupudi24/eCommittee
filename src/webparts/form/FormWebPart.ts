@@ -20,7 +20,8 @@ import "@pnp/sp/site-users/web";
 import "@pnp/sp/webs"; // Import webs functionality
 import "@pnp/sp/lists"; // Import lists functionality
 import "@pnp/sp/items"; // Import items functionality
-import "@pnp/sp/files/web"
+import "@pnp/sp/files/web";
+import '@pnp/sp/profiles';
 import { AllRequest } from './components/uiComponents/allRequest';
 // import PSPDFKitViewer from './components/psdpdfKit/psdPDF';
 

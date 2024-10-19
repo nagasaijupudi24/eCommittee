@@ -98,6 +98,16 @@ import ConfirmationDialog from "./dialogFluentUi/submitConfirmation";
 //   },
 // ];
 
+
+class TimeConverter {
+  public convertMilliseconds = (milliseconds: number): { seconds: number, minutes: number, hours: number } => {
+    const seconds = milliseconds / 1000;
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    return { seconds, minutes, hours };
+  }
+}
+
 interface INoteObject {
   Department: string;
   CommitteeName: string;
@@ -427,9 +437,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }
 
 
+  public convertMilliseconds = (milliseconds: number): { seconds: number, minutes: number, hours: number } => {
+    const seconds = milliseconds / 1000;
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    return { seconds, minutes, hours };
+  }
 
   public componentDidMount(): void {
-    this.autoSaveInterval = setInterval(this.autoSave, 180000);
+    const converter = new TimeConverter();
+    const milliseconds = 18000000;
+    const { seconds, minutes, hours } = converter.convertMilliseconds(milliseconds);
+    console.log(`${milliseconds} milliseconds is equal to ${seconds} seconds, ${minutes} minutes or ${hours} hours`);
+    this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
 
     console.log(this._itemId > 0);
     this._itemId === 0 &&
