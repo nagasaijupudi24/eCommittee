@@ -2722,6 +2722,7 @@ export default class ViewForm extends React.Component<
 
             {/* Passcode Modal */}
             <PasscodeModal
+                createPasscodeUrl={this.props.homePageUrl}
                 isOpen={this.state.isPasscodeModalOpen}
                 onClose={() => this.setState({ isPasscodeModalOpen: false })}
                 onSuccess={this.handlePasscodeSuccess} // Pass this function as the success handler

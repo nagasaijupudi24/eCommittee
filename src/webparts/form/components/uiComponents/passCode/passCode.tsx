@@ -26,18 +26,17 @@ export interface IPasscodeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  createPasscodeUrl: string; // Added property for redirect URL
 }
 
 export interface IPasscodeModalState {
   userId: any;
   passcode: string;
-  newPasscode: string;
   errorMessage: string;
   userPasscodes: Array<{ username: string; passcode: string }>;
   userEmail: string;
   isCreating: boolean;
   isPasswordVisible: boolean;
-  isNewPasswordVisible: boolean;
 }
 
 export default class PasscodeModal extends React.Component<
@@ -52,26 +51,27 @@ export default class PasscodeModal extends React.Component<
 
     this.state = {
       passcode: "",
-      newPasscode: "",
       errorMessage: "",
       userPasscodes: [],
       userEmail: this.props.user.email,
       userId: "",
       isCreating: false,
       isPasswordVisible: false,
-      isNewPasswordVisible: false,
     };
   }
 
   public async componentDidMount() {
+    console.log("Component did mount");
     await this.fetchStoredPasscodes();
     const userId = await this.getUserIdByEmail(this.props.user.email);
     this.setState({ userId });
+    console.log("User ID:", userId);
   }
 
   private getUserIdByEmail = async (email: string): Promise<number> => {
     try {
       const user = await this.props.sp.web.siteUsers.getByEmail(email)();
+      console.log("Fetched user:", user);
       return user.Id;
     } catch (error) {
       console.error("Error fetching user ID:", error);
@@ -81,6 +81,7 @@ export default class PasscodeModal extends React.Component<
 
   private fetchStoredPasscodes = async () => {
     const user = await this.props.sp?.web.currentUser();
+    console.log("Current user:", user);
 
     try {
       const items: any[] = await this.props.sp.web.lists
@@ -98,6 +99,7 @@ export default class PasscodeModal extends React.Component<
       });
 
       this.setState({ userPasscodes }, this.checkUserPasscode);
+      console.log("Fetched passcodes:", userPasscodes);
     } catch (error) {
       console.error("Error fetching passcodes:", error);
       this.setState({ errorMessage: "Failed to fetch passcodes." });
@@ -113,6 +115,7 @@ export default class PasscodeModal extends React.Component<
     if (!userPasscode) {
       this.setState({ isCreating: true });
     }
+    console.log("User passcode check:", userPasscode);
   };
 
   private onPasscodeChange = (
@@ -120,28 +123,12 @@ export default class PasscodeModal extends React.Component<
     newValue?: string
   ) => {
     this.setState({ passcode: newValue || "", errorMessage: "" });
-  };
-
-  private onNewPasscodeChange = (
-    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
-    newValue?: string
-  ) => {
-    this.setState({ newPasscode: newValue || "", errorMessage: "" });
+    console.log("Passcode changed:", newValue);
   };
 
   private togglePasswordVisibility = () => {
     this.setState({ isPasswordVisible: !this.state.isPasswordVisible });
-  };
-
-  private toggleNewPasswordVisibility = () => {
-    this.setState({ isNewPasswordVisible: !this.state.isNewPasswordVisible });
-  };
-
-  private encrypt = (text: string): string => {
-    const encrypted = CryptoJS.AES.encrypt(text,  this.key, {
-      iv: this.iv,
-    }).toString();
-    return encrypted;
+    console.log("Password visibility toggled:", this.state.isPasswordVisible);
   };
 
   private decrypt = (encryptedText: string): string => {
@@ -152,31 +139,6 @@ export default class PasscodeModal extends React.Component<
     return decrypted;
   };
 
-  private saveNewPasscode = async () => {
-    const { newPasscode } = this.state;
-
-    if (!newPasscode) {
-      this.setState({ errorMessage: "Please enter a passcode." });
-      return;
-    }
-
-    const encryptedPasscode = this.encrypt(newPasscode);
-
-    try {
-      await this.props.sp.web.lists.getByTitle("passcodes").items.add({
-        UserId: this.state.userId,
-        passcode: encryptedPasscode,
-        Title: this.props.user.displayName,
-      });
-
-      this.setState({ isCreating: false, newPasscode: "", errorMessage: "" });
-      this.props.onSuccess();
-      this.props.onClose();
-    } catch (error) {
-      this.setState({ errorMessage: "Failed to save new passcode." });
-    }
-  };
-
   private validatePasscode = () => {
     const { passcode, userPasscodes } = this.state;
     const userPasscode = userPasscodes.find(
@@ -185,15 +147,23 @@ export default class PasscodeModal extends React.Component<
 
     if (!userPasscode) {
       this.setState({ errorMessage: "No passcode found for this user." });
+      console.log("No passcode found for user");
       return;
     }
 
     if (userPasscode.passcode === passcode) {
       this.props.onSuccess();
       this.props.onClose();
+      console.log("Passcode validated successfully");
     } else {
       this.setState({ errorMessage: "Invalid passcode. Please try again." });
+      console.log("Invalid passcode");
     }
+  };
+
+  private redirectToCreatePasscode = () => {
+    console.log("Redirecting to create passcode URL:", this.props.createPasscodeUrl);
+    window.location.href = this.props.createPasscodeUrl;
   };
 
   public render(): React.ReactElement<IPasscodeModalProps> {
@@ -202,9 +172,7 @@ export default class PasscodeModal extends React.Component<
       passcode,
       errorMessage,
       isCreating,
-      newPasscode,
       isPasswordVisible,
-      isNewPasswordVisible,
     } = this.state;
 
     const styles = mergeStyleSets({
@@ -265,26 +233,20 @@ export default class PasscodeModal extends React.Component<
         <div className={styles.body}>
           {isCreating ? (
             <>
-              <TextField
-                label="Create New Passcode"
-                value={newPasscode}
-                onChange={this.onNewPasscodeChange}
-                type={isNewPasswordVisible ? "text" : "password"}
-                onRenderSuffix={() => (
-                  <IconButton
-                    iconProps={{
-                      iconName: isNewPasswordVisible ? "Hide" : "RedEye",
-                    }}
-                    onClick={this.toggleNewPasswordVisibility}
-                  />
-                )}
-              />
               <MessageBar messageBarType={MessageBarType.info}>
-                You do not have a passcode. Please create one.
+                Passcode is not set. Please create a passcode to proceed further.
               </MessageBar>
               <div className={styles.footer}>
-                <PrimaryButton text="Save"  className={styles.button} onClick={this.saveNewPasscode} />
-                <DefaultButton text="Cancel"  className={styles.button} onClick={onClose} />
+                <PrimaryButton
+                  className={styles.button}
+                  text="Create Passcode"
+                  onClick={this.redirectToCreatePasscode}
+                />
+                <DefaultButton
+                  className={styles.button}
+                  text="Cancel"
+                  onClick={onClose}
+                />
               </div>
             </>
           ) : (
@@ -324,6 +286,6 @@ export default class PasscodeModal extends React.Component<
           )}
         </div>
       </Modal>
-    );
+    )
   }
 }
