@@ -45,7 +45,7 @@ const statusOptions: IComboBoxOption[] = [
   
 ];
 
-export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssigneeState> {
+export class MarkInfo extends React.Component<IATRAssigneeProps, IATRAssigneeState> {
   constructor(props: IATRAssigneeProps) {
     super(props);
 
@@ -81,32 +81,28 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
   // Define the columns for the DetailsList
   private columns: IColumn[] = [
     {
-      key: 'comments',
-      name: 'Comments',
-      fieldName: 'comments',
-      minWidth: 100,
-      maxWidth: 200,
-      isResizable: true,
-    },
+        key: 'serialNo',
+        name: 'S.No',
+        
+        minWidth: 50,
+        maxWidth: 50,
+        isResizable: false,
+        onRender: (_item: any, _index?: number) => (
+          <span>{(_index !== undefined ? _index : 0) + 1}</span>
+        ),
+      },
     {
       key: 'assignedTo',
-      name: 'Assigned To',
+      name: 'User Info',
       fieldName: 'assignedTo',
       minWidth: 150,
       maxWidth: 300,
       isResizable: true,
     },
-    {
-      key: 'status',
-      name: 'Status',
-      fieldName: 'status',
-      minWidth: 100,
-      maxWidth: 150,
-      isResizable: true,
-    },
+
     {
       key: 'delete',
-      name: 'Delete',
+      name: 'Action',
       fieldName: 'delete',
       minWidth: 50,
       maxWidth: 75,
@@ -224,7 +220,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
     //   return { selectedUsers: data, tableData: [...prev.tableData, newTableData] };
 
     
-  this.props.updategirdData({assigneeDetails:this.state.selectedValue,comments:[...updatedCommentsGridData,newTableData]});
+  this.props.updategirdData({markInfoassigneeDetails:this.state.selectedValue,comments:[...updatedCommentsGridData,newTableData]});
     // });
     this.setState({tableData:[...updatedCommentsGridData,newTableData]})
     

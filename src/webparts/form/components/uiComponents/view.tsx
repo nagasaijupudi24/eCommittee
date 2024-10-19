@@ -52,6 +52,7 @@ import PDFViewer from "./pdfviewPdfDist/pdfDist";
 import PasscodeModal from "./passCode/passCode";
 import GistDocsConfirmation from "./dialogFluentUi/gistDocsConfirmationDialog";
 import GistBtnCnrfSubmit from "./dialogFluentUi/gistDocs";
+import { MarkInfo } from "./markInfo/markInfo";
 // import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PasscodeModal from "./passCode/passCode";
 // import PSPDFKitViewer from "../psdpdfKit/psdPDF";
@@ -196,6 +197,10 @@ export interface IViewFormState {
   // gist document dialog
   isGistDocCnrf:boolean;
 
+
+  //Mark Info 
+  noteMarkedInfoDTOState:any;
+
  
 }
 
@@ -229,6 +234,7 @@ export default class ViewForm extends React.Component<
   private _formType: string = getFromType();
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: any = '';
+  private _committeeType:any =this.props.formType==='BoardNoteNew'?"Board":"Committee"
 
   constructor(props: IViewFormProps) {
     super(props);
@@ -350,7 +356,11 @@ export default class ViewForm extends React.Component<
       isPasscodeValidated: false, // New state to check if passcode is validated
       passCodeValidationFrom:'',
       // / gist document dialog
-  isGistDocCnrf:false
+  isGistDocCnrf:false,
+
+  //Mark Info 
+  noteMarkedInfoDTOState:[],
+
 
     };
     
@@ -774,6 +784,7 @@ export default class ViewForm extends React.Component<
         item.NoteReferrerDTO !== null ? JSON.parse(item.NoteReferrerDTO) : [],
         noteReferrerCommentsDTO:
         item.NoteReferrerCommentsDTO !== null ? JSON.parse(item.NoteReferrerCommentsDTO) : [],
+        noteATRAssigneeDetails:item.NoteATRAssigneeDTO !==null?JSON.parse(item.NoteATRAssigneeDTO):[],
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
       // ?  []
       // : JSON.parse(item.CommentsLog),
@@ -1275,8 +1286,8 @@ export default class ViewForm extends React.Component<
   private async updateNoteID(itemId: number): Promise<void> {
     try {
       const itemUpdateResult = await this.props.sp.web.lists.getByTitle("ATRRequests").items.getById(itemId).update({
-        NoteID: `${itemId}`,
-        ATRNoteID: `${itemId}`
+       
+        ATRNoteID: `ATR-${itemId}`
       });
       console.log(itemUpdateResult)
       console.log(`Item with ID ${itemId} updated with new NoteID: ${itemId}`);
@@ -1287,9 +1298,14 @@ export default class ViewForm extends React.Component<
 
 
   private _updateATRRequest = async ():Promise<void>=>{
-    this.state.atrGridData.map(
+    this.state.noteATRAssigneeDetails.map(
       async(each:any)=>{
         console.log(each)
+        console.log(JSON.stringify(this.state.atrGridData.map((item:any) =>{
+          console.log(each)
+          item.comments
+
+        }) .filter((comment:any) => comment)))
         try {
           
           const itemAddResult = await this.props.sp.web.lists.getByTitle("ATRRequests").items.add({
@@ -1297,19 +1313,23 @@ export default class ViewForm extends React.Component<
             NoteTo: "Sample NoteTo",
             Status: "Pending",
             ATRNoteID: '',
-            // Department: "Sample Department",
+            Department: this.state.department,
             // Subject: "Sample Subject",
-            // AssignedBy: "Sample AssignedBy",
+            AssignedById: each.atrCreatorId,
             // Remarks: "Sample Remarks",
-            // Comments: "Sample Comments",
+            // Comments: JSON.stringify(this.state.atrGridData.map((item:any) =>{
+            //   console.log(each)
+            //   item.comments
+
+            // }) .filter((comment:any) => comment)),
             // ActionTaken: "Sample ActionTaken",
             // ActionTakenDate: new Date(),
             // AuditTrail: "Sample AuditTrail",
-            // Assignee: "Sample Assignee",
-            // StatusNumber: 1,
-            // NoteID: "Sample NoteID",
-            // CurrentApprover: "Sample Approver",
-            // NoteType: "Sample NoteType"
+            AssigneeId: each.atrAssigneeId,
+            StatusNumber: '1000',
+            NoteID: `${this._itemId}`,
+            CurrentApproverId: this.state.currentApprover[0].id,
+            NoteType: this._committeeType
           });
           console.log(itemAddResult)
           console.log(`Item added with ID: ${itemAddResult.Id}`);
@@ -1968,6 +1988,7 @@ export default class ViewForm extends React.Component<
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
+        NoteApproversDTO: JSON.stringify(modifyApproveDetails),
         NoteApproverCommentsDTO: JSON.stringify(modifyApproveDetails),
         Status: statusFromEvent,
         StatusNumber: statusNumber,
@@ -2016,6 +2037,7 @@ export default class ViewForm extends React.Component<
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
+        
       });
 
     console.log(itemToUpdate);
@@ -2975,25 +2997,61 @@ export default class ViewForm extends React.Component<
                         >
                           <div style={{ padding: "15px" }}>
                             <ATRAssignee
+
                               sp={this.props.sp}
                               context={this.props.context}
                               atrCreatorsList={this.state.atrCreatorsList}
                               commentsData={this.state.commentsData}
+                              artCommnetsGridData={this.state.atrGridData}
+                              deletedGridData ={
+                                (data:any)=>{
+                                  this.setState({atrGridData:data})
+                                }
+                              }
                               updategirdData={(data: any): void => {
                                 console.log(data);
+
+                                const currentAtrCreator = this.state.atrCreatorsList.filter((each:any)=>each.atrCreatorEmail === this.props.context.pageContext.user.email)
+                                console.log(currentAtrCreator)
+                                const {assigneeDetails} = data
                                 this.setState({
-                                  atrGridData: [
-                                    data.comments,
-                                    ...this.state.atrGridData,
-                                  ],
+                                  atrGridData:data.comments,
+                                  //  [
+                                  //   data.comments,
+                                  //   ...this.state.atrGridData,
+                                  // ],
                                   noteATRAssigneeDetails: [
                                     ...this.state.noteATRAssigneeDetails,
                                     {
-                                      ...data,
-                                      approveremail:
-                                        this.props.context.pageContext.user
-                                          .email,
-                                      atrId: "",
+                                      
+                                      
+                                      "atrAssigneeId":assigneeDetails.id,
+                                      "atrCreatorId": currentAtrCreator[0].atrCreatorId,
+                                      "atrCreatorEmail": currentAtrCreator[0].atrCreatorEmail,
+                                      // "atrAssignerEmail": "ib.test4@xencia.com",  from data
+                                      "atrAssignerEmailName": assigneeDetails.text,
+                                      "approverEmailName": this.state.currentApprover[0].text,
+                                      "atrCreatorEmailName": currentAtrCreator[0].atrCreatorEmailName,
+                                      "noteRequesterComments": [
+                                        data.comments,
+                                        ...this.state.atrGridData,
+                                      ],
+                                      "createdDate": new Date(),
+                                      "createdBy": this.props.context.pageContext.user.email,
+                                      "modifiedDate": new Date(),
+                                      "modifiedBy": this.props.context.pageContext.user.email,
+                                      "statusMessage": null,
+                                      "atrId": '',
+                                      "noteApproverId": this.state.currentApprover[0].ApproversId,
+                                      "approverType": this.state.currentApprover[0].approverType,
+                                      "approverOrder": this.state.currentApprover[0].approverOrder,
+                                      "approverStatus":  1,
+                                      "approverEmail":this.state.currentApprover[0].approverEmail,
+                                      "noteApproverComments": "T",
+                                      "strATRStatus": "Pending",
+                                      "atrStatus": 1,
+                                      'noteId':this._itemId,
+
                                     },
                                   ],
                                 });
@@ -3321,6 +3379,88 @@ export default class ViewForm extends React.Component<
                       </div>
                     )}
                   </div>
+
+                    {/* Mark for Information Section */}
+                    {this.state.statusNumber ==='9000' && (
+                    <div className={styles.sectionContainer}>
+                      <div
+                        className={styles.header}
+                        onClick={() => this._onToggleSection(`markInfo`)}
+                      >
+                        <Text className={styles.sectionText}>
+                        Mark for Information Section
+                        </Text>
+                        <IconButton
+                          iconProps={{
+                            iconName: expandSections.markInfo
+                              ? "ChevronUp"
+                              : "ChevronDown",
+                          }}
+                          title="Expand/Collapse"
+                          ariaLabel="Expand/Collapse"
+                          className={styles.chevronIcon}
+                        />
+                      </div>
+                      {expandSections.markInfo && (
+                        <div
+                          className={`${styles.expansionPanelInside}`}
+                          style={{ overflowX: "scroll" }}
+                        >
+                          <div style={{ padding: "15px" }}>
+                            <MarkInfo
+
+                              sp={this.props.sp}
+                              context={this.props.context}
+                              atrCreatorsList={this.state.atrCreatorsList}
+                              commentsData={this.state.commentsData}
+                              artCommnetsGridData={this.state.atrGridData}
+                              deletedGridData ={
+                                (data:any)=>{
+                                  this.setState({atrGridData:data})
+                                }
+                              }
+                              updategirdData={(data: any): void => {
+                                console.log(data);
+
+                                const currentAtrCreator = this.state.atrCreatorsList.filter((each:any)=>each.atrCreatorEmail === this.props.context.pageContext.user.email)
+                                console.log(currentAtrCreator)
+                                const {markInfoassigneeDetails} = data
+                                this.setState({
+                                  atrGridData:data.comments,
+                                  //  [
+                                  //   data.comments,
+                                  //   ...this.state.atrGridData,
+                                  // ],
+                                  noteMarkedInfoDTOState: [
+                                    ...this.state.noteMarkedInfoDTOState,
+                                    {
+                                      
+                                      
+                                    
+                                      "markedEmail": markInfoassigneeDetails.email,  
+                                      "markedEmailName": markInfoassigneeDetails.text,
+                                      
+                                     
+                                      "createdDate": new Date(),
+                                      "createdBy": this.props.context.pageContext.user.email,
+                                      "modifiedDate": new Date(),
+                                      "modifiedBy": this.props.context.pageContext.user.email,
+                                      "statusMessage": null,
+                                      "noteMarkedInformationId": '',
+                                      'noteId':this._itemId,
+                                     
+
+                                    },
+                                  ],
+                                });
+                              }}
+                              gridData={this.state.atrGridData}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {/* {pdf Viewer} */}
                 <div className={styles.pdfContainer}>

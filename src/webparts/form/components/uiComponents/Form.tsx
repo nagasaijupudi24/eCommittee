@@ -429,7 +429,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
 
   public componentDidMount(): void {
-    this.autoSaveInterval = setInterval(this.autoSave, 15000);
+    this.autoSaveInterval = setInterval(this.autoSave, 180000);
 
     console.log(this._itemId > 0);
     this._itemId === 0 &&
@@ -764,7 +764,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     this.title = item.Title
 
     this.setState({
-      itemId:this._itemId,
+      // itemId:this._itemId,
       committeeNameFeildValue:
         item.CommitteeName !== null ? item.CommitteeName : "",
       subjectFeildValue: item.Subject !== null ? item.Subject : "",
@@ -2080,7 +2080,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     if (statusOfForm === 'Drafted'){
       let id;
 
-      if (this.state.itemId) {
+      if (this.state.itemId || this._itemId) {
         // Update existing item
         await this.handleUpdate(showAlert);
         console.log(this.state.itemId, "id updated");
@@ -2709,8 +2709,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.peoplePickerApproverData,
       "allDetails"
     ),
-    Status:this._itemId?this.state.status: status,
-    StatusNumber:this._itemId?statusNumber: statusNumber,
+    Status: status,
+    StatusNumber: statusNumber,
     AuditTrail:this.state.itemId ?JSON.stringify(this.state.auditTrail): this._getAuditTrail("ReSubmitted"),
     // Reviewer:{result:this._getReviewerId()}
     ReviewersId: this._getReviewerId(),
