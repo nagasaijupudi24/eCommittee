@@ -2161,6 +2161,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             let status;
             if (this.state.status === "Call Back") {
               status = "Re-Submitted";
+              console.log('eneter re submitted')
               id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(status, "2500"));

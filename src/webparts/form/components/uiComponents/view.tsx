@@ -51,11 +51,12 @@ import PDFViewer from "./pdfviewPdfDist/pdfDist";
 // import PDFViewerComponent from "./pdfviewPdfDist/ibpdf";
 import PasscodeModal from "./passCode/passCode";
 import GistDocsConfirmation from "./dialogFluentUi/gistDocsConfirmationDialog";
-import GistBtnCnrfSubmit from "./dialogFluentUi/gistDocs";
+
 import { MarkInfo } from "./markInfo/markInfo";
 
-
-import '@pnp/sp/profiles';
+import "@pnp/sp/profiles";
+import GistDocSubmitted from "./dialogFluentUi/gistDocs";
+import GistDocEmptyModal from "./dialogFluentUi/gistDocEmptyModal";
 
 // import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PasscodeModal from "./passCode/passCode";
@@ -82,7 +83,7 @@ export interface IViewFormState {
   pdfLink: string;
   isLoading: boolean;
   department: string;
-  departmentAlias:string;
+  departmentAlias: string;
   noteTypeValue?: IDropdownOption;
   isNoteType: boolean;
   new: string;
@@ -177,35 +178,33 @@ export interface IViewFormState {
 
   // success alert
   isVisibleAlter: boolean;
-  successStatus:any;
-  isGistVisibleAlter:boolean;
+  successStatus: any;
+  isGistSuccessVisibleAlter: boolean;
 
   // referback dialog
-  noteReferrerCommentsDTO:any;
-  isReferBackAlterDialog:boolean;
+  noteReferrerCommentsDTO: any;
+  isReferBackAlterDialog: boolean;
 
   //reject comments check dialog
-  isRejectCommentsCheckAlterDialog:boolean;
+  isRejectCommentsCheckAlterDialog: boolean;
 
   //return comments check dialog
-  isReturnCommentsCheckAlterDialog:boolean;
+  isReturnCommentsCheckAlterDialog: boolean;
 
   draftResolutionFieldValue: any;
 
-  // pass code 
+  // pass code
   isPasscodeModalOpen: boolean;
-  isPasscodeValidated:boolean;
+  isPasscodeValidated: boolean;
 
-  passCodeValidationFrom:any;
+  passCodeValidationFrom: any;
 
   // gist document dialog
-  isGistDocCnrf:boolean;
+  isGistDocCnrf: boolean;
+  isGistDocEmpty:boolean;
 
-
-  //Mark Info 
-  noteMarkedInfoDTOState:any;
-
- 
+  //Mark Info
+  noteMarkedInfoDTOState: any;
 }
 
 const getIdFromUrl = (): any => {
@@ -237,8 +236,9 @@ export default class ViewForm extends React.Component<
   // private _currentUserEmail ="Nandu.krishna@xencia.com";
   private _formType: string = getFromType();
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
-  private _folderName: any = '';
-  private _committeeType:any =this.props.formType==='BoardNoteNew'?"Board":"Committee"
+  private _folderName: any = "";
+  private _committeeType: any =
+    this.props.formType === "BoardNoteNew" ? "Board" : "Committee";
 
   constructor(props: IViewFormProps) {
     super(props);
@@ -246,7 +246,7 @@ export default class ViewForm extends React.Component<
       title: "",
       isLoading: true,
       department: "",
-      departmentAlias:'',
+      departmentAlias: "",
       isNoteType: false,
       noteTypeValue: undefined,
       new: "",
@@ -308,7 +308,7 @@ export default class ViewForm extends React.Component<
       statusNumber: null,
       auditTrail: [],
       filesClear: [],
-      expandSections: {"generalSection":true}, // Keeps track of expanded sections
+      expandSections: { generalSection: true }, // Keeps track of expanded sections
       pdfLink: "",
 
       // "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/Pdf/E0300SBIBZ.pdf",
@@ -338,98 +338,104 @@ export default class ViewForm extends React.Component<
 
       // success alert
       isVisibleAlter: false,
-      isGistVisibleAlter:false,
-      successStatus:'',
+      isGistSuccessVisibleAlter: false,
+      successStatus: "",
 
-       // referback dialog
-       noteReferrerCommentsDTO:[],
-      isReferBackAlterDialog:false,
+      // referback dialog
+      noteReferrerCommentsDTO: [],
+      isReferBackAlterDialog: false,
 
-        //reject comments check dialog
-  isRejectCommentsCheckAlterDialog:false,
+      //reject comments check dialog
+      isRejectCommentsCheckAlterDialog: false,
 
-  //return comments check dialog
-  isReturnCommentsCheckAlterDialog:false,
-
-      
+      //return comments check dialog
+      isReturnCommentsCheckAlterDialog: false,
 
       draftResolutionFieldValue: "",
 
-      // pass code 
+      // pass code
       isPasscodeModalOpen: false,
       isPasscodeValidated: false, // New state to check if passcode is validated
-      passCodeValidationFrom:'',
+      passCodeValidationFrom: "",
       // / gist document dialog
-  isGistDocCnrf:false,
+      isGistDocCnrf: false,
+      isGistDocEmpty:false,
 
-  //Mark Info 
-  noteMarkedInfoDTOState:[],
-
-
+      //Mark Info
+      noteMarkedInfoDTOState: [],
     };
-    
+
     console.log(this._itemId);
     console.log(this._formType);
-    console.log(this._folderName)
+    console.log(this._folderName);
     console.log(this.props.context.pageContext.user);
     this._fetchATRCreatorDetails();
     this._getItemData(this._itemId, this._folderName);
-    this._fetchDepartmentAlias().then(async()=>{
-      console.log(this.state.departmentAlias)
-     
-      this._folderName =await `${this._absUrl}/${
+    this._fetchDepartmentAlias().then(async () => {
+      console.log(this.state.departmentAlias);
+
+      this._folderName = await `${this._absUrl}/${
         this.props.libraryId
-      }/${this._folderNameGenerate(this._itemId)}`
+      }/${this._folderNameGenerate(this._itemId)}`;
 
       await this._getItemDocumentsData();
-      
-
     });
-   
 
     // this._getUserCountry();
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest()
     // console.log(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest())
   }
 
-
   private _fetchDepartmentAlias = async (): Promise<void> => {
     try {
       console.log("Starting to fetch department alias...");
- 
+
       // Step 1: Fetch items from the Departments list
       const items: any[] = await this.props.sp.web.lists
         .getByTitle("Departments")
-        .items
-        .select("Department", "DepartmentAlias", "Admin/EMail", "Admin/Title") // Fetching relevant fields
+        .items.select(
+          "Department",
+          "DepartmentAlias",
+          "Admin/EMail",
+          "Admin/Title"
+        ) // Fetching relevant fields
         .expand("Admin")();
- 
+
       console.log("Fetched items from Departments:", items);
- 
+
       // Step 2: Find the department entry where the Title or Department contains "Development"
-      const specificDepartment = items.find((each: any) =>
-        each.Department.includes("Development") || each.Title?.includes("Development")
+      const specificDepartment = items.find(
+        (each: any) =>
+          each.Department.includes("Development") ||
+          each.Title?.includes("Development")
       );
- 
+
       if (specificDepartment) {
         const departmentAlias = specificDepartment.DepartmentAlias;
-        console.log("Department alias for department with 'Development' in title:", departmentAlias);
- 
+        console.log(
+          "Department alias for department with 'Development' in title:",
+          departmentAlias
+        );
+
         // Step 3: Update state with the department alias
-        this.setState({
-          departmentAlias: departmentAlias, // Store the department alias
-        }, () => {
-          console.log("Updated state with department alias:", this.state.departmentAlias);
-        });
+        this.setState(
+          {
+            departmentAlias: departmentAlias, // Store the department alias
+          },
+          () => {
+            console.log(
+              "Updated state with department alias:",
+              this.state.departmentAlias
+            );
+          }
+        );
       } else {
         console.log("No department found with 'Development' in title.");
       }
- 
     } catch (error) {
       console.error("Error fetching department alias: ", error);
     }
   };
-
 
   // private _getUserCountry = async () => {
   //   try {
@@ -501,26 +507,29 @@ export default class ViewForm extends React.Component<
   };
 
   //  public async _folderNameGenerate(id: any): Promise<any> {
-   
+
   //   console.log(this.state)
   //   const currentyear = new Date().getFullYear();
   //   const nextYear = (currentyear + 1).toString().slice(-2);
-    
+
   //   const requesterNo = this.props.formType==="BoardNoteView"? `${this.state?.departmentAlias}/${currentyear}-${nextYear}/B${id}`:`${this.state?.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
   //   const folderName = requesterNo.replace(/\//g, "-");
   //   return folderName;
   // }
 
   public _folderNameGenerate(id: any): any {
-    console.log(this.state.departmentAlias)
+    console.log(this.state.departmentAlias);
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
-    
+
     // const requesterNo = this.props.formType==="BoardNoteView"? `DEP/${currentyear}-${nextYear}/B${id}`:`DEP/${currentyear}-${nextYear}/C${id}`;
     // console.log(requesterNo)
 
-    const requesterNo = this.props.formType==="BoardNoteView"? `${this.state.departmentAlias}/${currentyear}-${nextYear}/B${id}`:`${this.state.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
-    console.log(requesterNo)
+    const requesterNo =
+      this.props.formType === "BoardNoteView"
+        ? `${this.state.departmentAlias}/${currentyear}-${nextYear}/B${id}`
+        : `${this.state.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
+    console.log(requesterNo);
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
@@ -607,32 +616,38 @@ export default class ViewForm extends React.Component<
     return extractedValue;
   };
 
-  private _getdataofMarkedInfo = async (data: any, idData: any): Promise<any> => {
-    console.log("*********************************************************************************************************");
+  private _getdataofMarkedInfo = async (
+    data: any,
+    idData: any
+  ): Promise<any> => {
+    console.log(
+      "*********************************************************************************************************"
+    );
     console.log(data);
 
     // Create an array of promises using Promise.all
     const ids = await Promise.all(
-        data.map(async (each: any) => {
-            console.log(each);
-            // Create a new object with text and email
-            const userInfo = { text: each.Title, email: each.EMail };
-            // Fetch the user by email
-            const users = await this.props.sp.web.siteUsers.getByEmail(userInfo.email)();
-            console.log(users);
-            // Get the user ID
-            const id = users.Id;
-            console.log(id);
-            // Return the new object with the ID
-            return { ...userInfo, id };
-        })
+      data.map(async (each: any) => {
+        console.log(each);
+        // Create a new object with text and email
+        const userInfo = { text: each.Title, email: each.EMail };
+        // Fetch the user by email
+        const users = await this.props.sp.web.siteUsers.getByEmail(
+          userInfo.email
+        )();
+        console.log(users);
+        // Get the user ID
+        const id = users.Id;
+        console.log(id);
+        // Return the new object with the ID
+        return { ...userInfo, id };
+      })
     );
 
     console.log(ids); // Log the resolved array of user information
 
     return ids; // Return the array of resolved objects
-};
-
+  };
 
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
@@ -652,7 +667,13 @@ export default class ViewForm extends React.Component<
         "CurrentApprover/Title",
         "CurrentApprover/EMail"
       )
-      .expand("Author", "Approvers", "Reviewers", "CurrentApprover","NoteMarkedInfoDTO")();
+      .expand(
+        "Author",
+        "Approvers",
+        "Reviewers",
+        "CurrentApprover",
+        "NoteMarkedInfoDTO"
+      )();
 
     console.log(`${id} ------Details`, item);
     console.log(folderPath);
@@ -740,7 +761,7 @@ export default class ViewForm extends React.Component<
     // console.log(dataApproverInfo);
     // console.log(item.CommentsLog);
     // console.log(typeof item.CommentsLog);
-    console.log(item.DraftResolution)
+    console.log(item.DraftResolution);
 
     this.setState({
       committeeNameFeildValue:
@@ -815,13 +836,22 @@ export default class ViewForm extends React.Component<
         item.NoteSecretaryDTO !== null ? JSON.parse(item.NoteSecretaryDTO) : [],
       noteReferrerDTO:
         item.NoteReferrerDTO !== null ? JSON.parse(item.NoteReferrerDTO) : [],
-        noteReferrerCommentsDTO:
-        item.NoteReferrerCommentsDTO !== null ? JSON.parse(item.NoteReferrerCommentsDTO) : [],
-        noteATRAssigneeDetails:item.NoteATRAssigneeDTO !==null?JSON.parse(item.NoteATRAssigneeDTO):[],
-        noteMarkedInfoDTOState:item.NoteMarkedInfoDTO !==null?this._getdataofMarkedInfo(item.NoteMarkedInfoDTO,item.
-          NoteMarkedInfoDTOStringId
-          ):[],
-        
+      noteReferrerCommentsDTO:
+        item.NoteReferrerCommentsDTO !== null
+          ? JSON.parse(item.NoteReferrerCommentsDTO)
+          : [],
+      noteATRAssigneeDetails:
+        item.NoteATRAssigneeDTO !== null
+          ? JSON.parse(item.NoteATRAssigneeDTO)
+          : [],
+      noteMarkedInfoDTOState:
+        item.NoteMarkedInfoDTO !== null
+          ? this._getdataofMarkedInfo(
+              item.NoteMarkedInfoDTO,
+              item.NoteMarkedInfoDTOStringId
+            )
+          : [],
+
       //   item.CommentsLog && typeof item.CommentsLog === "object"|| "string"
       // ?  []
       // : JSON.parse(item.CommentsLog),
@@ -842,11 +872,11 @@ export default class ViewForm extends React.Component<
   ): any => {
     commentsData = JSON.parse(commentsData);
     console.log(commentsData);
-    const lenOfCommentData = commentsData.length
+    const lenOfCommentData = commentsData.length;
     if (typeOfReferee === "to") {
-      return commentsData[lenOfCommentData-1].referredTo;
+      return commentsData[lenOfCommentData - 1].referredTo;
     }
-    return commentsData[lenOfCommentData-1].referredFrom;
+    return commentsData[lenOfCommentData - 1].referredFrom;
   };
 
   private _getCurrentApproverDetails = (
@@ -876,61 +906,60 @@ export default class ViewForm extends React.Component<
     return `${formattedDate} ${formattedTime}`;
   };
 
-  private _checkRefereeAvailable = ():any =>{
-    if (this.state.noteReferrerDTO.length > 0){
-      const currrentReferee = this.state.noteReferrerDTO[this.state.noteReferrerDTO.length -1]
-      console.log(currrentReferee)
-      console.log(currrentReferee.referrerEmail )
-      console.log( this._currentUserEmail)
-  
-      console.log(currrentReferee.referrerEmail === this._currentUserEmail)
-  
-      return currrentReferee.referrerEmail === this._currentUserEmail
+  private _checkRefereeAvailable = (): any => {
+    if (this.state.noteReferrerDTO.length > 0) {
+      const currrentReferee =
+        this.state.noteReferrerDTO[this.state.noteReferrerDTO.length - 1];
+      console.log(currrentReferee);
+      console.log(currrentReferee.referrerEmail);
+      console.log(this._currentUserEmail);
 
-    }else{
-      return undefined
+      console.log(currrentReferee.referrerEmail === this._currentUserEmail);
+
+      return currrentReferee.referrerEmail === this._currentUserEmail;
+    } else {
+      return undefined;
     }
-   
+  };
 
-
-  }
-
-  private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest = (): boolean | null => {
+  private _checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest = ():
+    | boolean
+    | null => {
     let result: boolean | null = null; // Declare result variable
-    console.log('btn visablity',this.state.statusNumber, this.state.status)
-    console.log()
+    console.log("btn visablity", this.state.statusNumber, this.state.status);
+    console.log();
     this.state.ApproverDetails.forEach((each: any) => {
       if (
-        ((each.approverEmail || each.approverEmailName || each.email) ===
-        this._currentUserEmail) && (each.approverOrder === this.state.ApproverOrder)
+        (each.approverEmail || each.approverEmailName || each.email) ===
+          this._currentUserEmail &&
+        each.approverOrder === this.state.ApproverOrder
       ) {
-
         //                 Draft -  100
-// Call back - 200
-// Cancel - 300
-// Submit - 1000
-// Pending Reviewer - 2000
-// Pending Approver - 3000
-// Refer - 4000
-// Return - 5000
-// Reject - 8000
-// Approved - 9000
+        // Call back - 200
+        // Cancel - 300
+        // Submit - 1000
+        // Pending Reviewer - 2000
+        // Pending Approver - 3000
+        // Refer - 4000
+        // Return - 5000
+        // Reject - 8000
+        // Approved - 9000
         switch (this.state.statusNumber) {
-          case "9000"://Approved
+          case "9000": //Approved
             console.log(this.state.statusNumber, this.state.status);
             result = false;
             break;
-          case "1000"://submitted
-          case "2000"://pending reviewer
-          case "3000"://pending approver
-          case "6000"://referback
-          case "4900"://referback
+          case "1000": //submitted
+          case "2000": //pending reviewer
+          case "3000": //pending approver
+          case "6000": //referback
+          case "4900": //referback
             console.log(this.state.statusNumber, this.state.status);
             result = true;
             break;
-          case "4000"://refer
-          case "5000"://return
-          case "8000"://reject
+          case "4000": //refer
+          case "5000": //return
+          case "8000": //reject
             console.log(this.state.statusNumber, this.state.status);
             result = false;
             break;
@@ -941,10 +970,9 @@ export default class ViewForm extends React.Component<
         }
       }
     });
-  
+
     return result; // Return the final result
   };
-  
 
   // private _getApproverOrder = (data: any,statusNum:any): any => {
   //   console.log(statusNum)
@@ -1022,7 +1050,7 @@ export default class ViewForm extends React.Component<
       // }/${this._folderNameGenerate(this._itemId)}`;
       // console.log(_folderName,'folder name')
       // console.log(`${this._folderName}/Pdf`);
-      console.log(this._folderName)
+      console.log(this._folderName);
 
       const folderItemsPdf = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/Pdf`)
@@ -1034,7 +1062,7 @@ export default class ViewForm extends React.Component<
       // this.setState({noteTofiles:[folderItem]})
 
       const tempFilesPdf: IFileDetails[] = [];
-       folderItemsPdf.forEach((values) => {
+      folderItemsPdf.forEach((values) => {
         tempFilesPdf.push(this._getFileObj(values));
         this.setState({ pdfLink: this._getFileObj(values).fileUrl });
       });
@@ -1102,7 +1130,7 @@ export default class ViewForm extends React.Component<
         tempFilesGistDocument.push(this._getFileObj(values));
       });
       console.log(tempFilesGistDocument);
-      // this.setState({ secretaryGistDocs: tempFilesGistDocument });
+      this.setState({ secretaryGistDocs: tempFilesGistDocument });
     } catch {
       console.log("failed to fetch");
     }
@@ -1164,7 +1192,7 @@ export default class ViewForm extends React.Component<
   private _renderPDFView = (): JSX.Element => {
     // const { pdfLink } = this.state;
     return (
-      <div 
+      <div
       // className={styles.pdfViewer}
       >
         {/* <iframe
@@ -1181,7 +1209,7 @@ export default class ViewForm extends React.Component<
           // height={800}
           defaultViewMode={"FIT_PAGE"}
         /> */}
-        <PDFViewer pdfPath={this.state.pdfLink}/>
+        <PDFViewer pdfPath={this.state.pdfLink} />
       </div>
     );
   };
@@ -1260,6 +1288,94 @@ export default class ViewForm extends React.Component<
   //   }
   // }
 
+
+  public async clearFolder(
+    libraryName: any,
+    folderRelativeUrl: string
+  ): Promise<void> {
+    try {
+      // Get the folder
+      const folder = await this.props.sp.web.getFolderByServerRelativePath(
+        folderRelativeUrl
+      );
+
+      // Get all items in the folder
+      const items = await folder.files();
+
+      // Loop through each item and delete it
+      for (const item of items) {
+        await this.props.sp.web
+          .getFileByServerRelativePath(item.ServerRelativeUrl)
+          .recycle();
+      }
+
+      console.log(
+        `All files in folder '${folderRelativeUrl}' have been deleted.`
+      );
+    } catch (error) {
+      console.error("Error clearing folder:", error);
+    }
+  }
+
+
+  private async updateGistDocumentFolderItems(
+    libraryName: any[],
+    folderPath: string,
+    type: string
+   
+  ) {
+    await this.clearFolder(libraryName, folderPath);
+    async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
+      if (file.arrayBuffer) {
+        return await file.arrayBuffer();
+      } else {
+        // Ensure the file is a Blob before reading it
+        let blob: Blob;
+
+        if (file instanceof Blob) {
+          blob = file;
+        } else {
+          // Convert the file to Blob if it's not already
+          blob = new Blob([file]);
+        }
+
+        // Use FileReader to read the file as an ArrayBuffer
+        return new Promise<ArrayBuffer>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (reader.result) {
+              resolve(reader.result as ArrayBuffer);
+            } else {
+              reject(new Error("Failed to read file as ArrayBuffer"));
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(blob);
+        });
+      }
+    }
+
+    try {
+      for (const file of libraryName) {
+        console.log(file);
+
+        // Get the ArrayBuffer of the file
+        const arrayBuffer = await getFileArrayBuffer(file);
+        console.log(arrayBuffer);
+
+        // Upload the file to the SharePoint Library
+        await this.props.sp.web
+          .getFolderByServerRelativePath(folderPath)
+          .files.addUsingPath(file.name, arrayBuffer, {
+            Overwrite: true,
+          });
+      }
+      console.log("updated Gist document successfully");
+    } catch (error) {
+      console.error(`Error updating folder items: ${error}`);
+    }
+  }
+
   private async updateSupportingDocumentFolderItems(
     libraryName: any[],
     folderPath: string,
@@ -1322,34 +1438,40 @@ export default class ViewForm extends React.Component<
 
   private async updateNoteID(itemId: number): Promise<void> {
     try {
-      const itemUpdateResult = await this.props.sp.web.lists.getByTitle("ATRRequests").items.getById(itemId).update({
-       
-        ATRNoteID: `ATR-${itemId}`
-      });
-      console.log(itemUpdateResult)
+      const itemUpdateResult = await this.props.sp.web.lists
+        .getByTitle("ATRRequests")
+        .items.getById(itemId)
+        .update({
+          ATRNoteID: `ATR-${itemId}`,
+        });
+      console.log(itemUpdateResult);
       console.log(`Item with ID ${itemId} updated with new NoteID: ${itemId}`);
     } catch (error) {
       console.error("Error updating NoteID: ", error);
     }
   }
 
-
-  private _updateATRRequest = async ():Promise<void>=>{
-    this.state.noteATRAssigneeDetails.map(
-      async(each:any)=>{
-        console.log(each)
-        console.log(JSON.stringify(this.state.atrGridData.map((item:any) =>{
-          console.log(each)
-          item.comments
-
-        }) .filter((comment:any) => comment)))
-        try {
-          
-          const itemAddResult = await this.props.sp.web.lists.getByTitle("ATRRequests").items.add({
+  private _updateATRRequest = async (): Promise<void> => {
+    this.state.noteATRAssigneeDetails.map(async (each: any) => {
+      console.log(each);
+      console.log(
+        JSON.stringify(
+          this.state.atrGridData
+            .map((item: any) => {
+              console.log(each);
+              item.comments;
+            })
+            .filter((comment: any) => comment)
+        )
+      );
+      try {
+        const itemAddResult = await this.props.sp.web.lists
+          .getByTitle("ATRRequests")
+          .items.add({
             Title: this.state.title,
             NoteTo: "Sample NoteTo",
             Status: "Pending",
-            ATRNoteID: '',
+            ATRNoteID: "",
             Department: this.state.department,
             // Subject: "Sample Subject",
             AssignedById: each.atrCreatorId,
@@ -1363,31 +1485,24 @@ export default class ViewForm extends React.Component<
             // ActionTakenDate: new Date(),
             // AuditTrail: "Sample AuditTrail",
             AssigneeId: each.atrAssigneeId,
-            StatusNumber: '1000',
+            StatusNumber: "1000",
             NoteID: `${this._itemId}`,
             CurrentApproverId: this.state.currentApprover[0].id,
-            NoteType: this._committeeType
+            NoteType: this._committeeType,
           });
-          console.log(itemAddResult)
-          console.log(`Item added with ID: ${itemAddResult.Id}`);
-          await this.updateNoteID(itemAddResult.Id);
-        } catch (error) {
-          console.error("Error adding item: ", error);
-        }
+        console.log(itemAddResult);
+        console.log(`Item added with ID: ${itemAddResult.Id}`);
+        await this.updateNoteID(itemAddResult.Id);
+      } catch (error) {
+        console.error("Error adding item: ", error);
       }
-    )
-  }
+    });
+  };
 
   private _handleApproverButton = async (
     statusFromEvent: string,
     statusNumber: string
   ) => {
-
-    if (!this.state.isPasscodeValidated) {
-        this.setState({ isPasscodeModalOpen: true ,passCodeValidationFrom:statusNumber}); // Open the modal
-        return; // Prevent the method from proceeding until passcode is validated
-    }
-    
     let previousApprover: any;
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -1482,7 +1597,7 @@ export default class ViewForm extends React.Component<
         ? JSON.stringify(this.state.noteATRAssigneeDetails)
         : "",
       PreviousActioner: JSON.stringify(this.props.context.pageContext.user),
-      startProcessing:true,
+      startProcessing: true,
     };
     console.log(updateItems);
     const itemToUpdate = await this.props.sp.web.lists
@@ -1492,7 +1607,7 @@ export default class ViewForm extends React.Component<
 
     console.log(itemToUpdate);
 
-    this.state.atrGridData.length > 0 && await this._updateATRRequest()
+    this.state.atrGridData.length > 0 && (await this._updateATRRequest());
     await this.updateSupportingDocumentFolderItems(
       this.state.supportingFilesInViewForm,
       `${this._folderName}/SupportingDocument`,
@@ -1507,51 +1622,82 @@ export default class ViewForm extends React.Component<
         .update({
           Status: statusFromEvent,
           StatusNumber: statusNumber,
-
         });
 
       console.log(itemToUpdateStatusToApproved);
     }
     this._closeDialog();
-    
+
     this.setState({ isVisibleAlter: true });
   };
+
+
+  private _checkCurrentApproverIsInSecretaryDTO = ():any=>{
+    const currentApproverIsInSecreDTO = this.state.noteSecretaryDetails.filter((each: any) => {
+      console.log(each);
+      console.log(this._currentUserEmail);
+      console.log(
+        
+          each.approverEmail === this._currentUserEmail
+      )
+      if (
+       
+        each.approverEmail === this._currentUserEmail
+      ) {
+        return true;
+      }
+    
+    
+    
+    })
+    console.log(currentApproverIsInSecreDTO)
+    console.log(currentApproverIsInSecreDTO[0]?.approverEmail )
+    console.log( this._currentUserEmail)
+    console.log(currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail)
+    return currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
+      
+    
+  }
 
   private _checkingCurrentUserInSecretaryDTO = (): any => {
     return this.state.noteSecretaryDetails.some((each: any) => {
       console.log(each);
       console.log(this._currentUserEmail);
-      console.log(each.secretaryEmail === this._currentUserEmail || each.approverEmail === this._currentUserEmail);
-      if (each.secretaryEmail === this._currentUserEmail || each.approverEmail === this._currentUserEmail) {
+      console.log(
+        each.secretaryEmail === this._currentUserEmail ||
+          each.approverEmail === this._currentUserEmail
+      );
+      if (
+        each.secretaryEmail === this._currentUserEmail ||
+        each.approverEmail === this._currentUserEmail
+      ) {
         return true;
       }
     });
   };
 
   private _checkingCurrentUserIsSecretaryDTO = (): any => {
-
-
     const currentUserisApproved = this.state.ApproverDetails.some(
-      (each:any)=>{
-        console.log(each)
-        if (each.approverEmail  && (each.status !== 'Approved')){
-          return each
+      (each: any) => {
+        console.log(each);
+        if (each.approverEmail && each.status !== "Approved") {
+          return each;
         }
       }
-    )
-    console.log(currentUserisApproved)
+    );
+    console.log(currentUserisApproved);
 
-    const userIsSec = (this.state.noteSecretaryDetails.some((each: any) => {
+    const userIsSec = this.state.noteSecretaryDetails.some((each: any) => {
       console.log(each);
       console.log(this._currentUserEmail);
       console.log(each.secretaryEmail === this._currentUserEmail);
       if (each.secretaryEmail === this._currentUserEmail) {
         return true;
       }
-    }))
-    console.log(userIsSec)
-    
-    console.log(userIsSec && currentUserisApproved)
+    });
+    console.log(userIsSec);
+
+    console.log(userIsSec && currentUserisApproved);
     return userIsSec && currentUserisApproved;
   };
 
@@ -1572,20 +1718,19 @@ export default class ViewForm extends React.Component<
   //   });
   // };
 
-
-  private _checkLastCommentByCurrentUser = ()=>{
-
+  private _checkLastCommentByCurrentUser = () => {
     const { commentsData } = this.state;
-    const filteredComments = commentsData.filter((comment: any) => comment !== null);
+    const filteredComments = commentsData.filter(
+      (comment: any) => comment !== null
+    );
     if (filteredComments.length === 0) {
       return true;
     }
-    
-    const lastComment = filteredComments[filteredComments.length - 1];
-    console.log(lastComment)
-    return !(lastComment.commentedByEmail === this._currentUserEmail);
 
-  }
+    const lastComment = filteredComments[filteredComments.length - 1];
+    console.log(lastComment);
+    return !(lastComment.commentedByEmail === this._currentUserEmail);
+  };
 
   private handleReject = async (
     statusFromEvent: string,
@@ -1604,16 +1749,15 @@ export default class ViewForm extends React.Component<
     //   return; // Stop further execution
     // }
 
-    
-    if (!this.state.isPasscodeValidated) {
-      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
-      return; // Prevent the method from proceeding until passcode is validated
-  }
-
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
-          return { ...each, status: statusFromEvent, actionDate: new Date() };
+          return {
+            ...each,
+            status: statusFromEvent,
+            actionDate: new Date(),
+            mainStatus: statusFromEvent,
+          };
         }
         // if (each.approverOrder===currentApproverOrder+1){
 
@@ -1661,17 +1805,31 @@ export default class ViewForm extends React.Component<
     this.setState({ isVisibleAlter: true });
   };
 
+  private referPassCodeTrigger = (): any => {
+    if (!this.state.isPasscodeValidated) {
+      this.setState({
+        isPasscodeModalOpen: true,
+        passCodeValidationFrom: "4000",
+      }); // Open the modal
+      return; // Prevent the method from proceeding until passcode is validated
+    }
+  };
+
+  private changeApproverPassCodeTrigger = (): any => {
+    if (!this.state.isPasscodeValidated) {
+      this.setState({
+        isPasscodeModalOpen: true,
+        passCodeValidationFrom: "7500",
+      }); // Open the modal
+      return; // Prevent the method from proceeding until passcode is validated
+    }
+  };
+
   private handleRefer = async (
     statusFromEvent: string,
     statusNumber: string,
     commentsObj: any
   ) => {
-
-    
-  //   if (!this.state.isPasscodeValidated) {
-  //     this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
-  //     return; // Prevent the method from proceeding until passcode is validated
-  // }
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         console.log(each);
@@ -1698,7 +1856,7 @@ export default class ViewForm extends React.Component<
 
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     const referedId = v4();
-    
+
     console.log(updateAuditTrial);
     console.log([
       {
@@ -1731,8 +1889,12 @@ export default class ViewForm extends React.Component<
           this.state.refferredToDetails[0].approverEmailName,
         referrerStatus: 1,
         referrerStatusType: this.state.refferredToDetails[0].status,
-        referredTo:[{... this.state.refferredToDetails[0],noteReferrerId: referedId}],
-        referredFrom: [{...this.state.referredFromDetails[0],noteReferrerId: referedId}],
+        referredTo: [
+          { ...this.state.refferredToDetails[0], noteReferrerId: referedId },
+        ],
+        referredFrom: [
+          { ...this.state.referredFromDetails[0], noteReferrerId: referedId },
+        ],
       },
     ]);
 
@@ -1745,8 +1907,8 @@ export default class ViewForm extends React.Component<
         ...this.state.commentsData,
         commentsObj,
       ]),
-      
-      startProcessing:true,
+
+      startProcessing: true,
       NoteReferrerDTO: JSON.stringify([
         ...this.state.noteReferrerDTO,
         {
@@ -1779,10 +1941,13 @@ export default class ViewForm extends React.Component<
             this.state.refferredToDetails[0].approverEmailName,
           referrerStatus: 1,
           referrerStatusType: this.state.refferredToDetails[0].status,
-          referredTo:[{... this.state.refferredToDetails[0],noteReferrerId: referedId}],
-        referredFrom: [{...this.state.referredFromDetails[0],noteReferrerId: referedId}],
+          referredTo: [
+            { ...this.state.refferredToDetails[0], noteReferrerId: referedId },
+          ],
+          referredFrom: [
+            { ...this.state.referredFromDetails[0], noteReferrerId: referedId },
+          ],
         },
-        
       ]),
       // referredTo: JSON.stringify(this.state.refferredToDetails),
       // referredFrom: JSON.stringify(this.state.referredFromDetails),
@@ -1811,7 +1976,6 @@ export default class ViewForm extends React.Component<
         .update({
           Status: statusFromEvent,
           StatusNumber: statusNumber,
-          
         });
 
       console.log(itemToUpdateStatusToApproved);
@@ -1819,7 +1983,6 @@ export default class ViewForm extends React.Component<
     this._closeDialog();
     this.setState({ isVisibleAlter: true });
   };
-
 
   // private _checkNoteReferIdHavingComments = ():any=>{
   //   const filterReferCommentId =this.state.noteReferrerDTO.filter((each:any)=>{
@@ -1842,14 +2005,12 @@ export default class ViewForm extends React.Component<
   //     }
   //   )
   //   console.log(filterReferCommentsDTO)
-    
+
   //   console.log(filterReferCommentId[0].noteReferrerId ===( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
 
   //   return (filterReferCommentId[0].noteReferrerId === ( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
-    
 
   // }
-
 
   // private _getLastCommnet = ():any =>{
 
@@ -1862,132 +2023,125 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     commentsObj: any
   ) => {
-    
-    if (!this.state.isPasscodeValidated) {
-      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
-      return; // Prevent the method from proceeding until passcode is validated
-  }
-    
-    
-
     // if (this._checkNoteReferIdHavingComments()){
-      const modifyApproveDetails = this.state.ApproverDetails.map(
-        (each: any, index: number) => {
-          console.log(each);
-          console.log(each.approverEmail);
-          console.log(this._currentUserEmail);
-          console.log(
-            (each.approverEmail || each.approverEmailName) ===
-              this._currentUserEmail
-          );
-          if (
-            (each.approverEmail || each.approverEmailName) ===
+    const modifyApproveDetails = this.state.ApproverDetails.map(
+      (each: any, index: number) => {
+        console.log(each);
+        console.log(each.approverEmail);
+        console.log(this._currentUserEmail);
+        console.log(
+          (each.approverEmail || each.approverEmailName) ===
             this._currentUserEmail
+        );
+        if (
+          (each.approverEmail || each.approverEmailName) ===
+          this._currentUserEmail
+        ) {
+          console.log("Entered -----", statusFromEvent);
+          return { ...each, status: "pending", actionDate: new Date() };
+        }
+        if (each.approverOrder === this.state.ApproverOrder + 1) {
+          return { ...each, status: "waiting" };
+        }
+
+        return each;
+      }
+    );
+
+    const modifyReferredToDetails = this.state.referredFromDetails.map(
+      (each: any, _index: number) => {
+        console.log(each);
+        return { ...each, status: statusFromEvent, actionDate: new Date() };
+      }
+    );
+
+    const updateCurrentReferDTO = this.state.noteReferrerDTO.map(
+      (each: any) => {
+        console.log(each);
+        if (each !== null) {
+          if (
+            each.noteReferrerId ===
+            this.state.refferredToDetails[0].noteReferrerId
           ) {
-            console.log("Entered -----", statusFromEvent);
-            return { ...each, status: 'pending', actionDate: new Date() };
+            return {
+              ...each,
+              referredTo: modifyReferredToDetails,
+              referredFrom: this.state.referredFromDetails,
+              referrerStatus: 2,
+              referrerStatusType: statusFromEvent,
+            };
           }
-          if (each.approverOrder === this.state.ApproverOrder + 1) {
-            return { ...each, status: "waiting" };
-          }
-  
-          return each;
         }
-      );
+      }
+    );
 
+    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    console.log(updateAuditTrial);
 
-      const modifyReferredToDetails = this.state.referredFromDetails.map(
-        (each: any, _index: number) => {
-          console.log(each);
-          return { ...each, status: statusFromEvent, actionDate: new Date() };
-        }
-      );
+    const obj = {
+      NoteApproversDTO: JSON.stringify(modifyApproveDetails),
+      Status: statusFromEvent,
+      StatusNumber: statusNumber,
+      AuditTrail: updateAuditTrial,
+      NoteApproverCommentsDTO: JSON.stringify([
+        ...this.state.commentsData,
+        commentsObj,
+      ]),
+      NoteReferrerCommentsDTO: JSON.stringify(
+        this.state.noteReferrerCommentsDTO
+      ),
+      NoteReferrerDTO: JSON.stringify(updateCurrentReferDTO),
 
+      startProcessing: true,
+    };
+    console.log(obj);
 
-      const updateCurrentReferDTO = this.state.noteReferrerDTO.map(
-        (each:any)=>{
-          console.log(each)
-          if (each !== null){
-            if (each.noteReferrerId === this.state.refferredToDetails[0].noteReferrerId){
-              return {...each, referredTo: modifyReferredToDetails,
-                referredFrom: this.state.referredFromDetails,referrerStatus:2,referrerStatusType:statusFromEvent}
-            }
+    const itemToUpdate = await this.props.sp.web.lists
+      .getByTitle(this.props.listId)
+      .items.getById(this._itemId)
+      .update(obj)
+      .then((resu) => console.log(resu));
 
-          }
-        
-        }
-      )
-  
-      const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
-      console.log(updateAuditTrial);
-  
-      const obj = {
-        NoteApproversDTO: JSON.stringify(modifyApproveDetails),
-        Status: statusFromEvent,
-        StatusNumber: statusNumber,
-        AuditTrail: updateAuditTrial,
-        NoteApproverCommentsDTO: JSON.stringify([
-          ...this.state.commentsData,
-          commentsObj,
-        ]),
-        NoteReferrerCommentsDTO:JSON.stringify(
-          this.state.noteReferrerCommentsDTO
-        ),
-        NoteReferrerDTO: JSON.stringify(updateCurrentReferDTO),
-  
-      startProcessing:true,
-      };
-      console.log(obj);
-  
-      const itemToUpdate = await this.props.sp.web.lists
+    console.log(itemToUpdate);
+
+    await this.updateSupportingDocumentFolderItems(
+      this.state.supportingFilesInViewForm,
+      `${this._folderName}/SupportingDocument`,
+      "Supporting documents"
+    );
+
+    if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
+      this.setState({ status: statusFromEvent });
+      const itemToUpdateStatusToApproved = await this.props.sp.web.lists
         .getByTitle(this.props.listId)
         .items.getById(this._itemId)
-        .update(obj)
-        .then((resu) => console.log(resu));
-  
-      console.log(itemToUpdate);
+        .update({
+          Status: statusFromEvent,
+          StatusNumber: statusNumber,
+        });
 
-      await this.updateSupportingDocumentFolderItems(
-        this.state.supportingFilesInViewForm,
-        `${this._folderName}/SupportingDocument`,
-        "Supporting documents"
-      );
-  
-      if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
-        this.setState({ status: statusFromEvent });
-        const itemToUpdateStatusToApproved = await this.props.sp.web.lists
-          .getByTitle(this.props.listId)
-          .items.getById(this._itemId)
-          .update({
-            Status: statusFromEvent,
-            StatusNumber: statusNumber,
-          });
-  
-        console.log(itemToUpdateStatusToApproved);
-      }
-      this._closeDialog();
-      this.setState({ isVisibleAlter: true });
-     
-    
+      console.log(itemToUpdateStatusToApproved);
+    }
+    this._closeDialog();
+    this.setState({ isVisibleAlter: true });
+
     // }else{
     //   this.setState({isReferBackAlterDialog:true})
 
-     
-
     // }
-   
   };
 
   private handleReturn = async (
     statusFromEvent: string,
     statusNumber: string
   ) => {
-
-    
     if (!this.state.isPasscodeValidated) {
-      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+      this.setState({
+        isPasscodeModalOpen: true,
+        passCodeValidationFrom: statusNumber,
+      }); // Open the modal
       return; // Prevent the method from proceeding until passcode is validated
-  }
+    }
     // Assuming you want to check for comments before proceeding with return
     // const currentUserComment = this.state.commentsData.find(
     //   (comment: any) => comment.commentedByEmail === this._currentUserEmail
@@ -2030,8 +2184,8 @@ export default class ViewForm extends React.Component<
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
-        
-      startProcessing:true,
+
+        startProcessing: true,
       });
 
     console.log(itemToUpdate);
@@ -2053,32 +2207,22 @@ export default class ViewForm extends React.Component<
   };
 
   private handleCallBack = async (
-   
     statusFromEvent: string,
     statusNumber: string
   ) => {
-
-    
-    if (!this.state.isPasscodeValidated) {
-      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
-      return; // Prevent the method from proceeding until passcode is validated
-  }
-
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     console.log(updateAuditTrial);
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
-        startProcessing:true,
+        startProcessing: true,
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
-        
       });
 
     console.log(itemToUpdate);
-
 
     await this.updateSupportingDocumentFolderItems(
       this.state.supportingFilesInViewForm,
@@ -2093,50 +2237,47 @@ export default class ViewForm extends React.Component<
   //   this.setState(cur)
   // }
 
+  private _getNoteMarkedId = (): any => {
+    const ids = this.state.noteMarkedInfoDTOState.map((each: any) => {
+      console.log(each);
+      console.log(each.id);
+      return each.id;
+    });
 
-  private _getNoteMarkedId = ():any=>{
-    const ids = this.state.noteMarkedInfoDTOState.map(
-      (each:any)=>{
-        console.log(each)
-        console.log(each.id)
-        return each.id
-      }
-    )
+    console.log(ids);
+    return ids;
+  };
 
-    console.log(ids)
-    return ids
-  }
-
-  private _handleMarkInfoSubmit =async ():Promise<any>=>{
+  private _handleMarkInfoSubmit = async (): Promise<any> => {
     const updateAuditTrial = await this._getAuditTrail("Marked Info Added");
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
-        NoteMarkedInfoDTOId:this._getNoteMarkedId(),
+        NoteMarkedInfoDTOId: this._getNoteMarkedId(),
         AuditTrail: updateAuditTrial,
       });
 
     console.log(itemToUpdate);
-
-  }
+  };
 
   private handleChangeApprover = async (
     statusFromEvent: string,
     statusNumber: string,
     data: any
   ) => {
-
-    
-    if (!this.state.isPasscodeValidated) {
-      this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
-      return; // Prevent the method from proceeding until passcode is validated
-  }
+    //   if (!this.state.isPasscodeValidated) {
+    //     this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
+    //     return; // Prevent the method from proceeding until passcode is validated
+    // }
     // console.log(data)
     // this.setState({currentApprover:data})
+    console.log(this.state.currentApprover);
     const updateCurrentApprover = (): any => {
       const upatedCurrentApprover = this.state.ApproverDetails.filter(
         (each: any) => {
+          console.log(each);
+          console.log(this.state.currentApprover);
           // console.log(each);
           // console.log(this.state.currentApprover);
           // // console.log(each.id)
@@ -2153,6 +2294,7 @@ export default class ViewForm extends React.Component<
               ...this.state.currentApprover,
               status: "pending",
               actionDate: new Date(),
+              mainStatus: each.mainStatus,
             };
           }
         }
@@ -2168,6 +2310,7 @@ export default class ViewForm extends React.Component<
           approverEmailName:
             this.state.currentApprover[0].email ||
             this.state.currentApprover[0].secondaryText,
+          mainStatus: upatedCurrentApprover[0].mainStatus,
         },
       ]);
       return [
@@ -2180,6 +2323,7 @@ export default class ViewForm extends React.Component<
           approverEmailName:
             this.state.currentApprover[0].email ||
             this.state.currentApprover[0].secondaryText,
+          mainStatus: upatedCurrentApprover[0].mainStatus,
         },
       ];
     };
@@ -2206,7 +2350,7 @@ export default class ViewForm extends React.Component<
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
-        startProcessing:true,
+        startProcessing: true,
         CurrentApproverId: currentApproverId,
         AuditTrail: updateAuditTrial,
         NoteApproversDTO: JSON.stringify(modifyApproverDetails),
@@ -2254,15 +2398,17 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            this.setState({successStatus:'Approved'})
-            this._hanldeFluentDialog(
-              "Approve",
-              "Approved",
-              "9000",
-              "Please check the details filled along with attachment and click on Confirm button to approve request.",
-              this._handleApproverButton,
-              this._closeDialog
-            );
+            this.setState({ successStatus: "Approved" });
+            if (!this.state.isPasscodeValidated) {
+              this.setState({
+                isPasscodeModalOpen: true,
+                passCodeValidationFrom: "9000",
+              }); // Open the modal
+              return; // Prevent the method from proceeding until passcode is validated
+            }
+
+            // _handleApproverButton
+
             // this.setState({ status: "Approved", statusNumber: "9000" });
           }}
         >
@@ -2287,22 +2433,20 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            if (this._checkLastCommentByCurrentUser()){
-              this.setState({isRejectCommentsCheckAlterDialog:true})
-            }else{
-              this.setState({successStatus:'Rejected'})
-              this._hanldeFluentDialog(
-                "Reject",
-                "Rejected",
-                "8000",
-                "click on Confirm button to reject request.",
-                this.handleReject,
-                this._closeDialog
-              );
+            if (this._checkLastCommentByCurrentUser()) {
+              this.setState({ isRejectCommentsCheckAlterDialog: true });
+            } else {
+              this.setState({ successStatus: "Rejected" });
 
+              if (!this.state.isPasscodeValidated) {
+                this.setState({
+                  isPasscodeModalOpen: true,
+                  passCodeValidationFrom: "8000",
+                }); // Open the modal
+                return; // Prevent the method from proceeding until passcode is validated
+              }
             }
 
-           
             // this.setState({ status: "Rejected", statusNumber: "8000" });
           }}
         >
@@ -2313,19 +2457,17 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
+            this.setState({ successStatus: "Refered" });
+            this._hanldeFluentDialog(
+              "Refer",
+              "Refered",
+              "4000",
+              ["Add Referee", "Comments"],
+              "",
+              this._closeDialog,
+              this.referPassCodeTrigger
+            );
 
-            this.setState({successStatus:'Refered'})
-              this._hanldeFluentDialog(
-                "Refer",
-                "Refered",
-                "4000",
-                ["Add Referee", "Comments"],
-                this.handleRefer,
-                this._closeDialog
-              );
-
-            
-           
             // this.setState({ status: "Refered", statusNumber: "4000" });
           }}
         >
@@ -2336,22 +2478,21 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "ReturnToSession" }} // Icon for Return
           onClick={(e) => {
-
-            if (this._checkLastCommentByCurrentUser()){
-              this.setState({isReturnCommentsCheckAlterDialog:true})
-            }else{
-              this.setState({successStatus:'Returned'})
+            if (this._checkLastCommentByCurrentUser()) {
+              this.setState({ isReturnCommentsCheckAlterDialog: true });
+            } else {
+              this.setState({ successStatus: "Returned" });
               this._hanldeFluentDialog(
                 "Return",
                 "Returned",
                 "5000",
                 "click on Confirm button to Return request.",
                 this.handleReturn,
-                this._closeDialog
+                this._closeDialog,
+                ""
               );
-
             }
-           
+
             // this.setState({ status: "Returned", statusNumber: "5000" });
           }}
         >
@@ -2364,11 +2505,11 @@ export default class ViewForm extends React.Component<
   private _getPendingStatus = (data: any): any => {
     // console.log(this.state.ApproverDetails);
 
-    if (this.state.statusNumber ==='4000'){
-      const lastRefereeDetails = this.state.noteReferrerDTO[this.state.noteReferrerDTO.length - 1];
-    return lastRefereeDetails.referrerEmailName;
-
-    }else{
+    if (this.state.statusNumber === "4000") {
+      const lastRefereeDetails =
+        this.state.noteReferrerDTO[this.state.noteReferrerDTO.length - 1];
+      return lastRefereeDetails.referrerEmailName;
+    } else {
       const currentStatusOfApproverDetails = data.filter((each: any) => {
         console.log(each);
         console.log(each.status);
@@ -2379,7 +2520,7 @@ export default class ViewForm extends React.Component<
         // return each.status === "pending" && each.approverEmailName
       });
       console.log(currentStatusOfApproverDetails);
-  
+
       if (currentStatusOfApproverDetails.length > 0) {
         // console.log(
         //   currentStatusOfApproverDetails[0].approverEmailName,
@@ -2387,7 +2528,7 @@ export default class ViewForm extends React.Component<
         //   currentStatusOfApproverDetails[0].approverEmailName ||currentStatusOfApproverDetails[0].text,
         //   "currentStatusOfApproverDetails"
         // );
-  
+
         return (
           currentStatusOfApproverDetails[0].text ||
           currentStatusOfApproverDetails[0].approverEmailName
@@ -2395,10 +2536,7 @@ export default class ViewForm extends React.Component<
       } else {
         return "";
       }
-
     }
-
-    
   };
 
   private _closeDialog = () => {
@@ -2412,7 +2550,8 @@ export default class ViewForm extends React.Component<
     currentStatusNumber: string,
     message: any,
     functionType: any,
-    closeFunction: any
+    closeFunction: any,
+    referPassFuntion: any
   ) => {
     this.setState({
       dialogFluent: false,
@@ -2424,6 +2563,7 @@ export default class ViewForm extends React.Component<
         message: message,
         functionType: functionType,
         closeFunction: closeFunction,
+        referPassFuntion: referPassFuntion,
       },
     });
   };
@@ -2440,33 +2580,39 @@ export default class ViewForm extends React.Component<
       this.setState((prev) => {
         console.log(commentsData);
         console.log(prev.commentsData);
-        if (this.state.statusNumber === '4000'){
-          this.setState({noteReferrerCommentsDTO:[...this.state.noteReferrerCommentsDTO,{
-            ...commentsData,...this.state.noteReferrerDTO[this.state.noteReferrerDTO.length-1]
-          }]})
-
+        if (this.state.statusNumber === "4000") {
+          this.setState({
+            noteReferrerCommentsDTO: [
+              ...this.state.noteReferrerCommentsDTO,
+              {
+                ...commentsData,
+                ...this.state.noteReferrerDTO[
+                  this.state.noteReferrerDTO.length - 1
+                ],
+              },
+            ],
+          });
         }
         return {
           commentsData: [...prev.commentsData, commentsData],
         };
-       
       });
     } else if (type === "delete") {
       console.log("entered into delete");
-      const filteredComments = this.state.commentsData.filter((comment: any) => comment !== null);
-
-      const updatingCommentData = filteredComments.filter(
-        (each: any) => {
-          console.log(each);
-          console.log(each.id);
-          console.log(id);
-          console.log(each.id !== id);
-          return each.id !== id;
-        }
+      const filteredComments = this.state.commentsData.filter(
+        (comment: any) => comment !== null
       );
+
+      const updatingCommentData = filteredComments.filter((each: any) => {
+        console.log(each);
+        console.log(each.id);
+        console.log(id);
+        console.log(each.id !== id);
+        return each.id !== id;
+      });
       console.log(updatingCommentData);
       this.setState({
-        commentsData: updatingCommentData
+        commentsData: updatingCommentData,
       });
     } else {
       console.log("entered into save");
@@ -2544,6 +2690,11 @@ export default class ViewForm extends React.Component<
         this.setState({
           secretaryGistDocs: filesArray,
         });
+      }else{
+        this.setState({
+          secretaryGistDocs: filesArray,
+        });
+
       }
     }
   };
@@ -2608,66 +2759,123 @@ export default class ViewForm extends React.Component<
   };
 
   public _closeDialogAlter = (type: string) => {
-    if (type==='success'){
+    if (type === "success") {
       const pageURL: string = this.props.homePageUrl;
-      console.log(pageURL)
+      console.log(pageURL);
       window.location.href = `${pageURL}`;
+    } else if (type === "commentsNeeded") {
+      this.setState({
+        expandSections: { generalComments: true, generalSection: false },
+      });
+    }
 
-    }
-    else if (type==='commentsNeeded'){
-      this.setState({expandSections:{"generalComments":true,"generalSection":false}})
-    }
-   
-    this.setState({ isVisibleAlter: false,isGistVisibleAlter:false,isReferBackAlterDialog:false,isRejectCommentsCheckAlterDialog:false,isReturnCommentsCheckAlterDialog:false });
+    this.setState({
+      isVisibleAlter: false,
+      isGistSuccessVisibleAlter: false,
+      isReferBackAlterDialog: false,
+      isRejectCommentsCheckAlterDialog: false,
+      isReturnCommentsCheckAlterDialog: false,
+    });
   };
 
-  private getMainStatus=(): any=> {
-    const approver = this.state.ApproverDetails.find((detail: any) => (detail.approverEmail|| detail.email|| detail.secondaryText) === (this.state.currentApprover[0].approverEmail|| this.state.currentApprover[0].email|| this.state.currentApprover[0].secondaryText));
-   console.log(approver)
+  private getMainStatus = (): any => {
+    const approver = this.state.ApproverDetails.find(
+      (detail: any) =>
+        (detail.approverEmail || detail.email || detail.secondaryText) ===
+        (this.state.currentApprover[0].approverEmail ||
+          this.state.currentApprover[0].email ||
+          this.state.currentApprover[0].secondaryText)
+    );
+    console.log(approver);
     return approver ? approver.mainStatus : undefined;
-
-  }
-
+  };
 
   public handlePasscodeSuccess = () => {
-    this.setState({ isPasscodeValidated: true, isPasscodeModalOpen: false }, () => {
+    this.setState(
+      { isPasscodeValidated: true, isPasscodeModalOpen: false },
+      () => {
         // Re-run the _handleApproverButton function now that the passcode is validated
-        
-       
-       
-        switch (this.state.passCodeValidationFrom) {
-          case "9000"://Approved
-            this._handleApproverButton('Approved', '9000');
-            break;
-          case "1000"://submitted
-          case "2000"://pending reviewer
-          case "3000"://pending approver
-          case "6000"://referback
-          case "4900"://referback
-          this.handleReferBack('Referred Back', '4900',this.state.commentsData[this.state.commentsData.length-1]); 
-              break;
-          case "4000"://refer
-          this.handleRefer('Refered', '4000',this.state.commentsData[this.state.commentsData.length-1]);
-          break;
-          case "5000"://return
 
-          this.handleReturn('Returned', '5000');
-          break
-          case "8000"://reject
-          this.handleReject('Rejected', '8000');
+        switch (this.state.passCodeValidationFrom) {
+          case "9000": //Approved
+            this._hanldeFluentDialog(
+              "Approve",
+              "Approved",
+              "9000",
+              "Please check the details filled along with attachment and click on Confirm button to approve request.",
+              this._handleApproverButton,
+              this._closeDialog,
+              ""
+            );
+            break;
+          case "1000": //submitted
+          case "2000": //pending reviewer
+          case "3000": //pending approver
+          case "6000": //referback
+          case "4900": //referback
+            // this.handleReferBack('Referred Back', '4900',this.state.commentsData[this.state.commentsData.length-1]);
+
+            this._hanldeFluentDialog(
+              "Refer Back",
+              "Refered Back",
+              "4900",
+              "Please check the details filled along with attachment and click on Confirm button to approve request.",
+              this.handleReferBack,
+              this._closeDialog,
+              ""
+            );
+            break;
+          case "4000": //refer
+            // this.handleRefer('Refered', '4000',this.state.commentsData[this.state.commentsData.length-1]);
+            this._hanldeFluentDialog(
+              "Refer",
+              "Refered",
+              "4000",
+              ["Add Referee", "Comments"],
+              this.handleRefer,
+              this._closeDialog,
+              ""
+            );
+            break;
+          case "5000": //return
+            this.handleReturn("Returned", "5000");
+            break;
+          case "8000": //reject
+            this._hanldeFluentDialog(
+              "Reject",
+              "Rejected",
+              "8000",
+              "click on Confirm button to reject request.",
+              this.handleReject,
+              this._closeDialog,
+              ""
+            );
             console.log(this.state.statusNumber, this.state.status);
             // result = false;
             break;
-            case "200"://reject
-            this.handleCallBack( "Call Back", "200");
+          case "200": //reject
+            this.handleCallBack("Call Back", "200");
             break;
+          case "7500":
+            this._hanldeFluentDialog(
+              "Change Approver",
+              "changeApprover",
+              "7500",
+              "Change Approver*",
+              this.handleChangeApprover,
+              this._closeDialog,
+              ""
+            );
+            break;
+
           default:
             console.log("default");
             // result = false;
             break;
         }
-    });
-};
+      }
+    );
+  };
 
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
@@ -2719,24 +2927,23 @@ export default class ViewForm extends React.Component<
             tokens={{ childrenGap: 10 }}
             className={styles.viewFormMainContainer}
           >
-
             {/* Passcode Modal */}
             <PasscodeModal
-                createPasscodeUrl={this.props.homePageUrl}
-                isOpen={this.state.isPasscodeModalOpen}
-                onClose={() => this.setState({ isPasscodeModalOpen: false })}
-                onSuccess={this.handlePasscodeSuccess} // Pass this function as the success handler
-                sp={this.props.sp}
-                user={this.props.context.pageContext.user}
-                />
+              createPasscodeUrl={this.props.homePageUrl}
+              isOpen={this.state.isPasscodeModalOpen}
+              onClose={() => this.setState({ isPasscodeModalOpen: false })}
+              onSuccess={this.handlePasscodeSuccess} // Pass this function as the success handler
+              sp={this.props.sp}
+              user={this.props.context.pageContext.user}
+            />
 
             {/* success  dialog */}
             <SuccessDialog
               // homePageUrl = {this.props.homePageUrl}
               statusOfReq={this.state.successStatus}
               isVisibleAlter={this.state.isVisibleAlter}
-              onCloseAlter={()=>{
-                this._closeDialogAlter("success")
+              onCloseAlter={() => {
+                this._closeDialogAlter("success");
               }}
             />
             {/* success  dialog */}
@@ -2745,8 +2952,8 @@ export default class ViewForm extends React.Component<
             <ReferBackCommentDialog
               statusOfReq={this.state.status}
               isVisibleAlter={this.state.isReferBackAlterDialog}
-              onCloseAlter={()=>{
-                this._closeDialogAlter("commentsNeeded")
+              onCloseAlter={() => {
+                this._closeDialogAlter("commentsNeeded");
               }}
             />
             {/* refer back comment  dialog */}
@@ -2756,56 +2963,63 @@ export default class ViewForm extends React.Component<
              onSuccess={this.handlePasscodeSuccess} 
             
             /> */}
-
-            <GistDocsConfirmation isVisibleAlter={this.state.isGistDocCnrf} onCloseAlter={() => {
-                this.setState({ isGistDocCnrf: false });
-              } }
-              handleConfirmatBtn={
-                ()=>{
-                  this.updateSupportingDocumentFolderItems(
-                    this.state.secretaryGistDocs,
-                    `${this._folderName}/GistDocuments`,
-                    "gistDocument"
-                  )
-
-                }
-                
-                } statusOfReq={undefined}
-                
+            
+            <GistDocEmptyModal
+              isVisibleAlter={this.state.isGistDocEmpty}
+              onCloseAlter={() => {
+                this.setState({ isGistDocEmpty:false });
+              }}
+              statusOfReq={undefined}
             />
 
+            <GistDocsConfirmation
+              isVisibleAlter={this.state.isGistDocCnrf}
+              onCloseAlter={() => {
+                this.setState({ isGistDocCnrf: false });
+              }}
+              handleConfirmatBtn={() => {
+                this.updateGistDocumentFolderItems(
+                  this.state.secretaryGistDocs,
+                  `${this._folderName}/GistDocuments`,
+                  "gistDocument"
+                );
 
-            <GistBtnCnrfSubmit  isVisibleAlter={this.state.isGistVisibleAlter}
-              onCloseAlter={()=>{
-                this._closeDialogAlter("success")
-              }} statusOfReq={undefined}/>
+                this.setState({ isGistDocCnrf: false,isGistSuccessVisibleAlter:true });
+              }}
+              statusOfReq={undefined}
+            />
 
+            <GistDocSubmitted
+              isVisibleAlter={this.state.isGistSuccessVisibleAlter}
+              onCloseAlter={() => {
+                this._closeDialogAlter("success");
+              }}
+              statusOfReq={undefined}
+            />
 
             {/* reject back comment  dialog */}
 
             <RejectBtnCommentCheckDialog
-            statusOfReq={this.state.status}
-            isVisibleAlter={this.state.isRejectCommentsCheckAlterDialog}
-            onCloseAlter={()=>{
-              this._closeDialogAlter("commentsNeeded")
-            }}
+              statusOfReq={this.state.status}
+              isVisibleAlter={this.state.isRejectCommentsCheckAlterDialog}
+              onCloseAlter={() => {
+                this._closeDialogAlter("commentsNeeded");
+              }}
             />
 
-             {/* reject back comment  dialog */}
+            {/* reject back comment  dialog */}
 
-
-              {/* return back comment  dialog */}
+            {/* return back comment  dialog */}
 
             <ReturnBtnCommentCheckDialog
-            statusOfReq={this.state.status}
-            isVisibleAlter={this.state.isReturnCommentsCheckAlterDialog}
-            onCloseAlter={()=>{
-              this._closeDialogAlter("commentsNeeded")
-            }}
+              statusOfReq={this.state.status}
+              isVisibleAlter={this.state.isReturnCommentsCheckAlterDialog}
+              onCloseAlter={() => {
+                this._closeDialogAlter("commentsNeeded");
+              }}
             />
 
-             {/* return back comment  dialog */}
-
+            {/* return back comment  dialog */}
 
             {/* dialog box details */}
             {/* dialog box details */}
@@ -2831,20 +3045,29 @@ export default class ViewForm extends React.Component<
             {/* Header section */}
             <div
               className={`${styles.generalSectionMainContainer} ${styles.viewFormHeaderSection}`}
-              style={{ paddingLeft: "10px",paddingRight: "10px" }}
+              style={{ paddingLeft: "10px", paddingRight: "10px" }}
             >
-              <h1 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}>
+              <h1
+                className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}
+              >
                 pending:{" "}
                 {this.state.status !== "Rejected" &&
                   this._getPendingStatus(this.state.ApproverDetails)}
               </h1>
 
-              <h1 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer} `}>
+              <h1
+                className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer} `}
+              >
                 eCommittee Note - {this.state.title}
               </h1>
 
-              <h1 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}>
-                Status: {this.state.statusNumber === '6000'?this.getMainStatus():this.state.status}
+              <h1
+                className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}
+              >
+                Status:{" "}
+                {this.state.statusNumber === "6000"
+                  ? this.getMainStatus()
+                  : this.state.status}
               </h1>
             </div>
 
@@ -2992,7 +3215,8 @@ export default class ViewForm extends React.Component<
                   {/*General Comments */}
 
                   {(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                  this._currentUserEmail !== this.state.createdByEmail)||this._checkRefereeAvailable() ? (
+                    this._currentUserEmail !== this.state.createdByEmail) ||
+                  this._checkRefereeAvailable() ? (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -3063,25 +3287,27 @@ export default class ViewForm extends React.Component<
                         >
                           <div style={{ padding: "15px" }}>
                             <ATRAssignee
-
                               sp={this.props.sp}
                               context={this.props.context}
                               atrCreatorsList={this.state.atrCreatorsList}
                               commentsData={this.state.commentsData}
                               artCommnetsGridData={this.state.atrGridData}
-                              deletedGridData ={
-                                (data:any)=>{
-                                  this.setState({atrGridData:data})
-                                }
-                              }
+                              deletedGridData={(data: any) => {
+                                this.setState({ atrGridData: data });
+                              }}
                               updategirdData={(data: any): void => {
                                 console.log(data);
 
-                                const currentAtrCreator = this.state.atrCreatorsList.filter((each:any)=>each.atrCreatorEmail === this.props.context.pageContext.user.email)
-                                console.log(currentAtrCreator)
-                                const {assigneeDetails} = data
+                                const currentAtrCreator =
+                                  this.state.atrCreatorsList.filter(
+                                    (each: any) =>
+                                      each.atrCreatorEmail ===
+                                      this.props.context.pageContext.user.email
+                                  );
+                                console.log(currentAtrCreator);
+                                const { assigneeDetails } = data;
                                 this.setState({
-                                  atrGridData:data.comments,
+                                  atrGridData: data.comments,
                                   //  [
                                   //   data.comments,
                                   //   ...this.state.atrGridData,
@@ -3089,35 +3315,50 @@ export default class ViewForm extends React.Component<
                                   noteATRAssigneeDetails: [
                                     ...this.state.noteATRAssigneeDetails,
                                     {
-                                      
-                                      
-                                      "atrAssigneeId":assigneeDetails.id,
-                                      "atrCreatorId": currentAtrCreator[0].atrCreatorId,
-                                      "atrCreatorEmail": currentAtrCreator[0].atrCreatorEmail,
+                                      atrAssigneeId: assigneeDetails.id,
+                                      atrCreatorId:
+                                        currentAtrCreator[0].atrCreatorId,
+                                      atrCreatorEmail:
+                                        currentAtrCreator[0].atrCreatorEmail,
                                       // "atrAssignerEmail": "ib.test4@xencia.com",  from data
-                                      "atrAssignerEmailName": assigneeDetails.text,
-                                      "approverEmailName": this.state.currentApprover[0].text,
-                                      "atrCreatorEmailName": currentAtrCreator[0].atrCreatorEmailName,
-                                      "noteRequesterComments": [
+                                      atrAssignerEmailName:
+                                        assigneeDetails.text,
+                                      approverEmailName:
+                                        this.state.currentApprover[0].text,
+                                      atrCreatorEmailName:
+                                        currentAtrCreator[0]
+                                          .atrCreatorEmailName,
+                                      noteRequesterComments: [
                                         data.comments,
                                         ...this.state.atrGridData,
                                       ],
-                                      "createdDate": new Date(),
-                                      "createdBy": this.props.context.pageContext.user.email,
-                                      "modifiedDate": new Date(),
-                                      "modifiedBy": this.props.context.pageContext.user.email,
-                                      "statusMessage": null,
-                                      "atrId": '',
-                                      "noteApproverId": this.state.currentApprover[0].ApproversId,
-                                      "approverType": this.state.currentApprover[0].approverType,
-                                      "approverOrder": this.state.currentApprover[0].approverOrder,
-                                      "approverStatus":  1,
-                                      "approverEmail":this.state.currentApprover[0].approverEmail,
-                                      "noteApproverComments": "T",
-                                      "strATRStatus": "Pending",
-                                      "atrStatus": 1,
-                                      'noteId':this._itemId,
-
+                                      createdDate: new Date(),
+                                      createdBy:
+                                        this.props.context.pageContext.user
+                                          .email,
+                                      modifiedDate: new Date(),
+                                      modifiedBy:
+                                        this.props.context.pageContext.user
+                                          .email,
+                                      statusMessage: null,
+                                      atrId: "",
+                                      noteApproverId:
+                                        this.state.currentApprover[0]
+                                          .ApproversId,
+                                      approverType:
+                                        this.state.currentApprover[0]
+                                          .approverType,
+                                      approverOrder:
+                                        this.state.currentApprover[0]
+                                          .approverOrder,
+                                      approverStatus: 1,
+                                      approverEmail:
+                                        this.state.currentApprover[0]
+                                          .approverEmail,
+                                      noteApproverComments: "T",
+                                      strATRStatus: "Pending",
+                                      atrStatus: 1,
+                                      noteId: this._itemId,
                                     },
                                   ],
                                 });
@@ -3165,7 +3406,8 @@ export default class ViewForm extends React.Component<
                   </div>
                   {/*Attach Supporting Documents */}
                   {(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                  this._currentUserEmail !== this.state.createdByEmail)||this._checkRefereeAvailable()  ? (
+                    this._currentUserEmail !== this.state.createdByEmail) ||
+                  this._checkRefereeAvailable() ? (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -3278,64 +3520,64 @@ export default class ViewForm extends React.Component<
                                   className={styles.message}
                                   style={{ margin: "0px", textAlign: "right" }}
                                 >
-                                  Allowed Formats (pdf,doc,docx,xlsx only) Upto
+                                  Allowed Formats (pdf,doc,docx,only) Upto
                                   5MB max.
                                 </p>
                               )}
-                             
                             </div>
-                            {this.state.secretaryGistDocs.length > 0 &&
-    this.state.secretaryGistDocs.map((file, index) => {
-      // Check if file exists and has the expected properties
-      if (!file || !file.name) {
-        return null; // Skip this iteration if the file is invalid
-      }
+                            { (this._checkCurrentApproverIsInSecretaryDTO() &&this.state.secretaryGistDocs.length > 0) &&
+                              this.state.secretaryGistDocs.map(
+                                (file, index) => {
+                                  // Check if file exists and has the expected properties
+                                  if (!file || !file.name) {
+                                    return null; // Skip this iteration if the file is invalid
+                                  }
 
-      console.log(file);
-      console.log(file.fileUrl)
-      return (
-        <li
-          key={index} // Use index as the key here, assuming files are unique
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-          className={`${styles.basicLi} ${styles.attachementli}`}
-        >
-          <div
-            style={{
-              padding: "2px",
-              marginBottom: "4px",
-              display: "flex",
-              justifyContent: "flex-start",
-              alignContent: "center",
-              flexGrow: "1",
-            }}
-          >
-            <div>
-              <a
-                href={file.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  paddingBottom: "0px",
-                  marginBottom: "0px",
-                  paddingLeft: "4px",
-                  textDecoration: "none", // Optional: removes underline
-                  color: "#0078d4", // Optional: sets Fluent UI link color
-                }}
-              >
-                {file.name}
-              </a>
-            </div>
-          </div>
-        </li>
-      );
-    })}
+                                  console.log(file);
+                                  console.log(file.fileUrl);
+                                  return (
+                                    <li
+                                      key={index} // Use index as the key here, assuming files are unique
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                      className={`${styles.basicLi} ${styles.attachementli}`}
+                                    >
+                                      <div
+                                        style={{
+                                          padding: "2px",
+                                          marginBottom: "4px",
+                                          display: "flex",
+                                          justifyContent: "flex-start",
+                                          alignContent: "center",
+                                          flexGrow: "1",
+                                        }}
+                                      >
+                                        <div>
+                                          <a
+                                            href={file.fileUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{
+                                              paddingBottom: "0px",
+                                              marginBottom: "0px",
+                                              paddingLeft: "4px",
+                                              textDecoration: "none", // Optional: removes underline
+                                              color: "#0078d4", // Optional: sets Fluent UI link color
+                                            }}
+                                          >
+                                            {file.name}
+                                          </a>
+                                        </div>
+                                      </div>
+                                    </li>
+                                  );
+                                }
+                              )}
                           </div>
-                          {''}
+                          {""}
                           <div />
-
                         </div>
                       )}
                     </div>
@@ -3410,7 +3652,8 @@ export default class ViewForm extends React.Component<
                             Main Note Link:
                             <a
                               href={this.state.noteTofiles[0]?.fileUrl}
-                              target="_blank" rel="noopener noreferrer"
+                              target="_blank"
+                              rel="noopener noreferrer"
                             >
                               {" "}
                               {this.state.noteTofiles[0]?.name}
@@ -3424,7 +3667,8 @@ export default class ViewForm extends React.Component<
                               Word Documents:
                               <a
                                 href={this.state.wordDocumentfiles[0]?.fileUrl}
-                                target="_blank" rel="noopener noreferrer"
+                                target="_blank"
+                                rel="noopener noreferrer"
                               >
                                 {" "}
                                 {this.state.wordDocumentfiles[0]?.name}
@@ -3446,85 +3690,85 @@ export default class ViewForm extends React.Component<
                     )}
                   </div>
 
-                    {/* Mark for Information Section */}
-                    {(this.state.statusNumber ==='9000' && (this.state.createdByEmail === this.props.context.pageContext.user.email))&& (
-                    <div className={styles.sectionContainer}>
-                      <div
-                        className={styles.header}
-                        onClick={() => this._onToggleSection(`markInfo`)}
-                      >
-                        <Text className={styles.sectionText}>
-                        Mark for Information Section
-                        </Text>
-                        <IconButton
-                          iconProps={{
-                            iconName: expandSections.markInfo
-                              ? "ChevronUp"
-                              : "ChevronDown",
-                          }}
-                          title="Expand/Collapse"
-                          ariaLabel="Expand/Collapse"
-                          className={styles.chevronIcon}
-                        />
-                      </div>
-                      {expandSections.markInfo && (
+                  {/* Mark for Information Section */}
+                  {this.state.statusNumber === "9000" &&
+                    this.state.createdByEmail ===
+                      this.props.context.pageContext.user.email && (
+                      <div className={styles.sectionContainer}>
                         <div
-                          className={`${styles.expansionPanelInside}`}
-                          style={{ overflowX: "scroll" }}
+                          className={styles.header}
+                          onClick={() => this._onToggleSection(`markInfo`)}
                         >
-                          <div style={{ padding: "15px" }}>
-                            <MarkInfo
-
-                              sp={this.props.sp}
-                              context={this.props.context}
-                              
-                              submitFunctionForMarkInfo={this._handleMarkInfoSubmit}
-                              artCommnetsGridData={this.state.noteMarkedInfoDTOState}
-                              deletedGridData ={
-                                (data:any)=>{
-                                  this.setState({noteMarkedInfoDTOState:data})
-                                }
-                              }
-                              updategirdData={(data: any): void => {
-                                console.log(data);
-
-                             
-                                const {markInfoassigneeDetails} = data
-                                this.setState({
-                                  
-                                  noteMarkedInfoDTOState:[...this.state.noteMarkedInfoDTOState,markInfoassigneeDetails]
-                                
-                                  
-                                  // noteMarkedInfoDTOState: [
-                                  //   ...this.state.noteMarkedInfoDTOState,
-                                  //   {
-                                      
-                                      
-                                    
-                                  //     "markedEmail": markInfoassigneeDetails.email,  
-                                  //     "markedEmailName": markInfoassigneeDetails.text,
-                                      
-                                     
-                                  //     "createdDate": new Date(),
-                                  //     "createdBy": this.props.context.pageContext.user.email,
-                                  //     "modifiedDate": new Date(),
-                                  //     "modifiedBy": this.props.context.pageContext.user.email,
-                                  //     "statusMessage": null,
-                                  //     "noteMarkedInformationId": '',
-                                  //     'noteId':this._itemId,
-                                     
-
-                                  //   },
-                                  // ],
-                                });
-                              }}
-                              gridData={this.state.atrGridData}
-                            />
-                          </div>
+                          <Text className={styles.sectionText}>
+                            Mark for Information Section
+                          </Text>
+                          <IconButton
+                            iconProps={{
+                              iconName: expandSections.markInfo
+                                ? "ChevronUp"
+                                : "ChevronDown",
+                            }}
+                            title="Expand/Collapse"
+                            ariaLabel="Expand/Collapse"
+                            className={styles.chevronIcon}
+                          />
                         </div>
-                      )}
-                    </div>
-                  )}
+                        {expandSections.markInfo && (
+                          <div
+                            className={`${styles.expansionPanelInside}`}
+                            style={{ overflowX: "scroll" }}
+                          >
+                            <div style={{ padding: "15px" }}>
+                              <MarkInfo
+                                sp={this.props.sp}
+                                context={this.props.context}
+                                submitFunctionForMarkInfo={
+                                  this._handleMarkInfoSubmit
+                                }
+                                artCommnetsGridData={
+                                  this.state.noteMarkedInfoDTOState
+                                }
+                                deletedGridData={(data: any) => {
+                                  this.setState({
+                                    noteMarkedInfoDTOState: data,
+                                  });
+                                }}
+                                updategirdData={(data: any): void => {
+                                  console.log(data);
+
+                                  const { markInfoassigneeDetails } = data;
+                                  this.setState({
+                                    noteMarkedInfoDTOState: [
+                                      ...this.state.noteMarkedInfoDTOState,
+                                      markInfoassigneeDetails,
+                                    ],
+
+                                    // noteMarkedInfoDTOState: [
+                                    //   ...this.state.noteMarkedInfoDTOState,
+                                    //   {
+
+                                    //     "markedEmail": markInfoassigneeDetails.email,
+                                    //     "markedEmailName": markInfoassigneeDetails.text,
+
+                                    //     "createdDate": new Date(),
+                                    //     "createdBy": this.props.context.pageContext.user.email,
+                                    //     "modifiedDate": new Date(),
+                                    //     "modifiedBy": this.props.context.pageContext.user.email,
+                                    //     "statusMessage": null,
+                                    //     "noteMarkedInformationId": '',
+                                    //     'noteId':this._itemId,
+
+                                    //   },
+                                    // ],
+                                  });
+                                }}
+                                gridData={this.state.atrGridData}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
                 {/* {pdf Viewer} */}
                 <div className={styles.pdfContainer}>
@@ -3541,14 +3785,15 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Edit" }}
                         onClick={(e) => {
                           console.log("Change Approver btn Triggered");
-                          this.setState({successStatus:'Approver Changed'})
+                          this.setState({ successStatus: "Approver Changed" });
                           this._hanldeFluentDialog(
                             "Change Approver",
                             "changeApprover",
                             "7500",
                             "Change Approver*",
-                            this.handleChangeApprover,
-                            this._closeDialog
+                            "",
+                            this._closeDialog,
+                            this.changeApproverPassCodeTrigger
                           );
                           //  this.handleChangeApprover( "ChangedApprover", "7500");
                           // this.setState({
@@ -3565,8 +3810,15 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Refresh" }}
                         onClick={(e) => {
                           console.log("Call Back btn Triggered");
-                          this.setState({successStatus:'Call Backed'})
-                          this.handleCallBack( "Call Back", "200");
+                          this.setState({ successStatus: "Call Backed" });
+
+                          if (!this.state.isPasscodeValidated) {
+                            this.setState({
+                              isPasscodeModalOpen: true,
+                              passCodeValidationFrom: "200",
+                            }); // Open the modal
+                            return; // Prevent the method from proceeding until passcode is validated
+                          }
                           // this.setState({
                           //   status: "Call Back",
                           //   statusNumber: "200",
@@ -3599,22 +3851,18 @@ export default class ViewForm extends React.Component<
                       }}
                       onClick={(e) => {
                         // console.log(this._checkNoteReferIdHavingComments())
-                        if (this._checkLastCommentByCurrentUser()){
-                          this.setState({isReferBackAlterDialog:true})
-
-                        }else{
-
-                          this._hanldeFluentDialog(
-                            "Refer Back",
-                            "Refered Back",
-                            "4900",
-                            "Please check the details filled along with attachment and click on Confirm button to approve request.",
-                            this.handleReferBack,
-                            this._closeDialog
-                          );
-
+                        if (this._checkLastCommentByCurrentUser()) {
+                          this.setState({ isReferBackAlterDialog: true });
+                        } else {
+                          if (!this.state.isPasscodeValidated) {
+                            this.setState({
+                              isPasscodeModalOpen: true,
+                              passCodeValidationFrom: "4900",
+                            }); // Open the modal
+                            return; // Prevent the method from proceeding until passcode is validated
+                          }
                         }
-                        
+
                         // this.setState({
                         //   status: "Refered Back",
                         //   statusNumber: "6000",
@@ -3631,23 +3879,23 @@ export default class ViewForm extends React.Component<
                 {/* {this._getApproverAndReviewerStageButton()} */}
 
                 {this._checkingCurrentUserIsSecretaryDTO() && (
-                                <PrimaryButton
-                                  style={{ alignSelf: "flex-end" }}
-                                  onClick={async() => {
-                                    this.setState({isGistDocCnrf:true})
+                  <PrimaryButton
+                    style={{ alignSelf: "flex-end" ,marginRight:'8px',marginLeft:'8px'}}
+                    onClick={async () => {
 
-                                    this.updateSupportingDocumentFolderItems(
-                                      this.state.secretaryGistDocs,
-                                      `${this._folderName}/GistDocuments`,
-                                      "gistDocument"
-                                    )
+                      // if (this.state.isGistDocEmpty){
 
-                                   
-                                  }}
-                                >
-                                  Submit
-                                </PrimaryButton>
-                              )}
+                      //   this.setState({ isGistVisibleAlter: true });
+                      // }else{
+                      //   this.setState({isGistDocEmpty:true})
+
+                      // }
+                      this.state.secretaryGistDocs.length===0 ? this.setState({isGistDocEmpty:true}):this.setState({ isGistDocCnrf: true });
+                    }}
+                  >
+                    Submit
+                  </PrimaryButton>
+                )}
 
                 <DefaultButton
                   type="button"
@@ -3655,7 +3903,6 @@ export default class ViewForm extends React.Component<
                   className={`${styles.responsiveButton} `}
                   style={{ marginLeft: "10px" }}
                   iconProps={{ iconName: "Cancel" }}
-
                   onClick={() => {
                     const pageURL: string = this.props.homePageUrl;
                     window.location.href = `${pageURL}`;
@@ -3673,33 +3920,33 @@ export default class ViewForm extends React.Component<
             dialogDetails={this.state.dialogDetails}
             sp={this.props.sp}
             context={this.props.context}
-            fetchReferData={
-              (data:any)=>{
-                console.log(data)
-                this.setState({commentsData:[...this.state.commentsData,data]})
-              }
-            }
+            fetchReferData={(data: any) => {
+              console.log(data);
+              this.setState({
+                commentsData: [...this.state.commentsData, data],
+              });
+            }}
             fetchAnydata={(data: any, typeOfBtnTriggered: any, status: any) => {
               console.log(data);
-              console.log(this.state.currentApprover)
-            //   const currentRefferedDetails =  {
-            //     "noteReferrerId": 0,
-            //     "noteApproverId": 4740,
-            //     "noteId": 0,
-            //     "approverType": 0,
-            //     "referrerEmail": data[0].email || data[0].secondaryText,
-            //     "approverEmail": this.state.currentApprover[0].approverEmail || this.state.currentApprover[0].email || this.state.currentApprover[0].secondaryText,
-            //     "approverEmailName": this.state.currentApprover[0].approverEmailName || this.state.currentApprover[0].text,
-            //     "referrerEmailName": data[0].text,
-            //     "referrerStatus": 2,
-            //     "createdDate": new Date(),
-            //     "createdBy":  this.state.currentApprover[0].approverEmail || this.state.currentApprover[0].email || this.state.currentApprover[0].secondaryText,
-            //     "modifiedDate": "2024-10-11T10:31:00",
-            //     "modifiedBy": new Date(),
-            //     "noteReferrerCommentDTO": null,
-            //     // "noteSupportingDocumentsDTO": null,
-            //     // "statusMessage": null
-            // }
+              console.log(this.state.currentApprover);
+              //   const currentRefferedDetails =  {
+              //     "noteReferrerId": 0,
+              //     "noteApproverId": 4740,
+              //     "noteId": 0,
+              //     "approverType": 0,
+              //     "referrerEmail": data[0].email || data[0].secondaryText,
+              //     "approverEmail": this.state.currentApprover[0].approverEmail || this.state.currentApprover[0].email || this.state.currentApprover[0].secondaryText,
+              //     "approverEmailName": this.state.currentApprover[0].approverEmailName || this.state.currentApprover[0].text,
+              //     "referrerEmailName": data[0].text,
+              //     "referrerStatus": 2,
+              //     "createdDate": new Date(),
+              //     "createdBy":  this.state.currentApprover[0].approverEmail || this.state.currentApprover[0].email || this.state.currentApprover[0].secondaryText,
+              //     "modifiedDate": "2024-10-11T10:31:00",
+              //     "modifiedBy": new Date(),
+              //     "noteReferrerCommentDTO": null,
+              //     // "noteSupportingDocumentsDTO": null,
+              //     // "statusMessage": null
+              // }
               console.log(typeOfBtnTriggered);
               if (typeOfBtnTriggered === "Refer") {
                 this.setState({
@@ -3716,7 +3963,7 @@ export default class ViewForm extends React.Component<
 
         {/* <PDFViewerComponent path={this.state.pdfLink} sp={this.props.sp}/> */}
 
-{/* <PDFViewer pdfPath={this.state.pdfLink}/> */}
+        {/* <PDFViewer pdfPath={this.state.pdfLink}/> */}
         {/* <PSPDFKitViewer documentURL={this.state.pdfLink} sp={this.props.sp}/> */}
         {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
         {/* <PDFViews pdfLink={this.state.pdfLink}/> */}

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
-const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
+const GistDocEmptyModal: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
   const styles = mergeStyleSets({
     modal: {
       padding: '10px',
@@ -60,7 +60,7 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        <p>Gist Document Submitted Successfully</p>
+        <p>Please Upload Gist Document and Click Submit</p>
       </div>
       <div className={styles.footer}>
         <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
@@ -69,4 +69,4 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
   );
 };
 
-export default GistDocSubmitted;
+export default GistDocEmptyModal;

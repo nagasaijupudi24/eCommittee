@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Modal } from "@fluentui/react/lib/Modal";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
-import { Icon, IIconProps, Stack, TextField } from "@fluentui/react";
+import { Icon, IIconProps, mergeStyleSets, Stack, TextField } from "@fluentui/react";
 import PnPPeoplePicker from "../peoplePicker/peoplePicker";
 import { IconButton, Text, TooltipHost } from "@fluentui/react";
 import { v4 } from "uuid";
@@ -31,12 +31,15 @@ const Header = (props: any) => (
         <IconButton iconProps={{ iconName: "Info" }} />
       </TooltipHost>
       <Text variant="large" styles={{ root: { marginLeft: "10px" } }}>
-        Add Referee
+        {props.heading}
       </Text>
     </Stack>
     <IconButton iconProps={{ iconName: "Cancel" }} onClick={props.onClose} />
   </Stack>
 );
+
+
+
 
 export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (props,) => {
   const {
@@ -120,20 +123,51 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   };
 
   const handleChangeApporver = () => {
-    console.log("change approver btn triggered");
-    dialogDetails.functionType(
-      dialogDetails.status,
-      dialogDetails.statusNumber
-    );
+
+    if (dialogDetails.referPassFuntion !==''){
+      dialogDetails.referPassFuntion()
+
+    }
+
+    
+
+
+    if (dialogDetails.functionType !==''){
+      console.log("change approver btn triggered");
+      dialogDetails.functionType(
+        dialogDetails.status,
+        dialogDetails.statusNumber
+      );
+    }
+    // console.log("change approver btn triggered");
+    // dialogDetails.functionType(
+    //   dialogDetails.status,
+    //   dialogDetails.statusNumber
+    // );
   };
 
   const handleReferData = () => {
     console.log("Refer btn triggered");
-    dialogDetails.functionType(
-      dialogDetails.status,
-      dialogDetails.statusNumber,
-      referredCommentTextBoxValue
-    );
+
+    if (dialogDetails.referPassFuntion !==''){
+      dialogDetails.referPassFuntion()
+
+    }
+
+    
+
+
+    if (dialogDetails.functionType !==''){
+      dialogDetails.functionType(
+        dialogDetails.status,
+        dialogDetails.statusNumber,
+        referredCommentTextBoxValue
+      );
+
+    }
+
+
+   
 
     props.fetchReferData(referredCommentTextBoxValue)
    
@@ -141,17 +175,57 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
 
   const getChangeApproverJsx = (): any => {
     console.log("Change Approver is triggered");
+  
+    const styles = mergeStyleSets({
+      modal: {
+        padding: "10px",
+        minWidth: "300px",
+        maxWidth: "80vw",
+        width: "100%",
+        "@media (min-width: 768px)": {
+          maxWidth: "580px",
+        },
+        "@media (max-width: 767px)": {
+          maxWidth: "290px",
+        },
+        margin: "auto",
+        backgroundColor: "white",
+        borderRadius: "4px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.26)",
+      },
+      header: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottom: "1px solid #ddd",
+      },
+      body: {
+        display: "flex",
+        flexDirection: "column",
+        padding: "20px 0",
+      },
+      footer: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginTop: "20px",
+        borderTop: "1px solid #ddd",
+        paddingTop: "10px",
+      },
+      button: {
+        flex: "1 1 50%",
+        margin: "0 5px",
+      },
+    });
+  
     return (
-     
       <Modal
         isOpen={!hiddenProp}
         onDismiss={dialogDetails.closeFunction}
         isBlocking={true}
-        styles={modalPropsStyles}
+        containerClassName={styles.modal}
       >
-       
-        <div>
-          <h2>Change Approver</h2>
+        <Header heading={'Change Approver'} onClose={dialogDetails.closeFunction} />
+        <div className={styles.body}>
           <p>{dialogDetails.message}</p>
           <PnPPeoplePicker
             context={context}
@@ -159,22 +233,14 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             getDetails={_getDetails}
             typeOFButton="Change Approver"
           />
-          <Stack
-            horizontal
-            style={{ marginTop: "10px" }}
-            tokens={{ childrenGap: 10 }}
-          >
-            <PrimaryButton onClick={handleChangeApporver} text="Submit" />
-            <DefaultButton
-              onClick={dialogDetails.closeFunction}
-              text="Cancel"
-            />
-          </Stack>
+          <div className={styles.footer}>
+          <PrimaryButton className={styles.button} onClick={handleChangeApporver} text="Submit" />
+          <DefaultButton className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
+          </div>
         </div>
       </Modal>
     );
   };
-
   const getReferJSX = (): any => {
     console.log("Refered is triggered");
     return (
@@ -186,7 +252,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       >
           <ReferCommentsMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/>
         <div>
-          <Header onClose={dialogDetails.closeFunction} />
+          <Header heading={'Add Refree'} onClose={dialogDetails.closeFunction} />
           <div
             style={{
               // border: '1px solid red',
@@ -258,6 +324,9 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                   setIsVisableAlter(true)
                   
                 }else{
+
+
+                  
                   handleReferData()
                 }
 
