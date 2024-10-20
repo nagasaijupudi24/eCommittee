@@ -751,6 +751,12 @@
   text-align: left;
 }
 
+
+.toolbar{
+  display: 'flex';
+  border: '1px solid red';
+}
+
 .pdfViewer {
   width: 100%;
   max-width: 100%; // Ensure iframe doesn't exceed container width

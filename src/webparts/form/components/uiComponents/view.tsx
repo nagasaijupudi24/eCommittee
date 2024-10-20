@@ -1579,7 +1579,7 @@ export default class ViewForm extends React.Component<
 
     //  }
 
-    const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
+    const updateAuditTrial = await this._getAuditTrail(this._checkCurrentApproverIsInSecretaryDTO()?'Noted':'Approved');
     // console.log(updateAuditTrial);
     const updateItems = {
       NoteApproversDTO: JSON.stringify(modifyApproveDetails),
@@ -2382,7 +2382,7 @@ export default class ViewForm extends React.Component<
       <div style={{ display: "flex", gap: "10px" }}>
         <PrimaryButton
           className={`${styles.responsiveButton}`}
-          iconProps={{ iconName: "CheckMark" }} // Icon for Approve
+          iconProps={{ iconName: "EditNote" }} // Icon for Approve
           styles={{
             root: {
               // backgroundColor: "#37b400",
@@ -2412,7 +2412,7 @@ export default class ViewForm extends React.Component<
             // this.setState({ status: "Approved", statusNumber: "9000" });
           }}
         >
-          Approve
+          {this._checkCurrentApproverIsInSecretaryDTO()?'Noted':'Approve'}
         </PrimaryButton>
 
         <PrimaryButton
@@ -3970,6 +3970,7 @@ export default class ViewForm extends React.Component<
         {/* <PdfViewer pdfUrl={this.state.pdfLink} /> */}
         {/* //working code throught canvas  */}
         {/* <AdobePdfWebPart/> */}
+        
         {/* <AdobePdfViewer clientId={"825473e9e1184eL459736428fd30f8b99"} fileUrl={this.state.pdfLink} height={800} defaultViewMode={"FIT_WIDTH"}/> */}
       </Stack>
     );

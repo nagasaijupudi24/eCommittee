@@ -20,7 +20,7 @@ import {
 
 
 // import { getTheme, mergeStyles } from '@fluentui/react/lib/Styling';
-import { getTheme, Icon, IconButton, mergeStyles } from '@fluentui/react';
+import { getTheme, IconButton, mergeStyles } from '@fluentui/react';
 
 const theme = getTheme();
 
@@ -117,15 +117,20 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       maxWidth: 50,
       isResizable: false,
       onRender: (item: any) => (
-        <Icon iconName="GlobalNavButton" aria-label="Drag" style={{ cursor: 'grab' }} />
+        <IconButton
+                iconProps={{ iconName: 'GlobalNavButton' }} // Hamburger icon
+                title="Menu"
+                ariaLabel="Menu"
+                styles={{ root: { marginTop: '-5px' } }} // Adjust the margin to move the icon up
+            />
       ),
     },
     {
       key: 'serialNo',
       name: 'S.No',
       
-      minWidth: 50,
-      maxWidth: 50,
+      minWidth: 100,
+      maxWidth: 150,
       isResizable: false,
       onRender: (_item: any, _index?: number) => (
         <span>{(_index !== undefined ? _index : 0) + 1}</span>
@@ -135,7 +140,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       key: 'text',
       name:this.props.type, // replace 'type' with your actual title
       fieldName: 'text',
-      minWidth: 200,
+      minWidth: 180,
       maxWidth: 200,
       isResizable: true,
     },
@@ -143,7 +148,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       key: 'srNo',
       name: 'SR No',
       fieldName: 'srNo',
-      minWidth: 200,
+      minWidth: 100,
       maxWidth: 200,
       isResizable: true,
     },
@@ -159,7 +164,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       key: 'actions',
       name: 'Actions',
       fieldName: 'actions',
-      minWidth: 200,
+      minWidth: 100,
       maxWidth: 200,
       isResizable: false,
       onRender: (_item: any) => (

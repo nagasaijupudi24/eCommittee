@@ -446,7 +446,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   public componentDidMount(): void {
     const converter = new TimeConverter();
-    const milliseconds = 18000000;
+    const milliseconds = 180000;
     const { seconds, minutes, hours } = converter.convertMilliseconds(milliseconds);
     console.log(`${milliseconds} milliseconds is equal to ${seconds} seconds, ${minutes} minutes or ${hours} hours`);
     this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
@@ -782,6 +782,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(this._getJsonifyApprover(item.NoteApproversDTO, "Approver"));
     console.log(item.Purpose);
     this.title = item.Title
+    console.log(item.Title)
 
     this.setState({
       // itemId:this._itemId,
@@ -845,9 +846,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this._role = profile.Title;
 
       profile.UserProfileProperties.filter((element: any) => {
-        console.log(element)
-        console.log(element.Key)
-        console.log(element.Value)
+        // console.log(element)
+        // console.log(element.Key)
+        // console.log(element.Value)
         if (element.Key === "Department") {
           // console.log(element)
           //
@@ -2157,14 +2158,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ) {
             // this.setState({ status: "Submitted", statusNumber: "1000" });
   
-            let id;
-            let status;
-            if (this.state.status === "Call Back") {
-              status = "Re-Submitted";
-              console.log('eneter re submitted')
-              id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(status, "2500"));
+            // let id;
+            // let status;
+            if (this.state.statusNumber === "200") {
+              await this.handleUpdate()
             }
 
             else if(statusOfForm === 'update') {
@@ -2177,7 +2174,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             
             
             else {
-              id = await this.props.sp.web.lists
+              const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
@@ -2301,14 +2298,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData.length > 0
           ) {
             this.setState({ status: "Submitted", statusNumber: "1000" });
-            let id;
-            let status;
-            if (this.state.status === "Call Back") {
-              status = "Re-Submitted";
-              id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(status, "2500"));
-            }      else if(statusOfForm === 'update') {
+          
+            if (this.state.statusNumber === "200") {
+              await this.handleUpdate()
+            }     else if(statusOfForm === 'update') {
               console.log('entered into updatee else if block')
               await this.handleUpdate()
         
@@ -2318,7 +2311,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             
             
             else {
-              id = await this.props.sp.web.lists
+              const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
@@ -2437,14 +2430,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData.length > 0
           ) {
             this.setState({ status: "Submitted", statusNumber: "1000" });
-            let id;
-            let status;
-            if (this.state.status === "Call Back") {
-              status = "Re-Submitted";
-              id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(status, "2500"));
-            }     else if(statusOfForm === 'update') {
+            
+            if (this.state.statusNumber === "200") {
+              await this.handleUpdate()
+            }    else if(statusOfForm === 'update') {
               console.log('entered into updatee else if block')
               await this.handleUpdate()
         
@@ -2454,7 +2443,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             
             
             else {
-              id = await this.props.sp.web.lists
+              const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
@@ -2587,14 +2576,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData.length > 0
           ) {
             console.log("else entered");
-            let id;
-            let status;
-            if (this.state.status === "Call Back") {
-              status = "Re-Submitted";
-              id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(status, "2500"));
-            }      else if(statusOfForm === 'update') {
+           
+            if (this.state.statusNumber === "200") {
+              await this.handleUpdate()
+            }     else if(statusOfForm === 'update') {
               console.log('entered into updatee else if block')
               await this.handleUpdate()
         
@@ -2604,7 +2589,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             
             
             else {
-              id = await this.props.sp.web.lists
+              const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
                 .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
