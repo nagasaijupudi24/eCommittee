@@ -26,6 +26,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
   data,
   handleDialogBox,
 }) => {
+  console.log(data)
   const stackStyles: IStackStyles = {
     root: {
       display: 'flex',
@@ -56,7 +57,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
 
   const undefinedData = Object.keys(data).map((each: string) => {
     // console.log(data)/
-    if ((data[each][0] === ""||data[each][0] === null )|| data[each][0].length === 0) {
+    if ((data[each][0] === ""||data[each][0] === null )|| data[each][0].length === 0||data[each][0]===true) {
       return data[each][1];
     }
   }).filter((each: any) => each);

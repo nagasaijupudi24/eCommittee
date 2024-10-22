@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 import * as React from "react";
+import { useState, useEffect } from "react";
 import styles from "../../Form.module.scss";
 
 interface TitleProps {
@@ -9,15 +10,17 @@ interface TitleProps {
   formType: string;
   statusOfRequest: string;
   propPaneformType: any;
-  title:any;
+  title: any;
 }
 
-const Title: React.FC<TitleProps> = (
-  props,
-  { formType = "", statusOfRequest = "" }
-) => {
-  console.log(props);
-  const currentDate: Date = new Date();
+const Title: React.FC<TitleProps> = (props) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  useEffect(() => {
+    const timerID = setInterval(() => setCurrentDate(new Date()), 1000);
+    return () => clearInterval(timerID);
+  }, []);
+
   const formattedDate: string = `${currentDate.getDate()}-${
     currentDate.getMonth() + 1
   }-${currentDate.getFullYear()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
@@ -34,24 +37,23 @@ const Title: React.FC<TitleProps> = (
         }}
       >
         <div>
-          {props.itemId ?
-          <p
-          className={`${styles.status}`}
-          // style={{ flex: 1, textAlign: "left" }}
-        >
-          Status: {props.statusOfRequest}
-        </p>:''}
-        
-          
-          </div> {/* Empty div to take up space on the left */}
+          {props.itemId ? (
+            <p className={`${styles.status}`}>
+              Status: {props.statusOfRequest}
+            </p>
+          ) : (
+            ""
+          )}
+        </div> {/* Empty div to take up space on the left */}
         <h1 className={`${styles.title}`} style={{ textAlign: "center" }}>
           {props.propPaneformType === "BoardNoteNew"
-            ? `Board Note - ${props.itemId ? props.title: "New"}`
-            : `eCommittee Note - ${props.itemId ?  props.title : "New"}`}
+            ? `Board Note - ${props.itemId ? props.title : "New"}`
+            : `eCommittee Note - ${props.itemId ? props.title : "New"}`}
         </h1>
-        <p 
-        className={`${styles.titleDate}`} 
-        style={{ textAlign: "right" }}>
+        <p
+          className={`${styles.titleDate}`}
+          style={{ textAlign: "right" }}
+        >
           Date: {formattedDate}
         </p>
       </div>

@@ -73,6 +73,7 @@ import SuccessDialog from "./dialogFluentUi/endDialog";
 import { DetailsListDragDropExample } from "./draggableGridKendo/dragAndDropFluent";
 import ConfirmationDialog from "./dialogFluentUi/submitConfirmation";
 
+
 // const customTheme = createTheme({
 //   palette: {
 //     themePrimary: '#d29200',
@@ -196,6 +197,8 @@ interface IMainFormState {
   supportingDocumentfiles: any[];
   isWarningSupportingDocumentFiles: boolean;
 
+  errorOfDocuments:any;
+
   isWarningPeoplePicker: boolean;
   isDialogHidden: boolean;
   isApproverOrReviewerDialogHandel: boolean;
@@ -224,6 +227,7 @@ interface IMainFormState {
   isConfirmationDialogVisible: boolean;
   isSuccessDialogVisible: boolean;
 
+
   // State for cancel confirmation dialog
   showCancelDialog: boolean;
 
@@ -237,6 +241,8 @@ interface IMainFormState {
 
   itemId: any;
   autoSaveStatus: string;
+
+  successStatus:any;
 }
 
 // let fetchedData:any[];
@@ -257,7 +263,7 @@ export const FormContext = React.createContext<any>(null);
 
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
-  const Id = params.get("ItemId");
+  const Id = params.get("itemId");
   // const Id = params.get("itemId");
   console.log(Id);
   return Id;
@@ -305,6 +311,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: any = '';
+  
   // private _folderName:string;
 
   private title:any;
@@ -368,6 +375,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       supportingDocumentfiles: [],
       isWarningSupportingDocumentFiles: false,
+
+
+      errorOfDocuments:false,
       isDialogHidden: true,
       isApproverOrReviewerDialogHandel: true,
       peoplePickerData: [],
@@ -400,6 +410,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       isVisibleAlter: false,
 
       draftResolutionFieldValue: "",
+      successStatus:''
     };
     console.log(this._itemId);
     console.log(this._formType);
@@ -449,6 +460,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const milliseconds = 180000;
     const { seconds, minutes, hours } = converter.convertMilliseconds(milliseconds);
     console.log(`${milliseconds} milliseconds is equal to ${seconds} seconds, ${minutes} minutes or ${hours} hours`);
+   
     this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
 
     console.log(this._itemId > 0);
@@ -778,8 +790,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
     // console.log(folderItem)
-    console.log(this._getJsonifyReviewer(item.NoteApproversDTO, "Reviewer"));
-    console.log(this._getJsonifyApprover(item.NoteApproversDTO, "Approver"));
+    // console.log(this._getJsonifyReviewer(item.NoteApproversDTO, "Reviewer"));
+    // console.log(this._getJsonifyApprover(item.NoteApproversDTO, "Approver"));
     console.log(item.Purpose);
     this.title = item.Title
     console.log(item.Title)
@@ -832,6 +844,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     });
     return item;
   };
+
 
   private getfield = async () => {
     try {
@@ -1259,7 +1272,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public reOrderData = (reOrderData: any[], type: string): void => {
-    console.log(reOrderData);
+    console.log(reOrderData,"Re order Data");
     if (type === "Reviewer") {
       this.setState({ peoplePickerData: reOrderData });
     } else {
@@ -1811,14 +1824,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverOrder: index + 1,
             approverStatus: 1,
             id: each.id,
-            status: index === 0 ? "pending" : "waiting",
+            status: index === 0 ? "pending" : "Waiting",
             statusNumber: index === 0 ? "2000" : "",
-            mainStatus: index === 0 ? "Pending With Reviewer" : "waiting",
+            mainStatus: index === 0 ? "Pending with reviewer" : "Waiting",
             email: each.secondaryText,
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
-            secretary: "IB Test 1",
+           
             ...each,
           };
         } else {
@@ -1829,13 +1842,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverStatus: 1,
             id: each.id,
             statusNumber: index === 0 ? "3000" : "",
-            status: index === 0 ? "pending" : "waiting",
-            mainStatus: index === 0 ? "Pending With Approver" : "waiting",
+            status: index === 0 ? "Pending" : "Waiting",
+            mainStatus: index === 0 ? "Pending with approver" : "Waiting",
             email: each.secondaryText,
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
-            secretary: "IB Test 1",
+            
             ...each,
           };
         }
@@ -1861,8 +1874,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         ActionTaken:
           this.props.formType === "New"
-            ? `ECommittee note is ${status}`
-            : `Board Note is ${status}`,
+            ? `ECommittee Note ${status}`
+            : `Board Note ${status}`,
         Role: this._role,
         ActionTakenOn:
           new Date().toDateString() + " " + new Date().toLocaleTimeString(),
@@ -1962,10 +1975,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // return dto
   // }
 
-  private createEcommitteeObject = (
+  private createEcommitteeObject = async (
     status: string,
     statusNumber: any
-  ): INoteObject => {
+  ): Promise<INoteObject> => {
     console.log(status)
     const ecommitteObject: any = {
       Department: this.state.department,
@@ -1988,7 +2001,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "allDetails"
       ),
       Status: status,
-      StatusNumber: status === "Submitted" ? statusNumber : "300",
+      StatusNumber: status === "Submitted" ? statusNumber : "100",
       AuditTrail:
         this.state.status === "Call Back"
           ? this._getAuditTrail("Re-submitted")
@@ -2014,7 +2027,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "FinalOrderApproverDetails"
       ),
       startProcessing:true,
-      CommitteeType:this.props.formType==='BoardNoteNew'?"Board":"Committee"
+      PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
+      CommitteeType:this.props.formType==='BoardNoteNew'?"Board":"Committee",
+      // PreviousActionerId:[await this.props.sp.web.currentUser().then((res)=>res.Id)]
+      // PreviousActionerId: (await this.props.sp?.web.currentUser())?.Id,
 
     };
     console.log(ecommitteObject);
@@ -2109,7 +2125,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // Create new item
         const response = await this.props.sp.web.lists
           .getByTitle(this.props.listId)
-          .items.add(this.createEcommitteeObject(statusOfForm, "100"));
+          .items.add(await this.createEcommitteeObject(statusOfForm, "100"));
         id = response.Id;
         this.setState({ itemId: id });
         console.log(id, "id created");
@@ -2152,7 +2168,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               : true) &&
             // this.state.wordDocumentfiles.length>0 &&
             // this.state.peoplePickerData.length > 0&&
-            this.state.peoplePickerApproverData.length > 0
+            this.state.peoplePickerApproverData.length > 0&&
+            this.state.errorOfDocuments
   
             // this.isNatureOfApprovalOrSanction()
           ) {
@@ -2176,7 +2193,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             else {
               const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
               console.log(id.Id, "id -----", status, "Status");
   
@@ -2222,6 +2239,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               isWarningWordDocumentFiles: false,
               // isWarningPeoplePicker: false,
             });
+
+
             
             this.setState({ isVisibleAlter: true });
           } else {
@@ -2238,7 +2257,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   
               // isWarningPeoplePicker: true,
               isDialogHidden: false,
+
             });
+
+
   
             this.setState({
               eCommitteData: {
@@ -2271,6 +2293,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   "Please select Valid Word Doc File",
                 ],
                 supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+                errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
                 AppoverData: [
                   this.state.peoplePickerApproverData,
                   "Please select atleast one Approver to submit request",
@@ -2295,7 +2318,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             (this.state.noteSecretaryDetails.length > 0
               ? this.state.wordDocumentfiles.length > 0
               : true) &&
-            this.state.peoplePickerApproverData.length > 0
+            this.state.peoplePickerApproverData.length > 0&&
+            this.state.errorOfDocuments
           ) {
             this.setState({ status: "Submitted", statusNumber: "1000" });
           
@@ -2313,7 +2337,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             else {
               const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
               console.log(id.Id, "id -----", status, "Status");
   
@@ -2400,6 +2424,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   "Please select Valid Word Doc File",
                 ],
                 supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+                errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
                 AppoverData: [
                   this.state.peoplePickerApproverData,
                   "Please select atleast one Approver to submit request",
@@ -2428,6 +2453,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               ? this.state.wordDocumentfiles.length > 0
               : true) &&
             this.state.peoplePickerApproverData.length > 0
+            &&
+            this.state.errorOfDocuments
           ) {
             this.setState({ status: "Submitted", statusNumber: "1000" });
             
@@ -2445,7 +2472,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             else {
               const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
               console.log(id.Id, "id -----", status, "Status");
   
@@ -2540,6 +2567,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   "Please select Valid Word Doc File",
                 ],
                 supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+                errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
                 AppoverData: [
                   this.state.peoplePickerApproverData,
                   "Please select atleast one Approver to submit request",
@@ -2574,6 +2602,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               ? this.state.wordDocumentfiles.length > 0
               : true) &&
             this.state.peoplePickerApproverData.length > 0
+            &&
+            this.state.errorOfDocuments
           ) {
             console.log("else entered");
            
@@ -2591,7 +2621,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             else {
               const id = await this.props.sp.web.lists
                 .getByTitle(this.props.listId)
-                .items.add(this.createEcommitteeObject(statusOfForm, "1000"));
+                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
               console.log(id.Id, "id");
               console.log(id.Id, "id -----", status, "Status");
   
@@ -2681,6 +2711,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   "Please select Valid Word Doc File",
                 ],
                 supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+                errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
                 AppoverData: [
                   this.state.peoplePickerApproverData,
                   "Please select atleast one Approver to submit request",
@@ -2699,7 +2730,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
    
   };
 
-  private getObject = (status:any,statusNumber:any): any => ({
+  private getObject = async (status:any,statusNumber:any): Promise<any> => ({
     Department: this.state.department,
     CommitteeName: this.state.committeeNameFeildValue,
     Subject: this.state.subjectFeildValue,
@@ -2731,7 +2762,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       [...this.state.peoplePickerData, ...this.state.peoplePickerApproverData],
       "FinalOrderApproverDetails"
     ),
-    CommitteeType:this.props.formType==='BoardNoteNew'?"Board":"Committee"
+    CommitteeType:this.props.formType==='BoardNoteNew'?"Board":"Committee",
+    PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
   });
 
   public async clearFolder(
@@ -2973,12 +3005,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         ?  await this.props.sp.web.lists
         .getByTitle(this.props.listId)
         .items.getById(this._itemId)
-        .update(this.getObject("Submitted",'1000')):
+        .update(await this.getObject("Submitted",'1000')):
         
         await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.getById(this.state.itemId)
-            .update(this.getObject('Drafted','100'))
+            .update(await this.getObject('Drafted','100'))
         
 
       // Usage example
@@ -3139,6 +3171,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
+
+  private _getFileWithError = (data:any):any=>{
+    console.log(data)
+    const updateErrorInObj = data[0].map(
+      (each:any)=>{
+        return {...each,typeOfDoc:data[1]}
+      }
+    ) 
+
+    const checkError = updateErrorInObj.map(
+      (each:any)=>{
+        if (each.error !== null){
+          return {fileType:each.typeOfDoc,error:each.error}
+        }
+      }
+    )
+
+    this.setState({errorOfDocuments:checkError.length>0?true:false})
+
+  }
+
   private handleWordDocumentFileChange = (files: File[], typeOfDoc: string) => {
     console.log(typeOfDoc, files);
 
@@ -3163,7 +3216,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   public handleDialogBox = (): void => {
     console.log("Dialog handling");
-    this.setState({ isDialogHidden: true });
+    this.setState({ isDialogHidden: true ,errorOfDocuments:false});
   };
 
   public handleApproverOrReviewerDialogBox = (): void => {
@@ -3195,6 +3248,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   // Method to show the cancel confirmation dialog
   private handleShowCancelDialog = () => {
+    this.setState({successStatus:'cancelled'})
     this.setState({ showCancelDialog: true });
   };
 
@@ -3350,6 +3404,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     console.log(this.state);
     console.log(this.props.formType, "Type of Form");
     console.log(this._formType === "view");
+    console.log( ( this.state.statusNumber !=='100' ))
+
+    console.log( ( this.state.statusNumber !=='5000'))
+
+    console.log( ( this.state.statusNumber !=='200'))
+
+    console.log( ( this.state.statusNumber ==='100' ||this.state.statusNumber ==='5000' ||this.state.statusNumber==='200'))
     // console.log(this.state.peoplePickerData, "Data..........PeoplePicker");
     // console.log(this.checkUserIsIBTes2(this.state.peoplePickerData))
 
@@ -3404,7 +3465,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             {/* success  dialog */}
             <SuccessDialog
            
-              statusOfReq={this.state.status}
+              statusOfReq={this.state.successStatus}
               isVisibleAlter={this.state.isVisibleAlter}
               onCloseAlter={this._closeDialogAlter}
             />
@@ -3971,6 +4032,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       type="Reviewer"
                     />
 
+{/* 
+                    <DetailsListDrag
+
+                      data={this.state.peoplePickerData}
+                      reOrderData={this.reOrderData}
+                      removeDataFromGrid={this.removeDataFromGrid}
+                    
+                    /> */}
+
+
+                    
+
                 {/* <MultiComboBoxTable/>/ */}
               </div>
               <div>
@@ -4076,6 +4149,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   this.state.noteTofiles.length > 0 ? (
                     <div style={{ width: "100%", margin: "0px" }}>
                       <UploadFileComponent
+                       errorData={this._getFileWithError}
                         typeOfDoc="notePdF"
                         onChange={this.handleNoteToFileChange}
                         accept=".pdf"
@@ -4095,6 +4169,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       }}
                     >
                       <UploadFileComponent
+                      errorData={this._getFileWithError}
                         typeOfDoc="notePdF"
                         onChange={this.handleNoteToFileChange}
                         accept=".pdf"
@@ -4109,6 +4184,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 ) : (
                   <div style={{ width: "100%", margin: "0px" }}>
                     <UploadFileComponent
+                    errorData={this._getFileWithError}
                       typeOfDoc="notePdF"
                       onChange={this.handleNoteToFileChange}
                       accept=".pdf"
@@ -4138,6 +4214,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     this.state.wordDocumentfiles.length > 0 ? (
                       <div style={{ width: "100%", margin: "0px" }}>
                         <UploadFileComponent
+                          errorData={this._getFileWithError}
                           typeOfDoc="Word Document"
                           onChange={this.handleWordDocumentFileChange}
                           accept=".doc,.docx"
@@ -4157,6 +4234,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }}
                       >
                         <UploadFileComponent
+                        errorData={this._getFileWithError}
                           typeOfDoc="Word Document"
                           onChange={this.handleWordDocumentFileChange}
                           accept=".doc,.docx"
@@ -4171,6 +4249,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   ) : (
                     <div style={{ width: "100%", margin: "0px" }}>
                       <UploadFileComponent
+                      errorData={this._getFileWithError}
                         typeOfDoc="Word Document"
                         onChange={this.handleWordDocumentFileChange}
                         accept=".doc,.docx"
@@ -4204,6 +4283,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     }}
                   >
                     <UploadFileComponent
+                    errorData={this._getFileWithError}
                       typeOfDoc="supportingDocument"
                       onChange={this.handleSupportingFileChange}
                       accept=".xlsx,.pdf,.doc,.docx"
@@ -4217,6 +4297,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 ) : (
                   <div style={{ width: "100%", margin: "0px" }}>
                     <UploadFileComponent
+                    errorData={this._getFileWithError}
                       typeOfDoc="supportingDocument"
                       onChange={this.handleSupportingFileChange}
                       accept=".xlsx,.pdf,.doc,.docx"
@@ -4245,19 +4326,20 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               }}
             >
               {this._itemId && this.state.status !== "Returned" ? (
+              !(this.state.statusNumber === '100' ||this.state.statusNumber === '1000' || this.state.statusNumber === '5000' || this.state.statusNumber === '200') && (
                 <PrimaryButton
                   type="button"
                   className={`${styles.responsiveButton}`}
                   iconProps={{ iconName: "Save" }}
-                  onClick={(
-                    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-                  ) => {
-                    e.preventDefault()
-                    this.handleSubmit( "Drafted");
+                  onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                    e.preventDefault();
+                    this.setState({successStatus:'drafted'})
+                    this.handleSubmit("Drafted");
                   }}
                 >
                   Save as Draft
                 </PrimaryButton>
+              )
               ) : this.state.status === "Returned" ? (
                 <PrimaryButton
                   type="button"
@@ -4267,16 +4349,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 >
                   Cancel
                 </PrimaryButton>
-              ) : (
+              ) :  (
                 <PrimaryButton
                   type="button"
                   className={`${styles.responsiveButton}`}
                   iconProps={{ iconName: "Save" }}
-                  onClick={(
-                    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-                  ) => {
-                    e.preventDefault()
-                    this.handleSubmit( "Drafted");
+                  onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                    e.preventDefault();
+                     this.setState({successStatus:'drafted'})
+                    this.handleSubmit("Drafted");
                   }}
                 >
                   Save as Draft
@@ -4287,7 +4368,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   type="button"
                   className={`${styles.responsiveButton}`}
                   onClick={
+                    
                     (e:any)=>{
+                      this.setState({successStatus:'submitted'})
                       e.preventDefault()
                       this.handleSubmit("update")
                     }
@@ -4304,6 +4387,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   onClick={(
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                   ) => {
+                    this.setState({successStatus:'submitted'})
                     // this.setState({status:'Submitted',statusNumber:'1000'})  
                     e.preventDefault()
                     this.showDialog()

@@ -65,8 +65,8 @@ const GistDocsConfirmation: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
                 <p style={{ textAlign: 'center' }}>Please click on Confirm button to submit request.</p>
             </div>
             <div style={{ borderTop: '1px solid #ccc', marginTop: '20px', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                <PrimaryButton onClick={handleConfirmatBtn} text="Confirm" style={{ flex: '1' }} />
-                <DefaultButton onClick={onCloseAlter} text="Cancel" style={{ flex: '1' }} />
+                <PrimaryButton  iconProps={{ iconName: "SkypeCircleCheck" }} onClick={handleConfirmatBtn} text="Confirm" style={{ flex: '1' }} />
+                <DefaultButton iconProps={{ iconName: "Cancel" }} onClick={onCloseAlter} text="Cancel" style={{ flex: '1' }} />
             </div>
         </Modal>
     );

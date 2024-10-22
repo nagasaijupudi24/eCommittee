@@ -303,7 +303,7 @@ export class MarkInfo extends React.Component<
     const updatedTableData = this.state.tableData.filter(
       (item: { id: number }) => item.id !== rowKey
     );
-    this.setState({ tableData: updatedTableData });
+    this.setState({ tableData: updatedTableData,selectedValue:[] });
     this.props.deletedGridData(updatedTableData);
   };
 
@@ -334,12 +334,18 @@ export class MarkInfo extends React.Component<
       markInfoassigneeDetails: selectedValue,
     });
 
-    this.setState({
-      tableData: [...tableData, selectedValue],
-    });
+    if (selectedValue !== ''){
+      this.setState({
+        tableData: [...tableData, selectedValue],
+      });
+
+    }
+
+   
   };
 
   public _getDetailsFromPeoplePickerData = (data: any, type: any): any => {
+    console.log(data)
     this.setState({ selectedValue: data[0] });
   };
 

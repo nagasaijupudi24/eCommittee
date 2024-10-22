@@ -31,6 +31,7 @@ export interface IFormWebPartProps {
   listId:any;
   libraryId:any;
   homePageUrl:any;
+  passCodeUrl:any;
 }
 
 export {};
@@ -71,7 +72,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
-          homePageUrl:this.properties.homePageUrl
+          homePageUrl:this.properties.homePageUrl,
+          passCodeUrl:this.properties.passCodeUrl
         }
       );
      
@@ -90,7 +92,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
-          homePageUrl:this.properties.homePageUrl
+          homePageUrl:this.properties.homePageUrl,
+          passCodeUrl:this.properties.passCodeUrl
         }
       );
      
@@ -109,7 +112,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
-          homePageUrl:this.properties.homePageUrl
+          homePageUrl:this.properties.homePageUrl,
+          passCodeUrl:this.properties.passCodeUrl
 
         }
       );
@@ -131,7 +135,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           listId:this.properties.listId,
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
-          homePageUrl:this.properties.homePageUrl
+          homePageUrl:this.properties.homePageUrl,
+          passCodeUrl:this.properties.passCodeUrl
         }
       );
      
@@ -152,7 +157,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           
           formType:this.properties.FormType,
           
-          homePageUrl:this.properties.homePageUrl
+          homePageUrl:this.properties.homePageUrl,
+          passCodeUrl:this.properties.passCodeUrl
          
         }
       );
@@ -277,6 +283,13 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
                   label: "Home Page URL",
                   // Use a default value for the home URL if the description is not provided.
                   value: this.properties.homePageUrl,
+                  resizable: true,
+                  // placeholder: "Enter home URL or description here"
+                }),
+                PropertyPaneTextField('passCodeCreateUrl', {
+                  label: "Create Passcode URL",
+                  // Use a default value for the home URL if the description is not provided.
+                  value: this.properties.passCodeUrl,
                   resizable: true,
                   // placeholder: "Enter home URL or description here"
                 }),

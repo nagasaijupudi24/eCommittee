@@ -45,6 +45,8 @@ const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => voi
     },
   });
 
+  console.log(statusOfReq)
+
   return (
     <Modal
       isOpen={isVisibleAlter}

@@ -14,6 +14,7 @@ export interface IUploadFileProps {
   multiple: boolean;
   maxTotalSizeMB?: number;
   data: File[];
+  errorData:any;
 }
 
 interface IFileWithError {
@@ -24,6 +25,7 @@ interface IFileWithError {
 interface IUploadFileState {
   selectedFiles: IFileWithError[];
   cummError: string | null;
+  errorOfFile:any;
 }
 
 const getFileTypeIcon = (
@@ -52,6 +54,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
     this.state = {
       selectedFiles: [],
       cummError: null,
+      errorOfFile:''
     };
     this.fileInputRef = React.createRef<HTMLInputElement>();
   }
@@ -89,9 +92,9 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
       if (!allowedFileTypes.includes(file.name.substring(file.name.lastIndexOf('.')))) {
         error = 'File type is not allowed';
       } else if (file.size > maxFileSizeBytes) {
-        error = `File size exceeds ${maxFileSizeMB}MB`;
+        error = `File size should not exceed more ${maxFileSizeMB}MB`;
       } else if (!this.isFileNameValid(file.name)) {
-        error = 'File name contains invalid characters';
+        error = 'File name should not contain special characters';
       } else if (
         maxTotalSizeBytes &&
         currentTotalSize + file.size > maxTotalSizeBytes
@@ -102,6 +105,10 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
 
       currentTotalSize += file.size;
       validFiles.push({ file, error });
+      console.log(validFiles)
+      console.log(this.props.typeOfDoc)
+      this.props.errorData([validFiles,this.props.typeOfDoc])
+      this.setState({errorOfFile:error})
     }
 
     this.setState({ selectedFiles: validFiles, cummError: cumulativeError });
@@ -110,12 +117,21 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
   private handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
+      console.log(files)
       const updatedFiles = this.props.multiple
         ? [
             ...this.state.selectedFiles,
-            ...files.map((file) => ({ file, error: null })),
+            ...files.map((file) =>{
+              console.log(file)
+              return { file, error: null }
+            } ),
           ]
-        : files.map((file) => ({ file, error: null }));
+        : files.map((file) => 
+          {
+            console.log(file)
+            return { file, error: null }
+          });
+      console.log(updatedFiles)
 
       this.setState({ selectedFiles: updatedFiles }, () => {
         this.validateFiles(updatedFiles.map((f) => f.file));
@@ -149,7 +165,9 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
 
   public render(): React.ReactElement<IUploadFileProps> {
     const { accept, typeOfDoc, multiple } = this.props;
-    const { selectedFiles, cummError } = this.state;
+    const { selectedFiles, cummError,errorOfFile } = this.state;
+    console.log(selectedFiles)
+    console.log(errorOfFile)
 
     return (
       <ul className={`${styles.fileAttachementsUl}`}>
@@ -196,6 +214,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
 
         {selectedFiles.length > 0 &&
           selectedFiles.map(({ file, error }) => {
+            
             const { iconName, color } = getFileTypeIcon(file.name);
             return (
               <li

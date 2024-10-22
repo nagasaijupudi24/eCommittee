@@ -894,6 +894,9 @@ canvas {
 
 .responsiveHeading {
   font-size: 12px; /* Default font size */
+  margin-top: '5px';
+  margin-bottom: '5px';
+  border: '1px solid green';
   
   @media (max-width: 1200px) { /* Large tablets */
     font-size: 12px;

@@ -21,6 +21,7 @@ import {
 
 // import { getTheme, mergeStyles } from '@fluentui/react/lib/Styling';
 import { getTheme, IconButton, mergeStyles } from '@fluentui/react';
+import { IExampleItem } from '@fluentui/example-data';
 
 const theme = getTheme();
 
@@ -254,9 +255,9 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
         // return string is the css classes that will be added to the entering element.
         return dragEnterClass;
       },
-      // onDragLeave: (item?: any, event?: DragEvent) => {
-      //   return;
-      // },
+      onDragLeave: (item?: any, event?: DragEvent) => {
+        return;
+      },
       onDrop: (item?: any, event?: DragEvent) => {
         if (this._draggedItem) {
           this._insertBeforeItem(item);
@@ -286,17 +287,18 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
 //     return String(item[key]);
 //   };
 
-  private _insertBeforeItem(item: any): void {
-    const draggedItems = this._selection.isIndexSelected(this._draggedIndex)
-      ? (this._selection.getSelection() as any)
-      : [this._draggedItem!];
+private _insertBeforeItem(item: IExampleItem): void {
+  const draggedItems = this._selection.isIndexSelected(this._draggedIndex)
+    ? (this._selection.getSelection() as IExampleItem[])
+    : [this._draggedItem!];
 
-    const insertIndex = this.state.items.indexOf(item);
-    const items = this.state.items.filter((itm:any) => draggedItems.indexOf(itm) === -1);
+  const insertIndex = this.props.data.indexOf(item);
+  const items = this.props.data.filter((itm: any) => draggedItems.indexOf(itm) === -1);
 
-    items.splice(insertIndex, 0, ...draggedItems);
+  items.splice(insertIndex, 0, ...draggedItems);
 
-    this.setState({ items });
-    this.props.reOrderData(items,this.props.type);
-  }
+  this.setState({ items:items });
+  console.log(items)
+  this.props.reOrderData(items,this.props.type);
+}
 }

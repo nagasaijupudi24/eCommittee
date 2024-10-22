@@ -205,17 +205,22 @@ export default class PasscodeModal extends React.Component<
       },
       footer: {
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "center",
         marginTop: "20px",
         borderTop: "1px solid #ddd", // Similar footer style as in ConfirmationDialog
         paddingTop: "10px",
       },
       button: {
-        flex: "1 1 50%", // Ensures each button takes up 50% of the footer width
+        flex: 1,
         margin: "0 5px", // Adds some space between the buttons
       },
       iconButton: {
         marginRight: "10px",
+      },
+      buttonText: {
+        fontSize: "16px",
+        fontWeight: "bold",
+        color: "#0078d4",
       },
     });
 
@@ -227,7 +232,7 @@ export default class PasscodeModal extends React.Component<
         containerClassName={styles.modal}
       >
         <div className={styles.header}>
-          <h2>Passcode Authentication</h2>
+          <h2>Passcode Verification</h2>
           <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
         </div>
         <div className={styles.body}>
@@ -241,18 +246,23 @@ export default class PasscodeModal extends React.Component<
                   className={styles.button}
                   text="Create Passcode"
                   onClick={this.redirectToCreatePasscode}
+                  iconProps={{ iconName: "OpenInNewTab" }}
                 />
-                <DefaultButton
-                  className={styles.button}
-                  text="Cancel"
-                  onClick={onClose}
-                />
+               <DefaultButton
+  className={styles.button}
+  text="Cancel"
+  onClick={onClose}
+  iconProps={{ iconName: "Cancel" }}
+  styles={{ textContainer: styles.buttonText }}
+  
+/>
+{/* <button></button> */}
               </div>
             </>
           ) : (
             <>
               <TextField
-                label="Enter Passcode"
+                label="Enter your passcode for verification:"
                 value={passcode}
                 onChange={this.onPasscodeChange}
                 type={isPasswordVisible ? "text" : "password"}
@@ -273,13 +283,15 @@ export default class PasscodeModal extends React.Component<
               <div className={styles.footer}>
                 <PrimaryButton
                   className={styles.button}
-                  text="Submit"
+                  text="Verify"
+                  iconProps={{ iconName: "PageCheckedOut" }}
                   onClick={this.validatePasscode}
                 />
                 <DefaultButton
                   className={styles.button}
                   text="Cancel"
                   onClick={onClose}
+                  iconProps={{ iconName: "Cancel" }}
                 />
               </div>
             </>

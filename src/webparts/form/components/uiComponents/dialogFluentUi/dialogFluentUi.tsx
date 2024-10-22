@@ -4,13 +4,14 @@
 import * as React from "react";
 import { Modal } from "@fluentui/react/lib/Modal";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
-import { Icon, IIconProps, mergeStyleSets, Stack, TextField } from "@fluentui/react";
+import { FontIcon, Icon, IIconProps, mergeStyleSets, Stack, TextField } from "@fluentui/react";
 import PnPPeoplePicker from "../peoplePicker/peoplePicker";
 import { IconButton, Text, TooltipHost } from "@fluentui/react";
 import { v4 } from "uuid";
 import ReferCommentsMandatoryDialog from "./referCommentsMandiatory";
 
 interface IDialogProps {
+  dialogUserCheck:any;
   hiddenProp: any;
   dialogDetails: any;
   sp: any;
@@ -43,6 +44,7 @@ const Header = (props: any) => (
 
 export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (props,) => {
   const {
+    dialogUserCheck,
     hiddenProp,
     dialogDetails,
     context,
@@ -64,7 +66,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       },
     },
   };
-  const [data, setData] =
+  const [data, setData] = React.useState<any>('');
+  const [isUserExistsModalVisible, setIsUserExistsModalVisible] = React.useState(false); // Modal visibility state  const [data, setData] =
     React.useState<any>('');
     const [isVisibleAlter, setIsVisableAlter] =
     React.useState<any>(false);
@@ -106,19 +109,63 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
           <p style={{textAlign:'center'}}>{dialogDetails.message}</p>
         </div>
         <div style={{ borderTop: '1px solid #ccc', marginTop: '20px',paddingTop:'10px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-          <PrimaryButton onClick={handleConfirmBtn} text="Confirm" style={{ flex: '1' }} />
-          <DefaultButton onClick={dialogDetails.closeFunction} text="Cancel" style={{ flex: '1' }} />
+          <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} onClick={handleConfirmBtn} text="Confirm"  />
+          <DefaultButton iconProps={{ iconName: "Cancel" }} onClick={dialogDetails.closeFunction} text="Cancel" />
         </div>
       </Modal>
     );
   };
+
+
+  const checkReviewer = (data:any): boolean => {
+    const approverTitles = dialogUserCheck.peoplePickerApproverData.map(
+      (each: any) => each.text
+    );
+    console.log(approverTitles)
+    const reviewerTitles = dialogUserCheck.peoplePickerData.map(
+      (each: any) => each.text
+    );
+    console.log(reviewerTitles)
+    console.log(data)
+  
+    const reviewerInfo = data[0];
+    console.log(reviewerInfo)
+    const reviewerEmail = reviewerInfo.email || reviewerInfo.secondaryText;
+    console.log(reviewerEmail)
+    const reviewerName = reviewerInfo.text;
+    console.log(reviewerName)
+  
+    const isReviewerOrApprover =
+      reviewerTitles.includes(reviewerName) ||
+      approverTitles.includes(reviewerName);
+
+      console.log(isReviewerOrApprover)
+    
+    const isCurrentUserReviewer = context.pageContext.user.email === reviewerEmail;
+    console.log(isCurrentUserReviewer)
+
+    console.log(isReviewerOrApprover || isCurrentUserReviewer)
+  
+    return isReviewerOrApprover || isCurrentUserReviewer;
+    
+  };
+  
   
   
 
   const _getDetails = (data: any, typeOFButtonTriggererd: any): any => {
     console.log("Referrer function is Triggered");
     console.log(data, typeOFButtonTriggererd);
-    setData(data)
+    
+    setData(data);
+  
+    // Call checkReviewer function and display modal if user exists
+    if (checkReviewer(data)) {
+      console.log('enter dialog box')
+      setIsUserExistsModalVisible(true);  // Show the modal
+      return; // Stop execution if user exists
+    }
+    
     fetchAnydata(data, typeOFButtonTriggererd, dialogDetails.status);
   };
 
@@ -172,6 +219,79 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     props.fetchReferData(referredCommentTextBoxValue)
    
   };
+
+  const closeUserExistsModal = () => {
+    setIsUserExistsModalVisible(false);
+  };
+
+  const getUserExistsModalJSX = (): any => {
+    console.log('enter dialog box');
+    return (
+      <Modal
+        isOpen={isUserExistsModalVisible}
+        onDismiss={closeUserExistsModal}
+        isBlocking={true}
+        styles={{
+          main: {
+            width: "100%",
+            maxWidth: "290px",
+            "@media (min-width: 768px)": {
+              maxWidth: "580px",
+            },
+          },
+        }}
+      >
+        {/* Modal header with alert and close icons */}
+        <div style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "8px 12px",
+          borderBottom: "1px solid #ddd",
+        }}>
+          {/* Info icon and alert text next to each other */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}>
+            <FontIcon iconName="Info" style={{ fontSize: 20 }} />
+            <Text variant="large">Alert</Text>
+          </div>
+  
+          {/* Right-side close icon */}
+          <IconButton
+            iconProps={{ iconName: 'Cancel' }}
+            ariaLabel="Close modal"
+            onClick={closeUserExistsModal}
+          />
+        </div>
+  
+        {/* Modal content, centered in the body */}
+        <Stack tokens={{ padding: "16px" }} horizontalAlign="center" verticalAlign="center">
+          <Text style={{ margin: "16px 0", fontSize: "14px", textAlign: "center" }}>
+          The selected approver cannont be same as existing Reviewers/Requester/referee/CurrentActioner
+          </Text>
+        </Stack>
+  
+        {/* Footer with the Close button aligned to the left */}
+        <div style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          padding: "12px 16px",
+          borderTop: "1px solid #ddd",
+        }}>
+          <PrimaryButton
+            text="Close"
+            onClick={closeUserExistsModal}
+            ariaLabel="Close modal"
+          />
+        </div>
+      </Modal>
+    );
+  };
+  
 
   const getChangeApproverJsx = (): any => {
     console.log("Change Approver is triggered");
@@ -234,8 +354,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             typeOFButton="Change Approver"
           />
           <div className={styles.footer}>
-          <PrimaryButton className={styles.button} onClick={handleChangeApporver} text="Submit" />
-          <DefaultButton className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
+          <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Submit" />
+          <DefaultButton iconProps={{ iconName: "Cancel" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
           </div>
         </div>
       </Modal>
@@ -332,11 +452,13 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
 
               }}
               text="Submit"
+              iconProps={{ iconName: "SkypeCircleCheck" }}
               styles={{ root: { flex: 1 } }}
             />
             <DefaultButton
               onClick={dialogDetails.closeFunction}
               text="Cancel"
+              iconProps={{ iconName: "Cancel" }}
               styles={{ root: { flex: 1 } }}
             />
           </Stack>
@@ -348,10 +470,21 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   switch (props.dialogDetails.type) {
    
     case "Change Approver":
-      return getChangeApproverJsx();
+      return  <>
+      {getChangeApproverJsx()}
+      {getUserExistsModalJSX()} {/* Render the User Exists Modal */}
+    </>
     case "Refer":
-      return getReferJSX();
-    default:
-      return getGeneralDialogJSX();
+      return  <>
+      {getReferJSX()}
+      {getUserExistsModalJSX()} {/* Render the User Exists Modal */}
+    </>
+      default:
+        return (
+          <>
+            {getGeneralDialogJSX()}
+            {getUserExistsModalJSX()} {/* Render the User Exists Modal */}
+          </>
+        );
   }
 };

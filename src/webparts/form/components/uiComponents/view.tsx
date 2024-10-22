@@ -20,6 +20,7 @@ import {
   SelectionMode,
   Dialog,
   DialogFooter,
+  Icon,
 } from "@fluentui/react";
 import styles from "../Form.module.scss";
 // import DraggableTable from "./draggableGridKendo/draggableGridKendo";
@@ -167,6 +168,7 @@ export interface IViewFormState {
 
   noteSecretaryDetails: any;
   secretaryGistDocs: any[];
+  secretaryGistDocsList: any[];
 
   atrCreatorsList: any;
   atrGridData: any;
@@ -201,7 +203,7 @@ export interface IViewFormState {
 
   // gist document dialog
   isGistDocCnrf: boolean;
-  isGistDocEmpty:boolean;
+  isGistDocEmpty: boolean;
 
   //Mark Info
   noteMarkedInfoDTOState: any;
@@ -209,7 +211,7 @@ export interface IViewFormState {
 
 const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
-  const Id = params.get("ItemId");
+  const Id = params.get("itemId");
   // const Id = params.get("itemId");
   console.log(Id);
   return Id;
@@ -327,6 +329,7 @@ export default class ViewForm extends React.Component<
 
       noteSecretaryDetails: [],
       secretaryGistDocs: [],
+      secretaryGistDocsList:[],
 
       atrCreatorsList: [],
       atrGridData: [],
@@ -359,7 +362,7 @@ export default class ViewForm extends React.Component<
       passCodeValidationFrom: "",
       // / gist document dialog
       isGistDocCnrf: false,
-      isGistDocEmpty:false,
+      isGistDocEmpty: false,
 
       //Mark Info
       noteMarkedInfoDTOState: [],
@@ -625,22 +628,36 @@ export default class ViewForm extends React.Component<
     );
     console.log(data);
 
+    // Ensure data is not undefined/null and is an array
+    if (!Array.isArray(data)) {
+      console.error("Invalid data: Expected an array but got", data);
+      return []; // Return an empty array or handle this case as per your needs
+    }
+
     // Create an array of promises using Promise.all
     const ids = await Promise.all(
       data.map(async (each: any) => {
         console.log(each);
         // Create a new object with text and email
         const userInfo = { text: each.Title, email: each.EMail };
-        // Fetch the user by email
-        const users = await this.props.sp.web.siteUsers.getByEmail(
-          userInfo.email
-        )();
-        console.log(users);
-        // Get the user ID
-        const id = users.Id;
-        console.log(id);
-        // Return the new object with the ID
-        return { ...userInfo, id };
+        try {
+          // Fetch the user by email
+          const users = await this.props.sp.web.siteUsers.getByEmail(
+            userInfo.email
+          )();
+          console.log(users);
+          // Get the user ID
+          const id = users.Id;
+          console.log(id);
+          // Return the new object with the ID
+          return { ...userInfo, id };
+        } catch (error) {
+          console.error(
+            `Failed to fetch user with email ${userInfo.email}:`,
+            error
+          );
+          return { ...userInfo, id: null }; // Handle error and return null or appropriate value
+        }
       })
     );
 
@@ -648,6 +665,38 @@ export default class ViewForm extends React.Component<
 
     return ids; // Return the array of resolved objects
   };
+
+  //   data: any,
+  //   idData: any
+  // ): Promise<any> => {
+  //   console.log(
+  //     "*********************************************************************************************************"
+  //   );
+  //   console.log(data);
+
+  //   // Create an array of promises using Promise.all
+  //   const ids = await Promise.all(
+  //     data.map( (each: any) => {
+  //       console.log(each);
+  //       // Create a new object with text and email
+  //       const userInfo = { text: each.Title, email: each.EMail };
+  //       // Fetch the user by email
+  //       const users = await this.props.sp.web.siteUsers.getByEmail(
+  //         userInfo.email
+  //       )();
+  //       console.log(users);
+  //       // Get the user ID
+  //       const id = users.Id;
+  //       console.log(id);
+  //       // Return the new object with the ID
+  //       return { ...userInfo, id };
+  //     })
+  //   );
+
+  //   console.log(ids); // Log the resolved array of user information
+
+  //   return ids; // Return the array of resolved objects
+  // };
 
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
@@ -846,7 +895,7 @@ export default class ViewForm extends React.Component<
           : [],
       noteMarkedInfoDTOState:
         item.NoteMarkedInfoDTO !== null
-          ? this._getdataofMarkedInfo(
+          ? await this._getdataofMarkedInfo(
               item.NoteMarkedInfoDTO,
               item.NoteMarkedInfoDTOStringId
             )
@@ -1130,7 +1179,7 @@ export default class ViewForm extends React.Component<
         tempFilesGistDocument.push(this._getFileObj(values));
       });
       console.log(tempFilesGistDocument);
-      this.setState({ secretaryGistDocs: tempFilesGistDocument });
+      this.setState({ secretaryGistDocsList: tempFilesGistDocument });
     } catch {
       console.log("failed to fetch");
     }
@@ -1247,8 +1296,8 @@ export default class ViewForm extends React.Component<
         ActionerEmail: this._currentUserEmail,
         ActionTaken:
           this.props.formType === "View"
-            ? `ECommittee note is  ${status}`
-            : `Board Note is ${status}`,
+            ? `ECommittee Note ${status}`
+            : `Board Note ${status}`,
         Role: profile.Title,
         // Role: this.props.context.pageContext.user.,
         ActionTakenOn:
@@ -1288,7 +1337,6 @@ export default class ViewForm extends React.Component<
   //   }
   // }
 
-
   public async clearFolder(
     libraryName: any,
     folderRelativeUrl: string
@@ -1317,12 +1365,10 @@ export default class ViewForm extends React.Component<
     }
   }
 
-
   private async updateGistDocumentFolderItems(
     libraryName: any[],
     folderPath: string,
     type: string
-   
   ) {
     await this.clearFolder(libraryName, folderPath);
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
@@ -1579,7 +1625,9 @@ export default class ViewForm extends React.Component<
 
     //  }
 
-    const updateAuditTrial = await this._getAuditTrail(this._checkCurrentApproverIsInSecretaryDTO()?'Noted':'Approved');
+    const updateAuditTrial = await this._getAuditTrail(
+      this._checkCurrentApproverIsInSecretaryDTO() ? "Noted" : "Approved"
+    );
     // console.log(updateAuditTrial);
     const updateItems = {
       NoteApproversDTO: JSON.stringify(modifyApproveDetails),
@@ -1596,7 +1644,7 @@ export default class ViewForm extends React.Component<
       NoteATRAssigneeDTO: this._checkCurrentUserIsAATRAssignee()
         ? JSON.stringify(this.state.noteATRAssigneeDetails)
         : "",
-      PreviousActioner: JSON.stringify(this.props.context.pageContext.user),
+      PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       startProcessing: true,
     };
     console.log(updateItems);
@@ -1631,33 +1679,27 @@ export default class ViewForm extends React.Component<
     this.setState({ isVisibleAlter: true });
   };
 
-
-  private _checkCurrentApproverIsInSecretaryDTO = ():any=>{
-    const currentApproverIsInSecreDTO = this.state.noteSecretaryDetails.filter((each: any) => {
-      console.log(each);
-      console.log(this._currentUserEmail);
-      console.log(
-        
-          each.approverEmail === this._currentUserEmail
-      )
-      if (
-       
-        each.approverEmail === this._currentUserEmail
-      ) {
-        return true;
+  private _checkCurrentApproverIsInSecretaryDTO = (): any => {
+    const currentApproverIsInSecreDTO = this.state.noteSecretaryDetails.filter(
+      (each: any) => {
+        console.log(each);
+        console.log(this._currentUserEmail);
+        console.log(each.approverEmail === this._currentUserEmail);
+        if (each.approverEmail === this._currentUserEmail) {
+          return true;
+        }
       }
-    
-    
-    
-    })
-    console.log(currentApproverIsInSecreDTO)
-    console.log(currentApproverIsInSecreDTO[0]?.approverEmail )
-    console.log( this._currentUserEmail)
-    console.log(currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail)
-    return currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
-      
-    
-  }
+    );
+    console.log(currentApproverIsInSecreDTO);
+    console.log(currentApproverIsInSecreDTO[0]?.approverEmail);
+    console.log(this._currentUserEmail);
+    console.log(
+      currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
+    );
+    return (
+      currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
+    );
+  };
 
   private _checkingCurrentUserInSecretaryDTO = (): any => {
     return this.state.noteSecretaryDetails.some((each: any) => {
@@ -1779,6 +1821,8 @@ export default class ViewForm extends React.Component<
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
+        
+      PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       });
 
     console.log(itemToUpdate);
@@ -1907,6 +1951,8 @@ export default class ViewForm extends React.Component<
         ...this.state.commentsData,
         commentsObj,
       ]),
+      
+      PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
 
       startProcessing: true,
       NoteReferrerDTO: JSON.stringify([
@@ -2092,7 +2138,9 @@ export default class ViewForm extends React.Component<
       ),
       NoteReferrerDTO: JSON.stringify(updateCurrentReferDTO),
 
-      startProcessing: true,
+      startProcessing: true
+      ,
+      PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
     };
     console.log(obj);
 
@@ -2186,6 +2234,7 @@ export default class ViewForm extends React.Component<
         AuditTrail: updateAuditTrial,
 
         startProcessing: true,
+        PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       });
 
     console.log(itemToUpdate);
@@ -2220,6 +2269,7 @@ export default class ViewForm extends React.Component<
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
+        PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       });
 
     console.log(itemToUpdate);
@@ -2249,13 +2299,14 @@ export default class ViewForm extends React.Component<
   };
 
   private _handleMarkInfoSubmit = async (): Promise<any> => {
-    const updateAuditTrial = await this._getAuditTrail("Marked Info Added");
+    const updateAuditTrial = await this._getAuditTrail("Mark Info Added");
     const itemToUpdate = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
       .items.getById(this._itemId)
       .update({
         NoteMarkedInfoDTOId: this._getNoteMarkedId(),
         AuditTrail: updateAuditTrial,
+        PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       });
 
     console.log(itemToUpdate);
@@ -2354,6 +2405,7 @@ export default class ViewForm extends React.Component<
         CurrentApproverId: currentApproverId,
         AuditTrail: updateAuditTrial,
         NoteApproversDTO: JSON.stringify(modifyApproverDetails),
+        PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       });
 
     console.log(itemToUpdate);
@@ -2398,7 +2450,7 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            this.setState({ successStatus: "Approved" });
+            this.setState({ successStatus: "approved" });
             if (!this.state.isPasscodeValidated) {
               this.setState({
                 isPasscodeModalOpen: true,
@@ -2412,7 +2464,7 @@ export default class ViewForm extends React.Component<
             // this.setState({ status: "Approved", statusNumber: "9000" });
           }}
         >
-          {this._checkCurrentApproverIsInSecretaryDTO()?'Noted':'Approve'}
+          {this._checkCurrentApproverIsInSecretaryDTO() ? "Noted" : "Approve"}
         </PrimaryButton>
 
         <PrimaryButton
@@ -2436,7 +2488,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()) {
               this.setState({ isRejectCommentsCheckAlterDialog: true });
             } else {
-              this.setState({ successStatus: "Rejected" });
+              this.setState({ successStatus: "rejected" });
 
               if (!this.state.isPasscodeValidated) {
                 this.setState({
@@ -2457,7 +2509,7 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
-            this.setState({ successStatus: "Refered" });
+            this.setState({ successStatus: "referred" });
             this._hanldeFluentDialog(
               "Refer",
               "Refered",
@@ -2481,7 +2533,7 @@ export default class ViewForm extends React.Component<
             if (this._checkLastCommentByCurrentUser()) {
               this.setState({ isReturnCommentsCheckAlterDialog: true });
             } else {
-              this.setState({ successStatus: "Returned" });
+              this.setState({ successStatus: "returned" });
               this._hanldeFluentDialog(
                 "Return",
                 "Returned",
@@ -2690,11 +2742,10 @@ export default class ViewForm extends React.Component<
         this.setState({
           secretaryGistDocs: filesArray,
         });
-      }else{
+      } else {
         this.setState({
           secretaryGistDocs: filesArray,
         });
-
       }
     }
   };
@@ -2877,6 +2928,29 @@ export default class ViewForm extends React.Component<
     );
   };
 
+  private getFileTypeIcon = (
+    fileName: string
+  ): { iconName: string; color: string } => {
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    switch (extension) {
+      case "pdf":
+        return { iconName: "PDF", color: "#FF0000" }; // Red for PDF
+      case "doc":
+      case "docx":
+        return { iconName: "WordDocument", color: "#2B579A" }; // Blue for Word
+      case "xlsx":
+      case "xls":
+        return { iconName: "ExcelDocument", color: "#217346" }; // Green for Excel
+      default:
+        return { iconName: "Page", color: "#605E5C" }; // Gray for other files
+    }
+  };
+
+  private _getFileWithError = (data:any):any=>{
+    console.log(data)
+
+  }
+
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
     // this._checkApproveredStatusIsFound()
@@ -2929,7 +3003,7 @@ export default class ViewForm extends React.Component<
           >
             {/* Passcode Modal */}
             <PasscodeModal
-              createPasscodeUrl={this.props.homePageUrl}
+              createPasscodeUrl={this.props.passCodeUrl}
               isOpen={this.state.isPasscodeModalOpen}
               onClose={() => this.setState({ isPasscodeModalOpen: false })}
               onSuccess={this.handlePasscodeSuccess} // Pass this function as the success handler
@@ -2963,11 +3037,11 @@ export default class ViewForm extends React.Component<
              onSuccess={this.handlePasscodeSuccess} 
             
             /> */}
-            
+
             <GistDocEmptyModal
               isVisibleAlter={this.state.isGistDocEmpty}
               onCloseAlter={() => {
-                this.setState({ isGistDocEmpty:false });
+                this.setState({ isGistDocEmpty: false });
               }}
               statusOfReq={undefined}
             />
@@ -2984,7 +3058,10 @@ export default class ViewForm extends React.Component<
                   "gistDocument"
                 );
 
-                this.setState({ isGistDocCnrf: false,isGistSuccessVisibleAlter:true });
+                this.setState({
+                  isGistDocCnrf: false,
+                  isGistSuccessVisibleAlter: true,
+                });
               }}
               statusOfReq={undefined}
             />
@@ -3436,6 +3513,7 @@ export default class ViewForm extends React.Component<
                         >
                           <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <UploadFileComponent
+                             errorData={this._getFileWithError}
                               typeOfDoc="supportingDocument"
                               onChange={
                                 this.handleSupportingFileChangeInViewForm
@@ -3500,10 +3578,11 @@ export default class ViewForm extends React.Component<
                                 paddingTop: "4px",
                               }}
                             >
-                              <h5>Gist Documents</h5>
+                              {/* <h5 style={{marginTop:'5px',marginBottom:'5px'}}>Gist Documents</h5> */}
 
                               {this._checkingCurrentUserIsSecretaryDTO() && (
                                 <UploadFileComponent
+                                errorData={this._getFileWithError}
                                   typeOfDoc="gistDocument"
                                   onChange={this.handleGistDocuments}
                                   accept=".pdf,.doc,.docx "
@@ -3520,13 +3599,13 @@ export default class ViewForm extends React.Component<
                                   className={styles.message}
                                   style={{ margin: "0px", textAlign: "right" }}
                                 >
-                                  Allowed Formats (pdf,doc,docx,only) Upto
-                                  5MB max.
+                                  Allowed Formats (pdf,doc,docx,only) Upto 5MB
+                                  max.
                                 </p>
                               )}
-                            </div>
-                            { (this._checkCurrentApproverIsInSecretaryDTO() &&this.state.secretaryGistDocs.length > 0) &&
-                              this.state.secretaryGistDocs.map(
+                               {this._checkingCurrentUserInSecretaryDTO() &&
+                              this.state.secretaryGistDocsList.length > 0 &&
+                              this.state.secretaryGistDocsList.map(
                                 (file, index) => {
                                   // Check if file exists and has the expected properties
                                   if (!file || !file.name) {
@@ -3535,12 +3614,15 @@ export default class ViewForm extends React.Component<
 
                                   console.log(file);
                                   console.log(file.fileUrl);
+                                  const { iconName, color } =
+                                    this.getFileTypeIcon(file.name);
                                   return (
                                     <li
                                       key={index} // Use index as the key here, assuming files are unique
                                       style={{
                                         display: "flex",
                                         alignItems: "center",
+                                        width:'100%'
                                       }}
                                       className={`${styles.basicLi} ${styles.attachementli}`}
                                     >
@@ -3554,14 +3636,24 @@ export default class ViewForm extends React.Component<
                                           flexGrow: "1",
                                         }}
                                       >
-                                        <div>
+                                        {/* <div> */}
+                                          <Icon
+                                            iconName={iconName}
+                                            style={{
+                                              fontSize: "24px",
+                                              marginTop: "14px",
+                                              color: color,
+                                            }}
+                                          />
+
                                           <a
                                             href={file.fileUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             style={{
-                                              paddingBottom: "0px",
-                                              marginBottom: "0px",
+                                              // paddingBottom: "8px",
+                                              // marginBottom: "12px",
+                                              marginTop: "15px",
                                               paddingLeft: "4px",
                                               textDecoration: "none", // Optional: removes underline
                                               color: "#0078d4", // Optional: sets Fluent UI link color
@@ -3569,12 +3661,14 @@ export default class ViewForm extends React.Component<
                                           >
                                             {file.name}
                                           </a>
-                                        </div>
+                                        {/* </div> */}
                                       </div>
                                     </li>
                                   );
                                 }
                               )}
+                            </div>
+                           
                           </div>
                           {""}
                           <div />
@@ -3659,32 +3753,38 @@ export default class ViewForm extends React.Component<
                               {this.state.noteTofiles[0]?.name}
                             </a>
                           </h4>
-                          {this.state.wordDocumentfiles.length > 0 && (
-                            <h4
-                              className={styles.responsiveHeading}
-                              style={{ minWidth: "150px" }}
-                            >
-                              Word Documents:
-                              <a
-                                href={this.state.wordDocumentfiles[0]?.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                          {this._checkingCurrentUserInSecretaryDTO() &&
+                            this.state.wordDocumentfiles.length > 0 && (
+                              <p
+                                className={styles.responsiveHeading}
+                                style={{ minWidth: "150px" }}
                               >
-                                {" "}
-                                {this.state.wordDocumentfiles[0]?.name}
-                              </a>
-                            </h4>
-                          )}
-                          {this.state.supportingDocumentfiles.length > 0 && (
-                            <div style={{ width: "100%", overflow: "auto" }}>
-                              <h4 className={styles.responsiveHeading}>
-                                Support Documents:
-                              </h4>
-                              <FileAttatchmentTable
-                                data={this.state.supportingDocumentfiles}
-                              />
-                            </div>
-                          )}
+                                Word Documents:
+                                <a
+                                  href={
+                                    this.state.wordDocumentfiles[0]?.fileUrl
+                                  }
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {" "}
+                                  {this.state.wordDocumentfiles[0]?.name}
+                                </a>
+                              </p>
+                            )}
+                          {/* {this.state.supportingDocumentfiles.length > 0 && ( */}
+                          <div style={{ width: "100%", overflow: "auto" }}>
+                            <p
+                              className={styles.responsiveHeading}
+                              style={{ marginTop: "5px", marginBottom: "5px" }}
+                            >
+                              Support Documents:
+                            </p>
+                            <FileAttatchmentTable
+                              data={this.state.supportingDocumentfiles}
+                            />
+                          </div>
+                          {/* // )} */}
                         </div>
                       </div>
                     )}
@@ -3785,7 +3885,7 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Edit" }}
                         onClick={(e) => {
                           console.log("Change Approver btn Triggered");
-                          this.setState({ successStatus: "Approver Changed" });
+                          this.setState({ successStatus: "approver Changed" });
                           this._hanldeFluentDialog(
                             "Change Approver",
                             "changeApprover",
@@ -3810,7 +3910,7 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Refresh" }}
                         onClick={(e) => {
                           console.log("Call Back btn Triggered");
-                          this.setState({ successStatus: "Call Backed" });
+                          this.setState({ successStatus: "call backed" });
 
                           if (!this.state.isPasscodeValidated) {
                             this.setState({
@@ -3851,6 +3951,7 @@ export default class ViewForm extends React.Component<
                       }}
                       onClick={(e) => {
                         // console.log(this._checkNoteReferIdHavingComments())
+                        this.setState({ successStatus: "refered back" });
                         if (this._checkLastCommentByCurrentUser()) {
                           this.setState({ isReferBackAlterDialog: true });
                         } else {
@@ -3880,9 +3981,13 @@ export default class ViewForm extends React.Component<
 
                 {this._checkingCurrentUserIsSecretaryDTO() && (
                   <PrimaryButton
-                    style={{ alignSelf: "flex-end" ,marginRight:'8px',marginLeft:'8px'}}
+                  iconProps={{ iconName: "Send" }}
+                    style={{
+                      alignSelf: "flex-end",
+                      marginRight: "8px",
+                      marginLeft: "8px",
+                    }}
                     onClick={async () => {
-
                       // if (this.state.isGistDocEmpty){
 
                       //   this.setState({ isGistVisibleAlter: true });
@@ -3890,7 +3995,9 @@ export default class ViewForm extends React.Component<
                       //   this.setState({isGistDocEmpty:true})
 
                       // }
-                      this.state.secretaryGistDocs.length===0 ? this.setState({isGistDocEmpty:true}):this.setState({ isGistDocCnrf: true });
+                      this.state.secretaryGistDocs.length === 0
+                        ? this.setState({ isGistDocEmpty: true })
+                        : this.setState({ isGistDocCnrf: true });
                     }}
                   >
                     Submit
@@ -3916,6 +4023,7 @@ export default class ViewForm extends React.Component<
         )}
         {!this.state.dialogFluent && (
           <DialogBlockingExample
+          dialogUserCheck={{peoplePickerApproverData:this.state.peoplePickerApproverData,peoplePickerData:this.state.peoplePickerData}}
             hiddenProp={this.state.dialogFluent}
             dialogDetails={this.state.dialogDetails}
             sp={this.props.sp}
@@ -3970,7 +4078,7 @@ export default class ViewForm extends React.Component<
         {/* <PdfViewer pdfUrl={this.state.pdfLink} /> */}
         {/* //working code throught canvas  */}
         {/* <AdobePdfWebPart/> */}
-        
+
         {/* <AdobePdfViewer clientId={"825473e9e1184eL459736428fd30f8b99"} fileUrl={this.state.pdfLink} height={800} defaultViewMode={"FIT_WIDTH"}/> */}
       </Stack>
     );

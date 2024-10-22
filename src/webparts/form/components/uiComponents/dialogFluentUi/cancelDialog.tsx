@@ -30,7 +30,7 @@ const CancelConfirmationDialog: React.FC<ICancelConfirmationDialogProps> = ({
         <DefaultButton
           text="Confirm"
           onClick={onConfirm}
-          iconProps={{ iconName: 'CheckMark' }} // Icon for Confirm button
+          iconProps={{ iconName: 'SkypeCircleCheck' }} // Icon for Confirm button
         />
         <DefaultButton
           text="Cancel"

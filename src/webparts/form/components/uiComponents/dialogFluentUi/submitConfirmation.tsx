@@ -74,8 +74,8 @@ const ConfirmationDialog: React.FC<IConfirmationDialogProps> = ({ hidden, onConf
         <p>{subText}</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton className={styles.button} onClick={onConfirm} text="Yes" />
-        <DefaultButton className={styles.button} onClick={onCancel} text="No" />
+        <PrimaryButton className={styles.button} onClick={onConfirm} text="Yes" iconProps={{ iconName: "SkypeCircleCheck" }}/>
+        <DefaultButton className={styles.button} onClick={onCancel} text="No" iconProps={{ iconName: "Cancel" }}/>
       </div>
     </Modal>
   );

@@ -17,7 +17,8 @@ export interface IAllRequestProps {
     
           formType:any,
           
-          homePageUrl:any
+          homePageUrl:any;
+          passCodeUrl:any;
   }
 
 
