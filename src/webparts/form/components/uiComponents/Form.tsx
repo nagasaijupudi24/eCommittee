@@ -16,6 +16,7 @@ import {
   Dropdown,
   Icon,
   Stack,
+  TextField,
 
 } from "@fluentui/react";
 import { IDropdownOption } from "office-ui-fabric-react";
@@ -73,6 +74,7 @@ import SuccessDialog from "./dialogFluentUi/endDialog";
 import { DetailsListDragDropExample } from "./draggableGridKendo/dragAndDropFluent";
 import ConfirmationDialog from "./dialogFluentUi/submitConfirmation";
 import AutoSaveDialog from "./dialog/autoSaveStopped";
+import AutoSaveFailedDialog from "./dialogFluentUi/autoSaveFailedDialog";
 
 
 // const customTheme = createTheme({
@@ -240,6 +242,7 @@ interface IMainFormState {
 
   //success dialog
   isVisibleAlter: boolean;
+  isAutoSaveFailedDialog:boolean;
 
   // auto save
 
@@ -426,6 +429,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       //success dialog
       isVisibleAlter: false,
+      isAutoSaveFailedDialog:false,
 
       draftResolutionFieldValue: "",
       successStatus:'',
@@ -488,7 +492,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(`${milliseconds} milliseconds is equal to ${seconds} seconds, ${minutes} minutes or ${hours} hours`);
    
     if (this.state.autosave) {
-      this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
+       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+            // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+            // errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+            console.log("Auto save Entered")
+            this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
+            // if (this.state.errorFilesList.notePdF === 0 && this.state.errorFilesList.wordDocument === 0 && this.state.errorFilesList.supportingDocument === 0){
+            //   this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
+            // }else{
+            //   console.log('auto save failed due to Error files')
+            // }
+      
     }
 
     console.log(this._itemId > 0);
@@ -515,7 +529,24 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private autoSave = async (): Promise<void> => {
     try {
-      await this.handleSubmit(this.state.autoSaveStatus, false);
+
+      console.log(this.state.errorFilesList.notePdF.length === 0 )
+      console.log(this.state.errorFilesList.wordDocument.length === 0 )
+
+      console.log( this.state.errorFilesList.supportingDocument.length === 0)
+
+      console.log(this.state.errorFilesList.notePdF.length === 0 && this.state.errorFilesList.wordDocument.length === 0 && this.state.errorFilesList.supportingDocument.length === 0)
+
+
+      if (this.state.errorFilesList.notePdF.length === 0 && this.state.errorFilesList.wordDocument.length === 0 && this.state.errorFilesList.supportingDocument.length === 0){
+        // this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
+        console.log("entered into auto save without any Invalid files")
+        await this.handleSubmit(this.state.autoSaveStatus, false);
+      }else{
+        this.setState({isAutoSaveFailedDialog:true})
+        console.log('auto save failed due to Error files')
+      }
+      // await this.handleSubmit(this.state.autoSaveStatus, false);
       console.log('Auto-saved successfully');
     } catch (error) {
       console.error('Auto-save failed:', error);
@@ -2100,7 +2131,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private handleConfirmSubmit = async (): Promise<void> => {
-    this.handleCancelDialog(); // Hide the dialog
+    // this.handleCancelDialog(); // Hide the dialog
     if (this.state.itemId && this.state.statusNumber === '100') {
       await this.handleUpdate(true);
     } else {
@@ -2111,7 +2142,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
 private _checkValidation = ():any =>{
   console.log(this.state)
-  let fieldValues;
+  let fieldValues:any;
   if ((this.state.natureOfNoteFeildValue === 'Approval'||this.state.natureOfNoteFeildValue === 'Sanction') && (this.state.noteTypeFeildValue ==='Financial')){
     console.log('Approval','Sanction','Financial')
     if (this.state.natureOfNoteFeildValue === 'Approval'){
@@ -2128,7 +2159,28 @@ private _checkValidation = ():any =>{
           amount:this.state.amountFeildValue,
           searchText:this.state.searchTextFeildValue,
           purpose:this.state.puroposeFeildValue,
-          others:this.state.othersFieldValue
+          others:this.state.othersFieldValue,
+
+
+          ////
+          noteTofiles: this.state.noteTofiles,
+           
+          
+          wordDocumentfiles:this.state.wordDocumentfiles,
+      
+          supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+          // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+          // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+      
+          // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+          errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+          errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+          errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+          
+          AppoverData:this.state.peoplePickerApproverData,
   
           
         }
@@ -2147,6 +2199,27 @@ private _checkValidation = ():any =>{
           amount:this.state.amountFeildValue,
           searchText:this.state.searchTextFeildValue,
           purpose:this.state.puroposeFeildValue,
+
+          ////
+
+          noteTofiles: this.state.noteTofiles,
+           
+          
+          wordDocumentfiles:this.state.wordDocumentfiles,
+      
+          supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+          // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+          // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+      
+          // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+          errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+          errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+          errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+          
+          AppoverData:this.state.peoplePickerApproverData,
          
   
           
@@ -2168,6 +2241,26 @@ private _checkValidation = ():any =>{
         amount:this.state.amountFeildValue,
         searchText:this.state.searchTextFeildValue,
         purpose:this.state.puroposeFeildValue,
+
+        ////
+        noteTofiles: this.state.noteTofiles,
+           
+          
+        wordDocumentfiles:this.state.wordDocumentfiles,
+    
+        supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+        // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+        // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+    
+        // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+        errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+        errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+        
+        AppoverData:this.state.peoplePickerApproverData,
        
 
         
@@ -2192,7 +2285,30 @@ private _checkValidation = ():any =>{
          
           searchText:this.state.searchTextFeildValue,
           purpose:this.state.puroposeFeildValue,
-          others:this.state.othersFieldValue
+          others:this.state.othersFieldValue,
+
+          ////
+
+          noteTofiles: this.state.noteTofiles,
+           
+          
+          wordDocumentfiles:this.state.wordDocumentfiles,
+      
+          supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+          // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+          // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+      
+          // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+          errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+          errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+          errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+          
+          AppoverData:this.state.peoplePickerApproverData,
+
+
   
           
         }
@@ -2208,6 +2324,27 @@ private _checkValidation = ():any =>{
           noteType:this.state.noteTypeFeildValue,
           searchText:this.state.searchTextFeildValue,
           purpose:this.state.puroposeFeildValue,
+
+
+          ////
+
+          noteTofiles: this.state.noteTofiles,
+           
+          
+          wordDocumentfiles:this.state.wordDocumentfiles,
+      
+          supportingDocumentfiles:this.state.supportingDocumentfiles,
+          // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+          // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+      
+          // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+          errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+          errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+          errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+          
+          AppoverData:this.state.peoplePickerApproverData,
         }
         console.log(fieldValues)
         this.setState({eCommitteDataForValidataion:fieldValues})
@@ -2223,6 +2360,27 @@ private _checkValidation = ():any =>{
         noteType:this.state.noteTypeFeildValue,
         searchText:this.state.searchTextFeildValue,
         purpose:this.state.puroposeFeildValue,
+
+
+        ////
+        noteTofiles: this.state.noteTofiles,
+           
+          
+        wordDocumentfiles:this.state.wordDocumentfiles,
+    
+        supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+        // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+        // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+    
+        // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+        errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+        errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+        
+        AppoverData:this.state.peoplePickerApproverData,
       }
       console.log(fieldValues)
       this.setState({eCommitteDataForValidataion:fieldValues})
@@ -2241,6 +2399,25 @@ private _checkValidation = ():any =>{
         amount:this.state.amountFeildValue,
         searchText:this.state.searchTextFeildValue,
         purpose:this.state.puroposeFeildValue,
+
+        ////
+        noteTofiles: this.state.noteTofiles,
+           
+          
+        wordDocumentfiles:this.state.wordDocumentfiles,
+    
+        supportingDocumentfiles:this.state.supportingDocumentfiles,
+        // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+        // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+    
+        // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+        errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+        errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+        
+        AppoverData:this.state.peoplePickerApproverData,
        
 
         
@@ -2259,6 +2436,26 @@ private _checkValidation = ():any =>{
         amount:this.state.amountFeildValue,
         searchText:this.state.searchTextFeildValue,
         purpose:this.state.puroposeFeildValue,
+
+
+        ////
+        noteTofiles: this.state.noteTofiles,
+           
+          
+        wordDocumentfiles:this.state.wordDocumentfiles,
+    
+        supportingDocumentfiles:this.state.supportingDocumentfiles,
+        // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+        // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+    
+        // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+        errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+        errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+        
+        AppoverData:this.state.peoplePickerApproverData,
        
 
         
@@ -2279,6 +2476,25 @@ private _checkValidation = ():any =>{
        
         searchText:this.state.searchTextFeildValue,
         purpose:this.state.puroposeFeildValue,
+
+        ////
+        noteTofiles: this.state.noteTofiles,
+           
+          
+        wordDocumentfiles:this.state.wordDocumentfiles,
+    
+        supportingDocumentfiles:this.state.supportingDocumentfiles,
+        // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+        // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+    
+        // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+        errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+        errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+        
+        AppoverData:this.state.peoplePickerApproverData,
        
 
         
@@ -2296,6 +2512,28 @@ private _checkValidation = ():any =>{
        
         searchText:this.state.searchTextFeildValue,
         purpose:this.state.puroposeFeildValue,
+
+
+        ////
+
+        noteTofiles: this.state.noteTofiles,
+           
+          
+        wordDocumentfiles:this.state.wordDocumentfiles,
+    
+        supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+        // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+        // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+    
+        // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+        errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+        errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+        
+        AppoverData:this.state.peoplePickerApproverData,
        
 
         
@@ -2319,7 +2557,29 @@ private _checkValidation = ():any =>{
         
           searchText:this.state.searchTextFeildValue,
           purpose:this.state.puroposeFeildValue,
-          others:this.state.othersFieldValue
+          others:this.state.othersFieldValue,
+
+
+          ////
+
+          noteTofiles: this.state.noteTofiles,
+           
+          
+          wordDocumentfiles:this.state.wordDocumentfiles,
+      
+          supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+          // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+          // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+      
+          // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+          errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+          errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+          errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+          
+          AppoverData:this.state.peoplePickerApproverData,
   
           
         }
@@ -2337,6 +2597,26 @@ private _checkValidation = ():any =>{
         
           searchText:this.state.searchTextFeildValue,
           purpose:this.state.puroposeFeildValue,
+
+
+          ////
+          noteTofiles: this.state.noteTofiles,
+           
+          
+          wordDocumentfiles:this.state.wordDocumentfiles,
+      
+          supportingDocumentfiles:this.state.supportingDocumentfiles,
+          // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+          // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+      
+          // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+          errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+          errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+          errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+          
+          AppoverData:this.state.peoplePickerApproverData,
           
   
           
@@ -2357,6 +2637,26 @@ private _checkValidation = ():any =>{
        
         searchText:this.state.searchTextFeildValue,
         purpose:this.state.puroposeFeildValue,
+
+        ////
+        noteTofiles: this.state.noteTofiles,
+           
+          
+        wordDocumentfiles:this.state.wordDocumentfiles,
+    
+        supportingDocumentfiles:this.state.supportingDocumentfiles,
+
+        // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+        // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+    
+        // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+        errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+        errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+        
+        AppoverData:this.state.peoplePickerApproverData,
        
 
         
@@ -2377,6 +2677,26 @@ private _checkValidation = ():any =>{
       typeOfFinancialNote:this.state.typeOfFinancialNoteFeildValue,
       amount:this.state.amountFeildValue,
       searchText:this.state.searchTextFeildValue,
+
+      ////
+
+      noteTofiles: this.state.noteTofiles,
+           
+          
+      wordDocumentfiles:this.state.wordDocumentfiles,
+  
+      supportingDocumentfiles:this.state.supportingDocumentfiles,
+      // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+      // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+  
+      // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+      errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+      errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+      errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+      
+      AppoverData:this.state.peoplePickerApproverData,
       
 
       
@@ -2395,6 +2715,27 @@ private _checkValidation = ():any =>{
       noteType:this.state.noteTypeFeildValue,
      
       searchText:this.state.searchTextFeildValue,
+
+      ////
+
+
+      noteTofiles: this.state.noteTofiles,
+           
+          
+      wordDocumentfiles:this.state.wordDocumentfiles,
+  
+      supportingDocumentfiles:this.state.supportingDocumentfiles,
+      // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+      // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+  
+      // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+      errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+      errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+      errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+      
+      AppoverData:this.state.peoplePickerApproverData,
      
      
 
@@ -2415,6 +2756,28 @@ private _checkValidation = ():any =>{
       noteType:this.state.noteTypeFeildValue,
      
       searchText:this.state.searchTextFeildValue,
+
+
+      ////
+
+
+      noteTofiles: this.state.noteTofiles,
+           
+          
+      wordDocumentfiles:this.state.wordDocumentfiles,
+  
+      supportingDocumentfiles:this.state.supportingDocumentfiles,
+      // noteTofiles: this.state.noteTofiles.length ===0,
+           
+          
+      // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
+  
+      // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
+      errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+      errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+      errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
+      
+      AppoverData:this.state.peoplePickerApproverData,
      
      
 
@@ -2426,6 +2789,21 @@ private _checkValidation = ():any =>{
   }
 
   console.log(fieldValues,"Final FieldValues........................................")
+  const dialogVisable = Object.keys(fieldValues).every(
+    (each: keyof typeof fieldValues) => {
+      console.log(each);
+      if (fieldValues[each] === ''|| fieldValues[each].length === 0||fieldValues[each]===true) {
+        console.log('entred',each)
+        return false;
+      }
+      return true;
+    }
+  );
+
+  console.log(dialogVisable,"Dialog Visable")
+
+  return dialogVisable
+
   
   
 }
@@ -3002,6 +3380,7 @@ private _checkValidationArray = ():any =>{
 
      
       console.log("Item Drafted successfully");
+      this.setState({isConfirmationDialogVisible:false})
 
       if (showAlert) {
         this.setState({ isVisibleAlter: true });
@@ -3014,600 +3393,676 @@ private _checkValidationArray = ():any =>{
 
     else{
       try {
+
+
+
+        if (this.state.statusNumber === "200") {
+          await this.handleUpdate()
+        }
+
+        else if(statusOfForm === 'update') {
+          console.log('entered into updatee else if block')
+          await this.handleUpdate()
+    
+        }
+
+
+        
+        
+        else {
+          const id = await this.props.sp.web.lists
+            .getByTitle(this.props.listId)
+            .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
+          console.log(id.Id, "id");
+          console.log(id.Id, "id -----", status, "Status");
+
+      
+          await this._generateRequsterNumber(id.Id);
+          this.setState({autosave:false})
+          clearInterval(this.autoSaveInterval);
+
+          // console.log(id)
+          // console.log("Item added successfully");
+          console.log(
+            `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+          );
+        }
+       
+        this.setState({
+          committeeNameFeildValue: "",
+          subjectFeildValue: "",
+          natureOfNoteFeildValue: "",
+          noteTypeFeildValue: "",
+          typeOfFinancialNoteFeildValue: "",
+          amountFeildValue: null,
+          searchTextFeildValue: "",
+          noteTofiles: [],
+          wordDocumentfiles: [],
+          supportingDocumentfiles: [],
+          peoplePickerData: [],
+          peoplePickerApproverData: [],
+          puroposeFeildValue: "",
+          othersFieldValue:'',
+        });
+        this._fetchApproverDetails();
+        this.setState({
+          isWarning: false,
+          isWarningCommitteeName: false,
+          isWarningSubject: false,
+          isWarningNatureOfNote: false,
+          isWarningNoteType: false,
+          isWarningTypeOfFinancialNote: false,
+
+          // isWarningS
+          isWarningAmountField: false,
+          isWarningPurposeField: false,
+          isWarningSearchText: false,
+          isWarningNoteToFiles: false,
+          isWarningWordDocumentFiles: false,
+          // isWarningPeoplePicker: false,
+        });
+
+
+        
+        this.setState({ isVisibleAlter: true });
+
+
+
+
         // eslint-disable-next-line no-constant-condition
-        if (
-          this.state.noteTypeFeildValue === "Financial" &&
-          (this.state.natureOfNoteFeildValue === "Information" ||
-            this.state.natureOfNoteFeildValue === "Ratification")
-        ) {
-          console.log("financial");
-          if (
-            this.state.committeeNameFeildValue &&
-            this.state.subjectFeildValue &&
-            this.state.natureOfNoteFeildValue &&
-            this.state.noteTypeFeildValue &&
-            this.state.typeOfFinancialNoteFeildValue &&
-            this.state.amountFeildValue &&
-            this.state.searchTextFeildValue &&
-            this.state.noteTofiles.length > 0 &&
-            (this.state.noteSecretaryDetails.length > 0
-              ? this.state.wordDocumentfiles.length > 0
-              : true) &&
-            // this.state.wordDocumentfiles.length>0 &&
-            // this.state.peoplePickerData.length > 0&&
-            this.state.peoplePickerApproverData.length > 0&&
-            this.state.errorOfDocuments
+        // if (
+        //   this.state.noteTypeFeildValue === "Financial" &&
+        //   (this.state.natureOfNoteFeildValue === "Information" ||
+        //     this.state.natureOfNoteFeildValue === "Ratification")
+        // ) {
+        //   console.log("financial");
+        //   if (
+        //     this.state.committeeNameFeildValue &&
+        //     this.state.subjectFeildValue &&
+        //     this.state.natureOfNoteFeildValue &&
+        //     this.state.noteTypeFeildValue &&
+        //     this.state.typeOfFinancialNoteFeildValue &&
+        //     this.state.amountFeildValue &&
+        //     this.state.searchTextFeildValue &&
+        //     this.state.noteTofiles.length > 0 &&
+        //     (this.state.noteSecretaryDetails.length > 0
+        //       ? this.state.wordDocumentfiles.length > 0
+        //       : true) &&
+        //     // this.state.wordDocumentfiles.length>0 &&
+        //     // this.state.peoplePickerData.length > 0&&
+        //     this.state.peoplePickerApproverData.length > 0&&
+        //     this.state.errorOfDocuments
   
-            // this.isNatureOfApprovalOrSanction()
-          ) {
-            // this.setState({ status: "Submitted", statusNumber: "1000" });
+        //     // this.isNatureOfApprovalOrSanction()
+        //   ) {
+        //     // this.setState({ status: "Submitted", statusNumber: "1000" });
   
-            // let id;
-            // let status;
-            if (this.state.statusNumber === "200") {
-              await this.handleUpdate()
-            }
+        //     // let id;
+        //     // let status;
+        //     if (this.state.statusNumber === "200") {
+        //       await this.handleUpdate()
+        //     }
 
-            else if(statusOfForm === 'update') {
-              console.log('entered into updatee else if block')
-              await this.handleUpdate()
+        //     else if(statusOfForm === 'update') {
+        //       console.log('entered into updatee else if block')
+        //       await this.handleUpdate()
         
-            }
+        //     }
 
 
             
             
-            else {
-              const id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
-              console.log(id.Id, "id");
-              console.log(id.Id, "id -----", status, "Status");
+        //     else {
+        //       const id = await this.props.sp.web.lists
+        //         .getByTitle(this.props.listId)
+        //         .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
+        //       console.log(id.Id, "id");
+        //       console.log(id.Id, "id -----", status, "Status");
   
           
-              await this._generateRequsterNumber(id.Id);
-              this.setState({autosave:false})
-              clearInterval(this.autoSaveInterval);
+        //       await this._generateRequsterNumber(id.Id);
+        //       this.setState({autosave:false})
+        //       clearInterval(this.autoSaveInterval);
     
-              // console.log(id)
-              // console.log("Item added successfully");
-              console.log(
-                `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-              );
-            }
+        //       // console.log(id)
+        //       // console.log("Item added successfully");
+        //       console.log(
+        //         `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+        //       );
+        //     }
            
-            this.setState({
-              committeeNameFeildValue: "",
-              subjectFeildValue: "",
-              natureOfNoteFeildValue: "",
-              noteTypeFeildValue: "",
-              typeOfFinancialNoteFeildValue: "",
-              amountFeildValue: null,
-              searchTextFeildValue: "",
-              noteTofiles: [],
-              wordDocumentfiles: [],
-              supportingDocumentfiles: [],
-              peoplePickerData: [],
-              peoplePickerApproverData: [],
-              puroposeFeildValue: "",
-            });
-            this._fetchApproverDetails();
-            this.setState({
-              isWarning: false,
-              isWarningCommitteeName: false,
-              isWarningSubject: false,
-              isWarningNatureOfNote: false,
-              isWarningNoteType: false,
-              isWarningTypeOfFinancialNote: false,
+        //     this.setState({
+        //       committeeNameFeildValue: "",
+        //       subjectFeildValue: "",
+        //       natureOfNoteFeildValue: "",
+        //       noteTypeFeildValue: "",
+        //       typeOfFinancialNoteFeildValue: "",
+        //       amountFeildValue: null,
+        //       searchTextFeildValue: "",
+        //       noteTofiles: [],
+        //       wordDocumentfiles: [],
+        //       supportingDocumentfiles: [],
+        //       peoplePickerData: [],
+        //       peoplePickerApproverData: [],
+        //       puroposeFeildValue: "",
+        //     });
+        //     this._fetchApproverDetails();
+        //     this.setState({
+        //       isWarning: false,
+        //       isWarningCommitteeName: false,
+        //       isWarningSubject: false,
+        //       isWarningNatureOfNote: false,
+        //       isWarningNoteType: false,
+        //       isWarningTypeOfFinancialNote: false,
   
-              // isWarningS
-              isWarningAmountField: false,
-              isWarningPurposeField: false,
-              isWarningSearchText: false,
-              isWarningNoteToFiles: false,
-              isWarningWordDocumentFiles: false,
-              // isWarningPeoplePicker: false,
-            });
+        //       // isWarningS
+        //       isWarningAmountField: false,
+        //       isWarningPurposeField: false,
+        //       isWarningSearchText: false,
+        //       isWarningNoteToFiles: false,
+        //       isWarningWordDocumentFiles: false,
+        //       // isWarningPeoplePicker: false,
+        //     });
 
 
             
-            this.setState({ isVisibleAlter: true });
-          } else {
-            this.setState({
-              isWarning: true,
-              isWarningCommitteeName: true,
-              isWarningSubject: true,
-              isWarningNatureOfNote: true,
-              isWarningNoteType: true,
-              isWarningTypeOfFinancialNote: true,
-              isWarningAmountField: true,
-              isWarningPurposeField: true,
-              isWarningSearchText: true,
+        //     this.setState({ isVisibleAlter: true });
+        //   } else {
+        //     this.setState({
+        //       isWarning: true,
+        //       isWarningCommitteeName: true,
+        //       isWarningSubject: true,
+        //       isWarningNatureOfNote: true,
+        //       isWarningNoteType: true,
+        //       isWarningTypeOfFinancialNote: true,
+        //       isWarningAmountField: true,
+        //       isWarningPurposeField: true,
+        //       isWarningSearchText: true,
   
-              // isWarningPeoplePicker: true,
-              isDialogHidden: false,
+        //       // isWarningPeoplePicker: true,
+        //       // isDialogHidden: false,
 
-            });
+        //     });
 
 
   
-            this.setState({
-              eCommitteData: {
-                committeeNameFeildValue: [
-                  this.state.committeeNameFeildValue,
-                  "CommitteName",
-                ],
-                subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
-                natureOfNoteFeildValue: [
-                  this.state.natureOfNoteFeildValue,
-                  "Nature Of Note",
-                ],
-                noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
-                typeOfFinancialNoteFeildValue: [
-                  this.state.typeOfFinancialNoteFeildValue,
-                  "Type of Financial Note",
-                ],
-                amountFeildValue: [this.state.amountFeildValue, "Amount"],
-                puroposeFeildValue: [this.state.puroposeFeildValue, "Purpose"],
-                searchTextFeildValue: [
-                  this.state.searchTextFeildValue,
-                  "Search Text",
-                ],
-                noteTofiles: [
-                  this.state.noteTofiles,
-                  "Please select Valid Pdf File",
-                ],
-                wordDocumentfiles: [
-                  this.state.wordDocumentfiles,
-                  "Please select Valid Word Doc File",
-                ],
-                supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
-                errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
-                errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
-                errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length > 0,"Please select Valid Supporting Files..."],
+        //     this.setState({
+        //       eCommitteData: {
+        //         committeeNameFeildValue: [
+        //           this.state.committeeNameFeildValue,
+        //           "CommitteName",
+        //         ],
+        //         subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
+        //         natureOfNoteFeildValue: [
+        //           this.state.natureOfNoteFeildValue,
+        //           "Nature Of Note",
+        //         ],
+        //         noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
+        //         typeOfFinancialNoteFeildValue: [
+        //           this.state.typeOfFinancialNoteFeildValue,
+        //           "Type of Financial Note",
+        //         ],
+        //         amountFeildValue: [this.state.amountFeildValue, "Amount"],
+        //         puroposeFeildValue: [this.state.puroposeFeildValue, "Purpose"],
+        //         searchTextFeildValue: [
+        //           this.state.searchTextFeildValue,
+        //           "Search Text",
+        //         ],
+        //         noteTofiles: [
+        //           this.state.noteTofiles,
+        //           "Please select Valid Pdf File",
+        //         ],
+        //         wordDocumentfiles: [
+        //           this.state.wordDocumentfiles,
+        //           "Please select Valid Word Doc File",
+        //         ],
+        //         supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+        //         errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
+        //         errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
+        //         errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length > 0,"Please select Valid Supporting Files..."],
                 
-                AppoverData: [
-                  this.state.peoplePickerApproverData,
-                  "Please select atleast one Approver to submit request",
-                ],
-              },
-            });
-          }
-        } else if (
-          (this.state.natureOfNoteFeildValue === "Sanction" ||
-            this.state.natureOfNoteFeildValue === "Approval") &&
-          this.state.noteTypeFeildValue === "NonFinancial"
-        ) {
-          console.log("else entered", "sanction,approval", "nonFinancial");
-          if (
-            this.state.committeeNameFeildValue &&
-            this.state.subjectFeildValue &&
-            this.state.natureOfNoteFeildValue &&
-            this.state.natureOfApprovalOrSanctionFeildValue &&
-            this.state.noteTypeFeildValue &&
-            this.state.searchTextFeildValue &&
-            this.state.noteTofiles.length > 0 &&
-            (this.state.noteSecretaryDetails.length > 0
-              ? this.state.wordDocumentfiles.length > 0
-              : true) &&
-            this.state.peoplePickerApproverData.length > 0&&
-            this.state.errorOfDocuments
-          ) {
-            this.setState({ status: "Submitted", statusNumber: "1000" });
+        //         AppoverData: [
+        //           this.state.peoplePickerApproverData,
+        //           "Please select atleast one Approver to submit request",
+        //         ],
+        //       },
+        //     });
+        //   }
+        // } else if (
+        //   (this.state.natureOfNoteFeildValue === "Sanction" ||
+        //     this.state.natureOfNoteFeildValue === "Approval") &&
+        //   this.state.noteTypeFeildValue === "NonFinancial"
+        // ) {
+        //   console.log("else entered", "sanction,approval", "nonFinancial");
+        //   if (
+        //     this.state.committeeNameFeildValue &&
+        //     this.state.subjectFeildValue &&
+        //     this.state.natureOfNoteFeildValue &&
+        //     this.state.natureOfApprovalOrSanctionFeildValue &&
+        //     this.state.noteTypeFeildValue &&
+        //     this.state.searchTextFeildValue &&
+        //     this.state.noteTofiles.length > 0 &&
+        //     (this.state.noteSecretaryDetails.length > 0
+        //       ? this.state.wordDocumentfiles.length > 0
+        //       : true) &&
+        //     this.state.peoplePickerApproverData.length > 0&&
+        //     this.state.errorOfDocuments
+        //   ) {
+        //     this.setState({ status: "Submitted", statusNumber: "1000" });
           
-            if (this.state.statusNumber === "200") {
-              await this.handleUpdate()
-            }     else if(statusOfForm === 'update') {
-              // console.log('entered into updatee else if block')
-              await this.handleUpdate()
+        //     if (this.state.statusNumber === "200") {
+        //       await this.handleUpdate()
+        //     }     else if(statusOfForm === 'update') {
+        //       // console.log('entered into updatee else if block')
+        //       await this.handleUpdate()
         
-            }
+        //     }
 
 
             
             
-            else {
-              const id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
-              // console.log(id.Id, "id");
+        //     else {
+        //       const id = await this.props.sp.web.lists
+        //         .getByTitle(this.props.listId)
+        //         .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
+        //       // console.log(id.Id, "id");
              
   
           
-              await this._generateRequsterNumber(id.Id);
-              this.setState({autosave:false})
-              clearInterval(this.autoSaveInterval);
+        //       await this._generateRequsterNumber(id.Id);
+        //       this.setState({autosave:false})
+        //       clearInterval(this.autoSaveInterval);
     
-              // console.log(id)
-              // console.log("Item added successfully");
+        //       // console.log(id)
+        //       // console.log("Item added successfully");
              
-            }
+        //     }
   
-            this.setState({
-              committeeNameFeildValue: "",
-              subjectFeildValue: "",
-              natureOfNoteFeildValue: "",
-              natureOfApprovalOrSanctionFeildValue: "",
-              noteTypeFeildValue: "",
-              searchTextFeildValue: "",
+        //     this.setState({
+        //       committeeNameFeildValue: "",
+        //       subjectFeildValue: "",
+        //       natureOfNoteFeildValue: "",
+        //       natureOfApprovalOrSanctionFeildValue: "",
+        //       noteTypeFeildValue: "",
+        //       searchTextFeildValue: "",
   
-              noteTofiles: [],
-              supportingDocumentfiles: [],
-              wordDocumentfiles: [],
-              peoplePickerApproverData: [],
-              peoplePickerData: [],
-            });
-            this._fetchApproverDetails();
-            this.setState({
-              isWarning: false,
-              isWarningCommitteeName: false,
-              isWarningSubject: false,
-              isWarningNatureOfNote: false,
-              isWarningNatureOfApporvalOrSanction: false,
-              isWarningNoteType: false,
-              isWarningSearchText: false,
+        //       noteTofiles: [],
+        //       supportingDocumentfiles: [],
+        //       wordDocumentfiles: [],
+        //       peoplePickerApproverData: [],
+        //       peoplePickerData: [],
+        //     });
+        //     this._fetchApproverDetails();
+        //     this.setState({
+        //       isWarning: false,
+        //       isWarningCommitteeName: false,
+        //       isWarningSubject: false,
+        //       isWarningNatureOfNote: false,
+        //       isWarningNatureOfApporvalOrSanction: false,
+        //       isWarningNoteType: false,
+        //       isWarningSearchText: false,
   
-              isWarningNoteToFiles: false,
-              isWarningWordDocumentFiles: false,
-              isWarningPeoplePicker: false,
-            });
+        //       isWarningNoteToFiles: false,
+        //       isWarningWordDocumentFiles: false,
+        //       isWarningPeoplePicker: false,
+        //     });
            
-            this.setState({ isVisibleAlter: true });
-          } else {
-            this.setState({
-              isWarning: true,
-              isWarningCommitteeName: true,
-              isWarningSubject: true,
-              isWarningNatureOfNote: true,
-              isWarningNatureOfApporvalOrSanction: true,
-              isWarningNoteType: true,
-              isWarningSearchText: true,
+        //     this.setState({ isVisibleAlter: true });
+        //   } else {
+        //     this.setState({
+        //       isWarning: true,
+        //       isWarningCommitteeName: true,
+        //       isWarningSubject: true,
+        //       isWarningNatureOfNote: true,
+        //       isWarningNatureOfApporvalOrSanction: true,
+        //       isWarningNoteType: true,
+        //       isWarningSearchText: true,
   
-              isDialogHidden: false,
-            });
+        //       // isDialogHidden: false,
+        //     });
   
-            this.setState({
-              eCommitteData: {
-                committeeNameFeildValue: [
-                  this.state.committeeNameFeildValue,
-                  "CommitteName",
-                ],
-                subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
-                natureOfNoteFeildValue: [
-                  this.state.natureOfNoteFeildValue,
-                  "Nature Of Note",
-                ],
-                natureOfApprovalOrSanctionFeildValue: [
-                  this.state.natureOfApprovalOrSanctionFeildValue,
-                  "Nature Of Appr/Sanc",
-                ],
-                noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
-                searchTextFeildValue: [
-                  this.state.searchTextFeildValue,
-                  "Search Text",
-                ],
+        //     this.setState({
+        //       eCommitteData: {
+        //         committeeNameFeildValue: [
+        //           this.state.committeeNameFeildValue,
+        //           "CommitteName",
+        //         ],
+        //         subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
+        //         natureOfNoteFeildValue: [
+        //           this.state.natureOfNoteFeildValue,
+        //           "Nature Of Note",
+        //         ],
+        //         natureOfApprovalOrSanctionFeildValue: [
+        //           this.state.natureOfApprovalOrSanctionFeildValue,
+        //           "Nature Of Appr/Sanc",
+        //         ],
+        //         noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
+        //         searchTextFeildValue: [
+        //           this.state.searchTextFeildValue,
+        //           "Search Text",
+        //         ],
   
-                noteTofiles: [
-                  this.state.noteTofiles,
-                  "Please select Valid Pdf File",
-                ],
-                wordDocumentfiles: [
-                  this.state.wordDocumentfiles,
-                  "Please select Valid Word Doc File",
-                ],
-                supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
-                // errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
-                errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
-                errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
-                errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length> 0,"Please select Valid Supporting Files..."],
+        //         noteTofiles: [
+        //           this.state.noteTofiles,
+        //           "Please select Valid Pdf File",
+        //         ],
+        //         wordDocumentfiles: [
+        //           this.state.wordDocumentfiles,
+        //           "Please select Valid Word Doc File",
+        //         ],
+        //         supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+        //         // errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
+        //         errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
+        //         errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
+        //         errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length> 0,"Please select Valid Supporting Files..."],
                 
                 
-                AppoverData: [
-                  this.state.peoplePickerApproverData,
-                  "Please select atleast one Approver to submit request",
-                ],
-              },
-            });
-          }
-        } else if (
-          (this.state.natureOfNoteFeildValue === "Sanction" ||
-            this.state.natureOfNoteFeildValue === "Approval") &&
-          this.state.noteTypeFeildValue === "Financial"
-        ) {
-          console.log("else entered", "sanction,approval", "financial");
-          if (
-            this.state.committeeNameFeildValue &&
-            this.state.subjectFeildValue &&
-            this.state.natureOfNoteFeildValue &&
-            this.state.natureOfApprovalOrSanctionFeildValue &&
-            this.state.noteTypeFeildValue &&
-            this.state.typeOfFinancialNoteFeildValue &&
-            this.state.amountFeildValue &&
-            this.state.searchTextFeildValue &&
-            this.state.puroposeFeildValue &&
-            this.state.noteTofiles.length > 0 &&
-            (this.state.noteSecretaryDetails.length > 0
-              ? this.state.wordDocumentfiles.length > 0
-              : true) &&
-            this.state.peoplePickerApproverData.length > 0
-            &&
-            this.state.errorOfDocuments
-          ) {
-            this.setState({ status: "Submitted", statusNumber: "1000" });
+        //         AppoverData: [
+        //           this.state.peoplePickerApproverData,
+        //           "Please select atleast one Approver to submit request",
+        //         ],
+        //       },
+        //     });
+        //   }
+        // } else if (
+        //   (this.state.natureOfNoteFeildValue === "Sanction" ||
+        //     this.state.natureOfNoteFeildValue === "Approval") &&
+        //   this.state.noteTypeFeildValue === "Financial"
+        // ) {
+        //   console.log("else entered", "sanction,approval", "financial");
+        //   if (
+        //     this.state.committeeNameFeildValue &&
+        //     this.state.subjectFeildValue &&
+        //     this.state.natureOfNoteFeildValue &&
+        //     this.state.natureOfApprovalOrSanctionFeildValue &&
+        //     this.state.noteTypeFeildValue &&
+        //     this.state.typeOfFinancialNoteFeildValue &&
+        //     this.state.amountFeildValue &&
+        //     this.state.searchTextFeildValue &&
+        //     this.state.puroposeFeildValue &&
+        //     this.state.noteTofiles.length > 0 &&
+        //     (this.state.noteSecretaryDetails.length > 0
+        //       ? this.state.wordDocumentfiles.length > 0
+        //       : true) &&
+        //     this.state.peoplePickerApproverData.length > 0
+        //     &&
+        //     this.state.errorOfDocuments
+        //   ) {
+        //     this.setState({ status: "Submitted", statusNumber: "1000" });
             
-            if (this.state.statusNumber === "200") {
-              await this.handleUpdate()
-            }    else if(statusOfForm === 'update') {
-              console.log('entered into updatee else if block')
-              await this.handleUpdate()
+        //     if (this.state.statusNumber === "200") {
+        //       await this.handleUpdate()
+        //     }    else if(statusOfForm === 'update') {
+        //       console.log('entered into updatee else if block')
+        //       await this.handleUpdate()
         
-            }
+        //     }
 
 
             
             
-            else {
-              const id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
+        //     else {
+        //       const id = await this.props.sp.web.lists
+        //         .getByTitle(this.props.listId)
+        //         .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
              
   
           
-              await this._generateRequsterNumber(id.Id);
-              this.setState({autosave:false})
-              clearInterval(this.autoSaveInterval);
+        //       await this._generateRequsterNumber(id.Id);
+        //       this.setState({autosave:false})
+        //       clearInterval(this.autoSaveInterval);
     
-              // console.log(id)
+        //       // console.log(id)
               
-              console.log(
-                `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-              );
-            }
-            this.setState({
-              committeeNameFeildValue: "",
-              subjectFeildValue: "",
-              natureOfNoteFeildValue: "",
-              natureOfApprovalOrSanctionFeildValue: "",
-              noteTypeFeildValue: "",
-              typeOfFinancialNoteFeildValue: "",
-              amountFeildValue: null,
-              searchTextFeildValue: "",
-              puroposeFeildValue: "",
-              noteTofiles: [],
-              supportingDocumentfiles: [],
-              wordDocumentfiles: [],
-              peoplePickerApproverData: [],
-              peoplePickerData: [],
-            });
-            this._fetchApproverDetails();
-            this.setState({
-              isWarning: false,
-              isWarningCommitteeName: false,
-              isWarningSubject: false,
-              isWarningNatureOfNote: false,
-              isWarningNatureOfApporvalOrSanction: false,
-              isWarningNoteType: false,
-              isWarningTypeOfFinancialNote: false,
-              isWarningAmountField: false,
-              isWarningSearchText: false,
-              isWarningPurposeField: false,
-              isWarningNoteToFiles: false,
-              isWarningWordDocumentFiles: false,
-              isWarningPeoplePicker: false,
-            });
+        //       console.log(
+        //         `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+        //       );
+        //     }
+        //     this.setState({
+        //       committeeNameFeildValue: "",
+        //       subjectFeildValue: "",
+        //       natureOfNoteFeildValue: "",
+        //       natureOfApprovalOrSanctionFeildValue: "",
+        //       noteTypeFeildValue: "",
+        //       typeOfFinancialNoteFeildValue: "",
+        //       amountFeildValue: null,
+        //       searchTextFeildValue: "",
+        //       puroposeFeildValue: "",
+        //       noteTofiles: [],
+        //       supportingDocumentfiles: [],
+        //       wordDocumentfiles: [],
+        //       peoplePickerApproverData: [],
+        //       peoplePickerData: [],
+        //     });
+        //     this._fetchApproverDetails();
+        //     this.setState({
+        //       isWarning: false,
+        //       isWarningCommitteeName: false,
+        //       isWarningSubject: false,
+        //       isWarningNatureOfNote: false,
+        //       isWarningNatureOfApporvalOrSanction: false,
+        //       isWarningNoteType: false,
+        //       isWarningTypeOfFinancialNote: false,
+        //       isWarningAmountField: false,
+        //       isWarningSearchText: false,
+        //       isWarningPurposeField: false,
+        //       isWarningNoteToFiles: false,
+        //       isWarningWordDocumentFiles: false,
+        //       isWarningPeoplePicker: false,
+        //     });
            
-            this.setState({ isVisibleAlter: true });
-          } else {
-            this.setState({
-              isWarning: true,
-              isWarningCommitteeName: true,
-              isWarningSubject: true,
-              isWarningNatureOfNote: true,
-              isWarningNatureOfApporvalOrSanction: true,
-              isWarningNoteType: true,
-              isWarningTypeOfFinancialNote: true,
-              isWarningAmountField: true,
-              isWarningSearchText: true,
-              isWarningPurposeField: true,
+        //     this.setState({ isVisibleAlter: true });
+        //   } else {
+        //     this.setState({
+        //       isWarning: true,
+        //       isWarningCommitteeName: true,
+        //       isWarningSubject: true,
+        //       isWarningNatureOfNote: true,
+        //       isWarningNatureOfApporvalOrSanction: true,
+        //       isWarningNoteType: true,
+        //       isWarningTypeOfFinancialNote: true,
+        //       isWarningAmountField: true,
+        //       isWarningSearchText: true,
+        //       isWarningPurposeField: true,
   
-              isDialogHidden: false,
-            });
-            this.setState({
-              eCommitteData: {
-                committeeNameFeildValue: [
-                  this.state.committeeNameFeildValue,
-                  "CommitteName",
-                ],
-                subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
-                natureOfNoteFeildValue: [
-                  this.state.natureOfNoteFeildValue,
-                  "Nature Of Note",
-                ],
-                natureOfApprovalOrSanctionFeildValue: [
-                  this.state.natureOfApprovalOrSanctionFeildValue,
-                  "Nature Of Appr/Sanc",
-                ],
-                noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
-                typeOfFinancialNoteFeildValue:
-                  [this.state.typeOfFinancialNoteFeildValue,"Type of Financial Note"],
-                amountFeildValue: [this.state.amountFeildValue,"Amount"],
-                searchTextFeildValue: [
-                  this.state.searchTextFeildValue,
-                  "Search Text",
-                ],
-                puroposeFeildValue: [this.state.puroposeFeildValue,"Purpose"],
-                noteTofiles: [
-                  this.state.noteTofiles,
-                  "Please select Valid Pdf File",
-                ],
-                wordDocumentfiles: [
-                  this.state.wordDocumentfiles,
-                  "Please select Valid Word Doc File",
-                ],
-                supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
-                // errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
-                errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
-                errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
-                errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length > 0,"Please select Valid Supporting Files..."],
+        //       // isDialogHidden: false,
+        //     });
+        //     this.setState({
+        //       eCommitteData: {
+        //         committeeNameFeildValue: [
+        //           this.state.committeeNameFeildValue,
+        //           "CommitteName",
+        //         ],
+        //         subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
+        //         natureOfNoteFeildValue: [
+        //           this.state.natureOfNoteFeildValue,
+        //           "Nature Of Note",
+        //         ],
+        //         natureOfApprovalOrSanctionFeildValue: [
+        //           this.state.natureOfApprovalOrSanctionFeildValue,
+        //           "Nature Of Appr/Sanc",
+        //         ],
+        //         noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
+        //         typeOfFinancialNoteFeildValue:
+        //           [this.state.typeOfFinancialNoteFeildValue,"Type of Financial Note"],
+        //         amountFeildValue: [this.state.amountFeildValue,"Amount"],
+        //         searchTextFeildValue: [
+        //           this.state.searchTextFeildValue,
+        //           "Search Text",
+        //         ],
+        //         puroposeFeildValue: [this.state.puroposeFeildValue,"Purpose"],
+        //         noteTofiles: [
+        //           this.state.noteTofiles,
+        //           "Please select Valid Pdf File",
+        //         ],
+        //         wordDocumentfiles: [
+        //           this.state.wordDocumentfiles,
+        //           "Please select Valid Word Doc File",
+        //         ],
+        //         supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+        //         // errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
+        //         errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
+        //         errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
+        //         errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length > 0,"Please select Valid Supporting Files..."],
                 
-                AppoverData: [
-                  this.state.peoplePickerApproverData,
-                  "Please select atleast one Approver to submit request",
-                ],
-              },
-            });
-          }
-        } else {
-          console.log("final else");
-          this.setState({ status: "Submitted", statusNumber: "1000" });
-          // eslint-disable-next-line no-constant-condition
-          if (
-            this.state.natureOfNoteFeildValue === "Approval" ||
-            "Sanction" ||
-            this.state.noteTypeFeildValue === "Financial"
-          ) {
-            this.setState({
-              isWarningNatureOfApporvalOrSanction: true,
-              isWarningPurposeField: true,
-              isWarningAmountField: true,
-              isWarningTypeOfFinancialNote: true,
-            });
-          }
-          if (
-            this.state.committeeNameFeildValue &&
-            this.state.subjectFeildValue &&
-            this.state.natureOfNoteFeildValue &&
-            this.state.noteTypeFeildValue &&
-            this.state.searchTextFeildValue &&
-            this.state.noteTofiles.length > 0 &&
-            (this.state.noteSecretaryDetails.length > 0
-              ? this.state.wordDocumentfiles.length > 0
-              : true) &&
-            this.state.peoplePickerApproverData.length > 0
-            &&
-            this.state.errorOfDocuments
-          ) {
-            console.log("else entered");
+        //         AppoverData: [
+        //           this.state.peoplePickerApproverData,
+        //           "Please select atleast one Approver to submit request",
+        //         ],
+        //       },
+        //     });
+        //   }
+        // } else {
+        //   console.log("final else");
+        //   this.setState({ status: "Submitted", statusNumber: "1000" });
+        //   // eslint-disable-next-line no-constant-condition
+        //   if (
+        //     this.state.natureOfNoteFeildValue === "Approval" ||
+        //     "Sanction" ||
+        //     this.state.noteTypeFeildValue === "Financial"
+        //   ) {
+        //     this.setState({
+        //       isWarningNatureOfApporvalOrSanction: true,
+        //       isWarningPurposeField: true,
+        //       isWarningAmountField: true,
+        //       isWarningTypeOfFinancialNote: true,
+        //     });
+        //   }
+        //   if (
+        //     this.state.committeeNameFeildValue &&
+        //     this.state.subjectFeildValue &&
+        //     this.state.natureOfNoteFeildValue &&
+        //     this.state.noteTypeFeildValue &&
+        //     this.state.searchTextFeildValue &&
+        //     this.state.noteTofiles.length > 0 &&
+        //     (this.state.noteSecretaryDetails.length > 0
+        //       ? this.state.wordDocumentfiles.length > 0
+        //       : true) &&
+        //     this.state.peoplePickerApproverData.length > 0
+        //     &&
+        //     this.state.errorOfDocuments
+        //   ) {
+        //     console.log("else entered");
            
-            if (this.state.statusNumber === "200") {
-              await this.handleUpdate()
-            }     else if(statusOfForm === 'update') {
-              console.log('entered into updatee else if block')
-              await this.handleUpdate()
+        //     if (this.state.statusNumber === "200") {
+        //       await this.handleUpdate()
+        //     }     else if(statusOfForm === 'update') {
+        //       console.log('entered into updatee else if block')
+        //       await this.handleUpdate()
         
-            }
+        //     }
 
 
             
             
-            else {
-              const id = await this.props.sp.web.lists
-                .getByTitle(this.props.listId)
-                .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
+        //     else {
+        //       const id = await this.props.sp.web.lists
+        //         .getByTitle(this.props.listId)
+        //         .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
              
   
           
-              await this._generateRequsterNumber(id.Id);
-              this.setState({autosave:false})
-              clearInterval(this.autoSaveInterval);
+        //       await this._generateRequsterNumber(id.Id);
+        //       this.setState({autosave:false})
+        //       clearInterval(this.autoSaveInterval);
              
     
          
           
-              console.log(
-                `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-              );
-            }
+        //       console.log(
+        //         `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+        //       );
+        //     }
   
-            this.setState({
-              committeeNameFeildValue: "",
-              subjectFeildValue: "",
-              natureOfNoteFeildValue: "",
-              noteTypeFeildValue: "",
-              searchTextFeildValue: "",
-              noteTofiles: [],
-              supportingDocumentfiles: [],
-              wordDocumentfiles: [],
-              peoplePickerApproverData: [],
-              peoplePickerData: [],
-              puroposeFeildValue: "",
-              filesClear: [],
-            });
-            this._fetchApproverDetails();
+        //     this.setState({
+        //       committeeNameFeildValue: "",
+        //       subjectFeildValue: "",
+        //       natureOfNoteFeildValue: "",
+        //       noteTypeFeildValue: "",
+        //       searchTextFeildValue: "",
+        //       noteTofiles: [],
+        //       supportingDocumentfiles: [],
+        //       wordDocumentfiles: [],
+        //       peoplePickerApproverData: [],
+        //       peoplePickerData: [],
+        //       puroposeFeildValue: "",
+        //       filesClear: [],
+        //     });
+        //     this._fetchApproverDetails();
   
            
-            this.setState({
-              isWarning: false,
-              isWarningCommitteeName: false,
-              isWarningSubject: false,
-              isWarningNatureOfNote: false,
+        //     this.setState({
+        //       isWarning: false,
+        //       isWarningCommitteeName: false,
+        //       isWarningSubject: false,
+        //       isWarningNatureOfNote: false,
   
-              isWarningNoteType: false,
-              isWarningPurposeField: false,
-              isWarningSearchText: false,
-              isWarningNoteToFiles: false,
-              // isWarningSupportingDocumentFiles: false,no warning required
-              isWarningWordDocumentFiles: false,
-              isWarningPeoplePicker: false,
-            });
+        //       isWarningNoteType: false,
+        //       isWarningPurposeField: false,
+        //       isWarningSearchText: false,
+        //       isWarningNoteToFiles: false,
+        //       // isWarningSupportingDocumentFiles: false,no warning required
+        //       isWarningWordDocumentFiles: false,
+        //       isWarningPeoplePicker: false,
+        //     });
            
-            this.setState({ isVisibleAlter: true });
-          } else {
-            // alert("Required Fields")
+        //     this.setState({ isVisibleAlter: true });
+        //   } else {
+        //     // alert("Required Fields")
   
-            this.setState({
-              isWarning: true,
-              isWarningCommitteeName: true,
-              isWarningSubject: true,
-              isWarningNatureOfNote: true,
+        //     this.setState({
+        //       isWarning: true,
+        //       isWarningCommitteeName: true,
+        //       isWarningSubject: true,
+        //       isWarningNatureOfNote: true,
   
-              isWarningNoteType: true,
+        //       isWarningNoteType: true,
   
-              isWarningSearchText: true,
-              isDialogHidden: false,
-            });
-            this.setState({
-              eCommitteData: {
-                committeeNameFeildValue: [
-                  this.state.committeeNameFeildValue,
-                  "CommitteName",
-                ],
-                subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
-                natureOfNoteFeildValue: [
-                  this.state.natureOfNoteFeildValue,
-                  "Nature Of Note",
-                ],
+        //       isWarningSearchText: true,
+        //       // isDialogHidden: false,
+        //     });
+        //     this.setState({
+        //       eCommitteData: {
+        //         committeeNameFeildValue: [
+        //           this.state.committeeNameFeildValue,
+        //           "CommitteName",
+        //         ],
+        //         subjectFeildValue: [this.state.subjectFeildValue, "Subject"],
+        //         natureOfNoteFeildValue: [
+        //           this.state.natureOfNoteFeildValue,
+        //           "Nature Of Note",
+        //         ],
   
-                noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
+        //         noteTypeFeildValue: [this.state.noteTypeFeildValue, "Note Type"],
   
-                searchTextFeildValue: [
-                  this.state.searchTextFeildValue,
-                  "Search Text",
-                ],
+        //         searchTextFeildValue: [
+        //           this.state.searchTextFeildValue,
+        //           "Search Text",
+        //         ],
   
-                noteTofiles: [
-                  this.state.noteTofiles,
-                  "Please select Valid Pdf File",
-                ],
-                wordDocumentfiles: [
-                  this.state.wordDocumentfiles,
-                  "Please select Valid Word Doc File",
-                ],
-                supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
-                // errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
+        //         noteTofiles: [
+        //           this.state.noteTofiles,
+        //           "Please select Valid Pdf File",
+        //         ],
+        //         wordDocumentfiles: [
+        //           this.state.wordDocumentfiles,
+        //           "Please select Valid Word Doc File",
+        //         ],
+        //         supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+        //         // errorInFiles:[this.state.errorOfDocuments,"Please select Valid Pdf/Word/Supporting File"],
                 
                 
-                errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
-                errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
-                errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length > 0,"Please select Valid Supporting Files..."],
-                AppoverData: [
-                  this.state.peoplePickerApproverData,
-                  "Please select atleast one Approver to submit request",
-                ],
-              },
-            });
-          }
-        }
+        //         errorInPdfFiles:[this.state.errorFilesList.notePdF.length > 0,"Please select Valid Pdf File..."],
+        //         errorInWordDocFiles:[this.state.errorFilesList.wordDocument.length > 0,"Please select Valid Word File..."],
+        //         errorInSupportingDocFiles:[this.state.errorFilesList.supportingDocument.length > 0,"Please select Valid Supporting Files..."],
+        //         AppoverData: [
+        //           this.state.peoplePickerApproverData,
+        //           "Please select atleast one Approver to submit request",
+        //         ],
+        //       },
+        //     });
+        //   }
+        // }
         // this.setState({ status: "" });
       } catch (error) {
         console.error("Error adding item: ", error);
@@ -3901,17 +4356,19 @@ private _checkValidationArray = ():any =>{
             .items.getById(this.state.itemId)
             .update(await this.getObject('Drafted','100'))
         
-
+            // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
+            // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
+            // errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
       // Usage example
-      await this.updatePdfFolderItems(
+      this.state.errorFilesList.notePdF.length === 0 && await this.updatePdfFolderItems(
         this.state.noteTofiles,
         `${this._folderName}/Pdf`
       );
-      await this.updateSupportingDocumentFolderItems(
+      this.state.errorFilesList.supportingDocument.length === 0 && await this.updateSupportingDocumentFolderItems(
         this.state.supportingDocumentfiles,
         `${this._folderName}/SupportingDocument`
       );
-      await this.updateWordDocumentFolderItems(
+      this.state.errorFilesList.wordDocument.length === 0 && await this.updateWordDocumentFolderItems(
         this.state.wordDocumentfiles,
         `${this._folderName}/WordDocument`
       );
@@ -4407,10 +4864,23 @@ private _checkValidationArray = ():any =>{
               onCloseAlter={this._closeDialogAlter}
             />
             {/* success  dialog */}
+
+
+             {/* auto save failed  dialog */}
+             {this.state.isAutoSaveFailedDialog && 
+             <AutoSaveFailedDialog
+           
+           statusOfReq={this.state.successStatus}
+           isVisibleAlter={this.state.isAutoSaveFailedDialog}
+           onCloseAlter={()=>{
+            this.setState({isAutoSaveFailedDialog:false})
+           }}
+         />}
+         {/* auto save failed  dialog*/}
             <MyDialog
            
               hidden={this.state.isDialogHidden}
-              data={this.state.eCommitteData}
+              data={this.state.eCommitteDataForValidataionDialog}
               handleDialogBox={this.handleDialogBox}
             />
             <ApproverOrReviewerDialog
@@ -4516,11 +4986,11 @@ private _checkValidationArray = ():any =>{
                       borderRadius: "0px",
                       fontSize: "16px",
                       // fontFamily: 'Poppins',
-                      border:
-                        this.state.isWarningCommitteeName &&
-                        this.state.committeeNameFeildValue === ""
-                          ? "2px solid red"
-                          : "none",
+                      // border:
+                        
+                      //   this.state.committeeNameFeildValue === ""
+                      //     ? "2px solid red"
+                      //     : "none",
                     },
                   }}
                 />
@@ -4537,9 +5007,13 @@ private _checkValidationArray = ():any =>{
                 <label style={{display:'block', fontWeight: "600",marginBottom:'5px' }}>
                   Subject <SpanComponent />
                 </label>
-                <textarea  style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject && this.state.subjectFeildValue===''
-                        ? "2px solid red"
-                        : "1px solid rgb(133, 133, 133)",}}  value={this.state.subjectFeildValue}
+                <textarea  style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , 
+                // border:this.state.subjectFeildValue===''
+                //         ? "2px solid red"
+                //         : "1px solid rgb(133, 133, 133)",
+                      }
+                      }
+                          value={this.state.subjectFeildValue}
                   onChange={this.handleSubjectChange}></textarea>
                 {/* <TextField onChange={this.handleSubject} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
                 
@@ -4572,11 +5046,11 @@ private _checkValidationArray = ():any =>{
                       borderRadius: "0px",
                       fontSize: "16px",
                       // fontFamily: 'Poppins',
-                      border:
-                        this.state.isWarningNatureOfNote &&
-                        this.state.natureOfNoteFeildValue === ""
-                          ? "2px solid red"
-                          : "none",
+                      // border:
+                        
+                      //   this.state.natureOfNoteFeildValue === ""
+                      //     ? "2px solid red"
+                      //     : "none",
                     },
                   }}
                 />
@@ -4608,11 +5082,11 @@ private _checkValidationArray = ():any =>{
                     onChange={this.handleNatureOfApprovalOrSanctionChange}
                     styles={{
                       dropdown: {
-                        border:
-                          this.state.isWarningNatureOfApporvalOrSanction &&
-                          this.state.natureOfApprovalOrSanctionFeildValue === ""
-                            ? "1px solid red"
-                            : "1px solid rgb(211, 211, 211)",
+                        // border:
+                          
+                        //   this.state.natureOfApprovalOrSanctionFeildValue === ""
+                        //     ? "1px solid red"
+                        //     : "1px solid rgb(211, 211, 211)",
                         borderRadius: "0px",
                         fontSize: "16px",
                         // fontFamily: 'Poppins',
@@ -4647,11 +5121,11 @@ private _checkValidationArray = ():any =>{
                   }
                   styles={{
                     dropdown: {
-                      border:
-                        this.state.isWarningNoteType &&
-                        this.state.noteTypeFeildValue === ""
-                          ? "1px solid red"
-                          : "1px solid rgb(211, 211, 211)",
+                      // border:
+                        
+                      //   this.state.noteTypeFeildValue === ""
+                      //     ? "1px solid red"
+                      //     : "1px solid rgb(211, 211, 211)",
                       borderRadius: "0px",
                       fontSize: "16px",
                       // fontFamily: 'Poppins',
@@ -4683,12 +5157,12 @@ private _checkValidationArray = ():any =>{
                     onChange={this.handleTypeOfFinancialNote}
                     styles={{
                       dropdown: {
-                        border: `1px solid ${
-                          this.state.isWarningTypeOfFinancialNote &&
-                          !this.state.typeOfFinancialNoteFeildValue
-                            ? "red"
-                            : "rgb(211, 211, 211)"
-                        }`,
+                        // border: `1px solid ${
+                          
+                        //   !this.state.typeOfFinancialNoteFeildValue
+                        //     ? "red"
+                        //     : "rgb(211, 211, 211)"
+                        // }`,
                         borderRadius: "0px",
                       },
                     }}
@@ -4722,11 +5196,13 @@ private _checkValidationArray = ():any =>{
                   <SpanComponent />
                 </label>
                 {/* <TextField onChange={this.handleSearchText} styles={{ fieldGroup: { borderRadius: '8px', border: '1px solid rgb(211, 211, 211)' } }} /> */}
-                <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSearchText && this.state.searchTextFeildValue ===''
-                        ? "2px solid red"
-                        : "1px solid rgb(133, 133, 133)",}}
+                <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , 
+                // border:  this.state.searchTextFeildValue ===''
+                //         ? "2px solid red"
+                //         : "1px solid rgb(133, 133, 133)",
+                      }}
                   rows={
-                    this.state.isWarningSearchText &&
+                   
                     !this.state.searchTextFeildValue
                       ? 3
                       : 1
@@ -4747,13 +5223,23 @@ private _checkValidationArray = ():any =>{
                     Amount
                     <SpanComponent />
                   </label>
-                  <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningAmountField && this.state.amountFeildValue ===''
-                        ? "2px solid red"
-                        : "1px solid rgb(133, 133, 133)",}}
-                    onChange={this.handleAmountChange}
-                    value={this.state.amountFeildValue}
-                   
-                  />
+                  <TextField
+  styles={{
+    fieldGroup: {
+      display: 'block',
+      paddingLeft: '12px',
+      paddingTop: '5px',
+      height: '32px',
+      boxSizing: 'border-box',
+      width: '100%',
+      // border:this.state.amountFeildValue === ''
+      //   ? '2px solid red'
+      //   : '1px solid rgb(133, 133, 133)',
+    },
+  }}
+  onChange={this.handleAmountChange}
+  value={this.state.amountFeildValue}
+/>
                 </div>
               )}
               {/* {this.state.isAmountVisable ? (
@@ -4801,12 +5287,12 @@ private _checkValidationArray = ():any =>{
                       }
                       styles={{
                         dropdown: {
-                          border: `1px solid ${
-                            this.state.isWarningPurposeField &&
-                            !this.state.noteTypeFeildValue
-                              ? "red"
-                              : "rgb(211, 211, 211)"
-                          }`,
+                          // border: `1px solid ${
+                            
+                          //   !this.state.noteTypeFeildValue
+                          //     ? "red"
+                          //     : "rgb(211, 211, 211)"
+                          // }`,
                           borderRadius: "0px",
                         },
                       }}
@@ -4834,12 +5320,12 @@ private _checkValidationArray = ():any =>{
                       }
                       styles={{
                         dropdown: {
-                          border: `1px solid ${
-                            this.state.isWarningPurposeField &&
-                            !this.state.puroposeFeildValue
-                              ? "red"
-                              : "rgb(211, 211, 211)"
-                          }`,
+                          // border: `1px solid ${
+                          
+                          //   !this.state.puroposeFeildValue
+                          //     ? "red"
+                          //     : "rgb(211, 211, 211)"
+                          // }`,
                           borderRadius: "0px",
                         },
                       }}
@@ -4855,9 +5341,11 @@ private _checkValidationArray = ():any =>{
                     Purpose
                     <SpanComponent />
                   </label>
-                  <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject
-                        ? "2px solid red"
-                        : "1px solid rgb(133, 133, 133)",}}
+                  <textarea style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , 
+                  // border: this.state.isWarningSubject
+                  //       ? "2px solid red"
+                  //       : "1px solid rgb(133, 133, 133)",
+                      }}
                     rows={
                       this.state.isWarningPurposeField &&
                       !this.state.puroposeFeildValue
@@ -4882,11 +5370,13 @@ private _checkValidationArray = ():any =>{
                     <SpanComponent />
                   </label>
                   <textarea
-                    style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , border: this.state.isWarningSubject && this.state.subjectFeildValue===''
-                      ? "2px solid red"
-                      : "1px solid rgb(133, 133, 133)",}}
+                    style={{display:'block',paddingLeft:'12px',paddingTop:'5px', height: '32px',boxSizing:'border-box',width:'100%' , 
+                      // border: this.state.subjectFeildValue===''
+                      // ? "2px solid red"
+                      // : "1px solid rgb(133, 133, 133)",
+                    }}
                     rows={
-                      this.state.isWarningPurposeField &&
+                     
                       !this.state.othersFieldValue
                         ? 3
                         : 1
@@ -5315,7 +5805,17 @@ private _checkValidationArray = ():any =>{
                     (e:any)=>{
                       this.setState({successStatus:'submitted',autosave:false})
                       e.preventDefault()
-                      this.handleSubmit("update")
+
+                      // if (this._checkValidationArray()){
+                      //   this.setState({})
+                      // }
+                      if (this._checkValidation()){
+                      
+                        this.showDialog()
+                     }else{
+                       this._checkValidationArray()
+                       this.setState({isDialogHidden:false})
+                     }
                       clearInterval(this.autoSaveInterval);
                     }
                   }
@@ -5328,13 +5828,21 @@ private _checkValidationArray = ():any =>{
                 <PrimaryButton
                   type="button"
                   className={`${styles.responsiveButton}`}
-                  onClick={(
+                  onClick={async (
                     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                   ) => {
-                    this.setState({successStatus:'submitted'})
+                    this.setState({successStatus:'submitted',autosave:false})
                     // this.setState({status:'Submitted',statusNumber:'1000'})  
                     e.preventDefault()
-                    this.showDialog()
+                    // this.showDialog()
+                    if (this._checkValidation()){
+                      
+                       this.showDialog()
+                    }else{
+                      this._checkValidationArray()
+                      this.setState({isDialogHidden:false})
+                    }
+                    clearInterval(this.autoSaveInterval);
                     // this.handleSubmit( "Submitted");
                   }}
                   iconProps={{ iconName: "Send" }}

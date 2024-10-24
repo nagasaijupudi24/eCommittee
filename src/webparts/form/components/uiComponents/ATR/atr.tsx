@@ -2,7 +2,7 @@
 /* eslint-disable @rushstack/no-new-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-import { DetailsList, IColumn, Stack, IconButton, DefaultButton, SelectionMode } from '@fluentui/react';
+import { DetailsList, IColumn, Stack, IconButton, DefaultButton, SelectionMode, Modal, Icon, PrimaryButton, mergeStyleSets } from '@fluentui/react';
 import { IComboBoxOption } from '@fluentui/react/lib/ComboBox';
 
 import PnPPeoplePicker from '../peoplePicker/peoplePicker';
@@ -10,6 +10,7 @@ import { v4 } from 'uuid';
 
 // Interface for each table item
 interface ITableItem {
+  id: any;
   key: any;
   comments: any;
   assignedTo: any;
@@ -38,6 +39,8 @@ interface IATRAssigneeState {
   selectedStatus: any;
   selectedValue:any;
   commentsData:any;
+  isModalOpen: boolean;
+  modalMessage: string;
 }
 
 // ComboBox options for status
@@ -56,7 +59,9 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       currentRowKey: null,
       selectedStatus: undefined,
       selectedValue:'',
-      commentsData:this.props.commentsData
+      commentsData:this.props.commentsData,
+      isModalOpen: false,
+      modalMessage: "",
     };
 
     this._updateStatusOptions()
@@ -197,6 +202,20 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
 
   public _getDetailsFromPeoplePicker = (): any => {
     console.log("add btn triggered in ATR Assignee")
+
+
+    const itemExists = this.state.tableData.some(
+      (item: ITableItem) => item.id === this.state.selectedValue.id
+    );
+
+
+    if (itemExists) {
+      this.setState({
+        isModalOpen: true,
+        modalMessage: "The user already exists. Please add another user.",
+      });
+      return;
+    }
     
     console.log(this.state.commentsData)
     const joinedCommentsData = this.state.commentsData
@@ -237,8 +256,14 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
 
 
     
-    
-    this.setState({selectedValue:data[0]})
+    if (data[0]!==''){
+      this.setState({selectedValue:data[0]})
+    }
+  };
+
+
+  private _closeModal = (): void => {
+    this.setState({ isModalOpen: false });
   };
 
   public render(): React.ReactElement<IATRAssigneeProps> {
@@ -246,6 +271,49 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
     console.log(statusOptions)
     console.log(this.state)
     console.log(this.props)
+
+
+    const styles = mergeStyleSets({
+      modal: {
+        padding: "10px",
+        minWidth: "300px",
+        maxWidth: "80vw",
+        width: "100%",
+        "@media (min-width: 768px)": {
+          maxWidth: "580px", // Adjust width for medium screens
+        },
+        "@media (max-width: 767px)": {
+          maxWidth: "290px", // Adjust width for smaller screens
+        },
+        margin: "auto",
+        backgroundColor: "white",
+        borderRadius: "4px",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.26)",
+      },
+      header: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottom: "1px solid #ddd",
+      },
+      body: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        padding: "20px 0",
+      },
+      footer: {
+        display: "flex",
+        justifyContent: "flex-end",
+        marginTop: "20px",
+        borderTop: "1px solid #ddd", // Added border to the top of the footer
+        paddingTop: "10px",
+      },
+    });
+
+    const {  isModalOpen, modalMessage } = this.state;
 
     return (
       <div>
@@ -284,6 +352,38 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
           ariaLabelForSelectAllCheckbox="Toggle selection for all items"
           onItemInvoked={(item: ITableItem) => this.handleRowClick(item.key)} // Click to select row
         />
+
+
+
+         {/* Modal for alerts */}
+         <Modal
+          isOpen={isModalOpen}
+          onDismiss={this._closeModal}
+          isBlocking={true}
+          containerClassName={styles.modal}
+        >
+          <div className={styles.header}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Icon iconName="Info" />
+              <h2 style={{ marginLeft: "10px" }}>Alert</h2>
+            </div>
+            <IconButton
+              iconProps={{ iconName: "ErrorBadge" }}
+              ariaLabel="Close popup modal"
+              onClick={this._closeModal}
+            />
+          </div>
+          <div className={styles.body}>
+            <p>{modalMessage}</p>
+          </div>
+          <div className={styles.footer}>
+            <PrimaryButton
+              iconProps={{ iconName: "ReturnToSession" }}
+              onClick={this._closeModal}
+              text="OK"
+            />
+          </div>
+        </Modal>
       </div>
     );
   }

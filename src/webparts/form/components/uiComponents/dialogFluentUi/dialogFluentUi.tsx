@@ -55,17 +55,72 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   console.log(props.dialogDetails);
 
   // CSS for responsive design
-  const modalPropsStyles = {
-    main: {
-      padding:'10px',
+  const styles = mergeStyleSets({
+    modal: {
+      minWidth: '300px',
+      maxWidth: '80vw',
+      width: '100%',
       '@media (min-width: 768px)': {
-        width: '580px',
+        maxWidth: '580px', // Adjust width for medium screens
       },
-      '@media (max-width: 768px)': {
-        width: '290px',
+      '@media (max-width: 767px)': {
+        maxWidth: '290px', // Adjust width for smaller screens
       },
+      margin: 'auto',
+      padding: '10px',
+      backgroundColor: 'white',
+      borderRadius: '4px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.26)',
     },
-  };
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottom: '1px solid #ddd',
+    },
+    headerTitle: {
+     margin:'5px',
+     marginLeft:'5px'
+    },
+    headerIcon: {
+     paddingRight: '0px', // Reduced space between the icon and the title
+     
+    },
+    body: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      textAlign: 'center',
+      padding: '20px 0',
+      height:'100%'
+    },
+    footer: {
+      display: 'flex',
+      justifyContent: 'space-between', // Adjusted to space between
+      marginTop: '20px',
+      borderTop: '1px solid #ddd',
+      paddingTop: '10px',
+    },
+    button: {
+      flex: '1 1 50%', // Ensures each button takes up 50% of the footer width
+      margin: '0 5px', // Adds some space between the buttons
+    },
+    buttonContent: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    buttonIcon: {
+      marginRight: '4px', // Adjust the space between the icon and text
+    },
+  
+    removeTopMargin:{
+      marginTop: '4px',
+      marginBottom: '4px'
+    }
+    
+  });
   const [data, setData] = React.useState<any>('');
   const [isUserExistsModalVisible, setIsUserExistsModalVisible] = React.useState(false); // Modal visibility state  const [data, setData] =
     React.useState<any>('');
@@ -94,7 +149,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         isOpen={!hiddenProp}
         onDismiss={dialogDetails.closeFunction}
         isBlocking={true}
-        styles={modalPropsStyles}
+        containerClassName={styles.modal}
        
       >
         <div style={{ borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1px' }}>
@@ -108,9 +163,18 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
           <p >{dialogDetails.subText}</p>
           <p style={{textAlign:'center'}}>{dialogDetails.message}</p>
         </div>
-        <div style={{ borderTop: '1px solid #ccc', marginTop: '20px',paddingTop:'10px', display: 'flex', justifyContent: 'end', gap: '10px' }}>
-          <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} onClick={handleConfirmBtn} text="Confirm"  />
-          <DefaultButton iconProps={{ iconName: "ErrorBadge" }} onClick={dialogDetails.closeFunction} text="Cancel" />
+
+        
+        <div className={styles.footer}>
+          <PrimaryButton
+          styles={{ root: styles.buttonContent }}
+          className={styles.button}
+          
+          iconProps={{ iconName: "SkypeCircleCheck" }} onClick={handleConfirmBtn} text="Confirm"  />
+          <DefaultButton
+          styles={{ root: styles.buttonContent }}
+          className={styles.button}
+          iconProps={{ iconName: "ErrorBadge" }} onClick={dialogDetails.closeFunction} text="Cancel" />
         </div>
       </Modal>
     );
@@ -296,46 +360,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   const getChangeApproverJsx = (): any => {
     console.log("Change Approver is triggered");
   
-    const styles = mergeStyleSets({
-      modal: {
-        padding: "10px",
-        minWidth: "300px",
-        maxWidth: "80vw",
-        width: "100%",
-        "@media (min-width: 768px)": {
-          maxWidth: "580px",
-        },
-        "@media (max-width: 767px)": {
-          maxWidth: "290px",
-        },
-        margin: "auto",
-        backgroundColor: "white",
-        borderRadius: "4px",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.26)",
-      },
-      header: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        borderBottom: "1px solid #ddd",
-      },
-      body: {
-        display: "flex",
-        flexDirection: "column",
-        padding: "20px 0",
-      },
-      footer: {
-        display: "flex",
-        justifyContent: "end",
-        marginTop: "20px",
-        borderTop: "1px solid #ddd",
-        paddingTop: "10px",
-      },
-      button: {
-        // flex: "1 1 50%",
-        margin: "0 5px",
-      },
-    });
+  
   
     return (
       <Modal
@@ -368,7 +393,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         isOpen={!hiddenProp}
         onDismiss={dialogDetails.closeFunction}
         isBlocking={true}
-        styles={modalPropsStyles}
+        containerClassName={styles.modal}
       >
           <ReferCommentsMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/>
         <div>
@@ -421,19 +446,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
               styles={{ root: { width: "90%" } }}
             />
           </div>
-          <Stack
-            horizontal
-            tokens={{ childrenGap: 10 }}
-            styles={{
-              root: {
-                display:'flex',
-                justifyContent:'end',
-                borderTop: "1px solid #ccc",
-                marginTop: "10px",
-                padding: "10px",
-                width: "100%",
-              },
-            }}
+          <div className={styles.footer}
           >
             <PrimaryButton
               onClick={()=>{
@@ -455,15 +468,17 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
               }}
               text="Confirm"
               iconProps={{ iconName: "SkypeCircleCheck" }}
+              styles={{ root: styles.buttonContent }}
               
             />
             <DefaultButton
               onClick={dialogDetails.closeFunction}
               text="Cancel"
               iconProps={{ iconName: "ErrorBadge" }}
+              styles={{ root: styles.buttonContent }}
              
             />
-          </Stack>
+          </div>
         </div>
       </Modal>
     );
