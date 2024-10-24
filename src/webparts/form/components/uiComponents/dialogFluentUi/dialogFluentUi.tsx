@@ -108,9 +108,9 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
           <p >{dialogDetails.subText}</p>
           <p style={{textAlign:'center'}}>{dialogDetails.message}</p>
         </div>
-        <div style={{ borderTop: '1px solid #ccc', marginTop: '20px',paddingTop:'10px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+        <div style={{ borderTop: '1px solid #ccc', marginTop: '20px',paddingTop:'10px', display: 'flex', justifyContent: 'end', gap: '10px' }}>
           <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} onClick={handleConfirmBtn} text="Confirm"  />
-          <DefaultButton iconProps={{ iconName: "Cancel" }} onClick={dialogDetails.closeFunction} text="Cancel" />
+          <DefaultButton iconProps={{ iconName: "ErrorBadge" }} onClick={dialogDetails.closeFunction} text="Cancel" />
         </div>
       </Modal>
     );
@@ -326,13 +326,13 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       },
       footer: {
         display: "flex",
-        justifyContent: "space-between",
+        justifyContent: "end",
         marginTop: "20px",
         borderTop: "1px solid #ddd",
         paddingTop: "10px",
       },
       button: {
-        flex: "1 1 50%",
+        // flex: "1 1 50%",
         margin: "0 5px",
       },
     });
@@ -354,8 +354,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             typeOFButton="Change Approver"
           />
           <div className={styles.footer}>
-          <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Submit" />
-          <DefaultButton iconProps={{ iconName: "Cancel" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
+          <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Confirm" />
+          <DefaultButton iconProps={{ iconName: "ErrorBadge" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
           </div>
         </div>
       </Modal>
@@ -426,6 +426,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             tokens={{ childrenGap: 10 }}
             styles={{
               root: {
+                display:'flex',
+                justifyContent:'end',
                 borderTop: "1px solid #ccc",
                 marginTop: "10px",
                 padding: "10px",
@@ -451,15 +453,15 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                 }
 
               }}
-              text="Submit"
+              text="Confirm"
               iconProps={{ iconName: "SkypeCircleCheck" }}
-              styles={{ root: { flex: 1 } }}
+              
             />
             <DefaultButton
               onClick={dialogDetails.closeFunction}
               text="Cancel"
-              iconProps={{ iconName: "Cancel" }}
-              styles={{ root: { flex: 1 } }}
+              iconProps={{ iconName: "ErrorBadge" }}
+             
             />
           </Stack>
         </div>

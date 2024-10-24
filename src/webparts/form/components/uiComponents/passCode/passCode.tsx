@@ -205,14 +205,13 @@ export default class PasscodeModal extends React.Component<
       },
       footer: {
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "end",
         marginTop: "20px",
-        borderTop: "1px solid #ddd", // Similar footer style as in ConfirmationDialog
+        borderTop: "1px solid #ddd",
         paddingTop: "10px",
       },
       button: {
-        flex: 1,
-        margin: "0 5px", // Adds some space between the buttons
+        margin: "0 5px",
       },
       iconButton: {
         marginRight: "10px",
@@ -222,82 +221,92 @@ export default class PasscodeModal extends React.Component<
         fontWeight: "bold",
         color: "#0078d4",
       },
+      errorMessage: {
+        color: 'red',
+        marginTop: '10px',
+      },
+      noHover: {
+        ':hover': {
+          transform: 'none !important',
+          transition: 'none !important',
+          boxShadow: 'none !important',
+          backgroundColor: 'transparent !important',
+        },
+      },
     });
 
     return (
       <Modal
-        isOpen={isOpen}
-        onDismiss={onClose}
-        isBlocking={true}
-        containerClassName={styles.modal}
-      >
-        <div className={styles.header}>
-          <h2>Passcode Verification</h2>
-          <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
-        </div>
-        <div className={styles.body}>
-          {isCreating ? (
-            <>
-              <MessageBar messageBarType={MessageBarType.info}>
-                Passcode is not set. Please create a passcode to proceed further.
-              </MessageBar>
-              <div className={styles.footer}>
-                <PrimaryButton
-                  className={styles.button}
-                  text="Create Passcode"
-                  onClick={this.redirectToCreatePasscode}
-                  iconProps={{ iconName: "OpenInNewTab" }}
+      isOpen={isOpen}
+      onDismiss={onClose}
+      isBlocking={true}
+      containerClassName={styles.modal}
+    >
+      <div className={styles.header}>
+        <h2>Passcode Verification</h2>
+        <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
+      </div>
+      <div className={styles.body} style={{ textAlign: "center" }}>
+        {isCreating ? (
+          <>
+            <MessageBar messageBarType={MessageBarType.info}>
+              Passcode is not set. Please create a passcode to proceed further.
+            </MessageBar>
+            <div className={styles.footer}>
+              <PrimaryButton
+                className={styles.button}
+                text="Create Passcode"
+                onClick={this.redirectToCreatePasscode}
+                iconProps={{ iconName: "OpenInNewTab" }}
+              />
+              <DefaultButton
+                className={styles.button}
+                text="Cancel"
+                onClick={onClose}
+                iconProps={{ iconName: "ErrorBadgeIcon" }}
+                styles={{ textContainer: styles.buttonText }}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <TextField
+              label="Enter your passcode for verification:"
+              value={passcode}
+              onChange={this.onPasscodeChange}
+              type={isPasswordVisible ? "text" : "password"}
+              onRenderSuffix={() => (
+                <IconButton
+                  className={styles.noHover}
+                  iconProps={{
+                    iconName: isPasswordVisible ? "Hide" : "RedEye",
+                  }}
+                  onClick={this.togglePasswordVisibility}
                 />
-               <DefaultButton
-  className={styles.button}
-  text="Cancel"
-  onClick={onClose}
-  iconProps={{ iconName: "Cancel" }}
-  styles={{ textContainer: styles.buttonText }}
-  
-/>
-{/* <button></button> */}
-              </div>
-            </>
-          ) : (
-            <>
-              <TextField
-                label="Enter your passcode for verification:"
-                value={passcode}
-                onChange={this.onPasscodeChange}
-                type={isPasswordVisible ? "text" : "password"}
-                onRenderSuffix={() => (
-                  <IconButton
-                    iconProps={{
-                      iconName: isPasswordVisible ? "Hide" : "RedEye",
-                    }}
-                    onClick={this.togglePasswordVisibility}
-                  />
-                )}
-              />{" "}
-              {errorMessage && (
-                <MessageBar messageBarType={MessageBarType.error}>
-                  {errorMessage}
-                </MessageBar>
               )}
-              <div className={styles.footer}>
-                <PrimaryButton
-                  className={styles.button}
-                  text="Verify"
-                  iconProps={{ iconName: "PageCheckedOut" }}
-                  onClick={this.validatePasscode}
-                />
-                <DefaultButton
-                  className={styles.button}
-                  text="Cancel"
-                  onClick={onClose}
-                  iconProps={{ iconName: "Cancel" }}
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </Modal>
+            />
+            {errorMessage && (
+              <p className={styles.errorMessage}>{errorMessage}</p>
+            )}
+            <div className={styles.footer}>
+              <PrimaryButton
+                className={styles.button}
+                text="Verify"
+                iconProps={{ iconName: "CheckedOutByOther12" }}
+                onClick={this.validatePasscode}
+              />
+              <DefaultButton
+                className={styles.button}
+                text="Cancel"
+                onClick={onClose}
+                iconProps={{ iconName: "ErrorBadgeIcon" }}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </Modal>
+    
     )
   }
 }

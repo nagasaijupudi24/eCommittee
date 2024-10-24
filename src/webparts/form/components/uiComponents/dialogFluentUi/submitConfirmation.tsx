@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Modal, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
+// import styles from '../../Form.module.scss';
 
 interface IConfirmationDialogProps {
   hidden: boolean;
@@ -22,7 +23,7 @@ const styles = mergeStyleSets({
       maxWidth: '290px', // Adjust width for smaller screens
     },
     margin: 'auto',
-    padding: '20px',
+    padding: '10px',
     backgroundColor: 'white',
     borderRadius: '4px',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.26)',
@@ -31,8 +32,15 @@ const styles = mergeStyleSets({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    // padding: '10px 0',
     borderBottom: '1px solid #ddd',
+  },
+  headerTitle: {
+   margin:'5px',
+   marginLeft:'5px'
+  },
+  headerIcon: {
+   paddingRight: '0px', // Reduced space between the icon and the title
+   
   },
   body: {
     display: 'flex',
@@ -41,18 +49,33 @@ const styles = mergeStyleSets({
     justifyContent: 'center',
     textAlign: 'center',
     padding: '20px 0',
+    height:'100%'
   },
   footer: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', // Adjusted to space between
     marginTop: '20px',
-    borderTop: '1px solid #ddd', // Added border to the top of the footer
+    borderTop: '1px solid #ddd',
     paddingTop: '10px',
   },
   button: {
     flex: '1 1 50%', // Ensures each button takes up 50% of the footer width
     margin: '0 5px', // Adds some space between the buttons
   },
+  buttonContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    marginRight: '4px', // Adjust the space between the icon and text
+  },
+
+  removeTopMargin:{
+    marginTop: '4px',
+    marginBottom: '4px'
+  }
+  
 });
 
 const ConfirmationDialog: React.FC<IConfirmationDialogProps> = ({ hidden, onConfirm, onCancel, title, subText }) => {
@@ -65,17 +88,30 @@ const ConfirmationDialog: React.FC<IConfirmationDialogProps> = ({ hidden, onConf
     >
       <div className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton iconProps={{ iconName: 'Info' }} />
-          <h2 style={{ marginLeft: '10px' }}>{title}</h2>
+          <IconButton iconProps={{ iconName: 'Info' }} className={styles.headerIcon} />
+          <h2 className={styles.headerTitle}>{title}</h2>
         </div>
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCancel} />
       </div>
       <div className={styles.body}>
-        <p>{subText}</p>
+        <p className={`${styles.removeTopMargin}`}>{subText}</p>
+        <p className={`${styles.removeTopMargin}`}>Please check the details filled along with attachment and click on Confirm button to submit request.</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton className={styles.button} onClick={onConfirm} text="Yes" iconProps={{ iconName: "SkypeCircleCheck" }}/>
-        <DefaultButton className={styles.button} onClick={onCancel} text="No" iconProps={{ iconName: "Cancel" }}/>
+        <PrimaryButton
+          onClick={onConfirm}
+          text="Confirm"
+          iconProps={{ iconName: 'SkypeCircleCheck', styles: { root: styles.buttonIcon } }}
+          styles={{ root: styles.buttonContent }}
+          className={styles.button}
+        />
+        <DefaultButton
+          onClick={onCancel}
+          text="Cancel"
+          iconProps={{ iconName: 'ErrorBadge', styles: { root: styles.buttonIcon } }}
+          styles={{ root: styles.buttonContent }}
+          className={styles.button}
+        />
       </div>
     </Modal>
   );

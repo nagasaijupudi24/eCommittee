@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @rushstack/no-new-null */
 /* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @rushstack/no-new-null */
 import * as React from 'react';
 import { IconButton, Icon } from '@fluentui/react';
 import styles from '../Form.module.scss';
@@ -14,10 +13,11 @@ export interface IUploadFileProps {
   multiple: boolean;
   maxTotalSizeMB?: number;
   data: File[];
-  errorData:any;
+  errorData: any;
 }
 
 interface IFileWithError {
+  id: string;
   file: File;
   error: string | null;
 }
@@ -25,7 +25,7 @@ interface IFileWithError {
 interface IUploadFileState {
   selectedFiles: IFileWithError[];
   cummError: string | null;
-  errorOfFile:any;
+  errorOfFile: any;
 }
 
 const getFileTypeIcon = (
@@ -54,7 +54,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
     this.state = {
       selectedFiles: [],
       cummError: null,
-      errorOfFile:''
+      errorOfFile: ''
     };
     this.fileInputRef = React.createRef<HTMLInputElement>();
   }
@@ -70,7 +70,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
   }
 
   private isFileNameValid(name: string): boolean {
-    const regex = /^[a-zA-Z0-9._-]+$/;
+    const regex = /^[a-zA-Z0-9._ -]+$/;
     return regex.test(name);
   }
 
@@ -104,11 +104,16 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
       }
 
       currentTotalSize += file.size;
-      validFiles.push({ file, error });
+      validFiles.push({ id: `${file.name}-${i}`, file, error });
       console.log(validFiles)
-      console.log(this.props.typeOfDoc)
-      this.props.errorData([validFiles,this.props.typeOfDoc])
-      this.setState({errorOfFile:error})
+      const filterNullerrorInvalidFiles = validFiles.filter(
+        (each:any)=>{
+          return each.error !==null
+        }
+      )
+      console.log(filterNullerrorInvalidFiles)
+      this.props.errorData([filterNullerrorInvalidFiles, this.props.typeOfDoc]);
+      this.setState({ errorOfFile: error });
     }
 
     this.setState({ selectedFiles: validFiles, cummError: cumulativeError });
@@ -117,21 +122,20 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
   private handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      console.log(files)
       const updatedFiles = this.props.multiple
         ? [
             ...this.state.selectedFiles,
-            ...files.map((file) =>{
-              console.log(file)
-              return { file, error: null }
-            } ),
+            ...files.map((file, index) => ({
+              id: `${file.name}-${index}`,
+              file,
+              error: null
+            }))
           ]
-        : files.map((file) => 
-          {
-            console.log(file)
-            return { file, error: null }
-          });
-      console.log(updatedFiles)
+        : files.map((file, index) => ({
+            id: `${file.name}-${index}`,
+            file,
+            error: null
+          }));
 
       this.setState({ selectedFiles: updatedFiles }, () => {
         this.validateFiles(updatedFiles.map((f) => f.file));
@@ -148,10 +152,12 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
     }
   };
 
-  private handleDeleteFile = (fileName: string): void => {
+  private handleDeleteFile = (fileId: string): void => {
     const updatedFiles = this.state.selectedFiles.filter(
-      (fileWithError) => fileWithError.file.name !== fileName
+      (fileWithError) => fileWithError.id !== fileId
     );
+    console.log(updatedFiles)
+    this.props.errorData([updatedFiles, this.props.typeOfDoc]);
 
     this.setState({ selectedFiles: updatedFiles }, () => {
       this.validateFiles(updatedFiles.map((f) => f.file));
@@ -165,9 +171,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
 
   public render(): React.ReactElement<IUploadFileProps> {
     const { accept, typeOfDoc, multiple } = this.props;
-    const { selectedFiles, cummError,errorOfFile } = this.state;
-    console.log(selectedFiles)
-    console.log(errorOfFile)
+    const { selectedFiles, cummError } = this.state;
 
     return (
       <ul className={`${styles.fileAttachementsUl}`}>
@@ -213,12 +217,11 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
         </li>
 
         {selectedFiles.length > 0 &&
-          selectedFiles.map(({ file, error }) => {
-            
+          selectedFiles.map(({ id, file, error }) => {
             const { iconName, color } = getFileTypeIcon(file.name);
             return (
               <li
-                key={file.name}
+                key={id}
                 style={{ display: 'flex', alignItems: 'center' }}
                 className={`${styles.basicLi} ${styles.attachementli}`}
               >
@@ -269,7 +272,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
                   iconProps={{ iconName: 'Cancel' }}
                   title="Delete File"
                   ariaLabel="Delete File"
-                  onClick={() => this.handleDeleteFile(file.name)}
+                  onClick={() => this.handleDeleteFile(id)}
                 />
               </li>
             );

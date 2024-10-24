@@ -160,6 +160,10 @@ export interface IViewFormState {
   dialogDetails: any;
 
   commentsData: any;
+  generalComments:any;
+  commentsLog:any;
+
+
   currentApprover: any;
   pastApprover: any;
   referredFromDetails: any;
@@ -321,6 +325,10 @@ export default class ViewForm extends React.Component<
       dialogFluent: true,
       dialogDetails: {},
       commentsData: [],
+      generalComments:[],
+  commentsLog:[],
+
+
       currentApprover: [],
       pastApprover: [],
       referredFromDetails: [],
@@ -698,6 +706,26 @@ export default class ViewForm extends React.Component<
   //   return ids; // Return the array of resolved objects
   // };
 
+
+  private _getCommentsData = (data: any) => {
+    // Create a set to store unique ids
+    const uniqueIds = new Set<string>();
+  
+    // Filter out duplicate entries based on the id property
+    const filterdata = data
+      .filter((each: any) => each !== null) // Filter out null values first
+      .filter((each: any) => {
+        if (!uniqueIds.has(each.id)) {
+          uniqueIds.add(each.id);
+          return true; // Include this object as it's the first occurrence of the id
+        }
+        return false; // Exclude this object if the id is already in the set
+      });
+  
+    console.log(filterdata);
+    return filterdata
+  }
+
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
       .getByTitle(this.props.listId)
@@ -869,7 +897,7 @@ export default class ViewForm extends React.Component<
       title: item.Title,
       commentsData:
         item.NoteApproverCommentsDTO !== null
-          ? JSON.parse(item.NoteApproverCommentsDTO)
+          ? this._getCommentsData(JSON.parse(item.NoteApproverCommentsDTO)) 
           : [],
       referredFromDetails:
         item.NoteReferrerDTO !== null
@@ -1258,7 +1286,7 @@ export default class ViewForm extends React.Component<
           // height={800}
           defaultViewMode={"FIT_PAGE"}
         /> */}
-        <PDFViewer pdfPath={this.state.pdfLink} />
+        <PDFViewer pdfPath={this.state.pdfLink} noteNumber={this.state.title} />
       </div>
     );
   };
@@ -1590,8 +1618,8 @@ export default class ViewForm extends React.Component<
             status: "pending",
             mainStatus:
               each.approverType === "Approver"
-                ? "Pending With Approver"
-                : "Pending With Reviewer",
+                ? "Pending with approver"
+                : "Pending With reviewer",
             statusNumber: each.approverType === "Approver" ? "3000" : "2000",
           };
         }
@@ -2451,13 +2479,18 @@ export default class ViewForm extends React.Component<
           }}
           onClick={(e) => {
             this.setState({ successStatus: "approved" });
-            if (!this.state.isPasscodeValidated) {
-              this.setState({
-                isPasscodeModalOpen: true,
-                passCodeValidationFrom: "9000",
-              }); // Open the modal
-              return; // Prevent the method from proceeding until passcode is validated
-            }
+            // if (!this.state.isPasscodeValidated) {
+            //   this.setState({
+            //     isPasscodeModalOpen: true,
+            //     passCodeValidationFrom: "9000",
+            //   }); // Open the modal
+            //   return; // Prevent the method from proceeding until passcode is validated
+            // }
+
+            this.setState({
+              isPasscodeModalOpen: true,
+              passCodeValidationFrom: "9000",
+            });
 
             // _handleApproverButton
 
@@ -2490,14 +2523,21 @@ export default class ViewForm extends React.Component<
             } else {
               this.setState({ successStatus: "rejected" });
 
-              if (!this.state.isPasscodeValidated) {
-                this.setState({
-                  isPasscodeModalOpen: true,
-                  passCodeValidationFrom: "8000",
-                }); // Open the modal
-                return; // Prevent the method from proceeding until passcode is validated
-              }
+              // if (!this.state.isPasscodeValidated) {
+              //   this.setState({
+              //     isPasscodeModalOpen: true,
+              //     passCodeValidationFrom: "8000",
+              //   }); // Open the modal
+              //   return; // Prevent the method from proceeding until passcode is validated
+              // }
+
+              this.setState({
+                isPasscodeModalOpen: true,
+                passCodeValidationFrom: "8000",
+              }); // Open the modal
             }
+
+          
 
             // this.setState({ status: "Rejected", statusNumber: "8000" });
           }}
@@ -2534,15 +2574,13 @@ export default class ViewForm extends React.Component<
               this.setState({ isReturnCommentsCheckAlterDialog: true });
             } else {
               this.setState({ successStatus: "returned" });
-              this._hanldeFluentDialog(
-                "Return",
-                "Returned",
-                "5000",
-                "click on Confirm button to Return request.",
-                this.handleReturn,
-                this._closeDialog,
-                ""
-              );
+
+
+              this.setState({
+                isPasscodeModalOpen: true,
+                passCodeValidationFrom: "5000",
+              });
+             
             }
 
             // this.setState({ status: "Returned", statusNumber: "5000" });
@@ -2646,7 +2684,7 @@ export default class ViewForm extends React.Component<
           });
         }
         return {
-          commentsData: [...prev.commentsData, commentsData],
+          commentsData: [...prev.commentsData, commentsData],generalComments:[...prev.generalComments,commentsData]
         };
       });
     } else if (type === "delete") {
@@ -2664,20 +2702,23 @@ export default class ViewForm extends React.Component<
       });
       console.log(updatingCommentData);
       this.setState({
-        commentsData: updatingCommentData,
+        commentsData: updatingCommentData,generalComments:updatingCommentData
       });
     } else {
       console.log("entered into save");
       console.log(id);
-      const filterIdforUpdateState = this.state.commentsData.filter(
-        (each: any) => each.id === id
+      const filterNullData = this.state.commentsData.filter((each:any)=>each!==null)
+      console.log(filterNullData)
+      const filterIdforUpdateState = filterNullData.filter(
+        (each: any) => each?.id === id
       )[0];
       console.log(filterIdforUpdateState);
       const returnValue = (rowData: any): any => {
         console.log(rowData);
-        const result = rowData.map((item: any) => {
+
+        const result = rowData.filter((each:any)=>each!==null).map((item: any) => {
           console.log(item);
-          if (item.id === filterIdforUpdateState.id) {
+          if (item.id === filterIdforUpdateState.id ) {
             return commentsData;
           }
           return item;
@@ -2685,8 +2726,28 @@ export default class ViewForm extends React.Component<
         console.log(result);
         return result;
       };
+
+      const filterNullGeneral = this.state.generalComments.filter((each:any)=>each!==null)
+      console.log(filterNullGeneral)
+      const filterIdforUpdateStateGen = filterNullGeneral.filter(
+        (each: any) => each.id === id
+      )[0];
+      console.log(filterIdforUpdateStateGen);
+      const returnValueGen = (rowData: any): any => {
+        console.log(rowData);
+        const result = rowData.filter((each:any)=>each!==null).map((item: any) => {
+          console.log(item);
+          if (item.id === filterIdforUpdateStateGen.id) {
+            return commentsData;
+          }
+          return item;
+        });
+        console.log(result);
+        return result;
+      };
+
       console.log(returnValue(this.state.commentsData));
-      this.setState({ commentsData: returnValue(this.state.commentsData) });
+      this.setState({ commentsData: returnValue(this.state.commentsData) ,generalComments:returnValueGen(this.state.generalComments) });
     }
   };
 
@@ -2889,7 +2950,15 @@ export default class ViewForm extends React.Component<
             );
             break;
           case "5000": //return
-            this.handleReturn("Returned", "5000");
+          this._hanldeFluentDialog(
+            "Return",
+            "Returned",
+            "5000",
+            "click on Confirm button to Return request.",
+            this.handleReturn,
+            this._closeDialog,
+            ""
+          );
             break;
           case "8000": //reject
             this._hanldeFluentDialog(
@@ -2904,7 +2973,7 @@ export default class ViewForm extends React.Component<
             console.log(this.state.statusNumber, this.state.status);
             // result = false;
             break;
-          case "200": //reject
+          case "200": //call back
             this.handleCallBack("Call Back", "200");
             break;
           case "7500":
@@ -2949,6 +3018,21 @@ export default class ViewForm extends React.Component<
   private _getFileWithError = (data:any):any=>{
     console.log(data)
 
+  }
+
+
+  private _getAtrCommentsGrid = (data:any):any=>{
+    console.log(data)
+    const joinedCommentsData = this.state.generalComments
+    .filter((each: any) => !!each)
+    .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
+    console.log(joinedCommentsData.join(', '))
+    return data.map(
+      (each:any)=>{
+        return {...each,comments:joinedCommentsData.join(', ')}
+      }
+    )
+    
   }
 
   public render(): React.ReactElement<IViewFormProps> {
@@ -3127,7 +3211,7 @@ export default class ViewForm extends React.Component<
               <h1
                 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}
               >
-                pending:{" "}
+                pending with:{" "}
                 {this.state.status !== "Rejected" &&
                   this._getPendingStatus(this.state.ApproverDetails)}
               </h1>
@@ -3322,7 +3406,7 @@ export default class ViewForm extends React.Component<
                           <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <GeneralCommentsFluentUIGrid
                               handleCommentDataFuntion={this._getCommentData}
-                              data={this.state.commentsData}
+                              data={this.state.generalComments}
                               currentUserDetails={
                                 this.props.context.pageContext.user
                               }
@@ -3367,8 +3451,8 @@ export default class ViewForm extends React.Component<
                               sp={this.props.sp}
                               context={this.props.context}
                               atrCreatorsList={this.state.atrCreatorsList}
-                              commentsData={this.state.commentsData}
-                              artCommnetsGridData={this.state.atrGridData}
+                              commentsData={this.state.generalComments}
+                              artCommnetsGridData={this._getAtrCommentsGrid(this.state.atrGridData)}
                               deletedGridData={(data: any) => {
                                 this.setState({ atrGridData: data });
                               }}
@@ -3742,7 +3826,7 @@ export default class ViewForm extends React.Component<
                             width: "100%",
                           }}
                         >
-                          <h4 className={styles.responsiveHeading}>
+                          <p className={styles.responsiveHeading}>
                             Main Note Link:
                             <a
                               href={this.state.noteTofiles[0]?.fileUrl}
@@ -3752,7 +3836,7 @@ export default class ViewForm extends React.Component<
                               {" "}
                               {this.state.noteTofiles[0]?.name}
                             </a>
-                          </h4>
+                          </p>
                           {this._checkingCurrentUserInSecretaryDTO() &&
                             this.state.wordDocumentfiles.length > 0 && (
                               <p

@@ -83,7 +83,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
       </ul>
       <p><strong>Note: </strong>Invalid files are not allowed</p>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-        <PrimaryButton text="OK" iconProps={{ iconName: 'ReplyMirrored' }} onClick={handleDialogBox} styles={buttonStyles} />
+        <PrimaryButton text="OK" iconProps={{ iconName: 'ReturnToSession' }} onClick={handleDialogBox} styles={buttonStyles} />
       </div>
     </Modal>
   );

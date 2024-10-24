@@ -466,7 +466,7 @@ export class MarkInfo extends React.Component<
               <h2 style={{ marginLeft: "10px" }}>Alert</h2>
             </div>
             <IconButton
-              iconProps={{ iconName: "Cancel" }}
+              iconProps={{ iconName: "ErrorBadge" }}
               ariaLabel="Close popup modal"
               onClick={this._closeModal}
             />
@@ -476,7 +476,7 @@ export class MarkInfo extends React.Component<
           </div>
           <div className={styles.footer}>
             <PrimaryButton
-              iconProps={{ iconName: "CheckMark" }}
+              iconProps={{ iconName: "ReturnToSession" }}
               onClick={this._closeModal}
               text="OK"
             />

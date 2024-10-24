@@ -204,13 +204,13 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
 
 
-      const updatedCommentsGridData = this.props.artCommnetsGridData.map(
-        (each:any)=>{
-          console.log(each)
+      // const updatedCommentsGridData = this.props.artCommnetsGridData.map(
+      //   (each:any)=>{
+      //     console.log(each)
           
-          return {...each,comments:joinedCommentsData.join(', ')}
-        }
-      )
+      //     return {...each,comments:joinedCommentsData.join(', ')}
+      //   }
+      // )
 
     const newTableData = {
       key: v4(),
@@ -224,9 +224,9 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
     //   return { selectedUsers: data, tableData: [...prev.tableData, newTableData] };
 
     
-  this.props.updategirdData({assigneeDetails:this.state.selectedValue,comments:[...updatedCommentsGridData,newTableData]});
+  this.props.updategirdData({assigneeDetails:this.state.selectedValue,comments:[...this.state.tableData,newTableData]});
     // });
-    this.setState({tableData:[...updatedCommentsGridData,newTableData]})
+    this.setState({tableData:[...this.state.tableData,newTableData]})
     
   };
 
