@@ -79,7 +79,7 @@ const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
   const handlePrint = async () => {
     if (!pdfDocument) return;
   
-    let htmlContent = "";
+    const printContent = document.createElement("div");
   
     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum);
@@ -90,12 +90,13 @@ const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
       if (context) {
         canvas.height = viewport.height;
         canvas.width = viewport.width;
-  
         await page.render({ canvasContext: context, viewport: viewport }).promise;
-        
-        // Convert canvas to image and append it to the HTML string.
-        const imgDataUrl = canvas.toDataURL("image/png");
-        htmlContent += `<img src="${imgDataUrl}" style="width: 100%;" /><br/>`;
+  
+        const img = new Image();
+        img.src = canvas.toDataURL("image/png");
+        img.style.width = "100%";
+        printContent.appendChild(img);
+        printContent.appendChild(document.createElement("br"));
       }
     }
   
@@ -106,15 +107,27 @@ const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
     }
   
     printWindow.document.write("<html><head><title>Print PDF</title></head><body>");
-    printWindow.document.write(htmlContent);
+    printWindow.document.body.appendChild(printContent);
     printWindow.document.write("</body></html>");
     printWindow.document.close();
   
     printWindow.onload = () => {
+      const images = printWindow.document.getElementsByTagName("img");
+      let loadedImages = 0;
+  
+      for (let i = 0; i < images.length; i++) {
+        images[i].onload = () => {
+          loadedImages++;
+          if (loadedImages === images.length) {
+            
+            printWindow.close();
+          }
+        };
+      }
       printWindow.print();
-      printWindow.close();
     };
   };
+  
   
   
   
