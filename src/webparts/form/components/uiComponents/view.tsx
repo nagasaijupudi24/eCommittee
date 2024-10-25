@@ -58,6 +58,7 @@ import { MarkInfo } from "./markInfo/markInfo";
 import "@pnp/sp/profiles";
 import GistDocSubmitted from "./dialogFluentUi/gistDocs";
 import GistDocEmptyModal from "./dialogFluentUi/gistDocEmptyModal";
+import AutoSaveFailedDialog from "./dialogFluentUi/autoSaveFailedDialog";
 
 // import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PasscodeModal from "./passCode/passCode";
@@ -138,6 +139,10 @@ export interface IViewFormState {
 
   supportingFilesInViewForm: any[];
 
+
+  errorOfDocuments: any;
+  errorFilesList: any;
+
   isWarningPeoplePicker: boolean;
   isDialogHidden: boolean;
   isApproverOrReviewerDialogHandel: boolean;
@@ -211,6 +216,10 @@ export interface IViewFormState {
 
   //Mark Info
   noteMarkedInfoDTOState: any;
+
+
+  // auto save
+  isAutoSaveFailedDialog:any;
 }
 
 const getIdFromUrl = (): any => {
@@ -302,6 +311,15 @@ export default class ViewForm extends React.Component<
 
       supportingFilesInViewForm: [],
 
+
+      errorOfDocuments: false,
+      errorFilesList: {
+        wordDocument: [],
+        notePdF: [],
+        supportingDocument: [],
+        gistDocument:[]
+      },
+
       isDialogHidden: true,
       isApproverOrReviewerDialogHandel: true,
       peoplePickerData: [],
@@ -374,6 +392,9 @@ export default class ViewForm extends React.Component<
 
       //Mark Info
       noteMarkedInfoDTOState: [],
+
+      // auto save 
+      isAutoSaveFailedDialog:false,
     };
 
     console.log(this._itemId);
@@ -1871,6 +1892,12 @@ export default class ViewForm extends React.Component<
         });
 
       console.log(itemToUpdateStatusToApproved);
+      // this.state.atrGridData.length > 0 && (await this._updateATRRequest());
+      await this.updateSupportingDocumentFolderItems(
+        this.state.supportingFilesInViewForm,
+        `${this._folderName}/SupportingDocument`,
+        "Supporting documents"
+      );
     }
 
     this._closeDialog();
@@ -2278,6 +2305,12 @@ export default class ViewForm extends React.Component<
         });
 
       console.log(itemToUpdateStatusToApproved);
+
+      await this.updateSupportingDocumentFolderItems(
+        this.state.supportingFilesInViewForm,
+        `${this._folderName}/SupportingDocument`,
+        "Supporting documents"
+      );
     }
     this._closeDialog();
     this.setState({ isVisibleAlter: true });
@@ -2302,11 +2335,11 @@ export default class ViewForm extends React.Component<
 
     console.log(itemToUpdate);
 
-    await this.updateSupportingDocumentFolderItems(
-      this.state.supportingFilesInViewForm,
-      `${this._folderName}/SupportingDocument`,
-      "Supporting documents"
-    );
+    // await this.updateSupportingDocumentFolderItems(
+    //   this.state.supportingFilesInViewForm,
+    //   `${this._folderName}/SupportingDocument`,
+    //   "Supporting documents"
+    // );
     this._closeDialog();
     this.setState({ isVisibleAlter: true });
   };
@@ -2478,7 +2511,11 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            this.setState({ successStatus: "approved" });
+            if (this.state.errorOfDocuments){
+              this.setState({isAutoSaveFailedDialog:true})
+
+            }else{
+              this.setState({ successStatus: "approved" });
             // if (!this.state.isPasscodeValidated) {
             //   this.setState({
             //     isPasscodeModalOpen: true,
@@ -2495,6 +2532,8 @@ export default class ViewForm extends React.Component<
             // _handleApproverButton
 
             // this.setState({ status: "Approved", statusNumber: "9000" });
+            }
+            
           }}
         >
           {this._checkCurrentApproverIsInSecretaryDTO() ? "Noted" : "Approve"}
@@ -3015,10 +3054,69 @@ export default class ViewForm extends React.Component<
     }
   };
 
-  private _getFileWithError = (data:any):any=>{
-    console.log(data)
+  // private _getFileWithError = (data:any):any=>{
+  //   console.log(data)
 
-  }
+  // }
+
+  private _getFileWithError = (data: any): any => {
+    console.log(data);
+    // const itemIds = data[0].map(
+    //   (each:any)=>{
+    //     console.log(each)
+    //     return each.id
+    //   }
+    // )
+    // console.log(itemIds)
+
+    // const updateErrorFileList  = this.state.errorFilesList.map(
+    //   (each:any)=>{
+    //     console.log(each)
+    //     return each[0].filter(
+    //       (item:any)=>{
+    //         console.log(item)
+    //        if( !itemIds.includes(item.id)) {
+    //           return each
+    //        }
+    //       }
+    //     )
+
+    //   }
+    // )
+    // console.log(updateErrorFileList)
+    const newObj = this.state.errorFilesList;
+    newObj[data[1]] = data[0];
+
+    this.setState({ errorFilesList: newObj });
+    // const updateErrorInObj = data[0].map(
+    //   (each:any)=>{
+    //     return {...each,typeOfDoc:data[1]}
+    //   }
+    // )
+
+    // const checkError = updateErrorInObj.map(
+    //   (each:any)=>{
+    //     if (each.error !== null){
+    //       return {fileType:each.typeOfDoc,error:each.error}
+    //     }
+    //   }
+    // )
+
+    // this.setState({errorOfDocuments:checkError.length>0?true:false})
+
+    if (
+      newObj.wordDocument.length > 0 ||
+      newObj.notePdF.length > 0 ||
+      newObj.supportingDocument.length > 0||
+      newObj.gistDocument.length > 0
+
+    ) {
+      this.setState({ errorOfDocuments: true ,isAutoSaveFailedDialog:true});
+    } else {
+      this.setState({ errorOfDocuments: false,isAutoSaveFailedDialog:false });
+    }
+  };
+
 
 
   private _getAtrCommentsGrid = (data:any):any=>{
@@ -3202,6 +3300,19 @@ export default class ViewForm extends React.Component<
             </Dialog>
             {/* dialog box details */}
             {/* dialog box details */}
+
+
+             {/* auto save failed  dialog */}
+             {this.state.isAutoSaveFailedDialog && (
+              <AutoSaveFailedDialog
+                statusOfReq={this.state.successStatus}
+                isVisibleAlter={this.state.isAutoSaveFailedDialog}
+                onCloseAlter={() => {
+                  this.setState({ isAutoSaveFailedDialog: false });
+                }}
+              />
+            )}
+            {/* auto save failed  dialog*/}
 
             {/* Header section */}
             <div
@@ -3704,9 +3815,11 @@ export default class ViewForm extends React.Component<
                                     <li
                                       key={index} // Use index as the key here, assuming files are unique
                                       style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        width:'100%'
+                                        // display: "flex",
+                                        // alignItems: "center",
+                                        width:'100%',
+                                        // border:'1px solid red'
+                                        marginTop:'5px'
                                       }}
                                       className={`${styles.basicLi} ${styles.attachementli}`}
                                     >
@@ -3725,7 +3838,7 @@ export default class ViewForm extends React.Component<
                                             iconName={iconName}
                                             style={{
                                               fontSize: "24px",
-                                              marginTop: "14px",
+                                              marginTop: "8px",
                                               color: color,
                                             }}
                                           />
@@ -3737,7 +3850,7 @@ export default class ViewForm extends React.Component<
                                             style={{
                                               // paddingBottom: "8px",
                                               // marginBottom: "12px",
-                                              marginTop: "15px",
+                                              marginTop: "9px",
                                               paddingLeft: "4px",
                                               textDecoration: "none", // Optional: removes underline
                                               color: "#0078d4", // Optional: sets Fluent UI link color
@@ -4079,10 +4192,17 @@ export default class ViewForm extends React.Component<
                       //   this.setState({isGistDocEmpty:true})
 
                       // }
-                      this.state.secretaryGistDocs.length === 0
+
+                      if (this.state.errorOfDocuments){
+                        this.setState({isAutoSaveFailedDialog:true})
+                      }else{
+                        this.state.secretaryGistDocs.length === 0
                         ? this.setState({ isGistDocEmpty: true })
                         : this.setState({ isGistDocCnrf: true });
                     }}
+
+                      }
+                      
                   >
                     Submit
                   </PrimaryButton>

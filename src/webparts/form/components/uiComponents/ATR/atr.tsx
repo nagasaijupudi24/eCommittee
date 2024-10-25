@@ -257,6 +257,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
 
     
     if (data[0]!==''){
+      console.log('entered into empty value')
       this.setState({selectedValue:data[0]})
     }
   };

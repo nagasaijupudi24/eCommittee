@@ -64,7 +64,7 @@ const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        <p>Please remove Invalid files</p>
+        <p>Invalid files attached. Kindly remove the invalid files.</p>
       </div>
       <div className={styles.footer}>
         <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />

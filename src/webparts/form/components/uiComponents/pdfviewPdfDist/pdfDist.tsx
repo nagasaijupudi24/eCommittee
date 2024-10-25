@@ -13,6 +13,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
   const {pdfPath,noteNumber} = props
+  console.log(pdfPath,"PDF Url")
+  console.log(noteNumber,"Note Number")
   const pdfViewerRef = useRef<HTMLDivElement>(null);
   // const [isPDFFullWidth, setIsPDFFullWidth] = useState(false);
   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
@@ -70,16 +72,56 @@ const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
     setZoomLevel(selectedZoom);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  // const handleSave = () => {
-  //   const a = document.createElement('a');
-  //   a.href = pdfPath;
-  //   a.download = 'document.pdf';
-  //   a.click();
+  // const handlePrint = () => {
+  //   window.print();
   // };
+
+  const handlePrint = async () => {
+    if (!pdfDocument) return;
+  
+    let htmlContent = "";
+  
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      const page = await pdfDocument.getPage(pageNum);
+      const viewport = page.getViewport({ scale: zoomLevel });
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+  
+      if (context) {
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+  
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
+        
+        // Convert canvas to image and append it to the HTML string.
+        const imgDataUrl = canvas.toDataURL("image/png");
+        htmlContent += `<img src="${imgDataUrl}" style="width: 100%;" /><br/>`;
+      }
+    }
+  
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      console.error("Failed to open print window.");
+      return;
+    }
+  
+    printWindow.document.write("<html><head><title>Print PDF</title></head><body>");
+    printWindow.document.write(htmlContent);
+    printWindow.document.write("</body></html>");
+    printWindow.document.close();
+  
+    printWindow.onload = () => {
+      printWindow.print();
+      printWindow.close();
+    };
+  };
+  
+  
+  
+  
+
+ 
+
 
 
   const handleSave = () => {
@@ -87,7 +129,7 @@ const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
     a.href = pdfPath;
     a.download = `${noteNumber}.pdf`; // Use the custom name here
     a.click();
-    
+
   };
 
   const customStyles = {

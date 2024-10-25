@@ -203,16 +203,16 @@ export default class PasscodeModal extends React.Component<
         flexDirection: "column",
         padding: "20px 0",
       },
-      footer: {
-        display: "flex",
-        justifyContent: "end",
-        marginTop: "20px",
-        borderTop: "1px solid #ddd",
-        paddingTop: "10px",
-      },
-      button: {
-        margin: "0 5px",
-      },
+      // footer: {
+      //   display: "flex",
+      //   justifyContent: "end",
+      //   marginTop: "20px",
+      //   borderTop: "1px solid #ddd",
+      //   paddingTop: "10px",
+      // },
+      // button: {
+      //   margin: "0 5px",
+      // },
       iconButton: {
         marginRight: "10px",
       },
@@ -233,6 +233,31 @@ export default class PasscodeModal extends React.Component<
           backgroundColor: 'transparent !important',
         },
       },
+
+      footer: {
+        display: 'flex',
+        justifyContent: 'space-between', // Adjusted to space between
+        marginTop: '20px',
+        borderTop: '1px solid #ddd',
+        paddingTop: '10px',
+      },
+      button: {
+        flex: '1 1 50%', // Ensures each button takes up 50% of the footer width
+        margin: '0 5px', // Adds some space between the buttons
+      },
+      buttonContent: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      buttonIcon: {
+        marginRight: '4px', // Adjust the space between the icon and text
+      },
+    
+      removeTopMargin:{
+        marginTop: '4px',
+        marginBottom: '4px'
+      }
     });
 
     return (
@@ -292,6 +317,7 @@ export default class PasscodeModal extends React.Component<
               <PrimaryButton
                 className={styles.button}
                 text="Verify"
+                styles={{ root: styles.buttonContent }}
                 iconProps={{ iconName: "CheckedOutByOther12" }}
                 onClick={this.validatePasscode}
               />
@@ -299,7 +325,8 @@ export default class PasscodeModal extends React.Component<
                 className={styles.button}
                 text="Cancel"
                 onClick={onClose}
-                iconProps={{ iconName: "ErrorBadgeIcon" }}
+                styles={{ root: styles.buttonContent }}
+                iconProps={{ iconName: "ErrorBadge" }}
               />
             </div>
           </>
