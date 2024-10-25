@@ -13,7 +13,7 @@ export interface IAllRequestStateProps{
 
 export class AllRequest extends React.Component<IAllRequestProps,IAllRequestStateProps>{
     constructor(props:IAllRequestProps){
-        console.log("Constructor called")
+        // console.log("Constructor called")
         super(props);
         this.state={
             listItems:''

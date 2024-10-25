@@ -345,7 +345,7 @@ export class MarkInfo extends React.Component<
   };
 
   public _getDetailsFromPeoplePickerData = (data: any, type: any): any => {
-    console.log(data)
+    // console.log(data)
     this.setState({ selectedValue: data[0] });
   };
 
@@ -371,8 +371,8 @@ export class MarkInfo extends React.Component<
 
   public render(): React.ReactElement<IATRAssigneeProps> {
     const { tableData, isModalOpen, modalMessage } = this.state;
-    console.log(this.props)
-    console.log(this.state)
+    // console.log(this.props)
+    // console.log(this.state)
 
     const styles = mergeStyleSets({
       modal: {

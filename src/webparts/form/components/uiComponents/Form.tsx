@@ -270,7 +270,7 @@ const getIdFromUrl = (): any => {
   const params = new URLSearchParams(window.location.search);
   const Id = params.get("itemId");
   // const Id = params.get("itemId");
-  console.log(Id);
+  // console.log(Id);
   return Id;
 };
 
@@ -428,10 +428,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       autosave: true,
       autoSavedialog: true,
     };
-    console.log(this._itemId);
-    console.log(this._formType);
-    console.log(this._folderName);
-    console.log(this.props.formType);
+    // console.log(this._itemId);
+    // console.log(this._formType);
+    // console.log(this._folderName);
+    // console.log(this.props.formType);
     this._generateRequsterNumber = this._generateRequsterNumber.bind(this);
     this._folderNameGenerate = this._folderNameGenerate.bind(this);
 
@@ -448,7 +448,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // this.props.formType === "Edit" && this._getItemDocumentsData();
 
     this._fetchDepartmentAlias().then(async () => {
-      console.log(this.state.departmentAlias);
+      // console.log(this.state.departmentAlias);
 
       this._folderName = await `${this._absUrl}/${
         this.props.libraryId
@@ -486,7 +486,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
       // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
       // errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
-      console.log("Auto save Entered");
+      // console.log("Auto save Entered");
       this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
       // if (this.state.errorFilesList.notePdF === 0 && this.state.errorFilesList.wordDocument === 0 && this.state.errorFilesList.supportingDocument === 0){
       //   this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
@@ -495,14 +495,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // }
     }
 
-    console.log(this._itemId > 0);
+    // console.log(this._itemId > 0);
     this._itemId === 0 &&
       this._fetchApproverDetails()
         .then(() => {
-          console.log("List items fetched successfully.");
+          // console.log("List items fetched successfully.");
         })
         .catch((error) => {
-          console.error("Error fetching list items: ", error);
+          // console.error("Error fetching list items: ", error);
         });
   }
 
@@ -515,16 +515,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private autoSave = async (): Promise<void> => {
     try {
-      console.log(this.state.errorFilesList.notePdF.length === 0);
-      console.log(this.state.errorFilesList.wordDocument.length === 0);
+      // console.log(this.state.errorFilesList.notePdF.length === 0);
+      // console.log(this.state.errorFilesList.wordDocument.length === 0);
 
-      console.log(this.state.errorFilesList.supportingDocument.length === 0);
+      // console.log(this.state.errorFilesList.supportingDocument.length === 0);
 
-      console.log(
-        this.state.errorFilesList.notePdF.length === 0 &&
-          this.state.errorFilesList.wordDocument.length === 0 &&
-          this.state.errorFilesList.supportingDocument.length === 0
-      );
+      // console.log(
+      //   this.state.errorFilesList.notePdF.length === 0 &&
+      //     this.state.errorFilesList.wordDocument.length === 0 &&
+      //     this.state.errorFilesList.supportingDocument.length === 0
+      // );
 
       if (
         this.state.errorFilesList.notePdF.length === 0 &&
@@ -532,14 +532,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.errorFilesList.supportingDocument.length === 0
       ) {
         // this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
-        console.log("entered into auto save without any Invalid files");
+        // console.log("entered into auto save without any Invalid files");
         await this.handleSubmit(this.state.autoSaveStatus, false);
       } else {
         this.setState({ isAutoSaveFailedDialog: true });
-        console.log("auto save failed due to Error files");
+        // console.log("auto save failed due to Error files");
       }
       // await this.handleSubmit(this.state.autoSaveStatus, false);
-      console.log("Auto-saved successfully");
+      // console.log("Auto-saved successfully");
     } catch (error) {
       console.error("Auto-save failed:", error);
     }
@@ -564,7 +564,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     let email = "NA";
     // const loginName = this.state.peoplePickerData[0]
     const profile = await this.props.sp.profiles.getPropertiesFor(loginName);
-    console.log(profile);
+    // console.log(profile);
     // console.log(profile.DisplayName);
     // console.log(profile.Email);
     // console.log(profile.Title);
@@ -642,12 +642,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // };
 
   private _getJsonifyReviewer = (item: any, type: string): any[] => {
-    console.log(item);
-    console.log(JSON.parse(item));
+    // console.log(item);
+    // console.log(JSON.parse(item));
     const parseItem = JSON.parse(item);
     const approverfilterData = parseItem.filter((each: any) => {
       if (each.approverType === "Reviewer") {
-        console.log(each, "Reviewer data.................parsed item");
+        // console.log(each, "Reviewer data.................parsed item");
         return each;
 
         // this.setState(prev =>(
@@ -660,7 +660,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // ))
       }
     });
-    console.log(approverfilterData);
+    // console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
       srNo: each.approverEmailName.split("@")[0],
@@ -669,7 +669,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       approverType: 1,
       ...each,
     }));
-    console.log(approverData);
+    // console.log(approverData);
     // this.setState(()=>{
     //   console.log("State updated")
     //   return {peoplePickerApproverData:approverData}
@@ -679,12 +679,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private _getJsonifyApprover = (item: any, type: string): any[] => {
-    console.log(item);
-    console.log(JSON.parse(item));
+    // console.log(item);
+    // console.log(JSON.parse(item));
     const parseItem = JSON.parse(item);
     const approverfilterData = parseItem.filter((each: any) => {
       if (each.approverType === "Approver") {
-        console.log(each, "Approver data.................parsed item");
+        // console.log(each, "Approver data.................parsed item");
         return each;
 
         // this.setState(prev =>(
@@ -697,7 +697,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // ))
       }
     });
-    console.log(approverfilterData);
+    // console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
       srNo: each.approverEmailName.split("@")[0],
@@ -706,7 +706,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       approverType: 2,
       ...each,
     }));
-    console.log(approverData);
+    // console.log(approverData);
     // this.setState(()=>{
     //   console.log("State updated")
     //   return {peoplePickerApproverData:approverData}
@@ -717,7 +717,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private _getFileObj = (data: any): any => {
     const tenantUrl = window.location.protocol + "//" + window.location.host;
-    console.log(tenantUrl);
+    // console.log(tenantUrl);
 
     const formatDateTime = (date: string | number | Date) => {
       const formattedDate = format(new Date(date), "dd-MMM-yyyy");
@@ -741,73 +741,73 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       modifiedBy: data.Author.Title,
       createData: result,
     };
-    console.log(filesObj);
+    // console.log(filesObj);
     return filesObj;
   };
 
   private _getItemDocumentsData = async () => {
     try {
-      console.log("------------------Pdf-----------------------------------");
+      // console.log("------------------Pdf-----------------------------------");
 
-      console.log(`${this._folderName}/Pdf`);
+      // console.log(`${this._folderName}/Pdf`);
       const folderItemsPdf = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/Pdf`)
         .files.select("*")
         .expand("Author", "Editor")()
         .then((res) => res);
-      console.log(folderItemsPdf);
-      console.log(folderItemsPdf[0]);
+      // console.log(folderItemsPdf);
+      // console.log(folderItemsPdf[0]);
       // this.setState({noteTofiles:[folderItem]})
 
       const tempFilesPdf: IFileDetails[] = [];
       folderItemsPdf.forEach((values) => {
         tempFilesPdf.push(this._getFileObj(values));
       });
-      console.log(tempFilesPdf);
+      // console.log(tempFilesPdf);
       this.setState({ noteTofiles: tempFilesPdf });
 
       //Word Documents
-      console.log(
-        "------------------Word Document-----------------------------------"
-      );
-      console.log(`${this._folderName}/WordDocument`);
+      // console.log(
+      //   "------------------Word Document-----------------------------------"
+      // );
+      // console.log(`${this._folderName}/WordDocument`);
       const folderItemsWordDocument = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/WordDocument`)
         .files.select("*")
         .expand("Author", "Editor")()
         .then((res) => res);
-      console.log(folderItemsWordDocument);
-      console.log(folderItemsWordDocument[0]);
+      // console.log(folderItemsWordDocument);
+      // console.log(folderItemsWordDocument[0]);
 
       const tempFilesWordDocument: IFileDetails[] = [];
       folderItemsWordDocument.forEach((values) => {
         tempFilesWordDocument.push(this._getFileObj(values));
       });
-      console.log(tempFilesWordDocument);
+      // console.log(tempFilesWordDocument);
       this.setState({ wordDocumentfiles: tempFilesWordDocument });
 
       //supporting documents
-      console.log(
-        "------------------Supporting Document-----------------------------------"
-      );
+      // console.log(
+      //   "------------------Supporting Document-----------------------------------"
+      // );
 
-      console.log(`${this._folderName}/SupportingDocument`);
+      // console.log(`${this._folderName}/SupportingDocument`);
       const SupportingDocument = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/SupportingDocument`)
         .files.select("*")
         .expand("Author", "Editor")()
         .then((res) => res);
-      console.log(SupportingDocument);
-      console.log(SupportingDocument[0]);
+      // console.log(SupportingDocument);
+      // console.log(SupportingDocument[0]);
 
       const tempFilesSupportingDocument: IFileDetails[] = [];
       SupportingDocument.forEach((values) => {
         tempFilesSupportingDocument.push(this._getFileObj(values));
       });
-      console.log(tempFilesSupportingDocument);
+      // console.log(tempFilesSupportingDocument);
       this.setState({ supportingDocumentfiles: tempFilesSupportingDocument });
     } catch {
-      console.log("failed to fetch");
+    //  / console.log("failed to fetch");
     }
   };
 
@@ -840,16 +840,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "CurrentApprover/EMail"
       )
       .expand("Approvers", "Reviewers", "CurrentApprover")();
-    console.log(`${id} ------Details`, item);
-    console.log(folderPath);
+    // console.log(`${id} ------Details`, item);
+    // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
     // console.log(folderItem)
     // console.log(this._getJsonifyReviewer(item.NoteApproversDTO, "Reviewer"));
     // console.log(this._getJsonifyApprover(item.NoteApproversDTO, "Approver"));
-    console.log(item.Purpose);
+    // console.log(item.Purpose);
     this.title = item.Title;
-    console.log(item.Title);
+    // console.log(item.Title);
 
     this.setState({
       // itemId:this._itemId,
@@ -920,10 +920,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       const fieldDetails = await this.props.sp.web.lists
         .getByTitle(this.props.listId)
         .fields.filter("Hidden eq false and ReadOnlyField eq false")();
-      console.log(fieldDetails);
+      // console.log(fieldDetails);
 
       const profile = await this.props.sp.profiles.myProperties();
-      console.log(profile);
+      // console.log(profile);
       this._userName = profile.DisplayName;
       this._role = profile.Title;
 
@@ -946,14 +946,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           return [_x.InternalName, _x.Choices];
         }
       });
-      console.log(filtering);
+      // console.log(filtering);
       const finalList = filtering?.filter((each) => {
         if (typeof each !== "undefined") {
           // console.log(each);
           return each;
         }
       });
-      console.log(finalList);
+      // console.log(finalList);
 
       finalList?.map((each) => {
         // console.log(each)
@@ -1005,7 +1005,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             this.setState({ committename: committenameArray });
           } else if (each[0] === "Purpose") {
-            console.log(each[1]);
+            // console.log(each[1]);
             const purposeArray = each[1].map((item, index) => {
               return { key: item, text: item };
             });
@@ -1015,7 +1015,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // each[1].map(item => console.log(item));
         }
       });
-      console.log(finalList);
+      // console.log(finalList);
       // finalList?.map((each) => {
       //   // console.log(each)
       //   if (
@@ -1096,7 +1096,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(dataRec[0])
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const items = (
+       (
         await this.props.sp.web.lists
           .getByTitle("ApproverMatrix")
           .items.select(
@@ -1108,15 +1108,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           )
           .expand("Approver", "Secretary")()
       ).map(async (each: any) => {
-        console.log(each);
+        // console.log(each);
         // console.log(this._getUserProperties(each.email))
         const user = await this.props.sp.web.siteUsers.getById(
           each.ApproverId
         )();
-        console.log(user);
+        // console.log(user);
         const dataRec = await this._getUserProperties(user.LoginName);
-        console.log(dataRec);
-        console.log(dataRec[0]);
+        // console.log(dataRec);
+        // console.log(dataRec[0]);
         if (each.ApproverType === "Approver") {
           const newObj = {
             text: each.Approver.Title,
@@ -1130,7 +1130,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             srNo: each.Approver.EMail.split("@")[0],
             optionalText: dataRec[0],
           };
-          console.log(newObj);
+          // console.log(newObj);
           const secretaryObj = {
             noteSecretarieId: each.SecretaryId,
             noteApproverId: each.ApproverId,
@@ -1166,10 +1166,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           const user = await this.props.sp.web.siteUsers.getById(
             each.ApproverId
           )();
-          console.log(user);
+          // console.log(user);
           const dataRec = await this._getUserProperties(user.LoginName);
-          console.log(dataRec);
-          console.log(dataRec[0]);
+          // console.log(dataRec);
+          // console.log(dataRec[0]);
 
           const newObj = {
             text: each.Approver.Title,
@@ -1183,37 +1183,38 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             optionalText: dataRec[0],
             srNo: each.Approver.EMail.split("@")[0],
           };
-          console.log(newObj);
+          // console.log(newObj);
           this.setState({ peoplePickerData: [newObj] });
         }
       });
 
-      console.log(items);
+      // console.log(items);
 
-      const atrItems = (
+
+       (
         await this.props.sp.web.lists
           .getByTitle("ATRCreators")
           .items.select("*", "ATRCreators/Title", "ATRCreators/EMail")
           .expand("ATRCreators")()
       ).map((each: any) => {
-        console.log(each);
+        // console.log(each);
         // console.log(this._getUserProperties(each.email))
 
-        const newObj = {
-          text: each.ATRCreators.Title,
-          email: each.ATRCreators.EMail,
-          ApproversId: each.ATRCreatorsId,
-          approverType: each.ApproverType,
-          // approversOrder: each.ApproverType === "Approver"?2:1,
-          //  Title: each.Title,
-          //  id: each.ApproverId,
-          //  secretary: each.Secretary,
-          //  srNo:each.Approver.EMail.split("@")[0]
-        };
-        console.log(newObj);
+        // const newObj = {
+        //   text: each.ATRCreators.Title,
+        //   email: each.ATRCreators.EMail,
+        //   ApproversId: each.ATRCreatorsId,
+        //   approverType: each.ApproverType,
+        //   // approversOrder: each.ApproverType === "Approver"?2:1,
+        //   //  Title: each.Title,
+        //   //  id: each.ApproverId,
+        //   //  secretary: each.Secretary,
+        //   //  srNo:each.Approver.EMail.split("@")[0]
+        // };
+        // console.log(newObj);
       });
 
-      console.log(atrItems, "Atr Items fetched");
+      // console.log(atrItems, "Atr Items fetched");
 
       // this.setState({ itemsFromSpList:items });
       // this.setState(prevState => ({
@@ -1234,60 +1235,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // };
 
   private _getPeoplePickerItems = async (items: any[]) => {
-    console.log("Items:", items);
-    // fetchedData = items
-    console.log(items[0].loginName);
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    console.log(items, "this._getUserProperties(items[0].loginName)");
-
-    // this.setState({approverInfo:items})
-
-    const dataRec = await this._getUserProperties(items[0].loginName);
-    // const finalData = await dataRec.json()
-    // dataRec.then((x: any)=>{
-    //   console.log(x)
-    //   designation=x
-    // });
-    // console.log(typeof dataRec?.toString());
-
-    if (typeof dataRec[0]?.toString() === "undefined") {
-      const newItemsDataNA = items.map(
-        (obj: { [x: string]: any; loginName: any }) => {
-          console.log(obj);
-          return {
-            ...obj,
-            optionalText: "N/A",
-            approverTypeNum: 1,
-            approverType: "Reviewer",
-            email: obj.secondaryText,
-            srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
-          };
-        }
-      );
-      console.log(newItemsDataNA);
-      this.setState({ reviewerInfo: newItemsDataNA });
-    } else {
-      const newItemsData = items.map(
-        (obj: { secondaryText: any; loginName: any }) => {
-          console.log(obj);
-          return {
-            ...obj,
-            optionalText: dataRec[0],
-            approverTypeNum: 1,
-            approverType: "Reviewer",
-            email: dataRec[1],
-            srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
-          };
-        }
-      );
-      // console.log(newItemsData)
-      this.setState({ reviewerInfo: newItemsData });
-    }
-  };
-
-  private _getPeoplePickerItemsApporvers = async (items: any[]) => {
-    console.log("Items:", items);
+    // console.log("Items:", items);
     // fetchedData = items
     // console.log(items[0].loginName);
 
@@ -1307,7 +1255,60 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     if (typeof dataRec[0]?.toString() === "undefined") {
       const newItemsDataNA = items.map(
         (obj: { [x: string]: any; loginName: any }) => {
-          console.log(obj);
+          // console.log(obj);
+          return {
+            ...obj,
+            optionalText: "N/A",
+            approverTypeNum: 1,
+            approverType: "Reviewer",
+            email: obj.secondaryText,
+            srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
+          };
+        }
+      );
+      // console.log(newItemsDataNA);
+      this.setState({ reviewerInfo: newItemsDataNA });
+    } else {
+      const newItemsData = items.map(
+        (obj: { secondaryText: any; loginName: any }) => {
+          // console.log(obj);
+          return {
+            ...obj,
+            optionalText: dataRec[0],
+            approverTypeNum: 1,
+            approverType: "Reviewer",
+            email: dataRec[1],
+            srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
+          };
+        }
+      );
+      // console.log(newItemsData)
+      this.setState({ reviewerInfo: newItemsData });
+    }
+  };
+
+  private _getPeoplePickerItemsApporvers = async (items: any[]) => {
+    // console.log("Items:", items);
+    // fetchedData = items
+    // console.log(items[0].loginName);
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // console.log(items, "this._getUserProperties(items[0].loginName)");
+
+    // this.setState({approverInfo:items})
+
+    const dataRec = await this._getUserProperties(items[0].loginName);
+    // const finalData = await dataRec.json()
+    // dataRec.then((x: any)=>{
+    //   console.log(x)
+    //   designation=x
+    // });
+    // console.log(typeof dataRec?.toString());
+
+    if (typeof dataRec[0]?.toString() === "undefined") {
+      const newItemsDataNA = items.map(
+        (obj: { [x: string]: any; loginName: any }) => {
+          // console.log(obj);
           return {
             ...obj,
             optionalText: "N/A",
@@ -1323,7 +1324,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     } else {
       const newItemsData = items.map(
         (obj: { secondaryText: any; loginName: any }) => {
-          console.log(obj);
+          // console.log(obj);
           return {
             ...obj,
             optionalText: dataRec[0],
@@ -1340,7 +1341,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public reOrderData = (reOrderData: any[], type: string): void => {
-    console.log(reOrderData, "Re order Data");
+    // console.log(reOrderData, "Re order Data");
     if (type === "Reviewer") {
       this.setState({ peoplePickerData: reOrderData });
     } else {
@@ -1356,14 +1357,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }));
     console.log(dataItem);
     if (typeOfTable === "Reviewer") {
-      console.log("Remove triggered from Reviewer Table");
+      // console.log("Remove triggered from Reviewer Table");
       // console.log(dataItem);
       const filterData = this.state.peoplePickerData.filter(
         (item: any) => item.id !== dataItem.id
       );
       this.setState({ peoplePickerData: filterData });
     } else {
-      console.log("Remove triggered Approver Table");
+      // console.log("Remove triggered Approver Table");
       // console.log(dataItem);
       const filterData = this.state.peoplePickerApproverData.filter(
         (item: any) => item.id !== dataItem.id
@@ -1376,20 +1377,20 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const approverTitles = this.state.peoplePickerApproverData.map(
       (each: any) => each.text
     );
-    console.log("Approver Titles:", approverTitles);
+    // console.log("Approver Titles:", approverTitles);
 
     const reviewerTitles = this.state.peoplePickerData.map(
       (each: any) => each.text
     );
-    console.log("Reviewer Titles:", reviewerTitles);
+    // console.log("Reviewer Titles:", reviewerTitles);
 
     const reviewerInfo = this.state.reviewerInfo[0];
     const reviewerEmail = reviewerInfo.email || reviewerInfo.secondaryText;
     const reviewerName = reviewerInfo.text;
 
-    console.log("Current User Email:", this._currentUserEmail);
-    console.log("Reviewer Email:", reviewerEmail);
-    console.log("Reviewer Name:", reviewerName);
+    // console.log("Current User Email:", this._currentUserEmail);
+    // console.log("Reviewer Email:", reviewerEmail);
+    // console.log("Reviewer Name:", reviewerName);
 
     // Condition checks
     const isReviewerOrApprover =
@@ -1398,8 +1399,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     const isCurrentUserReviewer = this._currentUserEmail === reviewerEmail;
 
-    console.log("Is Reviewer or Approver:", isReviewerOrApprover);
-    console.log("Is Current User Reviewer:", isCurrentUserReviewer);
+    // console.log("Is Reviewer or Approver:", isReviewerOrApprover);
+    // console.log("Is Current User Reviewer:", isCurrentUserReviewer);
 
     // Return true only if both conditions are met
     return isReviewerOrApprover || isCurrentUserReviewer;
@@ -1409,19 +1410,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const approverTitles = this.state.peoplePickerApproverData.map(
       (each: any) => each.text
     );
-    console.log(approverTitles);
+    // console.log(approverTitles);
 
     const reveiwerTitles = this.state.peoplePickerData.map(
       (each: any) => each.text
     );
-    console.log(reveiwerTitles);
+    // console.log(reveiwerTitles);
 
-    console.log(reveiwerTitles.includes(this.state.approverInfo[0].text));
-    console.log(approverTitles.includes(this.state.approverInfo[0].text));
-    console.log(
-      this.state.approverInfo[0].email ||
-        this.state.approverInfo[0].secondaryText
-    );
+    // console.log(reveiwerTitles.includes(this.state.approverInfo[0].text));
+    // console.log(approverTitles.includes(this.state.approverInfo[0].text));
+    // console.log(
+    //   this.state.approverInfo[0].email ||
+    //     this.state.approverInfo[0].secondaryText
+    // );
     const returnBoolean =
       reveiwerTitles.includes(this.state.approverInfo[0].text) ||
       approverTitles.includes(this.state.approverInfo[0].text) ||
@@ -1445,18 +1446,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // console.log(type,newItemsData,"test",designation)
       if (this.checkReviewer()) {
-        console.log("Data already Exist in Reviewer Table or Approver Table");
+        // console.log("Data already Exist in Reviewer Table or Approver Table");
         this.setState({ isApproverOrReviewerDialogHandel: false });
       } else {
-        console.log(this.state.reviewerInfo, "Reviewer Info");
+        // console.log(this.state.reviewerInfo, "Reviewer Info");
         const getSecretaryDetails =
           this.state.approverIdsHavingSecretary.filter((each: any) => {
-            console.log(each);
+            // console.log(each);
             return each.ApproverId === this.state.reviewerInfo[0].id;
           });
-        console.log(getSecretaryDetails);
+        // console.log(getSecretaryDetails);
         if (getSecretaryDetails.length > 0) {
-          console.log("if entered");
+          // console.log("if entered");
           this.setState((prev) => ({
             peoplePickerData: [
               ...prev.peoplePickerData,
@@ -1468,7 +1469,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             ],
           }));
         } else {
-          console.log("else entered");
+          // console.log("else entered");
           this.setState((prev) => ({
             peoplePickerData: [
               ...prev.peoplePickerData,
@@ -1480,7 +1481,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // console.log(fetchedData)
       // this._getPeoplePickerItems()
-      console.log(this.state.reviewerInfo, "handle On Add-reveiwer section");
+      // console.log(this.state.reviewerInfo, "handle On Add-reveiwer section");
     } else {
       // console.log(event)
       // let designation=""
@@ -1490,16 +1491,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // console.log(type,newItemsData,"test",designation)
       if (this.checkApprover()) {
-        console.log("Data already Exist in Reviewer Table or Approver Table");
+        // console.log("Data already Exist in Reviewer Table or Approver Table");
         this.setState({ isApproverOrReviewerDialogHandel: false });
       } else {
-        console.log(this.state.approverInfo, "Approver Info");
+        // console.log(this.state.approverInfo, "Approver Info");
         const getSecretaryDetails =
           this.state.approverIdsHavingSecretary.filter((each: any) => {
-            console.log(each);
+            // console.log(each);
             return each.ApproverId === this.state.approverInfo[0].id;
           });
-        console.log(getSecretaryDetails);
+        // console.log(getSecretaryDetails);
         if (getSecretaryDetails.length > 0) {
           this.setState((prev) => ({
             peoplePickerApproverData: [
@@ -1523,7 +1524,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // console.log(fetchedData)
       // this._getPeoplePickerItems()
-      console.log(this.state.approverInfo, "handle On Add-Approver section");
+      // console.log(this.state.approverInfo, "handle On Add-Approver section");
     }
   };
 
@@ -1550,7 +1551,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     option?: IDropdownOption
   ): void => {
     const value = option ? option.text : "";
-    console.log(value);
+    // console.log(value);
 
     this.setState({
       committeeNameFeildValue: value,
@@ -1576,7 +1577,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private handleSubjectChange = (event: any) => {
     const { value } = event.target;
     const isWarning = !value && this.state.isWarningSubject;
-    console.log(isWarning);
+    // console.log(isWarning);
 
     this.setState({
       subjectFeildValue: value,
@@ -1589,7 +1590,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     option?: IDropdownOption
   ): void => {
     const value = option ? option.text : "";
-    console.log(value);
+    // console.log(value);
 
     this.setState({
       isPuroposeVisable: true,
@@ -1611,7 +1612,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     option?: IDropdownOption
   ): void => {
     const value = option ? option.text : "";
-    console.log(value);
+    // console.log(value);
 
     this.setState({
       natureOfApprovalOrSanctionFeildValue: value,
@@ -1624,17 +1625,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     option?: IDropdownOption
   ): void => {
     const value = option ? option.text : "";
-    console.log(value);
+    // console.log(value);
 
     this.setState({
       noteTypeFeildValue: value,
       isWarningNoteType: !value, // Set warning state if value is empty
     });
 
-    console.log(`${value}uuu`);
+    // console.log(`${value}uuu`);
     // Non-Financial
     if (value === "Non-Financial") {
-      console.log("entered");
+      // console.log("entered");
       this.setState({
         typeOfFinancialNoteFeildValue: "",
         amountFeildValue: null,
@@ -1655,7 +1656,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // }
   public handletextBoxChange = (e: any, fieldName: string) => {
     const { value } = e.target;
-    console.log(this.state.eCommitteData, "eCommitteData");
+    // console.log(this.state.eCommitteData, "eCommitteData");
     this.setState((prev) => ({
       eCommitteData: {
         ...prev.eCommitteData,
@@ -1748,7 +1749,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // general section --------handling---------end
 
   private createSubFolder = async (parentFolderPath: string): Promise<void> => {
-    console.log(parentFolderPath);
+    // console.log(parentFolderPath);
 
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
@@ -1801,11 +1802,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         const gistFolderPath = `${parentFolderPath}/GistDocuments`;
         try {
           await sp.web.getFolderByServerRelativePath(gistFolderPath)();
-          console.log(`Folder '${gistFolderPath}' already exists`);
+          // console.log(`Folder '${gistFolderPath}' already exists`);
         } catch (error) {
           if (error.status === 404) {
             await sp.web.rootFolder.folders.addUsingPath(gistFolderPath);
-            console.log(`Folder '${gistFolderPath}' created successfully`);
+            // console.log(`Folder '${gistFolderPath}' created successfully`);
           } else {
             throw error;
           }
@@ -1814,7 +1815,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       for (const { folderName, files } of filesDataArray) {
         const siteUrl = `${parentFolderPath}/${folderName}`;
-        console.log(siteUrl);
+        // console.log(siteUrl);
 
         // Check if the folder already exists
         let folderExists = false;
@@ -1832,17 +1833,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         if (!folderExists) {
           // Create the folder if it doesn't exist
           await sp.web.rootFolder.folders.addUsingPath(siteUrl);
-          console.log(`Folder '${folderName}' created successfully in list`);
+          // console.log(`Folder '${folderName}' created successfully in list`);
         } else {
-          console.log(`Folder '${folderName}' already exists`);
+          // console.log(`Folder '${folderName}' already exists`);
         }
 
         for (const file of files) {
-          console.log(file);
+          // console.log(file);
 
           // Get the ArrayBuffer of the file
           const arrayBuffer = await getFileArrayBuffer(file);
-          console.log(arrayBuffer);
+          // console.log(arrayBuffer);
 
           // Upload the file to the SharePoint Library
           await sp.web
@@ -1852,22 +1853,22 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             });
         }
 
-        console.log(`Folder '${folderName}' created successfully in list`);
+        // console.log(`Folder '${folderName}' created successfully in list`);/
       }
     } catch (error) {
-      console.error(`Error creating folder: ${error}`);
+      // console.error(`Error creating folder: ${error}`);
     }
   };
 
   private createFolder = async (req: string): Promise<void> => {
     const folderName = req.replace(/\//g, "-");
     try {
-      console.log(this.props.context.pageContext.web.serverRelativeUrl);
+      // console.log(this.props.context.pageContext.web.serverRelativeUrl);
       const absUrl = this.props.context.pageContext.web.serverRelativeUrl;
       this._folderName = `${absUrl}/${this.props.libraryId}/${folderName}`;
 
       const siteUrl = `${absUrl}/${this.props.libraryId}/${folderName}`;
-      console.log(siteUrl);
+      // console.log(siteUrl);
 
       // Check if the folder already exists
       let folderExists = false;
@@ -1885,15 +1886,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       if (!folderExists) {
         // Create the folder if it doesn't exist
         await this.props.sp.web.folders.addUsingPath(siteUrl);
-        console.log(`Folder '${folderName}' created successfully in list`);
+        // console.log(`Folder '${folderName}' created successfully in list`);
       } else {
-        console.log(`Folder '${folderName}' already exists`);
+        // console.log(`Folder '${folderName}' already exists`);
       }
 
       // eslint-disable-next-line no-void
       void this.createSubFolder(siteUrl);
     } catch (error) {
-      console.error(`Error creating folder: ${error}`);
+      // console.error(`Error creating folder: ${error}`);
     }
   };
 
@@ -1903,10 +1904,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     typeOfParameter: any
   ): any => {
     const dataOfReveiwerAndApprover = [...reveiwerData, ...apporverData];
-    console.log(dataOfReveiwerAndApprover);
+    // console.log(dataOfReveiwerAndApprover);
     const finalData = dataOfReveiwerAndApprover.map(
       (each: any, index: number) => {
-        console.log(each);
+        // console.log(each);
 
         if (each.approverType === "Reviewer") {
           return {
@@ -1945,9 +1946,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         }
       }
     );
-    console.log(finalData);
+    // console.log(finalData);
 
-    console.log(JSON.stringify(finalData));
+    // console.log(JSON.stringify(finalData));
 
     if (typeOfParameter === "intialOrderApproverDetails") {
       return JSON.stringify([finalData[0]]);
@@ -1957,7 +1958,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private _getAuditTrail = (status: any): any => {
-    console.log(this._userName, this._role);
+    // console.log(this._userName, this._role);
     const auditLog = [
       {
         Actioner: this._userName,
@@ -1973,7 +1974,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         Comments: "No Comments",
       },
     ];
-    console.log(this.state.auditTrail);
+    // console.log(this.state.auditTrail);
 
     return JSON.stringify([...this.state.auditTrail, ...auditLog]);
   };
@@ -1990,7 +1991,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         return `${each}`;
       }
     });
-    console.log(nw);
+    // console.log(nw);
     return nw;
   };
 
@@ -2006,12 +2007,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         return `${each}`;
       }
     });
-    console.log(nw);
+    // console.log(nw);
     return nw;
   };
 
   private _getCurrentApproverId = (data: any, purpose: any) => {
-    console.log(data, "...data", purpose, "...purpose");
+    // console.log(data, "...data", purpose, "...purpose");
     const arr = data.map((each: any) => {
       if (each.id !== "undefined") {
         return each.id;
@@ -2024,7 +2025,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     });
 
-    console.log(nw);
+    // console.log(nw);
 
     if (purpose === "intialOrderApproverDetails") {
       return nw[0];
@@ -2070,7 +2071,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     status: string,
     statusNumber: any
   ): Promise<INoteObject> => {
-    console.log(status);
+    // console.log(status);
     const ecommitteObject: any = {
       Department: this.state.department,
       CommitteeName: this.state.committeeNameFeildValue,
@@ -2125,7 +2126,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // PreviousActionerId:[await this.props.sp.web.currentUser().then((res)=>res.Id)]
       // PreviousActionerId: (await this.props.sp?.web.currentUser())?.Id,
     };
-    console.log(ecommitteObject);
+    // console.log(ecommitteObject);
     return ecommitteObject;
   };
 
@@ -2162,24 +2163,24 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     if (this.state.itemId && this.state.statusNumber === "100") {
       await this.handleUpdate(true);
     } else {
-      console.log("submit is triggered");
+      // console.log("submit is triggered");
       await this.handleSubmit("Submitted", true);
     }
   };
 
   private _checkValidation = (): any => {
-    console.log(this.state);
+    // console.log(this.state);
     let fieldValues: any;
     if (
       (this.state.natureOfNoteFeildValue === "Approval" ||
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Financial"
     ) {
-      console.log("Approval", "Sanction", "Financial");
+      // console.log("Approval", "Sanction", "Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
-        console.log("Approval", "Financial");
+        // console.log("Approval", "Financial");
         if (this.state.puroposeFeildValue === "Others") {
-          console.log("Approval", "Financial", "Others");
+          // console.log("Approval", "Financial", "Others");
           fieldValues = {
             committeeName: this.state.committeeNameFeildValue,
             subject: this.state.subjectFeildValue,
@@ -2213,10 +2214,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             AppoverData: this.state.peoplePickerApproverData,
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
         } else {
-          console.log("Approval", "Financial", "non-Others");
+          // console.log("Approval", "Financial", "non-Others");
           fieldValues = {
             committeeName: this.state.committeeNameFeildValue,
             subject: this.state.subjectFeildValue,
@@ -2250,11 +2251,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             AppoverData: this.state.peoplePickerApproverData,
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
         }
       } else {
-        console.log("Sanction", "Financial");
+        // console.log("Sanction", "Financial");
         fieldValues = {
           committeeName: this.state.committeeNameFeildValue,
           subject: this.state.subjectFeildValue,
@@ -2287,7 +2288,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           AppoverData: this.state.peoplePickerApproverData,
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
       }
     } else if (
@@ -2295,11 +2296,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
-      console.log("Approval", "Sanction", "Non-Financial");
+      // console.log("Approval", "Sanction", "Non-Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
-        console.log("Approval", "Non-Financial");
+        // console.log("Approval", "Non-Financial");
         if (this.state.puroposeFeildValue === "Others") {
-          console.log("Approval", "Non-Financial", "Others");
+          // console.log("Approval", "Non-Financial", "Others");
           fieldValues = {
             committeeName: this.state.committeeNameFeildValue,
             subject: this.state.subjectFeildValue,
@@ -2333,10 +2334,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             AppoverData: this.state.peoplePickerApproverData,
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
         } else {
-          console.log("Approval", "Non-Financial", "non-Others");
+          // console.log("Approval", "Non-Financial", "non-Others");
           fieldValues = {
             committeeName: this.state.committeeNameFeildValue,
             subject: this.state.subjectFeildValue,
@@ -2367,11 +2368,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             AppoverData: this.state.peoplePickerApproverData,
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
         }
       } else {
-        console.log("Sanction", "Non-Financial");
+        // console.log("Sanction", "Non-Financial");
         fieldValues = {
           committeeName: this.state.committeeNameFeildValue,
           subject: this.state.subjectFeildValue,
@@ -2402,7 +2403,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           AppoverData: this.state.peoplePickerApproverData,
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
       }
     } else if (
@@ -2411,7 +2412,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.noteTypeFeildValue === "Financial"
     ) {
       if (this.state.natureOfNoteFeildValue === "Information") {
-        console.log("Information", "Financial");
+        // console.log("Information", "Financial");
         fieldValues = {
           committeeName: this.state.committeeNameFeildValue,
           subject: this.state.subjectFeildValue,
@@ -2442,10 +2443,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           AppoverData: this.state.peoplePickerApproverData,
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
       } else {
-        console.log("Ratification", "Financial");
+        // console.log("Ratification", "Financial");
         fieldValues = {
           committeeName: this.state.committeeNameFeildValue,
           subject: this.state.subjectFeildValue,
@@ -2476,7 +2477,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           AppoverData: this.state.peoplePickerApproverData,
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
       }
     } else if (
@@ -2485,7 +2486,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
       if (this.state.natureOfNoteFeildValue === "Information") {
-        console.log("Information", "Non-Financial");
+        // console.log("Information", "Non-Financial");
         fieldValues = {
           committeeName: this.state.committeeNameFeildValue,
           subject: this.state.subjectFeildValue,
@@ -2515,10 +2516,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           AppoverData: this.state.peoplePickerApproverData,
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
       } else {
-        console.log("Ratification", "Non-Financial");
+        // console.log("Ratification", "Non-Financial");
         fieldValues = {
           committeeName: this.state.committeeNameFeildValue,
           subject: this.state.subjectFeildValue,
@@ -2550,18 +2551,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           AppoverData: this.state.peoplePickerApproverData,
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
       }
     } else if (
       this.state.natureOfNoteFeildValue === "Approval" ||
       this.state.natureOfNoteFeildValue === "Sanction"
     ) {
-      console.log("Approval", "Sanction");
+      // console.log("Approval", "Sanction");
       if (this.state.natureOfNoteFeildValue === "Approval") {
-        console.log("Approval", "Financial");
+        // console.log("Approval", "Financial");
         if (this.state.puroposeFeildValue === "Others") {
-          console.log("Approval", "Financial", "Others");
+          // console.log("Approval", "Financial", "Others");
           fieldValues = {
             committeeName: this.state.committeeNameFeildValue,
             subject: this.state.subjectFeildValue,
@@ -2595,10 +2596,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             AppoverData: this.state.peoplePickerApproverData,
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
         } else {
-          console.log("Approval", "non-Others");
+          // console.log("Approval", "non-Others");
           fieldValues = {
             committeeName: this.state.committeeNameFeildValue,
             subject: this.state.subjectFeildValue,
@@ -2629,11 +2630,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             AppoverData: this.state.peoplePickerApproverData,
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);/
           this.setState({ eCommitteDataForValidataion: fieldValues });
         }
       } else {
-        console.log("Sanction");
+        // console.log("Sanction");
         fieldValues = {
           committeeName: this.state.committeeNameFeildValue,
           subject: this.state.subjectFeildValue,
@@ -2665,11 +2666,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           AppoverData: this.state.peoplePickerApproverData,
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
       }
     } else if (this.state.noteTypeFeildValue === "Financial") {
-      console.log("Financial");
+      // console.log("Financial");
       fieldValues = {
         committeeName: this.state.committeeNameFeildValue,
         subject: this.state.subjectFeildValue,
@@ -2699,10 +2700,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         AppoverData: this.state.peoplePickerApproverData,
       };
-      console.log(fieldValues);
+      // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     } else if (this.state.noteTypeFeildValue === "Non-Financial") {
-      console.log("Non-Financial");
+      // console.log("Non-Financial");
       fieldValues = {
         committeeName: this.state.committeeNameFeildValue,
         subject: this.state.subjectFeildValue,
@@ -2731,7 +2732,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         AppoverData: this.state.peoplePickerApproverData,
       };
-      console.log(fieldValues);
+      // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     } else {
       fieldValues = {
@@ -2762,47 +2763,47 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         AppoverData: this.state.peoplePickerApproverData,
       };
-      console.log(fieldValues);
+      // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
 
-    console.log(
-      fieldValues,
-      "Final FieldValues........................................"
-    );
+    // console.log(
+    //   fieldValues,
+    //   "Final FieldValues........................................"
+    // );
     const dialogVisable = Object.keys(fieldValues).every(
       (each: keyof typeof fieldValues) => {
-        console.log(each);
+        // console.log(each);
         if (
           fieldValues[each] === "" ||
           fieldValues[each].length === 0 ||
           fieldValues[each] === true
         ) {
-          console.log("entred", each);
+          // console.log("entred", each);
           return false;
         }
         return true;
       }
     );
 
-    console.log(dialogVisable, "Dialog Visable");
+    // console.log(dialogVisable, "Dialog Visable");
 
     return dialogVisable;
   };
 
   private _checkValidationArray = (): any => {
-    console.log(this.state);
+    // console.log(this.state);
     let fieldValues;
     if (
       (this.state.natureOfNoteFeildValue === "Approval" ||
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Financial"
     ) {
-      console.log("Approval", "Sanction", "Financial");
+      // console.log("Approval", "Sanction", "Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
-        console.log("Approval", "Financial");
+        // console.log("Approval", "Financial");
         if (this.state.puroposeFeildValue === "Others") {
-          console.log("Approval", "Financial", "Others");
+          // console.log("Approval", "Financial", "Others");
           fieldValues = {
             committeeName: [
               this.state.committeeNameFeildValue,
@@ -2851,10 +2852,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select atleast one Approver to submit request",
             ],
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
         } else {
-          console.log("Approval", "Financial", "non-Others");
+          // console.log("Approval", "Financial", "non-Others");
           fieldValues = {
             committeeName: [
               this.state.committeeNameFeildValue,
@@ -2906,11 +2907,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select atleast one Approver to submit request",
             ],
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
         }
       } else {
-        console.log("Sanction", "Financial");
+        // console.log("Sanction", "Financial");
         fieldValues = {
           committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
           subject: [this.state.subjectFeildValue, "Subject"],
@@ -2952,7 +2953,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select atleast one Approver to submit request",
           ],
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
       }
     } else if (
@@ -2960,11 +2961,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
-      console.log("Approval", "Sanction", "Non-Financial");
+      // console.log("Approval", "Sanction", "Non-Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
-        console.log("Approval", "Non-Financial");
+        // console.log("Approval", "Non-Financial");
         if (this.state.puroposeFeildValue === "Others") {
-          console.log("Approval", "Non-Financial", "Others");
+          // console.log("Approval", "Non-Financial", "Others");
           fieldValues = {
             committeeName: [
               this.state.committeeNameFeildValue,
@@ -3009,10 +3010,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select atleast one Approver to submit request",
             ],
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
         } else {
-          console.log("Approval", "Non-Financial", "non-Others");
+          // console.log("Approval", "Non-Financial", "non-Others");
           fieldValues = {
             committeeName: [
               this.state.committeeNameFeildValue,
@@ -3056,11 +3057,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select atleast one Approver to submit request",
             ],
           };
-          console.log(fieldValues);
+          // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
         }
       } else {
-        console.log("Sanction", "Non-Financial");
+        // console.log("Sanction", "Non-Financial");
         fieldValues = {
           committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
           subject: [this.state.subjectFeildValue, "Subject"],
@@ -3098,7 +3099,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select atleast one Approver to submit request",
           ],
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
       }
     } else if (
@@ -3107,7 +3108,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.noteTypeFeildValue === "Financial"
     ) {
       if (this.state.natureOfNoteFeildValue === "Information") {
-        console.log("Information", "Financial");
+        // console.log("Information", "Financial");
         fieldValues = {
           committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
           subject: [this.state.subjectFeildValue, "Subject"],
@@ -3146,10 +3147,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select atleast one Approver to submit request",
           ],
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
       } else {
-        console.log("Ratification", "Financial");
+        // console.log("Ratification", "Financial");
         fieldValues = {
           committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
           subject: [this.state.subjectFeildValue, "Subject"],
@@ -3188,7 +3189,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select atleast one Approver to submit request",
           ],
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
       }
     } else if (
@@ -3197,7 +3198,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
       if (this.state.natureOfNoteFeildValue === "Information") {
-        console.log("Information", "Non-Financial");
+        // console.log("Information", "Non-Financial");
         fieldValues = {
           committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
           subject: [this.state.subjectFeildValue, "Subject"],
@@ -3232,10 +3233,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select atleast one Approver to submit request",
           ],
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
       } else {
-        console.log("Ratification", "Non-Financial");
+        // console.log("Ratification", "Non-Financial");
         fieldValues = {
           committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
           subject: [this.state.subjectFeildValue, "Subject"],
@@ -3270,11 +3271,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select atleast one Approver to submit request",
           ],
         };
-        console.log(fieldValues);
+        // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
       }
     } else if (this.state.noteTypeFeildValue === "Financial") {
-      console.log("Financial");
+      // console.log("Financial");
       fieldValues = {
         committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
         subject: [this.state.subjectFeildValue, "Subject"],
@@ -3312,10 +3313,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           "Please select atleast one Approver to submit request",
         ],
       };
-      console.log(fieldValues);
+      // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
     } else if (this.state.noteTypeFeildValue === "Non-Financial") {
-      console.log("Non-Financial");
+      // console.log("Non-Financial");
       fieldValues = {
         committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
         subject: [this.state.subjectFeildValue, "Subject"],
@@ -3349,7 +3350,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           "Please select atleast one Approver to submit request",
         ],
       };
-      console.log(fieldValues);
+      // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
     } else {
       fieldValues = {
@@ -3385,14 +3386,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           "Please select atleast one Approver to submit request",
         ],
       };
-      console.log(fieldValues);
+      // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
     }
 
-    console.log(
-      fieldValues,
-      "Dialog FieldValues........................................"
-    );
+    // console.log(
+    //   fieldValues,
+    //   "Dialog FieldValues........................................"
+    // );
   };
 
   private handleSubmit = async (
@@ -3401,39 +3402,39 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     showAlert: boolean = true
   ): Promise<void> => {
     // event.preventDefault();
-    console.log(statusOfForm);
-    console.log("Event Triggered");
-    const {
-      committeeNameFeildValue,
-      subjectFeildValue,
-      natureOfNoteFeildValue,
-      noteTypeFeildValue,
-      natureOfApprovalOrSanctionFeildValue,
-      typeOfFinancialNoteFeildValue,
-      searchTextFeildValue,
-      amountFeildValue,
-      puroposeFeildValue,
-    } = this.state;
-    console.log(committeeNameFeildValue, "-----------committeeNameFeildValue");
-    console.log(subjectFeildValue, "-----------subjectFeildValue");
-    console.log(natureOfNoteFeildValue, "-----------natureOfNoteFeildValue");
-    console.log(
-      natureOfApprovalOrSanctionFeildValue,
-      "--------------natureOfApprovalOrSanctionFeildValue"
-    );
-    console.log(noteTypeFeildValue, "-----------noteTypeFeildValue");
-    console.log(
-      typeOfFinancialNoteFeildValue,
-      "-----------typeOfFinancialNoteFeildValue"
-    );
-    console.log(searchTextFeildValue, "-----------searchTextFeildValue");
-    console.log(amountFeildValue, "-----------amountFeildValue");
-    console.log(puroposeFeildValue, "-----------puroposeFeildValue");
-    console.log(
-      this.state.noteTypeFeildValue === "Financial" &&
-        (this.state.natureOfNoteFeildValue === "Information" || "Ratification"),
-      ",check.........................."
-    );
+    // console.log(statusOfForm);
+    // console.log("Event Triggered");
+    // const {
+    //   committeeNameFeildValue,
+    //   subjectFeildValue,
+    //   natureOfNoteFeildValue,
+    //   noteTypeFeildValue,
+    //   natureOfApprovalOrSanctionFeildValue,
+    //   typeOfFinancialNoteFeildValue,
+    //   searchTextFeildValue,
+    //   amountFeildValue,
+    //   puroposeFeildValue,
+    // } = this.state;
+    // console.log(committeeNameFeildValue, "-----------committeeNameFeildValue");
+    // console.log(subjectFeildValue, "-----------subjectFeildValue");
+    // console.log(natureOfNoteFeildValue, "-----------natureOfNoteFeildValue");
+    // console.log(
+    //   natureOfApprovalOrSanctionFeildValue,
+    //   "--------------natureOfApprovalOrSanctionFeildValue"
+    // );
+    // console.log(noteTypeFeildValue, "-----------noteTypeFeildValue");
+    // console.log(
+    //   typeOfFinancialNoteFeildValue,
+    //   "-----------typeOfFinancialNoteFeildValue"
+    // );
+    // console.log(searchTextFeildValue, "-----------searchTextFeildValue");
+    // console.log(amountFeildValue, "-----------amountFeildValue");
+    // console.log(puroposeFeildValue, "-----------puroposeFeildValue");
+    // console.log(
+    //   this.state.noteTypeFeildValue === "Financial" &&
+    //     (this.state.natureOfNoteFeildValue === "Information" || "Ratification"),
+    //   ",check.........................."
+    // );
 
     if (statusOfForm === "Drafted") {
       let id;
@@ -3441,7 +3442,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       if (this.state.itemId || this._itemId) {
         // Update existing item
         await this.handleUpdate(showAlert);
-        console.log(this.state.itemId, "id updated");
+        // console.log(this.state.itemId, "id updated");
         // this.setState({autosave:false})
       } else {
         // Create new item
@@ -3450,11 +3451,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           .items.add(await this.createEcommitteeObject(statusOfForm, "100"));
         id = response.Id;
         this.setState({ itemId: id });
-        console.log(id, "id created");
+        // console.log(id, "id created");
         await this._generateRequsterNumber(this.state.itemId || id);
       }
 
-      console.log("Item Drafted successfully");
+      // console.log("Item Drafted successfully");
       this.setState({ isConfirmationDialogVisible: false });
 
       if (showAlert) {
@@ -3465,14 +3466,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         if (this.state.statusNumber === "200") {
           await this.handleUpdate();
         } else if (statusOfForm === "update") {
-          console.log("entered into updatee else if block");
+          // console.log("entered into updatee else if block");
           await this.handleUpdate();
         } else {
           const id = await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
-          console.log(id.Id, "id");
-          console.log(id.Id, "id -----", status, "Status");
+          // console.log(id.Id, "id");
+          // console.log(id.Id, "id -----", status, "Status");
 
           await this._generateRequsterNumber(id.Id);
           this.setState({ autosave: false });
@@ -3480,9 +3481,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           // console.log(id)
           // console.log("Item added successfully");
-          console.log(
-            `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
-          );
+          // console.log(
+          //   `Form with ${id.Id} is Successfully Created in SP List - ********* ${statusOfForm} ********`
+          // );
         }
 
         this.setState({
@@ -4088,7 +4089,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // }
         // this.setState({ status: "" });
       } catch (error) {
-        console.error("Error adding item: ", error);
+        // console.error("Error adding item: ", error);
       }
     }
   };
@@ -4153,17 +4154,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           .recycle();
       }
 
-      console.log(
-        `All files in folder '${folderRelativeUrl}' have been deleted.`
-      );
+      // console.log(
+      //   `All files in folder '${folderRelativeUrl}' have been deleted.`
+      // );
     } catch (error) {
-      console.error("Error clearing folder:", error);
+      // console.error("Error clearing folder:", error);
     }
   }
 
   private async updatePdfFolderItems(libraryName: any[], folderPath: string) {
     await this.clearFolder(libraryName, folderPath);
-    console.log(libraryName);
+    // console.log(libraryName);
 
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
@@ -4197,11 +4198,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     try {
       for (const file of libraryName) {
-        console.log(file);
+        // console.log(file);
 
         // Get the ArrayBuffer of the file
         const arrayBuffer = await getFileArrayBuffer(file);
-        console.log(arrayBuffer);
+        // console.log(arrayBuffer);
 
         // Upload the file to the SharePoint Library
         await this.props.sp.web
@@ -4210,9 +4211,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             Overwrite: true,
           });
       }
-      console.log("updated PDF document successfully");
+      // console.log("updated PDF document successfully");
     } catch (error) {
-      console.error(`Error updating folder items: ${error}`);
+      // console.error(`Error updating folder items: ${error}`);
     }
   }
 
@@ -4253,11 +4254,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     try {
       for (const file of libraryName) {
-        console.log(file);
+        // console.log(file);
 
         // Get the ArrayBuffer of the file
         const arrayBuffer = await getFileArrayBuffer(file);
-        console.log(arrayBuffer);
+        // console.log(arrayBuffer);
 
         // Upload the file to the SharePoint Library
         await this.props.sp.web
@@ -4266,9 +4267,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             Overwrite: true,
           });
       }
-      console.log("updated Supporting document successfully");
+      // console.log("updated Supporting document successfully");
     } catch (error) {
-      console.error(`Error updating folder items: ${error}`);
+      // console.error(`Error updating folder items: ${error}`);
     }
   }
 
@@ -4309,11 +4310,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     try {
       for (const file of libraryName) {
-        console.log(file);
+        // console.log(file);
 
         // Get the ArrayBuffer of the file
         const arrayBuffer = await getFileArrayBuffer(file);
-        console.log(arrayBuffer);
+        // console.log(arrayBuffer);
 
         // Upload the file to the SharePoint Library
         await this.props.sp.web
@@ -4322,42 +4323,42 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             Overwrite: true,
           });
       }
-      console.log("updated Word document successfully");
+      // console.log("updated Word document successfully");
     } catch (error) {
-      console.error(`Error updating folder items: ${error}`);
+      // console.error(`Error updating folder items: ${error}`);
     }
   }
 
   private handleUpdate = async (showAlert: boolean = true): Promise<void> => {
-    console.log("Update Event Triggered");
+    // console.log("Update Event Triggered");
 
-    const {
-      committeeNameFeildValue,
-      subjectFeildValue,
-      natureOfNoteFeildValue,
-      noteTypeFeildValue,
-      natureOfApprovalOrSanctionFeildValue,
-      typeOfFinancialNoteFeildValue,
-      searchTextFeildValue,
-      amountFeildValue,
-      puroposeFeildValue,
-    } = this.state;
+    // const {
+    //   committeeNameFeildValue,
+    //   subjectFeildValue,
+    //   natureOfNoteFeildValue,
+    //   noteTypeFeildValue,
+    //   natureOfApprovalOrSanctionFeildValue,
+    //   typeOfFinancialNoteFeildValue,
+    //   searchTextFeildValue,
+    //   amountFeildValue,
+    //   puroposeFeildValue,
+    // } = this.state;
 
-    console.log(committeeNameFeildValue, "-----------committeeNameFeildValue");
-    console.log(subjectFeildValue, "-----------subjectFeildValue");
-    console.log(natureOfNoteFeildValue, "-----------natureOfNoteFeildValue");
-    console.log(
-      natureOfApprovalOrSanctionFeildValue,
-      "--------------natureOfApprovalOrSanctionFeildValue"
-    );
-    console.log(noteTypeFeildValue, "-----------noteTypeFeildValue");
-    console.log(
-      typeOfFinancialNoteFeildValue,
-      "-----------typeOfFinancialNoteFeildValue"
-    );
-    console.log(searchTextFeildValue, "-----------searchTextFeildValue");
-    console.log(amountFeildValue, "-----------amountFeildValue");
-    console.log(puroposeFeildValue, "-----------puroposeFeildValue");
+    // console.log(committeeNameFeildValue, "-----------committeeNameFeildValue");
+    // console.log(subjectFeildValue, "-----------subjectFeildValue");
+    // console.log(natureOfNoteFeildValue, "-----------natureOfNoteFeildValue");
+    // console.log(
+    //   natureOfApprovalOrSanctionFeildValue,
+    //   "--------------natureOfApprovalOrSanctionFeildValue"
+    // );
+    // console.log(noteTypeFeildValue, "-----------noteTypeFeildValue");
+    // console.log(
+    //   typeOfFinancialNoteFeildValue,
+    //   "-----------typeOfFinancialNoteFeildValue"
+    // );
+    // console.log(searchTextFeildValue, "-----------searchTextFeildValue");
+    // console.log(amountFeildValue, "-----------amountFeildValue");
+    // console.log(puroposeFeildValue, "-----------puroposeFeildValue");
 
     try {
       // this.setState({ status: "Updated", statusNumber: "1000" });
@@ -4368,7 +4369,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       //   "*********************Edited passed Object*********************"
       // );
 
-      const itemToUpdate = this._itemId
+    this._itemId
         ? await this.props.sp.web.lists
             .getByTitle(this.props.listId)
             .items.getById(this._itemId)
@@ -4398,19 +4399,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           `${this._folderName}/WordDocument`
         ));
 
-      console.log(itemToUpdate, "item updated");
+      // console.log(itemToUpdate, "item updated");
 
       if (showAlert) {
         this.setState({ isVisibleAlter: true });
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
   private _fetchDepartmentAlias = async (): Promise<void> => {
     try {
-      console.log("Starting to fetch department alias...");
+      // console.log("Starting to fetch department alias...");
 
       // Step 1: Fetch items from the Departments list
       const items: any[] = await this.props.sp.web.lists
@@ -4423,7 +4424,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         ) // Fetching relevant fields
         .expand("Admin")();
 
-      console.log("Fetched items from Departments:", items);
+      // console.log("Fetched items from Departments:", items);
 
       // Step 2: Find the department entry where the Title or Department contains "Development"
       const specificDepartment = items.find(
@@ -4434,10 +4435,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       if (specificDepartment) {
         const departmentAlias = specificDepartment.DepartmentAlias;
-        console.log(
-          "Department alias for department with 'Development' in title:",
-          departmentAlias
-        );
+        // console.log(
+        //   "Department alias for department with 'Development' in title:",
+        //   departmentAlias
+        // );
 
         // Step 3: Update state with the department alias
         this.setState(
@@ -4445,17 +4446,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             departmentAlias: departmentAlias, // Store the department alias
           },
           () => {
-            console.log(
-              "Updated state with department alias:",
-              this.state.departmentAlias
-            );
+            // console.log(
+            //   "Updated state with department alias:",
+            //   this.state.departmentAlias
+            // );
           }
         );
       } else {
-        console.log("No department found with 'Development' in title.");
+        // console.log("No department found with 'Development' in title.");
       }
     } catch (error) {
-      console.error("Error fetching department alias: ", error);
+      // console.error("Error fetching department alias: ", error);
     }
   };
 
@@ -4470,7 +4471,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // const requesterNo=`AD1/${currentyear}-${nextYear}/C${id}`
 
     const currentItem = await this._getItemData(id, "");
-    console.log(currentItem);
+    // console.log(currentItem);
 
     const getUpdatedNoteSecretaryDTO = (): any => {
       const updatedSecretaryDTO = JSON.parse(currentItem.NoteSecretaryDTO).map(
@@ -4478,7 +4479,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           return { ...each, noteId: id, createdBy: each.Author };
         }
       );
-      console.log(updatedSecretaryDTO);
+      // console.log(updatedSecretaryDTO);
       return updatedSecretaryDTO;
     };
     this.title = requesterNo;
@@ -4491,14 +4492,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         // NoteApproversDTO:JSON.stringify(this._getNewUpdatedNoteApproverDTO(this.state.peoplePickerData,this.state.peoplePickerApproverData))
       })
-      .then((data) => console.log(data, "data"));
-    console.log(requesterNo);
+      // .then((data) => console.log(data, "data"));
+    // console.log(requesterNo);
     // eslint-disable-next-line no-void
     await this.createFolder(requesterNo);
   }
 
   public _folderNameGenerate(id: any): any {
-    console.log(this.state.departmentAlias);
+    // console.log(this.state.departmentAlias);
     const currentyear = new Date().getFullYear();
     const nextYear = (currentyear + 1).toString().slice(-2);
 
@@ -4509,16 +4510,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.props.formType === "BoardNoteView"
         ? `${this.state.departmentAlias}/${currentyear}-${nextYear}/B${id}`
         : `${this.state.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
-    console.log(requesterNo);
+    // console.log(requesterNo);
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
 
   private handleNoteToFileChange = (files: File[], typeOfDoc: string) => {
-    console.log(typeOfDoc, files);
+    // console.log(typeOfDoc, files);
 
     for (let i = 0; i < files.length; i++) {
-      console.log(files[i]);
+      // console.log(files[i]);
     }
 
     if (this.state.isWarningNoteToFiles) {
@@ -4526,7 +4527,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
 
     if (files) {
-      console.log(files);
+      // console.log(files);
       // Convert FileList to an array of File objects
       const filesArray = Array.from(files);
       // this.setState((prev) => ({
@@ -4537,8 +4538,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private handleSupportingFileChange = (files: File[], typeOfDoc: string) => {
-    console.log(typeOfDoc);
-    console.log(files);
+    // console.log(typeOfDoc);
+    // console.log(files);
     for (let i = 0; i < files.length; i++) {
       console.log(files[i]);
     }
@@ -4548,7 +4549,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
 
     if (files) {
-      console.log(files);
+      // console.log(files);
       // Convert FileList to an array of File objects
       const filesArray = Array.from(files);
       // this.setState((prev) => ({
@@ -4566,7 +4567,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // }
 
   private _getFileWithError = (data: any): any => {
-    console.log(data);
+    // console.log(data);
     // const itemIds = data[0].map(
     //   (each:any)=>{
     //     console.log(each)
@@ -4622,10 +4623,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private handleWordDocumentFileChange = (files: File[], typeOfDoc: string) => {
-    console.log(typeOfDoc, files);
+    // console.log(typeOfDoc, files);
 
     for (let i = 0; i < files.length; i++) {
-      console.log(files[i]);
+      // console.log(files[i]);
     }
 
     if (this.state.isWarningWordDocumentFiles) {
@@ -4633,7 +4634,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
 
     if (files) {
-      console.log(files);
+      // console.log(files);
       // Convert FileList to an array of File objects
       const filesArray = Array.from(files);
       // this.setState((prev) => ({
@@ -4644,12 +4645,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public handleDialogBox = (): void => {
-    console.log("Dialog handling");
+    // console.log("Dialog handling");
     this.setState({ isDialogHidden: true, errorOfDocuments: false });
   };
 
   public handleApproverOrReviewerDialogBox = (): void => {
-    console.log("Dialog handling");
+    // console.log("Dialog handling");
     this.setState({ isApproverOrReviewerDialogHandel: true });
   };
 
@@ -4688,9 +4689,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   ) => {
     try {
       const updateAuditTrail = await this._getAuditTrail(statusFromEvent);
-      console.log(updateAuditTrail);
+      // console.log(updateAuditTrail);
 
-      const itemToUpdate = await this.props.sp.web.lists
+      await this.props.sp.web.lists
         .getByTitle(this.props.listId)
         .items.getById(this._itemId)
         .update({
@@ -4699,12 +4700,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           AuditTrail: updateAuditTrail,
         });
 
-      console.log(itemToUpdate);
+      // console.log(itemToUpdate);
       // Close the dialog after successful cancellation
       this.setState({ showCancelDialog: false });
       this.setState({ isVisibleAlter: true });
     } catch (error) {
-      console.error("Error updating the item:", error);
+      // console.error("Error updating the item:", error);
       // Handle error, possibly show notification
     }
   };
@@ -4716,7 +4717,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   public _closeDialogAlter = () => {
     const pageURL: string = this.props.homePageUrl;
-    console.log(pageURL);
+    // console.log(pageURL);
     window.location.href = `${pageURL}`;
     this.setState({ isVisibleAlter: false });
   };
@@ -4831,21 +4832,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    console.log(this.state);
+    // console.log(this.state);
     // console.log(this._checkValidation())
-    console.log(this.props.formType, "Type of Form");
-    console.log(this._formType === "view");
-    console.log(this.state.statusNumber !== "100");
+    // console.log(this.props.formType, "Type of Form");
+    // console.log(this._formType === "view");
+    // console.log(this.state.statusNumber !== "100");
 
-    console.log(this.state.statusNumber !== "5000");
+    // console.log(this.state.statusNumber !== "5000");
 
-    console.log(this.state.statusNumber !== "200");
+    // console.log(this.state.statusNumber !== "200");
 
-    console.log(
-      this.state.statusNumber === "100" ||
-        this.state.statusNumber === "5000" ||
-        this.state.statusNumber === "200"
-    );
+    // console.log(
+    //   this.state.statusNumber === "100" ||
+    //     this.state.statusNumber === "5000" ||
+    //     this.state.statusNumber === "200"
+    // );
     // console.log(this.state.peoplePickerData, "Data..........PeoplePicker");
     // console.log(this.checkUserIsIBTes2(this.state.peoplePickerData))
 

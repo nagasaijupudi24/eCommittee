@@ -65,8 +65,8 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
   }
 
   private _getCurentUserComment = (): IGridRow[] => {
-    console.log(this.props.currentUserDetails);
-    console.log(this.props.data);
+    // console.log(this.props.currentUserDetails);
+    // console.log(this.props.data);
     if (this.props.data.length > 0) {
       return this.props.data?.filter(
         (each: any) =>
@@ -185,7 +185,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
     // Call the function passed from the parent component
     this.props.handleCommentDataFuntion(
       this.state.rowsData.filter((item: { id: any }) => {
-        console.log(item);
+        // console.log(item);
         return item.id === id;
       }),
       "delete",
@@ -246,8 +246,8 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
         ),
       },
     ];
-    console.log(this.state);
-    console.log(this.props);
+    // console.log(this.state);
+    // console.log(this.props);
 
     return (
       <div style={{ display: "flex", flexDirection: "column" }}>

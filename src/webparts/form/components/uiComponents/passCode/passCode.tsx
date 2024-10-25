@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from "react";
@@ -61,27 +62,27 @@ export default class PasscodeModal extends React.Component<
   }
 
   public async componentDidMount() {
-    console.log("Component did mount");
+    // console.log("Component did mount");
     await this.fetchStoredPasscodes();
     const userId = await this.getUserIdByEmail(this.props.user.email);
     this.setState({ userId });
-    console.log("User ID:", userId);
+    // console.log("User ID:", userId);
   }
 
   private getUserIdByEmail = async (email: string): Promise<number> => {
     try {
       const user = await this.props.sp.web.siteUsers.getByEmail(email)();
-      console.log("Fetched user:", user);
+      // console.log("Fetched user:", user);
       return user.Id;
     } catch (error) {
-      console.error("Error fetching user ID:", error);
+      // console.error("Error fetching user ID:", error);
       throw error;
     }
   };
 
   private fetchStoredPasscodes = async () => {
     const user = await this.props.sp?.web.currentUser();
-    console.log("Current user:", user);
+    // console.log("Current user:", user);
 
     try {
       const items: any[] = await this.props.sp.web.lists
@@ -99,7 +100,7 @@ export default class PasscodeModal extends React.Component<
       });
 
       this.setState({ userPasscodes }, this.checkUserPasscode);
-      console.log("Fetched passcodes:", userPasscodes);
+      // console.log("Fetched passcodes:", userPasscodes);
     } catch (error) {
       console.error("Error fetching passcodes:", error);
       this.setState({ errorMessage: "Failed to fetch passcodes." });
@@ -115,7 +116,7 @@ export default class PasscodeModal extends React.Component<
     if (!userPasscode) {
       this.setState({ isCreating: true });
     }
-    console.log("User passcode check:", userPasscode);
+    // console.log("User passcode check:", userPasscode);
   };
 
   private onPasscodeChange = (
@@ -123,12 +124,12 @@ export default class PasscodeModal extends React.Component<
     newValue?: string
   ) => {
     this.setState({ passcode: newValue || "", errorMessage: "" });
-    console.log("Passcode changed:", newValue);
+    // console.log("Passcode changed:", newValue);
   };
 
   private togglePasswordVisibility = () => {
     this.setState({ isPasswordVisible: !this.state.isPasswordVisible });
-    console.log("Password visibility toggled:", this.state.isPasswordVisible);
+    // console.log("Password visibility toggled:", this.state.isPasswordVisible);
   };
 
   private decrypt = (encryptedText: string): string => {
@@ -147,22 +148,22 @@ export default class PasscodeModal extends React.Component<
 
     if (!userPasscode) {
       this.setState({ errorMessage: "No passcode found for this user." });
-      console.log("No passcode found for user");
+      // console.log("No passcode found for user");
       return;
     }
 
     if (userPasscode.passcode === passcode) {
       this.props.onSuccess();
       this.props.onClose();
-      console.log("Passcode validated successfully");
+      // console.log("Passcode validated successfully");
     } else {
       this.setState({ errorMessage: "Invalid passcode. Please try again." });
-      console.log("Invalid passcode");
+      // console.log("Invalid passcode");
     }
   };
 
   private redirectToCreatePasscode = () => {
-    console.log("Redirecting to create passcode URL:", this.props.createPasscodeUrl);
+    // console.log("Redirecting to create passcode URL:", this.props.createPasscodeUrl);
     window.location.href = this.props.createPasscodeUrl;
   };
 

@@ -92,7 +92,7 @@ export class DetailsListCustomColumnsExample extends React.Component<{}, IDetail
   }
 
   private _onColumnHeaderContextMenu(column: IColumn | undefined, ev: React.MouseEvent<HTMLElement> | undefined): void {
-    console.log(`column ${column!.key} contextmenu opened.`);
+    // console.log(`column ${column!.key} contextmenu opened.`);
   }
 }
 

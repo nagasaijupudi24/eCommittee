@@ -174,7 +174,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
           title="Delete"
           ariaLabel="Delete"
           onClick={()=>{
-            console.log(_item)
+            // console.log(_item)
             this._remove(_item)
           }} // Replace with your delete function
         />
@@ -200,7 +200,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       columns:this._columns,
      
     };
-    console.log(this.props)
+    // console.log(this.props)
   }
 
 
@@ -298,7 +298,7 @@ private _insertBeforeItem(item: IExampleItem): void {
   items.splice(insertIndex, 0, ...draggedItems);
 
   this.setState({ items:items });
-  console.log(items)
+  // console.log(items)
   this.props.reOrderData(items,this.props.type);
 }
 }

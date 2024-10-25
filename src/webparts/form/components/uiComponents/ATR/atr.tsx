@@ -190,7 +190,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
   // Handler when a row is clicked to select it
   private handleRowClick = (rowKey: number): void => {
     this.setState({ currentRowKey: rowKey });
-    console.log(this.props.commentsData);
+    // console.log(this.props.commentsData);
   };
 
   // Handle row deletion
@@ -201,7 +201,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
   };
 
   public _getDetailsFromPeoplePicker = (): any => {
-    console.log("add btn triggered in ATR Assignee")
+    // console.log("add btn triggered in ATR Assignee")
 
 
     const itemExists = this.state.tableData.some(
@@ -217,7 +217,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       return;
     }
     
-    console.log(this.state.commentsData)
+    // console.log(this.state.commentsData)
     const joinedCommentsData = this.state.commentsData
       .filter((each: any) => !!each)
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
@@ -250,14 +250,14 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
   };
 
   public _getDetailsFromPeoplePickerData = (data: any,type:any): any => {
-    console.log("add btn triggered in ATR Assignee")
-    console.log(data)
-    console.log(type)
+    // console.log("add btn triggered in ATR Assignee")
+    // console.log(data)
+    // console.log(type)
 
 
     
     if (data[0]!==''){
-      console.log('entered into empty value')
+      // console.log('entered into empty value')
       this.setState({selectedValue:data[0]})
     }
   };
@@ -269,9 +269,9 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
 
   public render(): React.ReactElement<IATRAssigneeProps> {
     const { tableData } = this.state;
-    console.log(statusOptions)
-    console.log(this.state)
-    console.log(this.props)
+    // console.log(statusOptions)
+    // console.log(this.state)
+    // console.log(this.props)
 
 
     const styles = mergeStyleSets({

@@ -105,13 +105,13 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
 
       currentTotalSize += file.size;
       validFiles.push({ id: `${file.name}-${i}`, file, error });
-      console.log(validFiles)
+      // console.log(validFiles)
       const filterNullerrorInvalidFiles = validFiles.filter(
         (each:any)=>{
           return each.error !==null
         }
       )
-      console.log(filterNullerrorInvalidFiles)
+      // console.log(filterNullerrorInvalidFiles)
       this.props.errorData([filterNullerrorInvalidFiles, this.props.typeOfDoc]);
       this.setState({ errorOfFile: error });
     }
@@ -156,7 +156,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
     const updatedFiles = this.state.selectedFiles.filter(
       (fileWithError) => fileWithError.id !== fileId
     );
-    console.log(updatedFiles)
+    // console.log(updatedFiles)
     this.props.errorData([updatedFiles, this.props.typeOfDoc]);
 
     this.setState({ selectedFiles: updatedFiles }, () => {

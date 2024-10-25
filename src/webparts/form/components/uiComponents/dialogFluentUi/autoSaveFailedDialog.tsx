@@ -47,7 +47,7 @@ const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
     },
   });
 
-  console.log(statusOfReq)
+//   console.log(statusOfReq)
 
   return (
     <Modal

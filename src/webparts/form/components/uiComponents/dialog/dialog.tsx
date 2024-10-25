@@ -26,7 +26,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
   data,
   handleDialogBox,
 }) => {
-  console.log(data)
+  // console.log(data)
   const stackStyles: IStackStyles = {
     root: {
       display: 'flex',

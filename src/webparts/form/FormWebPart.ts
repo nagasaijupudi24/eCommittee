@@ -225,38 +225,38 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
   }
 
   protected onPropertyPaneFieldChanged = async (propertyPath: string, oldValue: any, newValue: any): Promise<void> => {
-    console.log(newValue,"---New Value, ",propertyPath,"---Propery path")
+    // console.log(newValue,"---New Value, ",propertyPath,"---Propery path")
     super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
     if (propertyPath === "listId" && newValue) {
-      console.log(`"Entered into ${newValue.title}"`)
+      // console.log(`"Entered into ${newValue.title}"`)
       // this._listId = newValue;
       this.properties.listId = newValue.title
       // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
       
       this.render();
-      console.log("render is triggered")
+      // console.log("render is triggered")
       // this.context.propertyPane.refresh();
       // console.log("refresh is triggered")
     } 
     else if (propertyPath === "libraryId" && newValue) {
-      console.log(`"Entered into ${newValue.title}"`)
+      // console.log(`"Entered into ${newValue.title}"`)
       // this._listId = newValue;
       this.properties.libraryId = newValue.title
       // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
       
       this.render();
-      console.log("render is triggered")
+      // console.log("render is triggered")
       // this.context.propertyPane.refresh();
       // console.log("refresh is triggered")
     }
     else if (propertyPath === "FormType" && newValue) {
-      console.log(`"Entered into ${newValue}"`)
+      // console.log(`"Entered into ${newValue}"`)
       // this._listId = newValue;
       this.properties.libraryId = newValue
       // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
       
       this.render();
-      console.log("render is triggered")
+      // console.log("render is triggered")
       // this.context.propertyPane.refresh();
       // console.log("refresh is triggered")
     } 

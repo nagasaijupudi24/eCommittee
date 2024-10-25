@@ -17,7 +17,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
     const { type } = props;
     const gridData = props.data;
 
-    console.log(gridData, `----${type} Of Grid-----------`);
+    // console.log(gridData, `----${type} Of Grid-----------`);
 
     // Define the columns for the DetailsList
     const columns: IColumn[] = [
@@ -33,11 +33,11 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
           maxWidth: 150,
           isResizable: true,
           onRender: (item: any) => {
-            console.log(item);
+            // console.log(item);
         
             let iconName = '';
-            console.log(item);
-            console.log(item.statusNumber);
+            // console.log(item);
+            // console.log(item.statusNumber);
             switch (item.statusNumber) {
               case "2000": // pending reviewer
               case "3000": // pending approver
@@ -78,8 +78,8 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
         
         { key: 'actionDate', name: 'Action Date', fieldName: 'actionDate', minWidth: 100, maxWidth: 150, isResizable: true ,
             onRender: (item) => {
-                console.log(item)
-                console.log(item.actionDate)
+                // console.log(item)
+                // console.log(item.actionDate)
                 if (item.actionDate){
                     const formattedDate = format(new Date(item.actionDate), 'dd-MMM-yyyy');
                 const formattedTime = format(new Date(item.actionDate), 'hh:mm a');

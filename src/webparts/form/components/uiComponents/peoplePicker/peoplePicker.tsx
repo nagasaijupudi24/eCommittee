@@ -85,12 +85,14 @@ export default class PnPPeoplePicker extends React.Component<
   // };
 
   private _getPeoplePickerItems = async (items: any[]) => {
-    console.log("Items:", items);
+    // console.log("Items:", items);
     // fetchedData = items
-    console.log(items[0].loginName);
+    // console.log(items[0].loginName);
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    console.log(items, "this._getUserProperties(items[0].loginName)");
+    // console.log(items, "this._getUserProperties(items[0].loginName)");
+
+
 
     // this.setState({approverInfo:items})
 
@@ -105,7 +107,7 @@ export default class PnPPeoplePicker extends React.Component<
     if (typeof dataRec[0]?.toString() === "undefined") {
       const newItemsDataNA = items.map(
         (obj: { [x: string]: any; loginName: any }) => {
-          console.log(obj);
+          // console.log(obj);
           return {
             ...obj,
             optionalText: "N/A",
@@ -114,7 +116,7 @@ export default class PnPPeoplePicker extends React.Component<
           };
         }
       );
-      console.log(newItemsDataNA);
+      // console.log(newItemsDataNA);
       this.setState({ selectedPeople: newItemsDataNA });
     } else {
       const newItemsData = items.map((obj: { loginName: any }) => {
@@ -134,8 +136,8 @@ export default class PnPPeoplePicker extends React.Component<
   };
 
   public render(): React.ReactElement<IPnPPeoplePickerProps> {
-    console.log(this.state);
-    console.log(this.props)
+    // console.log(this.state);
+    // console.log(this.props)
     const peoplePickerContext = {
       absoluteUrl: this.props.context.pageContext.web.absoluteUrl,
       msGraphClientFactory: this.props.context.msGraphClientFactory,

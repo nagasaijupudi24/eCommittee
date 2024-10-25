@@ -51,8 +51,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     sp,
     fetchAnydata,
   } = props
-  console.log(props)
-  console.log(props.dialogDetails);
+  // console.log(props)
+  // console.log(props.dialogDetails);
 
   // CSS for responsive design
   const styles = mergeStyleSets({
@@ -133,7 +133,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     React.useState<any>('');
 
   const handleConfirmBtn = () => {
-    console.log("Confirm btn triggered");
+    // console.log("Confirm btn triggered");
     dialogDetails.functionType(
       dialogDetails.status,
       dialogDetails.statusNumber
@@ -143,7 +143,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   const closeIcon: IIconProps = { iconName: "Cancel" };
 
   const getGeneralDialogJSX = (): any => {
-    console.log("General dialog functionality is triggered");
+    // console.log("General dialog functionality is triggered");
     return (
       <Modal
         isOpen={!hiddenProp}
@@ -185,30 +185,30 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     const approverTitles = dialogUserCheck.peoplePickerApproverData.map(
       (each: any) => each.text
     );
-    console.log(approverTitles)
+    // console.log(approverTitles)
     const reviewerTitles = dialogUserCheck.peoplePickerData.map(
       (each: any) => each.text
     );
-    console.log(reviewerTitles)
-    console.log(data)
+    // console.log(reviewerTitles)
+    // console.log(data)
   
     const reviewerInfo = data[0];
-    console.log(reviewerInfo)
+    // console.log(reviewerInfo)
     const reviewerEmail = reviewerInfo.email || reviewerInfo.secondaryText;
-    console.log(reviewerEmail)
+    // console.log(reviewerEmail)
     const reviewerName = reviewerInfo.text;
-    console.log(reviewerName)
+    // console.log(reviewerName)
   
     const isReviewerOrApprover =
       reviewerTitles.includes(reviewerName) ||
       approverTitles.includes(reviewerName);
 
-      console.log(isReviewerOrApprover)
+      // console.log(isReviewerOrApprover)
     
     const isCurrentUserReviewer = context.pageContext.user.email === reviewerEmail;
-    console.log(isCurrentUserReviewer)
+    // console.log(isCurrentUserReviewer)
 
-    console.log(isReviewerOrApprover || isCurrentUserReviewer)
+    // console.log(isReviewerOrApprover || isCurrentUserReviewer)
   
     return isReviewerOrApprover || isCurrentUserReviewer;
     
@@ -218,14 +218,14 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   
 
   const _getDetails = (data: any, typeOFButtonTriggererd: any): any => {
-    console.log("Referrer function is Triggered");
-    console.log(data, typeOFButtonTriggererd);
+    // console.log("Referrer function is Triggered");
+    // console.log(data, typeOFButtonTriggererd);
     
     setData(data);
   
     // Call checkReviewer function and display modal if user exists
     if (checkReviewer(data)) {
-      console.log('enter dialog box')
+      // console.log('enter dialog box')
       setIsUserExistsModalVisible(true);  // Show the modal
       return; // Stop execution if user exists
     }
@@ -244,7 +244,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
 
 
     if (dialogDetails.functionType !==''){
-      console.log("change approver btn triggered");
+      // console.log("change approver btn triggered");
       dialogDetails.functionType(
         dialogDetails.status,
         dialogDetails.statusNumber
@@ -258,7 +258,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   };
 
   const handleReferData = () => {
-    console.log("Refer btn triggered");
+    // console.log("Refer btn triggered");
 
     if (dialogDetails.referPassFuntion !==''){
       dialogDetails.referPassFuntion()
@@ -289,7 +289,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   };
 
   const getUserExistsModalJSX = (): any => {
-    console.log('enter dialog box');
+    // console.log('enter dialog box');
     return (
       <Modal
         isOpen={isUserExistsModalVisible}
@@ -358,7 +358,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   
 
   const getChangeApproverJsx = (): any => {
-    console.log("Change Approver is triggered");
+    // console.log("Change Approver is triggered");
   
   
   
@@ -387,7 +387,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     );
   };
   const getReferJSX = (): any => {
-    console.log("Refered is triggered");
+    // console.log("Refered is triggered");
     return (
       <Modal
         isOpen={!hiddenProp}
@@ -427,9 +427,9 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                 _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
                 newText: string
               ): void => {
-                console.log(newText);
+                // console.log(newText);
                 setReferredCommentTextBoxValue(() => {
-                  console.log(context.pageContext.user);
+                  // console.log(context.pageContext.user);
                   const commentsObj = {
                     id: v4(),
                     pageNum: "NA",
@@ -439,7 +439,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                     commentsFrom: dialogDetails.status,
                     commentedEmail: context.pageContext.user.email,
                   };
-                  console.log(commentsObj);
+                  // console.log(commentsObj);
                   return commentsObj;
                 });
               }}

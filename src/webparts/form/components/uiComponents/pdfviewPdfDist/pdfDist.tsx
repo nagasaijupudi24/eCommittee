@@ -13,8 +13,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
   const {pdfPath,noteNumber} = props
-  console.log(pdfPath,"PDF Url")
-  console.log(noteNumber,"Note Number")
+  // console.log(pdfPath,"PDF Url")
+  // console.log(noteNumber,"Note Number")
   const pdfViewerRef = useRef<HTMLDivElement>(null);
   // const [isPDFFullWidth, setIsPDFFullWidth] = useState(false);
   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
