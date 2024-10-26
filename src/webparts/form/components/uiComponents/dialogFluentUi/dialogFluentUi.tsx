@@ -155,7 +155,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         <div style={{ borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1px' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Icon iconName="CheckMark" style={{ marginRight: '10px' }} />
-            <h2>Confirmation</h2>
+            <h2 className={styles.headerTitle}>Confirmation</h2>
           </div>
           <IconButton iconProps={closeIcon} onClick={dialogDetails.closeFunction} />
         </div>
@@ -376,8 +376,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             context={context}
             spProp={sp}
             getDetails={_getDetails}
-            typeOFButton="Change Approver"
-          />
+            typeOFButton="Change Approver" clearPeoplePicker={undefined}          />
           <div className={styles.footer}>
           <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Confirm" />
           <DefaultButton iconProps={{ iconName: "ErrorBadge" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
@@ -415,8 +414,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                 context={context}
                 spProp={sp}
                 getDetails={_getDetails}
-                typeOFButton="Refer"
-                // styles={{ root: { width: '95%' } }}
+                typeOFButton="Refer" clearPeoplePicker={undefined}                // styles={{ root: { width: '95%' } }}
               />
             </div>
             <TextField
@@ -466,12 +464,14 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                 }
 
               }}
+              className={styles.button}
               text="Confirm"
               iconProps={{ iconName: "SkypeCircleCheck" }}
               styles={{ root: styles.buttonContent }}
               
             />
             <DefaultButton
+            className={styles.button}
               onClick={dialogDetails.closeFunction}
               text="Cancel"
               iconProps={{ iconName: "ErrorBadge" }}

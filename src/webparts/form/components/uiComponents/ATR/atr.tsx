@@ -41,6 +41,7 @@ interface IATRAssigneeState {
   commentsData:any;
   isModalOpen: boolean;
   modalMessage: string;
+  clearPeoplePicker:any;
 }
 
 // ComboBox options for status
@@ -55,13 +56,14 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
     // Initialize state
     this.state = {
       tableData: this.props.artCommnetsGridData,
-      selectedUsers: [],
+      selectedUsers: {},
       currentRowKey: null,
       selectedStatus: undefined,
-      selectedValue:'',
+      selectedValue:{},
       commentsData:this.props.commentsData,
       isModalOpen: false,
       modalMessage: "",
+      clearPeoplePicker:"",
     };
 
     this._updateStatusOptions()
@@ -97,21 +99,21 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       key: 'assignedTo',
       name: 'Assigned To',
       fieldName: 'assignedTo',
-      minWidth: 150,
-      maxWidth: 300,
+      minWidth: 80,
+      maxWidth: 100,
       isResizable: true,
     },
     {
       key: 'status',
       name: 'Status',
       fieldName: 'status',
-      minWidth: 100,
-      maxWidth: 150,
+      minWidth: 80,
+      maxWidth: 100,
       isResizable: true,
     },
     {
       key: 'delete',
-      name: 'Delete',
+      name: 'Action',
       fieldName: 'delete',
       minWidth: 50,
       maxWidth: 75,
@@ -202,50 +204,63 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
 
   public _getDetailsFromPeoplePicker = (): any => {
     // console.log("add btn triggered in ATR Assignee")
+    // console.log(this.state.selectedValue)
+    if (Object.keys(this.state.selectedValue).length === 0){
+      // console.log('entered into empty value')
+      this.setState({isModalOpen:true,modalMessage:'Please select the Assignee then click on Add.'})
+     
+    }else{
 
+      const itemExists = this.state.tableData.some(
+        (item: ITableItem) => item.id === this.state.selectedUsers.id
+      );
+  
+  
+      if (itemExists) {
+        this.setState({
+          isModalOpen: true,
+          modalMessage: "The selected assignee already exist. Kindly choose another assignee.",
+        });
+        return;
+      }
+      
+      // console.log(this.state.commentsData)
+      const joinedCommentsData = this.state.commentsData
+        .filter((each: any) => !!each)
+        .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
+  
+  
+        // const updatedCommentsGridData = this.props.artCommnetsGridData.map(
+        //   (each:any)=>{
+        //     console.log(each)
+            
+        //     return {...each,comments:joinedCommentsData.join(', ')}
+        //   }
+        // )
+  
+      const newTableData = {
+        key: v4(),
+        comments: joinedCommentsData.join(', '),
+        assignedTo: this.state.selectedValue.text,
+        status: 'submitted',
+       
+        ...this.state.selectedValue
+      };
+  
+      // this.setState((prev) => {
+      //   this.props.updategirdData([...prev.tableData, newTableData]);
+      //   return { selectedUsers: data, tableData: [...prev.tableData, newTableData] };
+  
+      
+    this.props.updategirdData({assigneeDetails:this.state.selectedValue,comments:[...this.state.tableData,newTableData]});
+      // });
+      this.setState({tableData:[...this.state.tableData,newTableData],selectedValue:''})
+      this.state.clearPeoplePicker()
 
-    const itemExists = this.state.tableData.some(
-      (item: ITableItem) => item.id === this.state.selectedValue.id
-    );
-
-
-    if (itemExists) {
-      this.setState({
-        isModalOpen: true,
-        modalMessage: "The user already exists. Please add another user.",
-      });
-      return;
     }
-    
-    // console.log(this.state.commentsData)
-    const joinedCommentsData = this.state.commentsData
-      .filter((each: any) => !!each)
-      .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
 
 
-      // const updatedCommentsGridData = this.props.artCommnetsGridData.map(
-      //   (each:any)=>{
-      //     console.log(each)
-          
-      //     return {...each,comments:joinedCommentsData.join(', ')}
-      //   }
-      // )
-
-    const newTableData = {
-      key: v4(),
-      comments: joinedCommentsData.join(', '),
-      assignedTo: this.state.selectedValue.text,
-      status: 'submitted',
-    };
-
-    // this.setState((prev) => {
-    //   this.props.updategirdData([...prev.tableData, newTableData]);
-    //   return { selectedUsers: data, tableData: [...prev.tableData, newTableData] };
-
-    
-  this.props.updategirdData({assigneeDetails:this.state.selectedValue,comments:[...this.state.tableData,newTableData]});
-    // });
-    this.setState({tableData:[...this.state.tableData,newTableData]})
+   
     
   };
 
@@ -255,19 +270,23 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
     // console.log(type)
 
 
+    this.setState({selectedValue:data[0],selectedUsers:data[0]})
     
-    if (data[0]!==''){
-      // console.log('entered into empty value')
-      this.setState({selectedValue:data[0]})
-    }
+    // if (this.state.selectedValue.id ===''){
+    //   console.log('entered into empty value')
+    //   this.setState({isModalOpen:true})
+      
+    // }
   };
 
 
   private _closeModal = (): void => {
     this.setState({ isModalOpen: false });
+    this.state.clearPeoplePicker()
   };
 
   public render(): React.ReactElement<IATRAssigneeProps> {
+    // console.log(this.state)
     const { tableData } = this.state;
     // console.log(statusOptions)
     // console.log(this.state)
@@ -308,7 +327,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       footer: {
         display: "flex",
         justifyContent: "flex-end",
-        marginTop: "20px",
+        // marginTop: "20px",
         borderTop: "1px solid #ddd", // Added border to the top of the footer
         paddingTop: "10px",
       },
@@ -325,6 +344,15 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
             spProp={this.props.sp}
             getDetails={this._getDetailsFromPeoplePickerData}
             typeOFButton="atr"
+            clearPeoplePicker={
+              (data:any,funtionName:any)=>{
+                // console.log(data)
+                // console.log(funtionName)
+                this.setState({clearPeoplePicker:data})
+              }
+              
+            }
+
           />
 
           {/* ComboBox for Status Selection */}
@@ -366,7 +394,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
           <div className={styles.header}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <Icon iconName="Info" />
-              <h2 style={{ marginLeft: "10px" }}>Alert</h2>
+              <h2 style={{ marginLeft: "10px",marginTop:'4px',marginBottom:'4px' }}>Alert</h2>
             </div>
             <IconButton
               iconProps={{ iconName: "ErrorBadge" }}

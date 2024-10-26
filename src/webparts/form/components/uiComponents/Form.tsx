@@ -715,102 +715,89 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return approverData;
   };
 
-  private _getFileObj = (data: any): any => {
-    const tenantUrl = window.location.protocol + "//" + window.location.host;
-    // console.log(tenantUrl);
-
+  private _getFileObj = async (data: any): Promise<File> => {
+    const tenantUrl = `${window.location.protocol}//${window.location.host}`;
+  
     const formatDateTime = (date: string | number | Date) => {
       const formattedDate = format(new Date(date), "dd-MMM-yyyy");
       const formattedTime = format(new Date(), "hh:mm a");
       return `${formattedDate} ${formattedTime}`;
     };
-
+  
     const result = formatDateTime(data.TimeCreated);
-
-    const filesObj = {
-      name: data.Name,
-      content: data,
+  
+    // Fetch file content as an array buffer to avoid corruption
+    const fileContent = await this.props.sp.web
+      .getFileByServerRelativePath(data.ServerRelativeUrl)
+      .getBuffer();
+  
+    // Create a new File object using the array buffer
+    const fileBlob = new Blob([fileContent], { type: `application/${data.Name.split(".").pop()}` });
+    const file = new File([fileBlob], data.Name, {
+      type: `application/${data.Name.split(".").pop()}`,
+      lastModified: new Date(data.TimeLastModified).getTime(),
+    });
+  
+    // Add additional metadata to the file if needed
+    (file as any).metadata = {
       index: 0,
       fileUrl: tenantUrl + data.ServerRelativeUrl,
-      ServerRelativeUrl: "",
+      ServerRelativeUrl: data.ServerRelativeUrl,
       isExists: true,
-      Modified: "",
+      Modified: data.TimeLastModified,
       isSelected: false,
-      size: parseInt(data.Length),
-      type: `application/${data.Name.split(".")[1]}`,
+      size: parseInt(data.Length, 10),
       modifiedBy: data.Author.Title,
-      createData: result,
+      createDate: result,
     };
-    // console.log(filesObj);
-    return filesObj;
+  
+    return file;
   };
-
+  
   private _getItemDocumentsData = async () => {
     try {
-      // console.log("------------------Pdf-----------------------------------");
-
-      // console.log(`${this._folderName}/Pdf`);
+      const tempFilesPdf: File[] = [];
+      const tempFilesWordDocument: File[] = [];
+      const tempFilesSupportingDocument: File[] = [];
+  
+      // PDF Files
       const folderItemsPdf = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/Pdf`)
-        .files.select("*")
-        .expand("Author", "Editor")()
-        .then((res) => res);
-      // console.log(folderItemsPdf);
-      // console.log(folderItemsPdf[0]);
-      // this.setState({noteTofiles:[folderItem]})
-
-      const tempFilesPdf: IFileDetails[] = [];
-      folderItemsPdf.forEach((values) => {
-        tempFilesPdf.push(this._getFileObj(values));
-      });
-      // console.log(tempFilesPdf);
+        .files.select("*").expand("Author", "Editor")();
+  
+      for (const file of folderItemsPdf) {
+        const fileObj = await this._getFileObj(file);
+        tempFilesPdf.push(fileObj);
+      }
       this.setState({ noteTofiles: tempFilesPdf });
-
-      //Word Documents
-      // console.log(
-      //   "------------------Word Document-----------------------------------"
-      // );
-      // console.log(`${this._folderName}/WordDocument`);
+  
+      // Word Documents
       const folderItemsWordDocument = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/WordDocument`)
-        .files.select("*")
-        .expand("Author", "Editor")()
-        .then((res) => res);
-      // console.log(folderItemsWordDocument);
-      // console.log(folderItemsWordDocument[0]);
-
-      const tempFilesWordDocument: IFileDetails[] = [];
-      folderItemsWordDocument.forEach((values) => {
-        tempFilesWordDocument.push(this._getFileObj(values));
-      });
-      // console.log(tempFilesWordDocument);
+        .files.select("*").expand("Author", "Editor")();
+  
+      for (const file of folderItemsWordDocument) {
+        const fileObj = await this._getFileObj(file);
+        tempFilesWordDocument.push(fileObj);
+      }
       this.setState({ wordDocumentfiles: tempFilesWordDocument });
-
-      //supporting documents
-      // console.log(
-      //   "------------------Supporting Document-----------------------------------"
-      // );
-
-      // console.log(`${this._folderName}/SupportingDocument`);
+  
+      // Supporting Documents
       const SupportingDocument = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/SupportingDocument`)
-        .files.select("*")
-        .expand("Author", "Editor")()
-        .then((res) => res);
-      // console.log(SupportingDocument);
-      // console.log(SupportingDocument[0]);
-
-      const tempFilesSupportingDocument: IFileDetails[] = [];
-      SupportingDocument.forEach((values) => {
-        tempFilesSupportingDocument.push(this._getFileObj(values));
-      });
-      // console.log(tempFilesSupportingDocument);
+        .files.select("*").expand("Author", "Editor")();
+  
+      for (const file of SupportingDocument) {
+        const fileObj = await this._getFileObj(file);
+        tempFilesSupportingDocument.push(fileObj);
+      }
       this.setState({ supportingDocumentfiles: tempFilesSupportingDocument });
-    } catch {
-    //  / console.log("failed to fetch");
+  
+    } catch (error) {
+      console.error("Failed to fetch files:", error);
     }
   };
-
+  
   // private _GetMyProfile = (id:any) => {
   //   this.props.context.msGraphClientFactory.getClient(id).then((client): void => {
   //     client.api('me').get((error, user: MicrosoftGraph.User, rawResponse?: any) => {
@@ -1129,6 +1116,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             secretary: each.Secretary.Title,
             srNo: each.Approver.EMail.split("@")[0],
             optionalText: dataRec[0],
+            approverTypeNum: 2
           };
           // console.log(newObj);
           const secretaryObj = {
@@ -1182,6 +1170,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             secretary: each.Secretary.Title,
             optionalText: dataRec[0],
             srNo: each.Approver.EMail.split("@")[0],
+            
+            approverTypeNum: 1
           };
           // console.log(newObj);
           this.setState({ peoplePickerData: [newObj] });
@@ -1234,8 +1224,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //   this.setState({ noteTypeValue: item }); // Update state with selected item
   // };
 
-  private _getPeoplePickerItems = async (items: any[]) => {
-    // console.log("Items:", items);
+  private   _getPeoplePickerItems = async (items: any[]) => {
+    console.log("Items:", items);
     // fetchedData = items
     // console.log(items[0].loginName);
 
@@ -1252,17 +1242,36 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // });
     // console.log(typeof dataRec?.toString());
 
+    // const objectA ={
+    //   text: each.Approver.Title,
+    //   email: each.Approver.EMail,
+    //   ApproversId: each.ApproverId,
+    //   approverType: each.ApproverType,
+    //   // approversOrder: each.ApproverType === "Approver"?2:1,
+    //   Title: each.Title,
+    //   id: each.ApproverId,
+    //   secretary: each.Secretary.Title,
+    //   srNo: each.Approver.EMail.split("@")[0],
+    //   optionalText: dataRec[0],
+    // }
+
     if (typeof dataRec[0]?.toString() === "undefined") {
       const newItemsDataNA = items.map(
         (obj: { [x: string]: any; loginName: any }) => {
           // console.log(obj);
           return {
-            ...obj,
-            optionalText: "N/A",
-            approverTypeNum: 1,
+            ApproversId:obj.id,
+            Title:"",
+           
             approverType: "Reviewer",
             email: obj.secondaryText,
+            id:obj.id,
+            optionalText: "N/A",
+            approverTypeNum: 1,
+            secretary:'',
+           
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
+            text:obj.text
           };
         }
       );
@@ -1270,15 +1279,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.setState({ reviewerInfo: newItemsDataNA });
     } else {
       const newItemsData = items.map(
-        (obj: { secondaryText: any; loginName: any }) => {
+        (obj: {
+          text: any;
+          id: any; secondaryText: any; loginName: any 
+}) => {
           // console.log(obj);
           return {
-            ...obj,
-            optionalText: dataRec[0],
-            approverTypeNum: 1,
+            
+            
+            
+
+            ApproversId:obj.id,
+            Title:"",
             approverType: "Reviewer",
             email: dataRec[1],
+            id:obj.id,
+            optionalText: dataRec[0],
+            approverTypeNum: 1,
+            secretary:'',
+
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
+            text:obj.text
           };
         }
       );
@@ -1310,12 +1331,20 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         (obj: { [x: string]: any; loginName: any }) => {
           // console.log(obj);
           return {
-            ...obj,
-            optionalText: "N/A",
-            approverTypeNum: 2,
+
+            ApproversId:obj.id,
+            Title:"",
+           
             approverType: "Approver",
             email: obj.secondaryText,
+            id:obj.id,
+            optionalText: "N/A",
+            approverTypeNum: 2,
+            secretary:'',
+           
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
+            text:obj.text
+
           };
         }
       );
@@ -1323,15 +1352,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.setState({ approverInfo: newItemsDataNA });
     } else {
       const newItemsData = items.map(
-        (obj: { secondaryText: any; loginName: any }) => {
+        (obj: {
+          text: any;
+          id: any; secondaryText: any; loginName: any 
+}) => {
           // console.log(obj);
           return {
-            ...obj,
-            optionalText: dataRec[0],
-            approverTypeNum: 2,
+
+
+
+            ApproversId:obj.id,
+            Title:"",
             approverType: "Approver",
             email: dataRec[1],
+            id:obj.id,
+            optionalText: dataRec[0],
+            approverTypeNum: 2,
+            secretary:'',
+
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
+            text:obj.text
+           
           };
         }
       );
@@ -1907,27 +1948,29 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(dataOfReveiwerAndApprover);
     const finalData = dataOfReveiwerAndApprover.map(
       (each: any, index: number) => {
-        // console.log(each);
+        console.log(each);
 
         if (each.approverType === "Reviewer") {
           return {
+            ...each,
             approverType: each.approverType,
             approverEmail: each.email,
             approverOrder: index + 1,
             approverStatus: 1,
             id: each.id,
-            status: index === 0 ? "pending" : "Waiting",
+            status: index === 0 ? "Pending" : "Waiting",
             statusNumber: index === 0 ? "2000" : "",
             mainStatus: index === 0 ? "Pending with reviewer" : "Waiting",
-            email: each.secondaryText,
+            email: each.email,
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
 
-            ...each,
+            
           };
         } else {
           return {
+            ...each,
             approverType: each.approverType,
             approverEmail: each.email,
             approverOrder: index + 1,
@@ -1936,17 +1979,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             statusNumber: index === 0 ? "3000" : "",
             status: index === 0 ? "Pending" : "Waiting",
             mainStatus: index === 0 ? "Pending with approver" : "Waiting",
-            email: each.secondaryText,
+            email: each.email,
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
 
-            ...each,
+            
           };
         }
       }
     );
-    // console.log(finalData);
+    console.log(finalData);
 
     // console.log(JSON.stringify(finalData));
 
@@ -2162,7 +2205,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // this.handleCancelDialog(); // Hide the dialog
     if (this.state.itemId && this.state.statusNumber === "100") {
       await this.handleUpdate(true);
-    } else {
+    } 
+    else if (this._itemId && (this.state.statusNumber ==='1000' || this.state.statusNumber ==='100')){
+      await this.handleUpdate(true);
+
+    }
+    
+    else {
       // console.log("submit is triggered");
       await this.handleSubmit("Submitted", true);
     }
@@ -4541,7 +4590,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(typeOfDoc);
     // console.log(files);
     for (let i = 0; i < files.length; i++) {
-      console.log(files[i]);
+      // console.log(files[i]);
     }
 
     if (this.state.isWarningSupportingDocumentFiles) {
@@ -4832,7 +4881,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
     // console.log(this._formType === "view");
@@ -5811,6 +5860,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 gap: "5px",
               }}
             >
+              <>
+              {this.state.statusNumber === '100' ||this.state.statusNumber === '200'||this.state.statusNumber === '5000'||this.state.statusNumber === '' }
               {this._itemId && this.state.status !== "Returned" ? (
                 !(
                   this.state.statusNumber === "100" ||
@@ -5922,6 +5973,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   Submit
                 </PrimaryButton>
               )}
+              </>
 
               <DefaultButton
                 // type="button"

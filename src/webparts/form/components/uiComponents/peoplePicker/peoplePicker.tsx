@@ -15,6 +15,7 @@ export interface IPnPPeoplePickerProps {
   spProp: any;
   getDetails:any;
   typeOFButton:any;
+  clearPeoplePicker:any;
 
 }
 
@@ -39,9 +40,10 @@ export default class PnPPeoplePicker extends React.Component<
 
   
 
-  // private _clearPeoplePicker = () => {
-  //   this.setState({ selectedPeople: [], key: this.state.key + 1 }); // Update the key to force re-render
-  // };
+  private _clearPeoplePicker = () => {
+    console.log('Function called for clearing')
+    this.setState({ selectedPeople: [], key: this.state.key + 1 }); // Update the key to force re-render
+  };
 
   private _getUserProperties = async (loginName: any): Promise<any> => {
     // console.log(loginName)
@@ -130,6 +132,7 @@ export default class PnPPeoplePicker extends React.Component<
       });
       // console.log(newItemsData)
       this.props.getDetails(newItemsData,this.props.typeOFButton)
+      this.props.clearPeoplePicker(this._clearPeoplePicker,"clearFuntion")
       this.setState({ selectedPeople: newItemsData });
       // this._clearPeoplePicker();
     }

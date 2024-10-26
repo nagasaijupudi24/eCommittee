@@ -567,7 +567,7 @@ export default class ViewForm extends React.Component<
   }
 
   private _getJsonifyReviewer = (item: any, type: string): any[] => {
-    // console.log(item);
+    console.log(item);
     // console.log(JSON.parse(item));
     const parseItem = JSON.parse(item);
     const approverfilterData = parseItem.filter((each: any) => {
@@ -585,7 +585,7 @@ export default class ViewForm extends React.Component<
         // ))
       }
     });
-    // console.log(approverfilterData);
+    console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
       srNo: each.approverEmailName.split("@")[0],
@@ -604,7 +604,7 @@ export default class ViewForm extends React.Component<
   };
 
   private _getJsonifyApprover = (item: any, type: string): any[] => {
-    // console.log(item);
+    console.log(item);
     // console.log(JSON.parse(item));
     const parseItem = JSON.parse(item);
     const approverfilterData = parseItem.filter((each: any) => {
@@ -622,7 +622,7 @@ export default class ViewForm extends React.Component<
         // ))
       }
     });
-    // console.log(approverfilterData);
+    console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
       srNo: each.approverEmailName.split("@")[0],
@@ -773,7 +773,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    // console.log(`${id} ------Details`, item);
+    console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -982,16 +982,17 @@ export default class ViewForm extends React.Component<
     ApproverDetails: any
   ): any => {
     ApproverDetails = JSON.parse(ApproverDetails);
+    console.log(currentApproverData,"currentApproverData")
     // console.log(currentApproverData);
 
     if (currentApproverData) {
       const filterApproverData = ApproverDetails.filter((each: any) => {
-        // console.log(each);
+        console.log(each);
         if ((each.email || each.approverEmail) === currentApproverData.EMail) {
           return { ...each, ...currentApproverData };
         }
       });
-      // console.log(filterApproverData);
+      console.log(filterApproverData);
 
       return filterApproverData;
     }
@@ -1848,6 +1849,7 @@ export default class ViewForm extends React.Component<
             status: statusFromEvent,
             actionDate: new Date(),
             mainStatus: statusFromEvent,
+            statusNumber:statusNumber
           };
         }
         // if (each.approverOrder===currentApproverOrder+1){
@@ -1872,6 +1874,7 @@ export default class ViewForm extends React.Component<
         AuditTrail: updateAuditTrial,
         
       PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
+      startProcessing: true,
       });
 
     // console.log(itemToUpdate);
@@ -2557,7 +2560,11 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
-            if (this._checkLastCommentByCurrentUser()) {
+            if (this.state.errorOfDocuments){
+              this.setState({isAutoSaveFailedDialog:true})
+
+            }
+            else if (this._checkLastCommentByCurrentUser()) {
               this.setState({ isRejectCommentsCheckAlterDialog: true });
             } else {
               this.setState({ successStatus: "rejected" });
@@ -3134,7 +3141,7 @@ export default class ViewForm extends React.Component<
   }
 
   public render(): React.ReactElement<IViewFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
     // console.log((this.state.refferredToDetails[0] ))

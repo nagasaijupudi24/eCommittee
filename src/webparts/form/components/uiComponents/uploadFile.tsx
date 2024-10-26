@@ -121,36 +121,55 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
 
   private handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
-      const updatedFiles = this.props.multiple
-        ? [
-            ...this.state.selectedFiles,
-            ...files.map((file, index) => ({
-              id: `${file.name}-${index}`,
-              file,
-              error: null
-            }))
-          ]
-        : files.map((file, index) => ({
-            id: `${file.name}-${index}`,
-            file,
-            error: null
-          }));
+        const files = Array.from(e.target.files);
+        const filePromises = files.map((file) => this.convertToFileArrayBuffer(file));
 
-      this.setState({ selectedFiles: updatedFiles }, () => {
-        this.validateFiles(updatedFiles.map((f) => f.file));
-      });
+        Promise.all(filePromises).then((fileBuffers) => {
+            const filesWithBuffers = fileBuffers.map((buffer, index) => ({
+                id: `${files[index].name}-${index}`,
+                file: files[index],
+                buffer: buffer,
+                error: null
+            }));
 
-      this.props.onChange(
-        updatedFiles.map((f) => f.file),
-        this.props.typeOfDoc
-      );
+            const updatedFiles = this.props.multiple
+                ? [...this.state.selectedFiles, ...filesWithBuffers]
+                : filesWithBuffers;
 
-      if (this.fileInputRef.current) {
-        this.fileInputRef.current.value = '';
-      }
+            this.setState({ selectedFiles: updatedFiles }, () => {
+                this.validateFiles(updatedFiles.map((f) => f.file));
+            });
+
+            this.props.onChange(
+                updatedFiles.map((f) => f.file),
+                this.props.typeOfDoc
+            );
+
+            if (this.fileInputRef.current) {
+                this.fileInputRef.current.value = '';
+            }
+        }).catch((error) => {
+            console.error('Error converting files to ArrayBuffer', error);
+        });
     }
-  };
+};
+
+// Convert file to ArrayBuffer
+private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (reader.result instanceof ArrayBuffer) {
+                resolve(reader.result);
+            } else {
+                reject('FileReader result is not an ArrayBuffer');
+            }
+        };
+        reader.onerror = (error) => reject(error);
+        reader.readAsArrayBuffer(file);
+    });
+}
+
 
   private handleDeleteFile = (fileId: string): void => {
     const updatedFiles = this.state.selectedFiles.filter(

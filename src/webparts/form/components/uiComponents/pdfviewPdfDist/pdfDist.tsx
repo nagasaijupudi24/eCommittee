@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/self-closing-comp */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { IPDFViewerProps } from './IPDFViewerProps';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 import styles from './PdfViewer.module.scss';
@@ -11,122 +11,631 @@ import { Icon } from '@fluentui/react';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
-const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
-  const {pdfPath,noteNumber} = props
-  // console.log(pdfPath,"PDF Url")
-  // console.log(noteNumber,"Note Number")
+const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
+  const { pdfPath, noteNumber } = props;
   const pdfViewerRef = useRef<HTMLDivElement>(null);
-  // const [isPDFFullWidth, setIsPDFFullWidth] = useState(false);
   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [numPages, setNumPages] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [pageCanvas, setPageCanvas] = useState<string | null>(null);
+  const [renderedPages, setRenderedPages] = useState<Map<number, string>>(new Map());
 
+  // Load PDF document
   useEffect(() => {
-    const fetchPdf = async (): Promise<void> => {
+    const loadPdf = async () => {
       const loadingTask = pdfjsLib.getDocument(pdfPath);
       const pdf = await loadingTask.promise;
       setPdfDocument(pdf);
       setNumPages(pdf.numPages);
     };
-    fetchPdf().catch(console.error);
+    loadPdf().catch(console.error);
   }, [pdfPath]);
 
-  useEffect(() => {
-    const renderPage = async (pageNum: number): Promise<void> => {
-      if (!pdfDocument) return;
-      const page = await pdfDocument.getPage(pageNum);
-      const viewport = page.getViewport({ scale: zoomLevel });
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      if (context) {
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        await page.render({ canvasContext: context, viewport: viewport }).promise;
-        setPageCanvas(canvas.toDataURL());
+  // Render specific page
+  const renderPage = async (pageNum: number) => {
+    if (!pdfDocument || renderedPages.has(pageNum)) return;
+    const page = await pdfDocument.getPage(pageNum);
+    const viewport = page.getViewport({ scale: zoomLevel });
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (context) {
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      await page.render({ canvasContext: context, viewport }).promise;
+      setRenderedPages((prev) => new Map(prev).set(pageNum, canvas.toDataURL()));
+    }
+  };
+
+  // Handle scrolling to render pages in view
+  const handleScroll = () => {
+    if (!pdfViewerRef.current) return;
+    const viewer = pdfViewerRef.current;
+    const viewerTop = viewer.scrollTop;
+    const viewerBottom = viewerTop + viewer.clientHeight;
+
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      const pageHeight = (viewer.scrollHeight / numPages) * zoomLevel;
+      const pageTop = (pageNum - 1) * pageHeight;
+      const pageBottom = pageTop + pageHeight;
+
+      if ((pageTop >= viewerTop && pageTop <= viewerBottom) ||
+          (pageBottom >= viewerTop && pageBottom <= viewerBottom)) {
+        renderPage(pageNum).catch(console.error);
+        setCurrentPage(pageNum); // Update current page based on scroll
       }
+    }
+  };
+
+  useEffect(() => {
+    const pdfViewer = pdfViewerRef.current;
+    pdfViewer?.addEventListener('scroll', handleScroll);
+    return () => {
+      pdfViewer?.removeEventListener('scroll', handleScroll);
     };
+  }, [numPages, zoomLevel]);
 
-    renderPage(currentPage).catch(console.error);
-  }, [pdfDocument, currentPage, zoomLevel]);
+  useEffect(() => {
+    setRenderedPages(new Map());
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      renderPage(pageNum).catch(console.error);
+    }
+  }, [zoomLevel, pdfDocument, numPages]);
 
-  const handlePreviousPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  const handleZoomIn = () => {
+    const currentZoomIndex = zoomLevels.findIndex(level => parseFloat(level.value) === zoomLevel);
+    if (currentZoomIndex < zoomLevels.length - 1) {
+      const newZoomLevel = parseFloat(zoomLevels[currentZoomIndex + 1].value);
+      setZoomLevel(newZoomLevel);
+      resetAndRenderPages(newZoomLevel);
+    }
+  };
+  
+  const handleZoomOut = () => {
+    const currentZoomIndex = zoomLevels.findIndex(level => parseFloat(level.value) === zoomLevel);
+    if (currentZoomIndex > 0) {
+      const newZoomLevel = parseFloat(zoomLevels[currentZoomIndex - 1].value);
+      setZoomLevel(newZoomLevel);
+      resetAndRenderPages(newZoomLevel);
+    }
+  };
+  
+  // New function to reset and render pages based on the zoom level
+  const resetAndRenderPages = async (newZoomLevel: number) => {
+    setRenderedPages(new Map());
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      await renderPage(pageNum); // Await each page render
+    }
   };
 
   const handleNextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, numPages));
+    if (currentPage < numPages && pdfViewerRef.current) {
+      const nextPageTop = (currentPage * pdfViewerRef.current.scrollHeight) / numPages;
+      pdfViewerRef.current.scrollTo({ top: nextPageTop, behavior: 'smooth' });
+      setCurrentPage(currentPage + 1);
+    }
   };
 
-  const handleZoomIn = () => {
-    setZoomLevel((prevZoom) => prevZoom * 1.25);
+  const handlePreviousPage = () => {
+    if (currentPage > 1 && pdfViewerRef.current) {
+      const prevPageTop = ((currentPage - 2) * pdfViewerRef.current.scrollHeight) / numPages;
+      pdfViewerRef.current.scrollTo({ top: prevPageTop, behavior: 'smooth' });
+      setCurrentPage(currentPage - 1);
+    }
   };
 
-  const handleZoomOut = () => {
-    setZoomLevel((prevZoom) => prevZoom * 0.75);
+  const handleSave = () => {
+    const a = document.createElement('a');
+    a.href = pdfPath;
+    a.download = `${noteNumber}.pdf`; // Use the custom name here
+    a.click();
   };
-
-  const handleZoomChange = (event: any) => {
-    const selectedZoom = parseFloat(event.target.value);
-    setZoomLevel(selectedZoom);
-  };
-
-  // const handlePrint = () => {
-  //   window.print();
-  // };
 
   const handlePrint = async () => {
     if (!pdfDocument) return;
-  
-    const printContent = document.createElement("div");
-  
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const printContent = document.createElement('div');
     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-      const page = await pdfDocument.getPage(pageNum);
-      const viewport = page.getViewport({ scale: zoomLevel });
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-  
-      if (context) {
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        await page.render({ canvasContext: context, viewport: viewport }).promise;
-  
+      await renderPage(pageNum);
+      const imgSrc = renderedPages.get(pageNum);
+      if (imgSrc) {
         const img = new Image();
-        img.src = canvas.toDataURL("image/png");
-        img.style.width = "100%";
+        img.src = imgSrc;
+        img.style.width = '100%';
         printContent.appendChild(img);
-        printContent.appendChild(document.createElement("br"));
+        printContent.appendChild(document.createElement('br'));
       }
     }
-  
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      console.error("Failed to open print window.");
-      return;
-    }
-  
-    printWindow.document.write("<html><head><title>Print PDF</title></head><body>");
+
+    printWindow.document.write('<html><head><title>Print PDF</title></head><body></body></html>');
     printWindow.document.body.appendChild(printContent);
-    printWindow.document.write("</body></html>");
     printWindow.document.close();
-  
+
     printWindow.onload = () => {
-      const images = printWindow.document.getElementsByTagName("img");
-      let loadedImages = 0;
-  
-      for (let i = 0; i < images.length; i++) {
-        images[i].onload = () => {
-          loadedImages++;
-          if (loadedImages === images.length) {
-            
-            printWindow.close();
-          }
-        };
-      }
       printWindow.print();
+      printWindow.close();
     };
   };
+
+  // Zoom Levels
+  const zoomLevels = [
+    { value: "1.3", label: "Actual Width" },
+    { value: "1.2", label: "Fit to Width" },
+    { value: "1.1", label: "Fit to Page" },
+    { value: "0.5", label: "50%" },
+    { value: "0.75", label: "75%" },
+    { value: "1", label: "100%" },
+    { value: "1.25", label: "125%" },
+    { value: "1.5", label: "150%" },
+    { value: "2", label: "200%" },
+    { value: "3", label: "300%" },
+    { value: "4", label: "400%" },
+  ];
+
+  // Modify handleZoomChange to handle different zoom levels
+  const handleZoomChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newZoomLevel = parseFloat(event.target.value);
+    setZoomLevel(newZoomLevel);
+
+    // Reset rendered pages to re-render with new zoom level
+    setRenderedPages(new Map());
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      await renderPage(pageNum);
+    }
+  };
+
+  return (
+    <div>
+      <div className={styles.toolbar}>
+        <div id={styles.toolbarContainer}>
+          <div id={styles.toolbarViewer}>
+            <div id={styles.toolbarViewerLeft}>
+              <button className={styles.toolbarButton} title="Previous Page" onClick={handlePreviousPage} disabled={currentPage <= 1}>
+                <Icon iconName="ChevronLeft" />
+              </button>
+              <button className={styles.toolbarButton} title="Next Page" onClick={handleNextPage} disabled={currentPage >= numPages}>
+                <Icon iconName="ChevronRight" />
+              </button>
+              <span className={styles.toolbarLabel}>Page {currentPage} of {numPages}</span>
+            </div>
+            <div id={styles.toolbarViewerMiddle}>
+              <button className={styles.toolbarButton} title="Zoom Out" onClick={handleZoomOut}>
+                <Icon iconName="ZoomOut" />
+              </button>
+              <button className={styles.toolbarButton} title="Zoom In" onClick={handleZoomIn}>
+                <Icon iconName="ZoomIn" />
+              </button>
+              <div className={styles.dropdownToolbarButton}>
+                <span id="scaleSelectContainer" className={styles.dropdownToolbarButton}>
+                  <select id="scaleSelect" title="Zoom" value={zoomLevel.toString()} onChange={handleZoomChange}>
+                    {zoomLevels.map((zoom) => (
+                      <option key={zoom.value} value={zoom.value}>{zoom.label}</option>
+                    ))}
+                  </select>
+                </span>
+              </div>
+            </div>
+            <div id={styles.toolbarViewerRight}>
+              <button className={styles.toolbarButton} title="Print" onClick={handlePrint}>
+                <Icon iconName="Print" />
+              </button>
+              <button className={styles.toolbarButton} title="Download" onClick={handleSave}>
+                <Icon iconName="Download" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.pdfviewer} ref={pdfViewerRef}>
+        {Array.from(renderedPages.entries()).map(([pageNum, imgSrc]) => (
+          <div key={pageNum}>
+            <img src={imgSrc} alt={`Page ${pageNum}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default PDFViewer;
+
+
+
+
+
+
+// working with scroll and next,previous page
+// working with scroll and next,previous page
+// working with scroll and next,previous page
+// working with scroll and next,previous page
+
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+// import * as React from 'react';
+// import { useEffect, useRef, useState } from 'react';
+// import * as pdfjsLib from 'pdfjs-dist';
+// import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+// import styles from './PdfViewer.module.scss';
+// import { Icon } from '@fluentui/react';
+
+// pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
+// const PDFViewer: React.FC<{ pdfPath: string,noteNumber:any }> = (props) => {
+//   const {pdfPath,noteNumber} = props
+//   const pdfViewerRef = useRef<HTMLDivElement>(null);
+//   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+//   const [numPages, setNumPages] = useState<number>(0);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [zoomLevel, setZoomLevel] = useState(1);
+//   const [renderedPages, setRenderedPages] = useState<Map<number, string>>(new Map());
+
+//   // Load PDF document
+//   useEffect(() => {
+//     const loadPdf = async () => {
+//       const loadingTask = pdfjsLib.getDocument(pdfPath);
+//       const pdf = await loadingTask.promise;
+//       setPdfDocument(pdf);
+//       setNumPages(pdf.numPages);
+//     };
+//     loadPdf().catch(console.error);
+//   }, [pdfPath]);
+
+//   // Render specific page
+//   const renderPage = async (pageNum: number) => {
+//     if (!pdfDocument || renderedPages.has(pageNum)) return;
+//     const page = await pdfDocument.getPage(pageNum);
+//     const viewport = page.getViewport({ scale: zoomLevel });
+//     const canvas = document.createElement('canvas');
+//     const context = canvas.getContext('2d');
+//     if (context) {
+//       canvas.height = viewport.height;
+//       canvas.width = viewport.width;
+//       await page.render({ canvasContext: context, viewport }).promise;
+//       setRenderedPages((prev) => new Map(prev).set(pageNum, canvas.toDataURL()));
+//     }
+//   };
+
+//   // Handle scrolling to render pages in view
+//   const handleScroll = () => {
+//     if (!pdfViewerRef.current) return;
+//     const viewer = pdfViewerRef.current;
+//     const viewerTop = viewer.scrollTop;
+//     const viewerBottom = viewerTop + viewer.clientHeight;
+
+//     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+//       const pageHeight = (viewer.scrollHeight / numPages) * zoomLevel;
+//       const pageTop = (pageNum - 1) * pageHeight;
+//       const pageBottom = pageTop + pageHeight;
+
+//       if ((pageTop >= viewerTop && pageTop <= viewerBottom) || 
+//           (pageBottom >= viewerTop && pageBottom <= viewerBottom)) {
+//         renderPage(pageNum).catch(console.error);
+//         setCurrentPage(pageNum); // Update current page based on scroll
+//       }
+//     }
+//   };
+
+//   useEffect(() => {
+//     const pdfViewer = pdfViewerRef.current;
+//     pdfViewer?.addEventListener('scroll', handleScroll);
+//     return () => {
+//       pdfViewer?.removeEventListener('scroll', handleScroll);
+//     };
+//   }, [numPages, zoomLevel]);
+
+//   useEffect(() => {
+//     setRenderedPages(new Map());
+//     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+//       renderPage(pageNum).catch(console.error);
+//     }
+//   }, [zoomLevel, pdfDocument, numPages]);
+
+//   const handleZoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+//     setZoomLevel(parseFloat(event.target.value));
+//   };
+
+//   const handleNextPage = () => {
+//     if (currentPage < numPages && pdfViewerRef.current) {
+//       const nextPageTop = (currentPage * pdfViewerRef.current.scrollHeight) / numPages;
+//       pdfViewerRef.current.scrollTo({ top: nextPageTop, behavior: 'smooth' });
+//       setCurrentPage(currentPage + 1);
+//     }
+//   };
+
+//   const handlePreviousPage = () => {
+//     if (currentPage > 1 && pdfViewerRef.current) {
+//       const prevPageTop = ((currentPage - 2) * pdfViewerRef.current.scrollHeight) / numPages;
+//       pdfViewerRef.current.scrollTo({ top: prevPageTop, behavior: 'smooth' });
+//       setCurrentPage(currentPage - 1);
+//     }
+//   };
+
+//   const handleSave = () => {
+//         const a = document.createElement('a');
+//         a.href = pdfPath;
+//         a.download = `${noteNumber}.pdf`; // Use the custom name here
+//         a.click();
+    
+//       };
+
+//   const handlePrint = async () => {
+//     if (!pdfDocument) return;
+
+//     const printWindow = window.open('', '_blank');
+//     if (!printWindow) return;
+
+//     const printContent = document.createElement('div');
+//     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+//       await renderPage(pageNum);
+//       const imgSrc = renderedPages.get(pageNum);
+//       if (imgSrc) {
+//         const img = new Image();
+//         img.src = imgSrc;
+//         img.style.width = '100%';
+//         printContent.appendChild(img);
+//         printContent.appendChild(document.createElement('br'));
+//       }
+//     }
+
+//     printWindow.document.write('<html><head><title>Print PDF</title></head><body></body></html>');
+//     printWindow.document.body.appendChild(printContent);
+//     printWindow.document.close();
+
+//     printWindow.onload = () => {
+//       printWindow.print();
+//       printWindow.close();
+//     };
+//   };
+
+//   return (
+//     <div>
+//        <div className={styles.toolbar}>
+//       <div id={styles.toolbarContainer}>
+//         <div id={styles.toolbarViewer}>
+//           {/* Page Navigation - Left Section */}
+//           <div id={styles.toolbarViewerLeft}>
+//             <button
+//               className={styles.toolbarButton}
+//               title="Previous Page"
+//               onClick={handlePreviousPage}
+//               disabled={currentPage <= 1}
+//             >
+//               <Icon iconName="ChevronLeft" />
+//             </button>
+//             <button
+//               className={styles.toolbarButton}
+//               title="Next Page"
+//               onClick={handleNextPage}
+//               disabled={currentPage >= numPages}
+//             >
+//               <Icon iconName="ChevronRight" />
+//             </button>
+//             <span className={styles.toolbarLabel}>
+//               Page {currentPage} of {numPages}
+//             </span>
+//           </div>
+
+//           {/* Zoom Controls - Middle Section */}
+//           <div id={styles.toolbarViewerMiddle}>
+//             <div className={styles.splitToolbarButton}>
+//               <button
+//                 className={styles.toolbarButton}
+//                 title="Zoom Out"
+//                 // onClick={handleZoomOut}
+//               >
+//                 <Icon iconName="ZoomOut" />
+//               </button>
+//               <button
+//                 className={styles.toolbarButton}
+//                 title="Zoom In"
+//                 // onClick={handleZoomIn}
+//               >
+//                 <Icon iconName="ZoomIn" />
+//               </button>
+//             </div>
+
+//             <div className={styles.dropdownToolbarButton}>
+//               <select
+//                 title="Zoom"
+//                 value={zoomLevel.toString()}
+//                 onChange={handleZoomChange}
+//               >
+//                 <option value="1.3">Actual Width</option>
+//                 <option value="1.2">Fit to Width</option>
+//                 <option value="1.1">Fit to Page</option>
+//                 <option value="0.5">50%</option>
+//                 <option value="0.75">75%</option>
+//                 <option value="1">100%</option>
+//                 <option value="1.25">125%</option>
+//                 <option value="1.5">150%</option>
+//                 <option value="2">200%</option>
+//                 <option value="3">300%</option>
+//                 <option value="4">400%</option>
+//               </select>
+//             </div>
+//           </div>
+
+//           {/* Action Buttons - Right Section */}
+//           <div id={styles.toolbarViewerRight}>
+//             <button
+//               className={styles.toolbarButton}
+//               title="Print"
+//               onClick={handlePrint}
+//             >
+//               <Icon iconName="Print" />
+//             </button>
+//             <button
+//               className={styles.toolbarButton}
+//               title="Download"
+//               onClick={handleSave}
+//             >
+//               <Icon iconName="Download" />
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+
+//       <div className={styles.pdfviewer} ref={pdfViewerRef} onScroll={handleScroll}>
+//         {Array.from({ length: numPages }, (_, index) => {
+//           const pageNum = index + 1;
+//           const imgSrc = renderedPages.get(pageNum);
+//           return (
+//             <div key={pageNum} style={{ margin: '20px auto', display: 'table' }}>
+//               {imgSrc && <img src={imgSrc} alt={`Page ${pageNum}`} />}
+//             </div>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default PDFViewer;
+
+
+// working with scroll and next,previous page
+// working with scroll and next,previous page
+// working with scroll and next,previous page
+// working with scroll and next,previous page
+
+
+
+
+
+
+
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// /* eslint-disable react/self-closing-comp */
+// /* eslint-disable @typescript-eslint/explicit-function-return-type */
+// import * as React from 'react';
+// import { useEffect, useRef, useState } from 'react';
+// import { IPDFViewerProps } from './IPDFViewerProps';
+// import * as pdfjsLib from 'pdfjs-dist';
+// import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+// import styles from './PdfViewer.module.scss';
+// import { Icon } from '@fluentui/react';
+
+// pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
+// const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
+//   const {pdfPath,noteNumber} = props
+//   // console.log(pdfPath,"PDF Url")
+//   // console.log(noteNumber,"Note Number")
+//   const pdfViewerRef = useRef<HTMLDivElement>(null);
+//   // const [isPDFFullWidth, setIsPDFFullWidth] = useState(false);
+//   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
+//   const [currentPage, setCurrentPage] = useState<number>(1);
+//   const [numPages, setNumPages] = useState<number>(0);
+//   const [zoomLevel, setZoomLevel] = useState(1);
+//   const [pageCanvas, setPageCanvas] = useState<string | null>(null);
+
+//   useEffect(() => {
+//     const fetchPdf = async (): Promise<void> => {
+//       const loadingTask = pdfjsLib.getDocument(pdfPath);
+//       const pdf = await loadingTask.promise;
+//       setPdfDocument(pdf);
+//       setNumPages(pdf.numPages);
+//     };
+//     fetchPdf().catch(console.error);
+//   }, [pdfPath]);
+
+//   useEffect(() => {
+//     const renderPage = async (pageNum: number): Promise<void> => {
+//       if (!pdfDocument) return;
+//       const page = await pdfDocument.getPage(pageNum);
+//       const viewport = page.getViewport({ scale: zoomLevel });
+//       const canvas = document.createElement('canvas');
+//       const context = canvas.getContext('2d');
+//       if (context) {
+//         canvas.height = viewport.height;
+//         canvas.width = viewport.width;
+//         await page.render({ canvasContext: context, viewport: viewport }).promise;
+//         setPageCanvas(canvas.toDataURL());
+//       }
+//     };
+
+//     renderPage(currentPage).catch(console.error);
+//   }, [pdfDocument, currentPage, zoomLevel]);
+
+//   const handlePreviousPage = () => {
+//     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+//   };
+
+//   const handleNextPage = () => {
+//     setCurrentPage((prevPage) => Math.min(prevPage + 1, numPages));
+//   };
+
+//   const handleZoomIn = () => {
+//     setZoomLevel((prevZoom) => prevZoom * 1.25);
+//   };
+
+//   const handleZoomOut = () => {
+//     setZoomLevel((prevZoom) => prevZoom * 0.75);
+//   };
+
+//   const handleZoomChange = (event: any) => {
+//     const selectedZoom = parseFloat(event.target.value);
+//     setZoomLevel(selectedZoom);
+//   };
+
+//   // const handlePrint = () => {
+//   //   window.print();
+//   // };
+
+//   const handlePrint = async () => {
+//     if (!pdfDocument) return;
+  
+//     const printContent = document.createElement("div");
+  
+//     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+//       const page = await pdfDocument.getPage(pageNum);
+//       const viewport = page.getViewport({ scale: zoomLevel });
+//       const canvas = document.createElement("canvas");
+//       const context = canvas.getContext("2d");
+  
+//       if (context) {
+//         canvas.height = viewport.height;
+//         canvas.width = viewport.width;
+//         await page.render({ canvasContext: context, viewport: viewport }).promise;
+  
+//         const img = new Image();
+//         img.src = canvas.toDataURL("image/png");
+//         img.style.width = "100%";
+//         printContent.appendChild(img);
+//         printContent.appendChild(document.createElement("br"));
+//       }
+//     }
+  
+//     const printWindow = window.open("", "_blank");
+//     if (!printWindow) {
+//       console.error("Failed to open print window.");
+//       return;
+//     }
+  
+//     printWindow.document.write("<html><head><title>Print PDF</title></head><body>");
+//     printWindow.document.body.appendChild(printContent);
+//     printWindow.document.write("</body></html>");
+//     printWindow.document.close();
+  
+//     printWindow.onload = () => {
+//       const images = printWindow.document.getElementsByTagName("img");
+//       let loadedImages = 0;
+  
+//       for (let i = 0; i < images.length; i++) {
+//         images[i].onload = () => {
+//           loadedImages++;
+//           if (loadedImages === images.length) {
+            
+//             printWindow.close();
+//           }
+//         };
+//       }
+//       printWindow.print();
+//     };
+//   };
   
   
   
@@ -137,89 +646,89 @@ const PDFViewer: React.FC<IPDFViewerProps> = (props) => {
 
 
 
-  const handleSave = () => {
-    const a = document.createElement('a');
-    a.href = pdfPath;
-    a.download = `${noteNumber}.pdf`; // Use the custom name here
-    a.click();
+//   const handleSave = () => {
+//     const a = document.createElement('a');
+//     a.href = pdfPath;
+//     a.download = `${noteNumber}.pdf`; // Use the custom name here
+//     a.click();
 
-  };
+//   };
 
-  const customStyles = {
-    dialogAlignment: { margin: "25px", textAlign: "center", width: "500px" },
-    // pdfViewer: { overflowY: 'scroll', height: '81vh', border: '1px solid #00000014' },
-    pdfDiv: { boxShadow: '0 6px 8px #00000014, 0 4px 16px #0000001f', alignContent: "center", margin: "10px auto", display: "table" }
-  }
+//   const customStyles = {
+//     dialogAlignment: { margin: "25px", textAlign: "center", width: "500px" },
+//     // pdfViewer: { overflowY: 'scroll', height: '81vh', border: '1px solid #00000014' },
+//     pdfDiv: { boxShadow: '0 6px 8px #00000014, 0 4px 16px #0000001f', alignContent: "center", margin: "10px auto", display: "table" }
+//   }
 
-  return (
-    <div >
-      {/* {isPDFFullWidth ?
-        <span className="k-icon k-font-icon k-i-fullscreen-exit k-i-full-screen-exit cursor pdfHideandShowIcons" onClick={() => setIsPDFFullWidth(!isPDFFullWidth)}></span> :
-        <span className="k-icon k-font-icon k-i-fullscreen k-i-full-screenk-i-fullscreen-enter cursor pdfHideandShowIcons" onClick={() => setIsPDFFullWidth(!isPDFFullWidth)}></span>} */}
+//   return (
+//     <div >
+//       {/* {isPDFFullWidth ?
+//         <span className="k-icon k-font-icon k-i-fullscreen-exit k-i-full-screen-exit cursor pdfHideandShowIcons" onClick={() => setIsPDFFullWidth(!isPDFFullWidth)}></span> :
+//         <span className="k-icon k-font-icon k-i-fullscreen k-i-full-screenk-i-fullscreen-enter cursor pdfHideandShowIcons" onClick={() => setIsPDFFullWidth(!isPDFFullWidth)}></span>} */}
 
-      <div className={styles.toolbar}>
-        <div id={styles.toolbarContainer}>
-          <div id={styles.toolbarViewer}>
-            <div id={styles.toolbarViewerLeft}>
-              <button className={styles.toolbarButton} title="Previous Page" id="previous" disabled={currentPage <= 1} onClick={handlePreviousPage}>
-                <span><Icon iconName="ChevronLeft" /></span>
-              </button>
-              <button className={styles.toolbarButton} title="Next Page" id="next" disabled={currentPage >= numPages} onClick={handleNextPage}>
-                <span><Icon iconName="ChevronRight" /></span>
-              </button>
-              <span className={styles.toolbarLabel}>{currentPage} / {numPages}</span>
-            </div>
+//       <div className={styles.toolbar}>
+//         <div id={styles.toolbarContainer}>
+//           <div id={styles.toolbarViewer}>
+//             <div id={styles.toolbarViewerLeft}>
+//               <button className={styles.toolbarButton} title="Previous Page" id="previous" disabled={currentPage <= 1} onClick={handlePreviousPage}>
+//                 <span><Icon iconName="ChevronLeft" /></span>
+//               </button>
+//               <button className={styles.toolbarButton} title="Next Page" id="next" disabled={currentPage >= numPages} onClick={handleNextPage}>
+//                 <span><Icon iconName="ChevronRight" /></span>
+//               </button>
+//               <span className={styles.toolbarLabel}>{currentPage} / {numPages}</span>
+//             </div>
 
-            <div id={styles.toolbarViewerMiddle}>
-              <div className={`${styles.splitToolbarButton}`}>
-                <button id="zoomOut" className={`${styles.toolbarButton}`} title="Zoom Out" onClick={handleZoomOut}>
-                  <span><Icon iconName="ZoomOut" /></span>
-                </button>
-                <button id="zoomIn" className={`${styles.toolbarButton}`} title="Zoom In" onClick={handleZoomIn}>
-                  <span><Icon iconName="ZoomIn" /></span>
-                </button>
-              </div>
+//             <div id={styles.toolbarViewerMiddle}>
+//               <div className={`${styles.splitToolbarButton}`}>
+//                 <button id="zoomOut" className={`${styles.toolbarButton}`} title="Zoom Out" onClick={handleZoomOut}>
+//                   <span><Icon iconName="ZoomOut" /></span>
+//                 </button>
+//                 <button id="zoomIn" className={`${styles.toolbarButton}`} title="Zoom In" onClick={handleZoomIn}>
+//                   <span><Icon iconName="ZoomIn" /></span>
+//                 </button>
+//               </div>
 
-              <span id="scaleSelectContainer" className={`${styles.dropdownToolbarButton}`}>
-                <select id="scaleSelect" title="Zoom" value={zoomLevel.toString()} onChange={handleZoomChange}>
-                  <option value="1.3">Actual Width</option>
-                  <option value="1.2">Fit to Width</option>
-                  <option value="1.1">Fit to Page</option>
-                  <option value="0.5">50%</option>
-                  <option value="0.75">75%</option>
-                  <option value="1">100%</option>
-                  <option value="1.25">125%</option>
-                  <option value="1.5">150%</option>
-                  <option value="2">200%</option>
-                  <option value="3">300%</option>
-                  <option value="4">400%</option>
-                </select>
-              </span>
-            </div>
-            <div id={styles.toolbarViewerRight}>
-              <div id="editorModeSeparator" className="verticalToolbarSeparator"></div>
-              <button onClick={handlePrint} id="print" className={`${styles.toolbarButton}`} title="Print" data-l10n-id="pdfjs-print-button">
-                <Icon iconName="Print" />
-              </button>
-              <button id="download" className={`${styles.toolbarButton}`} title="Download" data-l10n-id="pdfjs-save-button" onClick={handleSave}>
-                <Icon iconName="Download" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className={styles.pdfviewer} ref={pdfViewerRef}>
-        {pageCanvas && (
-          <div style={customStyles.pdfDiv}>
-            <img src={pageCanvas} alt={`Page ${currentPage}`} />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+//               <span id="scaleSelectContainer" className={`${styles.dropdownToolbarButton}`}>
+//                 <select id="scaleSelect" title="Zoom" value={zoomLevel.toString()} onChange={handleZoomChange}>
+//                   <option value="1.3">Actual Width</option>
+//                   <option value="1.2">Fit to Width</option>
+//                   <option value="1.1">Fit to Page</option>
+//                   <option value="0.5">50%</option>
+//                   <option value="0.75">75%</option>
+//                   <option value="1">100%</option>
+//                   <option value="1.25">125%</option>
+//                   <option value="1.5">150%</option>
+//                   <option value="2">200%</option>
+//                   <option value="3">300%</option>
+//                   <option value="4">400%</option>
+//                 </select>
+//               </span>
+//             </div>
+//             <div id={styles.toolbarViewerRight}>
+//               <div id="editorModeSeparator" className="verticalToolbarSeparator"></div>
+//               <button onClick={handlePrint} id="print" className={`${styles.toolbarButton}`} title="Print" data-l10n-id="pdfjs-print-button">
+//                 <Icon iconName="Print" />
+//               </button>
+//               <button id="download" className={`${styles.toolbarButton}`} title="Download" data-l10n-id="pdfjs-save-button" onClick={handleSave}>
+//                 <Icon iconName="Download" />
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//       <div className={styles.pdfviewer} ref={pdfViewerRef}>
+//         {pageCanvas && (
+//           <div style={customStyles.pdfDiv}>
+//             <img src={pageCanvas} alt={`Page ${currentPage}`} />
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
 
-export default PDFViewer;
+// export default PDFViewer;
 
 
 
@@ -366,59 +875,59 @@ export default PDFViewer;
 
     
 
-//     <div className={styles.toolbar}>
-//       <div id={styles.toolbarContainer}>
-//         <div id={styles.toolbarViewer}>
-//           {/* <div id={styles.toolbarViewerLeft}>
-//             <button className={styles.toolbarButton}title="Previous Page" id="previous"  disabled={currentPage <= 1} onClick={handlePreviousPage}>
-//               <span > <Icon iconName="ChevronLeft" /></span>
-//             </button>
-//             <button className={styles.toolbarButton} title="Next Page" id="next" disabled={currentPage >= numPages} onClick={handleNextPage}>
-//               <span ><Icon iconName="ChevronRight" /></span>
-//             </button>
-//             <span className={styles.toolbarLabel}>{currentPage} / {numPages}</span>
-//           </div> */}
+    // <div className={styles.toolbar}>
+    //   <div id={styles.toolbarContainer}>
+    //     <div id={styles.toolbarViewer}>
+    //       {/* <div id={styles.toolbarViewerLeft}>
+    //         <button className={styles.toolbarButton}title="Previous Page" id="previous"  disabled={currentPage <= 1} onClick={handlePreviousPage}>
+    //           <span > <Icon iconName="ChevronLeft" /></span>
+    //         </button>
+    //         <button className={styles.toolbarButton} title="Next Page" id="next" disabled={currentPage >= numPages} onClick={handleNextPage}>
+    //           <span ><Icon iconName="ChevronRight" /></span>
+    //         </button>
+    //         <span className={styles.toolbarLabel}>{currentPage} / {numPages}</span>
+    //       </div> */}
 
-//           <div id={styles.toolbarViewerMiddle}>
-//             <div className="splitToolbarButton">
-//               <button id="zoomOut" className={`${styles.toolbarButton} `} title="Zoom Out"  onClick={handleZoomOut}>
-//                 <span> <Icon iconName="ZoomOut" /></span>
-//               </button>
-//               <button id="zoomIn" className={`${styles.toolbarButton} `} title="Zoom In" onClick={handleZoomIn}>
-//                 <span><Icon iconName="ZoomIn" /></span>
-//               </button>
-//             </div>
+    //       <div id={styles.toolbarViewerMiddle}>
+    //         <div className="splitToolbarButton">
+    //           <button id="zoomOut" className={`${styles.toolbarButton} `} title="Zoom Out"  onClick={handleZoomOut}>
+    //             <span> <Icon iconName="ZoomOut" /></span>
+    //           </button>
+    //           <button id="zoomIn" className={`${styles.toolbarButton} `} title="Zoom In" onClick={handleZoomIn}>
+    //             <span><Icon iconName="ZoomIn" /></span>
+    //           </button>
+    //         </div>
 
-//             <span id="scaleSelectContainer" className={`${styles.dropdownToolbarButton} `} >
-//               <select id="scaleSelect" title="Zoom"  value={zoomLevel.toString()} onChange={handleZoomChange}>
-//                 <option value="1.3">Actual Width</option>
-//                 <option value="1.2">Fit to Width</option>
-//                 <option value="1.1">Fit to Page</option>
-//                 <option value="0.5">50%</option>
-//                 <option value="0.75">75%</option>
-//                 <option value="1">100%</option>
-//                 <option value="1.25">125%</option>
-//                 <option value="1.5">150%</option>
-//                 <option value="2">200%</option>
-//                 <option value="3">300%</option>
-//                 <option value="4">400%</option>
-//               </select>
-//             </span>
-//           </div>
-//           <div id={styles.toolbarViewerRight}>
+    //         <span id="scaleSelectContainer" className={`${styles.dropdownToolbarButton} `} >
+    //           <select id="scaleSelect" title="Zoom"  value={zoomLevel.toString()} onChange={handleZoomChange}>
+    //             <option value="1.3">Actual Width</option>
+    //             <option value="1.2">Fit to Width</option>
+    //             <option value="1.1">Fit to Page</option>
+    //             <option value="0.5">50%</option>
+    //             <option value="0.75">75%</option>
+    //             <option value="1">100%</option>
+    //             <option value="1.25">125%</option>
+    //             <option value="1.5">150%</option>
+    //             <option value="2">200%</option>
+    //             <option value="3">300%</option>
+    //             <option value="4">400%</option>
+    //           </select>
+    //         </span>
+    //       </div>
+    //       <div id={styles.toolbarViewerRight}>
 
-//             <div id="editorModeSeparator" className="verticalToolbarSeparator"></div>
-//             <button onClick={handlePrint} id="print" className={`${styles.toolbarButton} `} title="Print"  data-l10n-id="pdfjs-print-button">
-//               <Icon iconName="Print" />
-//             </button>
+    //         <div id="editorModeSeparator" className="verticalToolbarSeparator"></div>
+    //         <button onClick={handlePrint} id="print" className={`${styles.toolbarButton} `} title="Print"  data-l10n-id="pdfjs-print-button">
+    //           <Icon iconName="Print" />
+    //         </button>
 
-//             <button id="download" className={`${styles.toolbarButton} `} title="Download"  data-l10n-id="pdfjs-save-button" onClick={handleSave}>
-//             <Icon iconName="Download" />
-//             </button>
-//           </div>
+    //         <button id="download" className={`${styles.toolbarButton} `} title="Download"  data-l10n-id="pdfjs-save-button" onClick={handleSave}>
+    //         <Icon iconName="Download" />
+    //         </button>
+    //       </div>
          
-//         </div>
-//       </div>
+    //     </div>
+    //   </div>
 //     </div>
 //     {/* pdf viewer */}
 //     <div className={styles.pdfviewer} ref={pdfViewerRef} >
@@ -584,3 +1093,7 @@ export default PDFViewer;
     //     ))}
     //   </div>
     // </div>
+
+
+
+    

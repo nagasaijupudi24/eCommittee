@@ -240,6 +240,7 @@ interface IATRAssigneeState {
   selectedValue: any;
   isModalOpen: boolean;
   modalMessage: string;
+  clearPeoplePicker:any;
 }
 
 export class MarkInfo extends React.Component<
@@ -252,12 +253,13 @@ export class MarkInfo extends React.Component<
     // Initialize state
     this.state = {
       tableData: this.props.artCommnetsGridData,
-      selectedUsers: [],
+      selectedUsers: {},
       currentRowKey: null,
       selectedStatus: undefined,
-      selectedValue: "",
+      selectedValue:{},
       isModalOpen: false,
       modalMessage: "",
+      clearPeoplePicker:"",
     };
   }
 
@@ -309,7 +311,16 @@ export class MarkInfo extends React.Component<
 
   public _handleAdd = (): any => {
     const { tableData, selectedValue } = this.state;
-
+  
+    // Check if no user is selected
+    if (Object.keys(this.state.selectedValue).length === 0) {
+      this.setState({
+        isModalOpen: true,
+        modalMessage: "Please select a user and click Add.",
+      });
+      return;
+    }
+  
     if (tableData.length >= 10) {
       this.setState({
         isModalOpen: true,
@@ -317,11 +328,11 @@ export class MarkInfo extends React.Component<
       });
       return;
     }
-
+  
     const itemExists = tableData.some(
       (item: ITableItem) => item.id === selectedValue.id
     );
-
+  
     if (itemExists) {
       this.setState({
         isModalOpen: true,
@@ -329,20 +340,21 @@ export class MarkInfo extends React.Component<
       });
       return;
     }
-
+  
     this.props.updategirdData({
       markInfoassigneeDetails: selectedValue,
     });
 
-    if (selectedValue !== ''){
+    this.state.clearPeoplePicker()
+    this.setState({selectedValue:{}})
+  
+    if (Object.keys(this.state.selectedValue).length > 0) {
       this.setState({
         tableData: [...tableData, selectedValue],
       });
-
     }
-
-   
   };
+  
 
   public _getDetailsFromPeoplePickerData = (data: any, type: any): any => {
     // console.log(data)
@@ -372,7 +384,7 @@ export class MarkInfo extends React.Component<
   public render(): React.ReactElement<IATRAssigneeProps> {
     const { tableData, isModalOpen, modalMessage } = this.state;
     // console.log(this.props)
-    // console.log(this.state)
+    console.log(this.state)
 
     const styles = mergeStyleSets({
       modal: {
@@ -422,8 +434,15 @@ export class MarkInfo extends React.Component<
             context={this.props.context}
             spProp={this.props.sp}
             getDetails={this._getDetailsFromPeoplePickerData}
-            typeOFButton="markInfo"
-          />
+            typeOFButton="markInfo" 
+            clearPeoplePicker={
+              (data:any,funtionName:any)=>{
+                // console.log(data)
+                // console.log(funtionName)
+                this.setState({clearPeoplePicker:data})
+              }
+              
+            }         />
 
           <DefaultButton
             iconProps={{ iconName: "Add" }}
@@ -445,12 +464,12 @@ export class MarkInfo extends React.Component<
         />
 
         <div style={{ textAlign: "right", marginTop: "10px" }}>
-          <DefaultButton
+          <PrimaryButton
             iconProps={{ iconName: "Save" }}
             onClick={this._handleSubmit}
           >
             Submit
-          </DefaultButton>
+          </PrimaryButton>
         </div>
 
         {/* Modal for alerts */}
