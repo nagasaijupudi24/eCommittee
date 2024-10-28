@@ -187,8 +187,10 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
   };
 
   return (
-    <div>
-      <div className={styles.toolbar}>
+    <div 
+    // style={{border:"1px solid red",width:'100%'}}
+    >
+      <div className={styles.toolbar} >
         <div id={styles.toolbarContainer}>
           <div id={styles.toolbarViewer}>
             <div id={styles.toolbarViewerLeft}>
@@ -198,7 +200,7 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
               <button className={styles.toolbarButton} title="Next Page" onClick={handleNextPage} disabled={currentPage >= numPages}>
                 <Icon iconName="ChevronRight" />
               </button>
-              <span className={styles.toolbarLabel}>Page {currentPage} of {numPages}</span>
+              <span className={styles.toolbarLabel}>{currentPage} /{numPages}</span>
             </div>
             <div id={styles.toolbarViewerMiddle}>
               <button className={styles.toolbarButton} title="Zoom Out" onClick={handleZoomOut}>
@@ -232,7 +234,7 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
       <div className={styles.pdfviewer} ref={pdfViewerRef}>
         {Array.from(renderedPages.entries()).map(([pageNum, imgSrc]) => (
           <div key={pageNum}>
-            <img src={imgSrc} alt={`Page ${pageNum}`} />
+            <img style={{width:'100%'}} src={imgSrc} alt={`Page ${pageNum}`} />
           </div>
         ))}
       </div>

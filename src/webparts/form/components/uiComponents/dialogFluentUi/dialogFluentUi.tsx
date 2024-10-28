@@ -376,12 +376,13 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             context={context}
             spProp={sp}
             getDetails={_getDetails}
-            typeOFButton="Change Approver" clearPeoplePicker={undefined}          />
-          <div className={styles.footer}>
-          <PrimaryButton iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Confirm" />
-          <DefaultButton iconProps={{ iconName: "ErrorBadge" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
-          </div>
+            typeOFButton="Change Approver" clearPeoplePicker={undefined}/>
+         
         </div>
+        <div className={styles.footer}>
+          <PrimaryButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Confirm" />
+          <DefaultButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "ErrorBadge" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
+          </div>
       </Modal>
     );
   };

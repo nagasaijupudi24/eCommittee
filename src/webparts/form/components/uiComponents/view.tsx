@@ -10,7 +10,7 @@ import * as React from "react";
 import { IViewFormProps } from "../IViewFormProps"; // Ensure this file exists
 import { IDropdownOption } from "office-ui-fabric-react";
 import {
-  Stack,
+  
   IconButton,
   Text,
   PrimaryButton,
@@ -567,7 +567,7 @@ export default class ViewForm extends React.Component<
   }
 
   private _getJsonifyReviewer = (item: any, type: string): any[] => {
-    console.log(item);
+    // console.log(item);
     // console.log(JSON.parse(item));
     const parseItem = JSON.parse(item);
     const approverfilterData = parseItem.filter((each: any) => {
@@ -585,7 +585,7 @@ export default class ViewForm extends React.Component<
         // ))
       }
     });
-    console.log(approverfilterData);
+    // console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
       srNo: each.approverEmailName.split("@")[0],
@@ -604,7 +604,7 @@ export default class ViewForm extends React.Component<
   };
 
   private _getJsonifyApprover = (item: any, type: string): any[] => {
-    console.log(item);
+    // console.log(item);
     // console.log(JSON.parse(item));
     const parseItem = JSON.parse(item);
     const approverfilterData = parseItem.filter((each: any) => {
@@ -622,7 +622,7 @@ export default class ViewForm extends React.Component<
         // ))
       }
     });
-    console.log(approverfilterData);
+    // console.log(approverfilterData);
     const approverData = approverfilterData.map((each: any) => ({
       text: each.approverEmailName,
       srNo: each.approverEmailName.split("@")[0],
@@ -773,7 +773,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    console.log(`${id} ------Details`, item);
+    // console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -982,17 +982,17 @@ export default class ViewForm extends React.Component<
     ApproverDetails: any
   ): any => {
     ApproverDetails = JSON.parse(ApproverDetails);
-    console.log(currentApproverData,"currentApproverData")
+    // console.log(currentApproverData,"currentApproverData")
     // console.log(currentApproverData);
 
     if (currentApproverData) {
       const filterApproverData = ApproverDetails.filter((each: any) => {
-        console.log(each);
+        // console.log(each);
         if ((each.email || each.approverEmail) === currentApproverData.EMail) {
           return { ...each, ...currentApproverData };
         }
       });
-      console.log(filterApproverData);
+      // console.log(filterApproverData);
 
       return filterApproverData;
     }
@@ -1291,7 +1291,7 @@ export default class ViewForm extends React.Component<
   private _renderPDFView = (): JSX.Element => {
     // const { pdfLink } = this.state;
     return (
-      <div
+      <div style={{width:'100%'}}
       // className={styles.pdfViewer}
       >
         {/* <iframe
@@ -1604,7 +1604,7 @@ export default class ViewForm extends React.Component<
       (each: any, index: number) => {
         // console.log(each);
 
-        if (each.approverEmail === this._currentUserEmail) {
+        if (each.approverEmail === this._currentUserEmail ||each.email === this._currentUserEmail) {
           // console.log("ednter");
 
           previousApprover = [
@@ -2371,6 +2371,7 @@ export default class ViewForm extends React.Component<
         NoteMarkedInfoDTOId: this._getNoteMarkedId(),
         AuditTrail: updateAuditTrial,
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
+      
       });
 
     // console.log(itemToUpdate);
@@ -2442,7 +2443,7 @@ export default class ViewForm extends React.Component<
         },
       ];
     };
-    console.log(updateCurrentApprover());
+    // console.log(updateCurrentApprover());
     const modifyApproverDetails = this.state.ApproverDetails.map(
       (each: any) => {
         // console.log(each);
@@ -2495,7 +2496,7 @@ export default class ViewForm extends React.Component<
 
   private _getApproverAndReviewerStageButton = (): any => {
     return (
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div className={styles.approveEtcBtns}>
         <PrimaryButton
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "EditNote" }} // Icon for Approve
@@ -2544,7 +2545,7 @@ export default class ViewForm extends React.Component<
 
         <PrimaryButton
           className={`${styles.responsiveButton}`}
-          iconProps={{ iconName: "Cancel" }} // Icon for Reject
+          iconProps={{ iconName: "PageRemove" }} // Icon for Reject
           styles={{
             root: {
               // backgroundColor: "#f31700",
@@ -2649,7 +2650,7 @@ export default class ViewForm extends React.Component<
       const currentStatusOfApproverDetails = data.filter((each: any) => {
         // console.log(each);
         // console.log(each.status);
-        if (each.status === "pending" || each.status === "Refered") {
+        if (each.statusNumber === "2000" ||each.statusNumber === "3000" || each.status === "Refered") {
           // console.log(each.status);
           return each;
         }
@@ -3141,7 +3142,7 @@ export default class ViewForm extends React.Component<
   }
 
   public render(): React.ReactElement<IViewFormProps> {
-    console.log(this.state);
+    // console.log(this.state);
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
     // console.log((this.state.refferredToDetails[0] ))
@@ -3178,7 +3179,7 @@ export default class ViewForm extends React.Component<
     // ];
 
     return (
-      <Stack tokens={{ childrenGap: 10 }} className={styles.viewForm}>
+      <div  className={styles.viewForm}>
         {this.state.isLoading ? (
           <Spinner
             label="Wait, wait..."
@@ -3186,8 +3187,8 @@ export default class ViewForm extends React.Component<
             // labelPosition="right"
           />
         ) : (
-          <Stack
-            tokens={{ childrenGap: 10 }}
+          <div
+         
             className={styles.viewFormMainContainer}
           >
             {/* Passcode Modal */}
@@ -4089,7 +4090,7 @@ export default class ViewForm extends React.Component<
                         iconProps={{ iconName: "Edit" }}
                         onClick={(e) => {
                           // console.log("Change Approver btn Triggered");
-                          this.setState({ successStatus: "approver Changed" });
+                          this.setState({ successStatus: "approver changed" });
                           this._hanldeFluentDialog(
                             "Change Approver",
                             "changeApprover",
@@ -4230,7 +4231,7 @@ export default class ViewForm extends React.Component<
                 </DefaultButton>
               </div>
             </div>
-          </Stack>
+          </div>
         )}
         {!this.state.dialogFluent && (
           <DialogBlockingExample
@@ -4280,18 +4281,7 @@ export default class ViewForm extends React.Component<
           />
         )}
 
-        {/* <PDFViewerComponent path={this.state.pdfLink} sp={this.props.sp}/> */}
-
-        {/* <PDFViewer pdfPath={this.state.pdfLink}/> */}
-        {/* <PSPDFKitViewer documentURL={this.state.pdfLink} sp={this.props.sp}/> */}
-        {/* <PDFView pdfLink={this.state.pdfLink}/> //working but next page is not working */}
-        {/* <PDFViews pdfLink={this.state.pdfLink}/> */}
-        {/* <PdfViewer pdfUrl={this.state.pdfLink} /> */}
-        {/* //working code throught canvas  */}
-        {/* <AdobePdfWebPart/> */}
-
-        {/* <AdobePdfViewer clientId={"825473e9e1184eL459736428fd30f8b99"} fileUrl={this.state.pdfLink} height={800} defaultViewMode={"FIT_WIDTH"}/> */}
-      </Stack>
+      </div>
     );
   }
 }

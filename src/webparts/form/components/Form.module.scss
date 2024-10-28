@@ -183,13 +183,14 @@
 /* Container holding both expanding and PDF sections */
 .expansionAndPdfContainer {
   display: flex;
-  justify-content: flex-start; /* Default alignment for larger screens */
+  justify-content: center; /* Default alignment for larger screens */
   align-items: flex-start; /* Default alignment for larger screens */
-  gap: 10px;
+  // gap: 10px;
   // border: 1px solid yellow;
   /* Uncomment the height if needed */
   /* height: 100%; */
-  width:'100%';
+  width:100%;
+  padding: 5px;
 }
 
 /* Expanding Container */
@@ -221,6 +222,7 @@
 @media (max-width: 990px) { /* Smaller tablets */
   .expansionAndPdfContainer {
     flex-direction: row; /* Keep them side by side */
+ 
   }
 }
 
@@ -683,6 +685,7 @@
   display: flex;
   // justify-content: flex-start;
   // align-items: ;
+  flex-direction: column;
 
 }
 
@@ -697,7 +700,7 @@
 
 .viewFormHeaderSectionContainer {
   // border: 1px solid rgb(211, 211, 211);
-  text-align: center;
+  // text-align: center;
   font-size: 14px;
   margin-top: 5px;
   margin-bottom: 5px;
@@ -732,6 +735,14 @@
 
   
  
+}
+
+.approveEtcBtns{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap:10px;
 }
 
 .table {

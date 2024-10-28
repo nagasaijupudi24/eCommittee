@@ -991,7 +991,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             });
 
             this.setState({ committename: committenameArray });
-          } else if (each[0] === "Purpose") {
+
+            
+          }
+          else if (this.props.formType==='BoardNoteNew' && each[0] === "BoardName") {
+            // console.log(each[1]);
+            const committenameArray = each[1].map((item, index) => {
+              return { key: item, text: item };
+            });
+
+            this.setState({ committename: committenameArray });
+
+            
+          }
+          
+          else if (each[0] === "Purpose") {
             // console.log(each[1]);
             const purposeArray = each[1].map((item, index) => {
               return { key: item, text: item };
@@ -1225,7 +1239,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // };
 
   private   _getPeoplePickerItems = async (items: any[]) => {
-    console.log("Items:", items);
+    // console.log("Items:", items);
     // fetchedData = items
     // console.log(items[0].loginName);
 
@@ -1348,7 +1362,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           };
         }
       );
-      console.log(newItemsDataNA);
+      // console.log(newItemsDataNA);
       this.setState({ approverInfo: newItemsDataNA });
     } else {
       const newItemsData = items.map(
@@ -1396,7 +1410,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         (each: any) => each.noteApproverId !== dataItem.id
       ),
     }));
-    console.log(dataItem);
+    // console.log(dataItem);
     if (typeOfTable === "Reviewer") {
       // console.log("Remove triggered from Reviewer Table");
       // console.log(dataItem);
@@ -1474,7 +1488,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private handleOnAdd = async (event: any, type: string): Promise<void> => {
-    console.log(type);
+    // console.log(type);
     if (type === "reveiwer") {
       // console.log(this.checkReviewer());
       // this.checkReviewer()
@@ -1948,7 +1962,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(dataOfReveiwerAndApprover);
     const finalData = dataOfReveiwerAndApprover.map(
       (each: any, index: number) => {
-        console.log(each);
+        // console.log(each);
 
         if (each.approverType === "Reviewer") {
           return {
@@ -1989,7 +2003,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         }
       }
     );
-    console.log(finalData);
+    // console.log(finalData);
 
     // console.log(JSON.stringify(finalData));
 
@@ -2206,7 +2220,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     if (this.state.itemId && this.state.statusNumber === "100") {
       await this.handleUpdate(true);
     } 
-    else if (this._itemId && (this.state.statusNumber ==='1000' || this.state.statusNumber ==='100')){
+    else if (this._itemId && (this.state.statusNumber ==='1000' || this.state.statusNumber ==='100'|| this.state.statusNumber ==='5000')){
       await this.handleUpdate(true);
 
     }
@@ -3485,7 +3499,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   ",check.........................."
     // );
 
-    if (statusOfForm === "Drafted") {
+    if (statusOfForm === "Drafted" && this.state.successStatus ==='') {
       let id;
 
       if (this.state.itemId || this._itemId) {
@@ -3510,9 +3524,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       if (showAlert) {
         this.setState({ isVisibleAlter: true });
       }
-    } else {
+    } 
+    else {
       try {
-        if (this.state.statusNumber === "200") {
+        if (this.state.statusNumber === "200" ||this.state.statusNumber === "5000") {
           await this.handleUpdate();
         } else if (statusOfForm === "update") {
           // console.log("entered into updatee else if block");
@@ -4181,6 +4196,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     CommitteeType:
       this.props.formType === "BoardNoteNew" ? "Board" : "Committee",
     PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
+    startProcessing: true,
   });
 
   public async clearFolder(
@@ -4556,7 +4572,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(requesterNo)
 
     const requesterNo =
-      this.props.formType === "BoardNoteView"
+      this.props.formType === "BoardNoteNew"
         ? `${this.state.departmentAlias}/${currentyear}-${nextYear}/B${id}`
         : `${this.state.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
     // console.log(requesterNo);
@@ -4747,6 +4763,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           Status: statusFromEvent,
           StatusNumber: statusNumber,
           AuditTrail: updateAuditTrail,
+          startProcessing: true,
+          PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
         });
 
       // console.log(itemToUpdate);
@@ -5060,7 +5078,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   placeholder="Select an option"
                   label={
                     <label>
-                      Committee Name
+                      
+                      {this.props.formType==="BoardNoteNew"?"Board Committee Name":"Committee Name"}
                       <SpanComponent />
                     </label>
                   }
@@ -5107,7 +5126,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     display: "block",
                     paddingLeft: "12px",
                     paddingTop: "5px",
-                    height: "30px",
+                    height: "31px",
                     boxSizing: "border-box",
                     width: "100%",
                     // border:this.state.subjectFeildValue===''
@@ -5301,8 +5320,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   style={{
                     display: "block",
                     paddingLeft: "12px",
-                    paddingTop: "5px",
-                    height: "30px",
+                    paddingTop: "6px",
+                    height: "32px",
+                    marginTop:'9px',
                     boxSizing: "border-box",
                     width: "100%",
                     // border:  this.state.searchTextFeildValue ===''
@@ -5458,7 +5478,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         display: "block",
                         paddingLeft: "12px",
                         paddingTop: "5px",
-                        height: "32px",
+                        height: "31px",
                         boxSizing: "border-box",
                         width: "100%",
                         // border: this.state.isWarningSubject
@@ -5491,7 +5511,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       display: "block",
                       paddingLeft: "12px",
                       paddingTop: "5px",
-                      height: "32px",
+                      height: "31px",
                       boxSizing: "border-box",
                       width: "100%",
                       // border: this.state.subjectFeildValue===''
@@ -5861,7 +5881,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               }}
             >
               <>
-              {this.state.statusNumber === '100' ||this.state.statusNumber === '200'||this.state.statusNumber === '5000'||this.state.statusNumber === '' }
+              {/* {this.state.statusNumber === '100' ||this.state.statusNumber === '200'||this.state.statusNumber === '5000'||this.state.statusNumber === '' }&& */}
               {this._itemId && this.state.status !== "Returned" ? (
                 !(
                   this.state.statusNumber === "100" ||

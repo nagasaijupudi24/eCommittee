@@ -299,6 +299,7 @@ export default class PasscodeModal extends React.Component<
             <TextField
               label="Enter your passcode for verification:"
               value={passcode}
+              canRevealPassword={false} 
               onChange={this.onPasscodeChange}
               type={isPasswordVisible ? "text" : "password"}
               onRenderSuffix={() => (
@@ -308,6 +309,7 @@ export default class PasscodeModal extends React.Component<
                     iconName: isPasswordVisible ? "Hide" : "RedEye",
                   }}
                   onClick={this.togglePasswordVisibility}
+                  
                 />
               )}
             />
