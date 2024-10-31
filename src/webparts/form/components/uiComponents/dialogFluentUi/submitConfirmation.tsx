@@ -15,7 +15,7 @@ const styles = mergeStyleSets({
   modal: {
     minWidth: '300px',
     maxWidth: '80vw',
-    width: '100%',
+    // width: '100%',
     '@media (min-width: 768px)': {
       maxWidth: '580px', // Adjust width for medium screens
     },
@@ -26,6 +26,12 @@ const styles = mergeStyleSets({
     padding: '10px',
     backgroundColor: 'white',
     borderRadius: '4px',
+    // height:'260px',
+    // display:'flex',
+    // flexDirection:'column',
+    // alignItem:'center',
+    // justifyContent:'center',
+    
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.26)',
   },
   header: {
@@ -33,6 +39,8 @@ const styles = mergeStyleSets({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottom: '1px solid #ddd',
+   minHeigth:'50px',
+   padding:'5px'
   },
   headerTitle: {
    margin:'5px',
@@ -49,16 +57,26 @@ const styles = mergeStyleSets({
     justifyContent: 'center',
     textAlign: 'center',
     padding: '20px 0',
-    height:'100%'
+    height:'100%',
+    '@media (min-width: 768px)': {
+      marginLeft: '20px', // Adjust width for smaller screens
+      marginRight: '20px', // Adjust width for medium screens
+    },
+    '@media (max-width: 767px)': {
+      marginLeft: '20px', // Adjust width for smaller screens
+      marginRight: '20px',
+    } 
   },
   footer: {
     display: 'flex',
     justifyContent: 'space-between', // Adjusted to space between
-    marginTop: '20px',
+   
     borderTop: '1px solid #ddd',
     paddingTop: '10px',
+     minHeight:'50px'
   },
   button: {
+    maxHeight:'32px',
     flex: '1 1 50%', // Ensures each button takes up 50% of the footer width
     margin: '0 5px', // Adds some space between the buttons
   },
@@ -73,8 +91,8 @@ const styles = mergeStyleSets({
 
   removeTopMargin:{
     marginTop: '4px',
-    marginBottom: '4px'
-  }
+    marginBottom: '14px'
+  },
   
 });
 
@@ -88,8 +106,8 @@ const ConfirmationDialog: React.FC<IConfirmationDialogProps> = ({ hidden, onConf
     >
       <div className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton iconProps={{ iconName: 'Info' }} className={styles.headerIcon} />
-          <h2 className={styles.headerTitle}>{title}</h2>
+          <IconButton iconProps={{ iconName: 'WaitlistConfirm' }} className={styles.headerIcon} />
+          <h4 className={styles.headerTitle}>{title}</h4>
         </div>
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCancel} />
       </div>

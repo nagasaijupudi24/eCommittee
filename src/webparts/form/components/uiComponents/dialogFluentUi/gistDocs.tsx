@@ -55,7 +55,7 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
       <div className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <IconButton iconProps={{ iconName: 'Info' }} />
-          <h2 style={{ marginLeft: '10px' }}>Alert</h2>
+          <h4 style={{ marginLeft: '10px' }}>Alert</h4>
         </div>
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>

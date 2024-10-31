@@ -16,6 +16,7 @@
     "@compdfkit_pdf_sdk/webviewer": "^2.2.2",
     "@fluentui/example-data": "^8.4.25",
     "@fluentui/react": "^8.120.3",
+    "@fluentui/react-file-type-icons": "^8.12.3",
     "@microsoft/sp-component-base": "1.19.0",
     "@microsoft/sp-core-library": "1.19.0",
     "@microsoft/sp-http": "^1.19.0",
@@ -75,7 +76,7 @@
     "file-loader": "^6.2.0",
     "gulp": "^4.0.2",
     "react-scripts": "^5.0.1",
-    "typescript": "4.7.4",
-    "spfx-fast-serve-helpers": "~1.19.0"
+    "spfx-fast-serve-helpers": "~1.19.0",
+    "typescript": "4.7.4"
   }
 }

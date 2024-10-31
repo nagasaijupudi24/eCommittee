@@ -316,13 +316,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _committeeType: any =
-    this.props.formType === "BoardNoteNew" ? "Board" : "Committee";
+    this.props.formType === "BoardNoteNew" ? "Board" : "eCommittee";
 
   private _folderName: any = "";
 
   // private _folderName:string;
 
   private title: any;
+  private _listname:any;
+  private _libraryName:any;
 
   constructor(props: IFormProps) {
     super(props);
@@ -428,6 +430,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       autosave: true,
       autoSavedialog: true,
     };
+    const listTitle = this.props.listId;
+    
+    this._listname = listTitle?.title ;
+    // console.log(this._listname)
+
+    const libraryTilte = this.props.libraryId;
+    this._libraryName = libraryTilte?.title;
+    
+   
+    // console.log(this._libraryName)
     // console.log(this._itemId);
     // console.log(this._formType);
     // console.log(this._folderName);
@@ -451,7 +463,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(this.state.departmentAlias);
 
       this._folderName = await `${this._absUrl}/${
-        this.props.libraryId
+        this._libraryName
       }/${this._folderNameGenerate(this._itemId)}`;
 
       this._itemId && (await this._getItemDocumentsData());
@@ -755,6 +767,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
   
   private _getItemDocumentsData = async () => {
+    // console.log(this._folderName)
     try {
       const tempFilesPdf: File[] = [];
       const tempFilesWordDocument: File[] = [];
@@ -764,7 +777,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       const folderItemsPdf = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/Pdf`)
         .files.select("*").expand("Author", "Editor")();
-  
+      
+        // console.log(folderItemsPdf)
       for (const file of folderItemsPdf) {
         const fileObj = await this._getFileObj(file);
         tempFilesPdf.push(fileObj);
@@ -814,7 +828,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(id)
       .select(
         "*",
@@ -905,7 +919,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private getfield = async () => {
     try {
       const fieldDetails = await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
+        .getByTitle(this._listname)
         .fields.filter("Hidden eq false and ReadOnlyField eq false")();
       // console.log(fieldDetails);
 
@@ -1920,9 +1934,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     try {
       // console.log(this.props.context.pageContext.web.serverRelativeUrl);
       const absUrl = this.props.context.pageContext.web.serverRelativeUrl;
-      this._folderName = `${absUrl}/${this.props.libraryId}/${folderName}`;
+      this._folderName = `${absUrl}/${this._libraryName}/${folderName}`;
 
-      const siteUrl = `${absUrl}/${this.props.libraryId}/${folderName}`;
+      const siteUrl = `${absUrl}/${this._libraryName}/${folderName}`;
       // console.log(siteUrl);
 
       // Check if the folder already exists
@@ -2271,7 +2285,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
             errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
             errorInWordDocFiles:
-              this.state.errorFilesList.wordDocument.length > 0,
+          this.state.errorFilesList.wordDocument.length > 0,
             errorInSupportingDocFiles:
               this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2308,7 +2322,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
             errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
             errorInWordDocFiles:
-              this.state.errorFilesList.wordDocument.length > 0,
+          this.state.errorFilesList.wordDocument.length > 0,
             errorInSupportingDocFiles:
               this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2345,7 +2359,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
           errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
           errorInWordDocFiles:
-            this.state.errorFilesList.wordDocument.length > 0,
+           this.state.errorFilesList.wordDocument.length > 0,
           errorInSupportingDocFiles:
             this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2391,7 +2405,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
             errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
             errorInWordDocFiles:
-              this.state.errorFilesList.wordDocument.length > 0,
+            this.state.errorFilesList.wordDocument.length > 0,
             errorInSupportingDocFiles:
               this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2425,7 +2439,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
             errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
             errorInWordDocFiles:
-              this.state.errorFilesList.wordDocument.length > 0,
+            this.state.errorFilesList.wordDocument.length > 0,
             errorInSupportingDocFiles:
               this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2460,7 +2474,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
           errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
           errorInWordDocFiles:
-            this.state.errorFilesList.wordDocument.length > 0,
+         this.state.errorFilesList.wordDocument.length > 0,
           errorInSupportingDocFiles:
             this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2500,7 +2514,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
           errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
           errorInWordDocFiles:
-            this.state.errorFilesList.wordDocument.length > 0,
+         this.state.errorFilesList.wordDocument.length > 0,
           errorInSupportingDocFiles:
             this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2534,7 +2548,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
           errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
           errorInWordDocFiles:
-            this.state.errorFilesList.wordDocument.length > 0,
+          this.state.errorFilesList.wordDocument.length > 0,
           errorInSupportingDocFiles:
             this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2573,7 +2587,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
           errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
           errorInWordDocFiles:
-            this.state.errorFilesList.wordDocument.length > 0,
+         this.state.errorFilesList.wordDocument.length > 0,
           errorInSupportingDocFiles:
             this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2608,7 +2622,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
           errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
           errorInWordDocFiles:
-            this.state.errorFilesList.wordDocument.length > 0,
+           this.state.errorFilesList.wordDocument.length > 0,
           errorInSupportingDocFiles:
             this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2653,7 +2667,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
             errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
             errorInWordDocFiles:
-              this.state.errorFilesList.wordDocument.length > 0,
+           this.state.errorFilesList.wordDocument.length > 0,
             errorInSupportingDocFiles:
               this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2687,7 +2701,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
             errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
             errorInWordDocFiles:
-              this.state.errorFilesList.wordDocument.length > 0,
+           this.state.errorFilesList.wordDocument.length > 0,
             errorInSupportingDocFiles:
               this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2723,7 +2737,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
           errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
           errorInWordDocFiles:
-            this.state.errorFilesList.wordDocument.length > 0,
+          this.state.errorFilesList.wordDocument.length > 0,
           errorInSupportingDocFiles:
             this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2757,7 +2771,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
         errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
-        errorInWordDocFiles: this.state.errorFilesList.wordDocument.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
         errorInSupportingDocFiles:
           this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2789,7 +2803,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         // supportingDocumentfiles:this.state.supportingDocumentfiles.length ===0,
         errorInPdfFiles: this.state.errorFilesList.notePdF.length > 0,
-        errorInWordDocFiles: this.state.errorFilesList.wordDocument.length > 0,
+        errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
         errorInSupportingDocFiles:
           this.state.errorFilesList.supportingDocument.length > 0,
 
@@ -2893,7 +2907,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles: [
-              this.state.wordDocumentfiles,
+              this.state.noteSecretaryDetails.length> 0 ,
               "Please select Valid Word Doc File",
             ],
              // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -2901,7 +2915,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.errorFilesList.notePdF.length > 0,
               "Please select Valid Pdf File...",
             ],
-            errorInWordDocFiles: [
+            errorInWordDocFiles:  [
               this.state.errorFilesList.wordDocument.length > 0,
               "Please select Valid Word File...",
             ],
@@ -2948,7 +2962,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles: [
-              this.state.wordDocumentfiles,
+              this.state.noteSecretaryDetails.length> 0 ,
               "Please select Valid Word Doc File",
             ],
             //  // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -2994,7 +3008,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles: [
-            this.state.wordDocumentfiles,
+            this.state.noteSecretaryDetails.length> 0 ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3051,7 +3065,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles: [
-              this.state.wordDocumentfiles,
+              this.state.noteSecretaryDetails.length> 0 ,
               "Please select Valid Word Doc File",
             ],
              // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3098,7 +3112,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles: [
-              this.state.wordDocumentfiles,
+              this.state.noteSecretaryDetails.length> 0 ,
               "Please select Valid Word Doc File",
             ],
              // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3140,7 +3154,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles: [
-            this.state.wordDocumentfiles,
+            this.state.noteSecretaryDetails.length> 0 ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3188,7 +3202,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles: [
-            this.state.wordDocumentfiles,
+            this.state.noteSecretaryDetails.length> 0 ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3230,7 +3244,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles: [
-            this.state.wordDocumentfiles,
+            this.state.noteSecretaryDetails.length> 0 ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3274,7 +3288,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles: [
-            this.state.wordDocumentfiles,
+            this.state.noteSecretaryDetails.length> 0 ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3312,7 +3326,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles: [
-            this.state.wordDocumentfiles,
+            this.state.noteSecretaryDetails.length> 0 ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3354,7 +3368,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         wordDocumentfiles: [
-          this.state.wordDocumentfiles,
+          this.state.noteSecretaryDetails.length> 0 ,
           "Please select Valid Word Doc File",
         ],
          // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3391,7 +3405,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         wordDocumentfiles: [
-          this.state.wordDocumentfiles,
+          this.state.noteSecretaryDetails.length> 0 ,
           "Please select Valid Word Doc File",
         ],
          // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3427,7 +3441,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         wordDocumentfiles: [
-          this.state.wordDocumentfiles,
+          this.state.noteSecretaryDetails.length> 0 ,
           "Please select Valid Word Doc File",
         ],
          // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3510,7 +3524,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       } else {
         // Create new item
         const response = await this.props.sp.web.lists
-          .getByTitle(this.props.listId)
+          .getByTitle(this._listname)
           .items.add(await this.createEcommitteeObject(statusOfForm, "100"));
         id = response.Id;
         this.setState({ itemId: id });
@@ -3534,7 +3548,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           await this.handleUpdate();
         } else {
           const id = await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
+            .getByTitle(this._listname)
             .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
           // console.log(id.Id, "id");
           // console.log(id.Id, "id -----", status, "Status");
@@ -4436,11 +4450,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     this._itemId
         ? await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
+            .getByTitle(this._listname)
             .items.getById(this._itemId)
             .update(await this.getObject("Submitted", "1000"))
         : await this.props.sp.web.lists
-            .getByTitle(this.props.listId)
+            .getByTitle(this._listname)
             .items.getById(this.state.itemId)
             .update(await this.getObject("Drafted", "100"));
 
@@ -4549,7 +4563,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     };
     this.title = requesterNo;
     await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(id)
       .update({
         Title: requesterNo,
@@ -4736,7 +4750,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private onTextChange = (newText: string) => {
     // this.properties.myRichText = newText;
-    console.log(newText);
+    // console.log(newText);
     this.setState({ draftResolutionFieldValue: newText });
     return newText;
   };
@@ -4757,7 +4771,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(updateAuditTrail);
 
       await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
+        .getByTitle(this._listname)
         .items.getById(this._itemId)
         .update({
           Status: statusFromEvent,
@@ -4899,7 +4913,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    console.log(this.state);
+    // console.log(this.state);
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
     // console.log(this._formType === "view");
@@ -4973,6 +4987,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             {/* success  dialog */}
             <SuccessDialog
+              typeOfNote = {this._committeeType}
               statusOfReq={this.state.successStatus}
               isVisibleAlter={this.state.isVisibleAlter}
               onCloseAlter={this._closeDialogAlter}
@@ -5880,7 +5895,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 gap: "5px",
               }}
             >
-              <>
+              {(
+  this.state.statusNumber !== '8000' &&
+  this.state.statusNumber !== '2000' &&
+  this.state.statusNumber !== '3000' &&
+  this.state.statusNumber !== '4000' &&
+  this.state.statusNumber !== '4900' &&
+  this.state.statusNumber !== '9000'
+) && <div  style={{
+                // margin: "10px 0px",
+                display: "flex",
+                justifyContent: "center",
+                gap: "5px",
+              }}>
               {/* {this.state.statusNumber === '100' ||this.state.statusNumber === '200'||this.state.statusNumber === '5000'||this.state.statusNumber === '' }&& */}
               {this._itemId && this.state.status !== "Returned" ? (
                 !(
@@ -5993,7 +6020,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   Submit
                 </PrimaryButton>
               )}
-              </>
+              </div>}
+             
 
               <DefaultButton
                 // type="button"

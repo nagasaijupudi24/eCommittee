@@ -39,11 +39,28 @@ const GistDocsConfirmation: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
         },
         footer: {
             display: 'flex',
-            justifyContent: 'flex-end',
-            marginTop: '20px',
-            borderTop: '1px solid #ddd', // Added border to the top of the footer
+            justifyContent: 'space-between', // Adjusted to space between
+            // marginTop: '20px',
+            borderTop: '1px solid #ddd',
             paddingTop: '10px',
         },
+        button: {
+            flex: '1 1 50%', // Ensures each button takes up 50% of the footer width
+            margin: '0 5px', // Adds some space between the buttons
+          },
+          buttonContent: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          },
+          buttonIcon: {
+            marginRight: '4px', // Adjust the space between the icon and text
+          },
+        
+          removeTopMargin:{
+            marginTop: '4px',
+            marginBottom: '4px'
+          }
     });
 
     return (
@@ -56,7 +73,8 @@ const GistDocsConfirmation: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
             <div style={{ borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1px' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Icon iconName="CheckMark" style={{ marginRight: '10px' }} />
-                    <h2>Confirmation</h2>
+                    
+                    <h4 style={{marginTop:'4px',marginBottom:'4px'}}>Confirmation</h4>
                 </div>
                 <IconButton iconProps={closeIcon} onClick={onCloseAlter} />
             </div>
@@ -65,8 +83,8 @@ const GistDocsConfirmation: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
                 <p style={{ textAlign: 'center' }}>Please click on Confirm button to submit request.</p>
             </div>
             <div style={{ borderTop: '1px solid #ccc', marginTop: '20px', paddingTop: '10px', display: 'flex', justifyContent: 'end', gap: '10px' }}>
-                <PrimaryButton  iconProps={{ iconName: "SkypeCircleCheck" }} onClick={handleConfirmatBtn} text="Confirm"  />
-                <DefaultButton iconProps={{ iconName: "ErrorBadge" }} onClick={onCloseAlter} text="Cancel"  />
+                <PrimaryButton  className={styles.button}  styles={{ root: styles.buttonContent }}  iconProps={{ iconName: "SkypeCircleCheck" }} onClick={handleConfirmatBtn} text="Confirm"  />
+                <DefaultButton   className={styles.button} styles={{ root: styles.buttonContent }} iconProps={{ iconName: "ErrorBadge" }} onClick={onCloseAlter} text="Cancel"  />
             </div>
         </Modal>
     );

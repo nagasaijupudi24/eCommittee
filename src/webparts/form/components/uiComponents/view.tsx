@@ -182,6 +182,7 @@ export interface IViewFormState {
   atrCreatorsList: any;
   atrGridData: any;
   noteATRAssigneeDetails: any;
+  atrJoinedComments:any;
 
   // reject and return dialog box
   isDialogVisible: any;
@@ -253,7 +254,11 @@ export default class ViewForm extends React.Component<
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: any = "";
   private _committeeType: any =
-    this.props.formType === "BoardNoteNew" ? "Board" : "Committee";
+    this.props.formType === "BoardNoteNew" ? "Board" : "eCommittee";
+
+    private _listname:any;
+  private _libraryName:any;
+  // private _currentApprover:any;
 
   constructor(props: IViewFormProps) {
     super(props);
@@ -360,6 +365,7 @@ export default class ViewForm extends React.Component<
       atrCreatorsList: [],
       atrGridData: [],
       noteATRAssigneeDetails: [],
+      atrJoinedComments:[],
 
       // reject dialog box
       isDialogVisible: false,
@@ -397,6 +403,17 @@ export default class ViewForm extends React.Component<
       isAutoSaveFailedDialog:false,
     };
 
+    const listTitle = this.props.listId;
+    
+    this._listname = listTitle?.title ;
+    // console.log(this._listname)
+
+    const libraryTilte = this.props.libraryId;
+    this._libraryName = libraryTilte?.title;
+    
+   
+    // console.log(this._libraryName)
+
     // console.log(this._itemId);
     // console.log(this._formType);
     // console.log(this._folderName);
@@ -407,7 +424,7 @@ export default class ViewForm extends React.Component<
       // console.log(this.state.departmentAlias);
 
       this._folderName = await `${this._absUrl}/${
-        this.props.libraryId
+        this._libraryName
       }/${this._folderNameGenerate(this._itemId)}`;
 
       await this._getItemDocumentsData();
@@ -749,7 +766,7 @@ export default class ViewForm extends React.Component<
 
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(id)
       .select(
         "*",
@@ -773,7 +790,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    // console.log(`${id} ------Details`, item);
+    console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -898,7 +915,7 @@ export default class ViewForm extends React.Component<
           : item.Status,
       statusNumber: item.StatusNumber,
       ApproverDetails: JSON.parse(item.NoteApproversDTO),
-      currentApprover: this._getCurrentApproverDetails(
+      currentApprover:await this._getCurrentApproverDetails(
         item.CurrentApprover,
         item.NoteApproversDTO
       ),
@@ -1532,20 +1549,20 @@ export default class ViewForm extends React.Component<
     }
   }
 
-  private async updateNoteID(itemId: number): Promise<void> {
-    try {
-       await this.props.sp.web.lists
-        .getByTitle("ATRRequests")
-        .items.getById(itemId)
-        .update({
-          ATRNoteID: `ATR-${itemId}`,
-        });
-      // console.log(itemUpdateResult);
-      // console.log(`Item with ID ${itemId} updated with new NoteID: ${itemId}`);
-    } catch (error) {
-      console.error("Error updating NoteID: ", error);
-    }
-  }
+  // private async updateNoteID(itemId: number): Promise<void> {
+  //   try {
+  //      await this.props.sp.web.lists
+  //       .getByTitle("ATRRequests")
+  //       .items.getById(itemId)
+  //       .update({
+  //         ATRNoteID: `ATR-${itemId}`,
+  //       });
+  //     // console.log(itemUpdateResult);
+  //     // console.log(`Item with ID ${itemId} updated with new NoteID: ${itemId}`);
+  //   } catch (error) {
+  //     console.error("Error updating NoteID: ", error);
+  //   }
+  // }
 
   private _updateATRRequest = async (): Promise<void> => {
     this.state.noteATRAssigneeDetails.map(async (each: any) => {
@@ -1561,17 +1578,26 @@ export default class ViewForm extends React.Component<
       //   )
       // );
       try {
-        const itemAddResult = await this.props.sp.web.lists
+
+           // console.log(this.state.commentsData)
+      const joinedCommentsData = this.state.commentsData
+      .filter((each: any) => !!each)
+      .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
+      console.log(joinedCommentsData)
+      console.log(joinedCommentsData.join(', '))
+        // const itemAddResult =
+         await this.props.sp.web.lists
           .getByTitle("ATRRequests")
           .items.add({
             Title: this.state.title,
-            NoteTo: "Sample NoteTo",
+            NoteTo: "",
             Status: "Pending",
-            ATRNoteID: "",
+            ATRNoteID: this.state.title,
             Department: this.state.department,
-            // Subject: "Sample Subject",
+            Subject: this.state.subjectFeildValue,
             AssignedById: each.atrCreatorId,
             // Remarks: "Sample Remarks",
+            Comments:joinedCommentsData.join(', '),
             // Comments: JSON.stringify(this.state.atrGridData.map((item:any) =>{
             //   console.log(each)
             //   item.comments
@@ -1588,7 +1614,7 @@ export default class ViewForm extends React.Component<
           });
         // console.log(itemAddResult);
         // console.log(`Item added with ID: ${itemAddResult.Id}`);
-        await this.updateNoteID(itemAddResult.Id);
+        // await this.updateNoteID(itemAddResult.Id);
       } catch (error) {
         console.error("Error adding item: ", error);
       }
@@ -1699,7 +1725,7 @@ export default class ViewForm extends React.Component<
     };
     // console.log(updateItems);
      await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update(updateItems);
 
@@ -1715,7 +1741,7 @@ export default class ViewForm extends React.Component<
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
        await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
+        .getByTitle(this._listname)
         .items.getById(this._itemId)
         .update({
           Status: statusFromEvent,
@@ -1865,7 +1891,7 @@ export default class ViewForm extends React.Component<
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     // console.log(updateAuditTrial);
      await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update({
         NoteApproversDTO: JSON.stringify(modifyApproveDetails),
@@ -1887,7 +1913,7 @@ export default class ViewForm extends React.Component<
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
       await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
+        .getByTitle(this._listname)
         .items.getById(this._itemId)
         .update({
           Status: statusFromEvent,
@@ -2059,7 +2085,7 @@ export default class ViewForm extends React.Component<
     // console.log(obj);
 
      await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update(obj)
       // .then((resu) => console.log(resu));
@@ -2075,7 +2101,7 @@ export default class ViewForm extends React.Component<
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
     await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
+        .getByTitle(this._listname)
         .items.getById(this._itemId)
         .update({
           Status: statusFromEvent,
@@ -2138,8 +2164,8 @@ export default class ViewForm extends React.Component<
         //     this._currentUserEmail
         // );
         if (
-          (each.approverEmail || each.approverEmailName) ===
-          this._currentUserEmail
+          (each.approverOrder ===
+          this.state.ApproverOrder)
         ) {
           // console.log("Entered -----", statusFromEvent);
           return { ...each, status: "pending", actionDate: new Date() };
@@ -2151,6 +2177,8 @@ export default class ViewForm extends React.Component<
         return each;
       }
     );
+
+    // console.log(modifyApproveDetails)
 
     const modifyReferredToDetails = this.state.referredFromDetails.map(
       (each: any, _index: number) => {
@@ -2203,7 +2231,7 @@ export default class ViewForm extends React.Component<
     // console.log(obj);
 
     await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update(obj)
       // .then((resu) => console.log(resu));
@@ -2219,7 +2247,7 @@ export default class ViewForm extends React.Component<
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
      await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
+        .getByTitle(this._listname)
         .items.getById(this._itemId)
         .update({
           Status: statusFromEvent,
@@ -2282,7 +2310,7 @@ export default class ViewForm extends React.Component<
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     // console.log(updateAuditTrial);
      await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update({
         NoteApproversDTO: JSON.stringify(modifyApproveDetails),
@@ -2300,7 +2328,7 @@ export default class ViewForm extends React.Component<
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
       this.setState({ status: statusFromEvent });
        await this.props.sp.web.lists
-        .getByTitle(this.props.listId)
+        .getByTitle(this._listname)
         .items.getById(this._itemId)
         .update({
           Status: statusFromEvent,
@@ -2326,7 +2354,7 @@ export default class ViewForm extends React.Component<
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     // console.log(updateAuditTrial);
      await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update({
         startProcessing: true,
@@ -2365,7 +2393,7 @@ export default class ViewForm extends React.Component<
   private _handleMarkInfoSubmit = async (): Promise<any> => {
     const updateAuditTrial = await this._getAuditTrail("Mark Info Added");
     await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update({
         NoteMarkedInfoDTOId: this._getNoteMarkedId(),
@@ -2389,6 +2417,7 @@ export default class ViewForm extends React.Component<
     // console.log(data)
     // this.setState({currentApprover:data})
     // console.log(this.state.currentApprover);
+    // let currentApprover ;
     const updateCurrentApprover = (): any => {
       const upatedCurrentApprover = this.state.ApproverDetails.filter(
         (each: any) => {
@@ -2406,6 +2435,7 @@ export default class ViewForm extends React.Component<
 
           // console.log(each.approverOrder ===this._getApproverOrder(this.state.ApproverDetails)[0])
           if (each.status === "pending") {
+            // currentApprover = each.id
             return {
               ...this.state.currentApprover,
               status: "pending",
@@ -2458,12 +2488,13 @@ export default class ViewForm extends React.Component<
       }
     );
     // console.log(modifyApproverDetails);
+    // console.log(modifyApproverDetails[modifyApproverDetails.length-1].id)
     const currentApproverId = updateCurrentApprover()[0].id;
     // console.log(currentApproverId);
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     // console.log(updateAuditTrial);
      await this.props.sp.web.lists
-      .getByTitle(this.props.listId)
+      .getByTitle(this._listname)
       .items.getById(this._itemId)
       .update({
         startProcessing: true,
@@ -2471,6 +2502,8 @@ export default class ViewForm extends React.Component<
         AuditTrail: updateAuditTrial,
         NoteApproversDTO: JSON.stringify(modifyApproverDetails),
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
+        FinalApproverId:modifyApproverDetails[modifyApproverDetails.length-1].id
+        
       });
 
     // console.log(itemToUpdate);
@@ -2646,34 +2679,40 @@ export default class ViewForm extends React.Component<
       const lastRefereeDetails =
         this.state.noteReferrerDTO[this.state.noteReferrerDTO.length - 1];
       return lastRefereeDetails.referrerEmailName;
-    } else {
-      const currentStatusOfApproverDetails = data.filter((each: any) => {
-        // console.log(each);
-        // console.log(each.status);
-        if (each.statusNumber === "2000" ||each.statusNumber === "3000" || each.status === "Refered") {
-          // console.log(each.status);
-          return each;
-        }
-        // return each.status === "pending" && each.approverEmailName
-      });
-      // console.log(currentStatusOfApproverDetails);
-
-      if (currentStatusOfApproverDetails.length > 0) {
-        // console.log(
-        //   currentStatusOfApproverDetails[0].approverEmailName,
-        //   currentStatusOfApproverDetails[0].text,"---",
-        //   currentStatusOfApproverDetails[0].approverEmailName ||currentStatusOfApproverDetails[0].text,
-        //   "currentStatusOfApproverDetails"
-        // );
-
-        return (
-          currentStatusOfApproverDetails[0].text ||
-          currentStatusOfApproverDetails[0].approverEmailName
-        );
-      } else {
-        return "";
-      }
+    } 
+    else{
+      const currentApp = this.state.currentApprover?(this.state.currentApprover[0]?.text) :[];
+      // console.log(currentApp)
+      return currentApp
     }
+    // else {
+    //   const currentStatusOfApproverDetails = data.filter((each: any) => {
+    //     // console.log(each);
+    //     // console.log(each.status);
+    //     if (each.statusNumber === "2000" ||each.statusNumber === "3000" || each.status === "Refered"||each.statusNumber === "4900") {
+    //       // console.log(each.status);
+    //       return each;
+    //     }
+    //     // return each.status === "pending" && each.approverEmailName
+    //   });
+    //   // console.log(currentStatusOfApproverDetails);
+
+    //   if (currentStatusOfApproverDetails.length > 0) {
+    //     // console.log(
+    //     //   currentStatusOfApproverDetails[0].approverEmailName,
+    //     //   currentStatusOfApproverDetails[0].text,"---",
+    //     //   currentStatusOfApproverDetails[0].approverEmailName ||currentStatusOfApproverDetails[0].text,
+    //     //   "currentStatusOfApproverDetails"
+    //     // );
+
+    //     return (
+    //       currentStatusOfApproverDetails[0].text ||
+    //       currentStatusOfApproverDetails[0].approverEmailName
+    //     );
+    //   } else {
+    //     return "";
+    //   }
+    // }
   };
 
   private _closeDialog = () => {
@@ -2978,7 +3017,7 @@ export default class ViewForm extends React.Component<
               "Refer Back",
               "Refered Back",
               "4900",
-              "Please check the details filled along with attachment and click on Confirm button to approve request.",
+              "Please check the details filled along with attachment and click on Confirm button to refer back request.",
               this.handleReferBack,
               this._closeDialog,
               ""
@@ -3001,7 +3040,7 @@ export default class ViewForm extends React.Component<
             "Return",
             "Returned",
             "5000",
-            "click on Confirm button to Return request.",
+            "Please check the details filled along with attachment and click on Confirm button to return request.",
             this.handleReturn,
             this._closeDialog,
             ""
@@ -3012,7 +3051,7 @@ export default class ViewForm extends React.Component<
               "Reject",
               "Rejected",
               "8000",
-              "click on Confirm button to reject request.",
+              "Please check the details filled along with attachment and click on Confirm button to reject request.",
               this.handleReject,
               this._closeDialog,
               ""
@@ -3028,7 +3067,7 @@ export default class ViewForm extends React.Component<
               "Change Approver",
               "changeApprover",
               "7500",
-              "Change Approver*",
+              "Change Approver",
               this.handleChangeApprover,
               this._closeDialog,
               ""
@@ -3192,6 +3231,7 @@ export default class ViewForm extends React.Component<
             className={styles.viewFormMainContainer}
           >
             {/* Passcode Modal */}
+            <form>
             <PasscodeModal
               createPasscodeUrl={this.props.passCodeUrl}
               isOpen={this.state.isPasscodeModalOpen}
@@ -3200,16 +3240,16 @@ export default class ViewForm extends React.Component<
               sp={this.props.sp}
               user={this.props.context.pageContext.user}
             />
+            </form>
 
             {/* success  dialog */}
             <SuccessDialog
-              // homePageUrl = {this.props.homePageUrl}
-              statusOfReq={this.state.successStatus}
-              isVisibleAlter={this.state.isVisibleAlter}
-              onCloseAlter={() => {
-                this._closeDialogAlter("success");
-              }}
-            />
+                // homePageUrl = {this.props.homePageUrl}
+                statusOfReq={this.state.successStatus}
+                isVisibleAlter={this.state.isVisibleAlter}
+                onCloseAlter={() => {
+                  this._closeDialogAlter("success");
+                } } typeOfNote={this._committeeType}            />
             {/* success  dialog */}
 
             {/* refer back comment  dialog */}
@@ -3345,7 +3385,7 @@ export default class ViewForm extends React.Component<
                 className={`${styles.generalHeader} ${styles.viewFormHeaderSectionContainer}`}
               >
                 Status:{" "}
-                {this.state.statusNumber === "6000"
+                {this.state.statusNumber === "4900"//refered back
                   ? this.getMainStatus()
                   : this.state.status}
               </h1>
@@ -3567,6 +3607,12 @@ export default class ViewForm extends React.Component<
                         >
                           <div style={{ padding: "15px" }}>
                             <ATRAssignee
+                              getATRJoinedComments = {
+                                (data:any)=>{
+                                  // console.log(data,'joined data comments')
+                                  this.setState({atrJoinedComments:data})
+                                }
+                              }
                               sp={this.props.sp}
                               context={this.props.context}
                               atrCreatorsList={this.state.atrCreatorsList}
@@ -4025,6 +4071,7 @@ export default class ViewForm extends React.Component<
                           >
                             <div style={{ padding: "15px" }}>
                               <MarkInfo
+                              homePageUrl={this.props.homePageUrl}
                                 sp={this.props.sp}
                                 context={this.props.context}
                                 submitFunctionForMarkInfo={
@@ -4087,7 +4134,7 @@ export default class ViewForm extends React.Component<
                     this._checkApproveredStatusIsFound() ? (
                       <PrimaryButton
                         className={`${styles.responsiveButton}`}
-                        iconProps={{ iconName: "Edit" }}
+                        iconProps={{ iconName: "Contact" }}
                         onClick={(e) => {
                           // console.log("Change Approver btn Triggered");
                           this.setState({ successStatus: "approver changed" });
@@ -4095,7 +4142,7 @@ export default class ViewForm extends React.Component<
                             "Change Approver",
                             "changeApprover",
                             "7500",
-                            "Change Approver*",
+                            "Change Approver",
                             "",
                             this._closeDialog,
                             this.changeApproverPassCodeTrigger

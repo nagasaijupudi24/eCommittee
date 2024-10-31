@@ -177,6 +177,7 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
   // Modify handleZoomChange to handle different zoom levels
   const handleZoomChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newZoomLevel = parseFloat(event.target.value);
+    console.log(newZoomLevel)
     setZoomLevel(newZoomLevel);
 
     // Reset rendered pages to re-render with new zoom level
@@ -195,10 +196,10 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
           <div id={styles.toolbarViewer}>
             <div id={styles.toolbarViewerLeft}>
               <button className={styles.toolbarButton} title="Previous Page" onClick={handlePreviousPage} disabled={currentPage <= 1}>
-                <Icon iconName="ChevronLeft" />
+                <Icon iconName="ChevronUp" />
               </button>
               <button className={styles.toolbarButton} title="Next Page" onClick={handleNextPage} disabled={currentPage >= numPages}>
-                <Icon iconName="ChevronRight" />
+                <Icon iconName="ChevronDown" />
               </button>
               <span className={styles.toolbarLabel}>{currentPage} /{numPages}</span>
             </div>
@@ -233,8 +234,8 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
 
       <div className={styles.pdfviewer} ref={pdfViewerRef}>
         {Array.from(renderedPages.entries()).map(([pageNum, imgSrc]) => (
-          <div key={pageNum}>
-            <img style={{width:'100%'}} src={imgSrc} alt={`Page ${pageNum}`} />
+          <div key={pageNum} style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center '}}>
+            <img  src={imgSrc} alt={`Page ${pageNum}`} />
           </div>
         ))}
       </div>

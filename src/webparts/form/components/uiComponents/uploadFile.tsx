@@ -3,6 +3,8 @@
 /* eslint-disable @rushstack/no-new-null */
 import * as React from 'react';
 import { IconButton, Icon } from '@fluentui/react';
+
+// import { getFileTypeIconProps } from '@fluentui/react-file-type-icons';
 import styles from '../Form.module.scss';
 
 export interface IUploadFileProps {
@@ -238,6 +240,8 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
         {selectedFiles.length > 0 &&
           selectedFiles.map(({ id, file, error }) => {
             const { iconName, color } = getFileTypeIcon(file.name);
+            // const extension = file.name.split('.').pop()?.toLowerCase();
+            // console.log(extension)
             return (
               <li
                 key={id}
@@ -262,6 +266,7 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
                       color: color,
                     }}
                   />
+                  {/* <Icon {...getFileTypeIconProps({ extension:extension , size: 16 })} />; */}
                   <div>
                     <p
                       style={{

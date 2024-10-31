@@ -130,8 +130,8 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       key: 'serialNo',
       name: 'S.No',
       
-      minWidth: 100,
-      maxWidth: 150,
+      minWidth: 50,
+      maxWidth: 80,
       isResizable: false,
       onRender: (_item: any, _index?: number) => (
         <span>{(_index !== undefined ? _index : 0) + 1}</span>
@@ -141,7 +141,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       key: 'text',
       name:this.props.type, // replace 'type' with your actual title
       fieldName: 'text',
-      minWidth: 180,
+      minWidth: 100,
       maxWidth: 200,
       isResizable: true,
     },
@@ -157,7 +157,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       key: 'optionalText',
       name: 'Designation',
       fieldName: 'optionalText',
-      minWidth: 200,
+      minWidth: 100,
       maxWidth: 200,
       isResizable: true,
     },

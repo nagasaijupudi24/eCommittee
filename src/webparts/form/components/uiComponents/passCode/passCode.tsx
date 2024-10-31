@@ -127,10 +127,10 @@ export default class PasscodeModal extends React.Component<
     // console.log("Passcode changed:", newValue);
   };
 
-  private togglePasswordVisibility = () => {
-    this.setState({ isPasswordVisible: !this.state.isPasswordVisible });
-    // console.log("Password visibility toggled:", this.state.isPasswordVisible);
-  };
+  // private togglePasswordVisibility = () => {
+  //   this.setState({ isPasswordVisible: !this.state.isPasswordVisible });
+  //   // console.log("Password visibility toggled:", this.state.isPasswordVisible);
+  // };
 
   private decrypt = (encryptedText: string): string => {
     const bytes = CryptoJS.AES.decrypt(encryptedText, this.key, {
@@ -173,7 +173,7 @@ export default class PasscodeModal extends React.Component<
       passcode,
       errorMessage,
       isCreating,
-      isPasswordVisible,
+      // isPasswordVisible,
     } = this.state;
 
     const styles = mergeStyleSets({
@@ -198,11 +198,26 @@ export default class PasscodeModal extends React.Component<
         justifyContent: "space-between",
         alignItems: "center",
         borderBottom: "1px solid #ddd",
+        marginTop:'4px',
+        marginBottom:'4px',
+        fontWeight:'400'
       },
       body: {
-        display: "flex",
-        flexDirection: "column",
-        padding: "20px 0",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '20px 0',
+        height:'100%'
+      },
+      contentContainer:{
+        width:'70%',
+        display:'flex',
+        flexDirection:'column',
+        justifyContent: 'flex-start',
+        alignItems:'flex-start'
+  
       },
       // footer: {
       //   display: "flex",
@@ -225,6 +240,7 @@ export default class PasscodeModal extends React.Component<
       errorMessage: {
         color: 'red',
         marginTop: '10px',
+        alignSelf:'center',
       },
       noHover: {
         ':hover': {
@@ -269,7 +285,7 @@ export default class PasscodeModal extends React.Component<
       containerClassName={styles.modal}
     >
       <div className={styles.header}>
-        <h2>Passcode Verification</h2>
+        <h4 style={{marginTop:'4px',marginBottom:'4px'}}>Passcode Verification</h4>
         <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
       </div>
       <div className={styles.body} style={{ textAlign: "center" }}>
@@ -296,27 +312,28 @@ export default class PasscodeModal extends React.Component<
           </>
         ) : (
           <>
-            <TextField
-              label="Enter your passcode for verification:"
-              value={passcode}
-              canRevealPassword={false} 
-              onChange={this.onPasscodeChange}
-              type={isPasswordVisible ? "text" : "password"}
-              onRenderSuffix={() => (
-                <IconButton
-                  className={styles.noHover}
-                  iconProps={{
-                    iconName: isPasswordVisible ? "Hide" : "RedEye",
-                  }}
-                  onClick={this.togglePasswordVisibility}
-                  
-                />
-              )}
-            />
-            {errorMessage && (
-              <p className={styles.errorMessage}>{errorMessage}</p>
-            )}
-            <div className={styles.footer}>
+          <div className={styles.contentContainer}>
+  <label>Enter your passcode for verification:</label>
+  <TextField
+    value={passcode}
+    canRevealPassword
+    onChange={this.onPasscodeChange}
+    type="password"
+    styles={{ root: { width: '100%' ,marginTop:'5px'} }}  // This line ensures the TextField occupies the full width
+  />
+  {errorMessage && (
+    <p className={styles.errorMessage}>{errorMessage}</p>
+  )}
+</div>
+
+         
+          
+           
+          </>
+        )}
+        
+      </div>
+      <div className={styles.footer}>
               <PrimaryButton
                 className={styles.button}
                 text="Verify"
@@ -332,9 +349,6 @@ export default class PasscodeModal extends React.Component<
                 iconProps={{ iconName: "ErrorBadge" }}
               />
             </div>
-          </>
-        )}
-      </div>
     </Modal>
     
     )

@@ -6,9 +6,10 @@ import { Modal } from "@fluentui/react/lib/Modal";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
 import { FontIcon, Icon, IIconProps, mergeStyleSets, Stack, TextField } from "@fluentui/react";
 import PnPPeoplePicker from "../peoplePicker/peoplePicker";
-import { IconButton, Text, TooltipHost } from "@fluentui/react";
+import { IconButton, Text } from "@fluentui/react";
 import { v4 } from "uuid";
 import ReferCommentsMandatoryDialog from "./referCommentsMandiatory";
+import SpanComponent from "../spanComponent/spanComponent";
 
 interface IDialogProps {
   dialogUserCheck:any;
@@ -28,10 +29,10 @@ const Header = (props: any) => (
     styles={{ root: { padding: "10px", borderBottom: "1px solid #ccc" } }}
   >
     <Stack horizontal verticalAlign="center">
-      <TooltipHost content="Information about adding a referee">
+      {/* <TooltipHost content="Information about adding a referee"> */}
         <IconButton iconProps={{ iconName: "Info" }} />
-      </TooltipHost>
-      <Text variant="large" styles={{ root: { marginLeft: "10px" } }}>
+      {/* </TooltipHost> */}
+      <Text variant="large" styles={{ root: { marginLeft: "3px" } }}>
         {props.heading}
       </Text>
     </Stack>
@@ -94,6 +95,14 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       textAlign: 'center',
       padding: '20px 0',
       height:'100%'
+    },
+    contentContainer:{
+      width:'70%',
+      display:'flex',
+      flexDirection:'column',
+      justifyContent: 'flex-start',
+      alignItems:'flex-start'
+
     },
     footer: {
       display: 'flex',
@@ -371,16 +380,20 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       >
         <Header heading={'Change Approver'} onClose={dialogDetails.closeFunction} />
         <div className={styles.body}>
-          <p>{dialogDetails.message}</p>
-          <PnPPeoplePicker
-            context={context}
-            spProp={sp}
-            getDetails={_getDetails}
-            typeOFButton="Change Approver" clearPeoplePicker={undefined}/>
+          <div className={styles.contentContainer}>
+            <p>{dialogDetails.message}<SpanComponent/></p>
+            <PnPPeoplePicker
+              context={context}
+              spProp={sp}
+              getDetails={_getDetails}
+              typeOFButton="Change Approver" clearPeoplePicker={undefined}/>
+
+          </div>
+          
          
         </div>
         <div className={styles.footer}>
-          <PrimaryButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Confirm" />
+          <PrimaryButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Submit" />
           <DefaultButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "ErrorBadge" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
           </div>
       </Modal>

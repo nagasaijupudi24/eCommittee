@@ -20,6 +20,7 @@ interface ITableItem {
 
 // Interface for the component's props
 interface IATRAssigneeProps {
+  getATRJoinedComments:any;
   gridData: any;
   updategirdData: any;
   commentsData: any;
@@ -42,6 +43,7 @@ interface IATRAssigneeState {
   isModalOpen: boolean;
   modalMessage: string;
   clearPeoplePicker:any;
+  atrJoinedComments:any;
 }
 
 // ComboBox options for status
@@ -64,6 +66,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       isModalOpen: false,
       modalMessage: "",
       clearPeoplePicker:"",
+      atrJoinedComments:''
     };
 
     this._updateStatusOptions()
@@ -246,7 +249,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
        
         ...this.state.selectedValue
       };
-  
+      this.setState({atrJoinedComments:joinedCommentsData.join(',')}, this.props.getATRJoinedComments(joinedCommentsData.join(', ')))
       // this.setState((prev) => {
       //   this.props.updategirdData([...prev.tableData, newTableData]);
       //   return { selectedUsers: data, tableData: [...prev.tableData, newTableData] };
@@ -254,6 +257,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       
     this.props.updategirdData({assigneeDetails:this.state.selectedValue,comments:[...this.state.tableData,newTableData]});
       // });
+      this.props.getATRJoinedComments(joinedCommentsData.join(', '))
       this.setState({tableData:[...this.state.tableData,newTableData],selectedValue:''})
       this.state.clearPeoplePicker()
 

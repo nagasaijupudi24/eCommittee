@@ -224,45 +224,45 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
     return Version.parse('1.0');
   }
 
-  protected onPropertyPaneFieldChanged = async (propertyPath: string, oldValue: any, newValue: any): Promise<void> => {
-    // console.log(newValue,"---New Value, ",propertyPath,"---Propery path")
-    super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
-    if (propertyPath === "listId" && newValue) {
-      // console.log(`"Entered into ${newValue.title}"`)
-      // this._listId = newValue;
-      this.properties.listId = newValue.title
-      // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
+  // protected onPropertyPaneFieldChanged = async (propertyPath: string, oldValue: any, newValue: any): Promise<void> => {
+  //   // console.log(newValue,"---New Value, ",propertyPath,"---Propery path")
+  //   super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
+  //   if (propertyPath === "listId" && newValue) {
+  //     // console.log(`"Entered into ${newValue.title}"`)
+  //     // this._listId = newValue;
+  //     this.properties.listId = newValue.title
+  //     // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
       
-      this.render();
-      // console.log("render is triggered")
-      // this.context.propertyPane.refresh();
-      // console.log("refresh is triggered")
-    } 
-    else if (propertyPath === "libraryId" && newValue) {
-      // console.log(`"Entered into ${newValue.title}"`)
-      // this._listId = newValue;
-      this.properties.libraryId = newValue.title
-      // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
+  //     this.render();
+  //     // console.log("render is triggered")
+  //     // this.context.propertyPane.refresh();
+  //     // console.log("refresh is triggered")
+  //   } 
+  //   else if (propertyPath === "libraryId" && newValue) {
+  //     // console.log(`"Entered into ${newValue.title}"`)
+  //     // this._listId = newValue;
+  //     this.properties.libraryId = newValue.title
+  //     // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
       
-      this.render();
-      // console.log("render is triggered")
-      // this.context.propertyPane.refresh();
-      // console.log("refresh is triggered")
-    }
-    else if (propertyPath === "FormType" && newValue) {
-      // console.log(`"Entered into ${newValue}"`)
-      // this._listId = newValue;
-      this.properties.libraryId = newValue
-      // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
+  //     this.render();
+  //     // console.log("render is triggered")
+  //     // this.context.propertyPane.refresh();
+  //     // console.log("refresh is triggered")
+  //   }
+  //   else if (propertyPath === "FormType" && newValue) {
+  //     // console.log(`"Entered into ${newValue}"`)
+  //     // this._listId = newValue;
+  //     this.properties.libraryId = newValue
+  //     // this.properties.customOptions = await this._spService.getcolumnInfo(this._listId.title);
       
-      this.render();
-      // console.log("render is triggered")
-      // this.context.propertyPane.refresh();
-      // console.log("refresh is triggered")
-    } 
+  //     this.render();
+  //     // console.log("render is triggered")
+  //     // this.context.propertyPane.refresh();
+  //     // console.log("refresh is triggered")
+  //   } 
     
-    this.context.propertyPane.refresh();
-  }
+  //   // this.context.propertyPane.refresh();
+  // }
   
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -276,38 +276,10 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                }),
-                PropertyPaneTextField('homePageUrl', {
-                  label: "Home Page URL",
-                  // Use a default value for the home URL if the description is not provided.
-                  value: this.properties.homePageUrl,
-                  resizable: true,
-                  // placeholder: "Enter home URL or description here"
-                }),
-                PropertyPaneTextField('passCodeCreateUrl', {
-                  label: "Create Passcode URL",
-                  // Use a default value for the home URL if the description is not provided.
-                  value: this.properties.passCodeUrl,
-                  resizable: true,
-                  // placeholder: "Enter home URL or description here"
-                }),
-                PropertyPaneDropdown('FormType', {
-                  label: "FormType",
-                  selectedKey: 'New',
-                  options: [
-                    { key: 'New', text: 'New' },
-                    { key: 'View', text: 'View' },
-                    // { key: 'Edit', text: 'Edit' },
-                    // { key: 'allRequest', text: 'All Request' },
-                    { key: 'BoardNoteNew', text: 'BoardNote New' },
-                    { key: 'BoardNoteView', text: 'BoardNote View' }
-                    
-
-
-                  ]
-                }),
+                // PropertyPaneTextField('description', {
+                //   label: strings.DescriptionFieldLabel
+                // }),
+               
                 PropertyFieldListPicker('listId', {
                   label: 'Select a list',
                   selectedList: this.properties.listId,
@@ -326,8 +298,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
                 }),
                 PropertyFieldListPicker('libraryId', {
                   label: 'Select a Library',
-                  selectedList: this.properties.listId,
-                  includeHidden: true,
+                  selectedList: this.properties.libraryId,
+                  includeHidden: false,
                   includeListTitleAndUrl: true,
                   orderBy: PropertyFieldListPickerOrderBy.Id,
                   disabled: false,
@@ -339,6 +311,44 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
                   deferredValidationTime: 0,
                   key: 'listPickerFieldId',
                   multiSelect: false,
+                }),
+                 
+                PropertyPaneDropdown('FormType', {
+                  label: "Form Type",
+                  selectedKey: 'New',
+                  options: [
+                    { key: 'New', text: 'eCommittee New' },
+                    { key: 'View', text: 'eCommittee View' },
+                    // { key: 'Edit', text: 'Edit' },
+                    // { key: 'allRequest', text: 'All Request' },
+                    { key: 'BoardNoteNew', text: 'BoardNote New' },
+                    { key: 'BoardNoteView', text: 'BoardNote View' }
+                    
+
+
+                  ]
+                }),
+                PropertyPaneTextField('homePageUrl', {
+                  label: "Home Page URL",
+                  // Use a default value for the home URL if the description is not provided.
+                  value: this.properties.homePageUrl,
+                  resizable: true,
+                  // placeholder: "Enter home URL or description here"
+                }),
+                
+                PropertyPaneTextField('passCodeCreateUrl', {
+                  label: "Create Passcode URL",
+                  // Use a default value for the home URL if the description is not provided.
+                  value: this.properties.passCodeUrl,
+                  resizable: true,
+                  // placeholder: "Enter home URL or description here"
+                }),
+                PropertyPaneTextField('existPageUrl', {
+                  label: "Exist Page URL",
+                  // Use a default value for the home URL if the description is not provided.
+                  value: this.properties.homePageUrl,
+                  resizable: true,
+                  // placeholder: "Enter home URL or description here"
                 }),
               ]
             },

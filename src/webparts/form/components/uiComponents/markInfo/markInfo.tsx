@@ -229,6 +229,7 @@ interface IATRAssigneeProps {
   artCommnetsGridData: any;
   submitFunctionForMarkInfo: any;
   deletedGridData: any;
+  homePageUrl:any
 }
 
 // Interface for the component's state
@@ -336,7 +337,7 @@ export class MarkInfo extends React.Component<
     if (itemExists) {
       this.setState({
         isModalOpen: true,
-        modalMessage: "The user already exists. Please add another user.",
+        modalMessage: "The selected user already exist. Kindly choose another user.",
       });
       return;
     }
@@ -377,7 +378,7 @@ export class MarkInfo extends React.Component<
     this.props.submitFunctionForMarkInfo();
     this.setState({
       isModalOpen: true,
-      modalMessage: "Submission successful!",
+      modalMessage: "The mark for information has been updated successfully.",
     });
   };
 
@@ -496,7 +497,12 @@ export class MarkInfo extends React.Component<
           <div className={styles.footer}>
             <PrimaryButton
               iconProps={{ iconName: "ReturnToSession" }}
-              onClick={this._closeModal}
+              // onClick={this._closeModal}
+              onClick={() => {
+                const pageURL: string = this.props.homePageUrl;
+                window.location.href = `${pageURL}`;
+                this._closeModal()
+              }}
               text="OK"
             />
           </div>

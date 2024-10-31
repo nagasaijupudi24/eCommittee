@@ -80,9 +80,11 @@ canvas {
 #toolbarViewerMiddle,
 #toolbarViewerRight {
   display: flex;
+  gap: 2px;
   align-items: center;
   flex-shrink: 1; // Allow shrinking
 }
+
 
 .toolbarButton {
   display: flex;
@@ -90,7 +92,7 @@ canvas {
   justify-content: center;
   margin: 0 5px;
   padding: 8px;
-  background-color: #e0e0e0;
+  background-color: transparent;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -103,9 +105,9 @@ canvas {
     cursor: not-allowed;
   }
 
-  &:hover {
-    background-color: #dcdcdc;
-  }
+  // &:hover {
+  //   // background-color: #dcdcdc;
+  // }
 }
 
 .toolbarLabel {
