@@ -28,6 +28,12 @@ const ReferBackCommentDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: 
       // padding: '10px 0',
       borderBottom: '1px solid #ddd',
     },
+    headerTitle: {
+      margin:'5px',
+      marginLeft:'5px',
+      fontSize:'16px',
+      fontWeight:'400'
+     },
     body: {
       display: 'flex',
       flexDirection: 'column',
@@ -55,7 +61,7 @@ const ReferBackCommentDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: 
       <div className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <IconButton iconProps={{ iconName: 'Info' }} />
-          <h2 style={{ marginLeft: '10px' }}>Alert</h2>
+          <h4 className={styles.headerTitle}>Alert</h4>
         </div>
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>

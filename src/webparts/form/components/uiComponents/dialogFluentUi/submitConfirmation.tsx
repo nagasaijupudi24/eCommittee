@@ -44,7 +44,9 @@ const styles = mergeStyleSets({
   },
   headerTitle: {
    margin:'5px',
-   marginLeft:'5px'
+   marginLeft:'5px',
+   fontSize:'16px',
+   fontWeight:'400'
   },
   headerIcon: {
    paddingRight: '0px', // Reduced space between the icon and the title
@@ -91,7 +93,8 @@ const styles = mergeStyleSets({
 
   removeTopMargin:{
     marginTop: '4px',
-    marginBottom: '14px'
+    marginBottom: '14px',
+    fontWeight:'400'
   },
   
 });
@@ -132,6 +135,8 @@ const ConfirmationDialog: React.FC<IConfirmationDialogProps> = ({ hidden, onConf
         />
       </div>
     </Modal>
+
+    
   );
 };
 

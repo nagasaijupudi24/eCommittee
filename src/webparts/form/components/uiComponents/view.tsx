@@ -8,7 +8,7 @@
 /* eslint-disable no-void */
 import * as React from "react";
 import { IViewFormProps } from "../IViewFormProps"; // Ensure this file exists
-import { IDropdownOption } from "office-ui-fabric-react";
+import { FontIcon, IDropdownOption, Modal, Stack } from "office-ui-fabric-react";
 import {
   
   IconButton,
@@ -59,6 +59,7 @@ import "@pnp/sp/profiles";
 import GistDocSubmitted from "./dialogFluentUi/gistDocs";
 import GistDocEmptyModal from "./dialogFluentUi/gistDocEmptyModal";
 import AutoSaveFailedDialog from "./dialogFluentUi/autoSaveFailedDialog";
+import NotedCommentDialog from "./dialogFluentUi/notedCommentsDialog";
 
 // import ViewPdf from "../pdfVeiwer/viewPdf";
 // import PasscodeModal from "./passCode/passCode";
@@ -111,6 +112,7 @@ export interface IViewFormState {
   searchTextFeildValue: string | number | readonly string[];
   amountFeildValue: string | number | readonly string[];
   puroposeFeildValue: string | number | readonly string[];
+  othersFieldValue:any;
   // eslint-disable-next-line @rushstack/no-new-null
   notePdfFile: File | null;
   // eslint-disable-next-line @rushstack/no-new-null
@@ -203,6 +205,10 @@ export interface IViewFormState {
   //return comments check dialog
   isReturnCommentsCheckAlterDialog: boolean;
 
+
+  //noted comments check dialog
+  isNotedCommentsManidatoryAlterDialog:boolean;
+
   draftResolutionFieldValue: any;
 
   // pass code
@@ -221,6 +227,9 @@ export interface IViewFormState {
 
   // auto save
   isAutoSaveFailedDialog:any;
+
+  //refer exist user dailog box 
+  isUserExistsModalVisible:any;
 }
 
 const getIdFromUrl = (): any => {
@@ -291,6 +300,7 @@ export default class ViewForm extends React.Component<
       searchTextFeildValue: "",
       amountFeildValue: 0,
       puroposeFeildValue: "",
+      othersFieldValue:'',
       notePdfFile: null,
       supportingFile: null,
       isWarning: false,
@@ -386,6 +396,9 @@ export default class ViewForm extends React.Component<
       //return comments check dialog
       isReturnCommentsCheckAlterDialog: false,
 
+       //noted comments check dialog
+      isNotedCommentsManidatoryAlterDialog:false,
+
       draftResolutionFieldValue: "",
 
       // pass code
@@ -401,6 +414,8 @@ export default class ViewForm extends React.Component<
 
       // auto save 
       isAutoSaveFailedDialog:false,
+
+      isUserExistsModalVisible:false
     };
 
     const listTitle = this.props.listId;
@@ -797,7 +812,7 @@ export default class ViewForm extends React.Component<
     // console.log(folderItem)
     // console.log(this._getJsonifyReviewer(item.NoteApproversDTO, "Reviewer"));
     // console.log(this._getJsonifyApprover(item.NoteApproversDTO, "Approver"));
-
+      const purposeData =item.Purpose !== null ? JSON.parse(item.Purpose):['',""]
     this.setState({
       eCommitteData: [
         {
@@ -818,11 +833,9 @@ export default class ViewForm extends React.Component<
               column1: "Status",
               column2: `${item.Status}`,
             },
-            item.NoteApproversDTO !== null && {
+           {
               column1: "Current Approver",
-              column2: `${this._getPendingStatus(
-                JSON.parse(item.NoteApproversDTO)
-              )}`,
+              column2: item?.CurrentApprover?.Title,
             },
             item.Department !== null && {
               column1: "Department",
@@ -862,10 +875,16 @@ export default class ViewForm extends React.Component<
               column1: "Amount",
               column2: `${item.Amount}`,
             },
-            item.Purpose !== null && {
+            purposeData[0]!=='' && {
               column1: "Purpose",
-              column2: `${item.Purpose}`,
+              column2: `${purposeData[0]}`,
             },
+            purposeData[1]!=='' && {
+              column1: "Others",
+              column2: `${purposeData[1]}`,
+
+            }
+
           ],
         },
       ],
@@ -896,7 +915,8 @@ export default class ViewForm extends React.Component<
           ? this._extractValueFromHtml(item.SearchKeyword)
           : "",
       amountFeildValue: item.Amount !== null ? item.Amount : null,
-      puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
+      puroposeFeildValue: item.Purpose !== null ?JSON.parse( item.Purpose)[0] : "",
+      othersFieldValue: item.Purpose !== null ?JSON.parse( item.Purpose)[1] : "",
       // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
       peoplePickerData: this._getJsonifyReviewer(
         item.NoteApproversDTO,
@@ -1795,15 +1815,15 @@ export default class ViewForm extends React.Component<
   };
 
   private _checkingCurrentUserIsSecretaryDTO = (): any => {
-    const currentUserisApproved = this.state.ApproverDetails.some(
+    const currentUserHavingSecretaryisApproved = this.state.ApproverDetails.filter(
       (each: any) => {
         // console.log(each);
-        if (each.approverEmail && each.status !== "Approved") {
+        if (each.secretary ===this.props.context.pageContext.user.displayName && each.statusNumber !== '9000') {
           return each;
         }
       }
     );
-    // console.log(currentUserisApproved);
+    // console.log(currentUserHavingSecretaryisApproved);
 
     const userIsSec = this.state.noteSecretaryDetails.some((each: any) => {
       // console.log(each);
@@ -1816,7 +1836,7 @@ export default class ViewForm extends React.Component<
     // console.log(userIsSec);
 
     // console.log(userIsSec && currentUserisApproved);
-    return userIsSec && currentUserisApproved;
+    return userIsSec && currentUserHavingSecretaryisApproved.length > 0;
   };
 
   // private _showDialog = (
@@ -2547,7 +2567,32 @@ export default class ViewForm extends React.Component<
               border: "none",
             },
           }}
-          onClick={(e) => {
+          onClick={this._checkCurrentApproverIsInSecretaryDTO() ?(e) => {
+            this.setState({ successStatus: "noted" });
+            if (this._checkLastCommentByCurrentUser()) {
+              this.setState({ isNotedCommentsManidatoryAlterDialog: true });
+            }else{
+              
+            // if (!this.state.isPasscodeValidated) {
+            //   this.setState({
+            //     isPasscodeModalOpen: true,
+            //     passCodeValidationFrom: "9000",
+            //   }); // Open the modal
+            //   return; // Prevent the method from proceeding until passcode is validated
+            // }
+
+            this.setState({
+              isPasscodeModalOpen: true,
+              passCodeValidationFrom: "9000",
+            });
+
+            // _handleApproverButton
+
+            // this.setState({ status: "Approved", statusNumber: "9000" });
+            }
+            
+          }:
+            (e) => {
             if (this.state.errorOfDocuments){
               this.setState({isAutoSaveFailedDialog:true})
 
@@ -2682,7 +2727,7 @@ export default class ViewForm extends React.Component<
     } 
     else{
       const currentApp = this.state.currentApprover?(this.state.currentApprover[0]?.text) :[];
-      // console.log(currentApp)
+      console.log(currentApp)
       return currentApp
     }
     // else {
@@ -2973,6 +3018,7 @@ export default class ViewForm extends React.Component<
       isReferBackAlterDialog: false,
       isRejectCommentsCheckAlterDialog: false,
       isReturnCommentsCheckAlterDialog: false,
+      isNotedCommentsManidatoryAlterDialog:false
     });
   };
 
@@ -2997,7 +3043,7 @@ export default class ViewForm extends React.Component<
         switch (this.state.passCodeValidationFrom) {
           case "9000": //Approved
             this._hanldeFluentDialog(
-              "Approve",
+              "approve",
               "Approved",
               "9000",
               "Please check the details filled along with attachment and click on Confirm button to approve request.",
@@ -3014,7 +3060,7 @@ export default class ViewForm extends React.Component<
             // this.handleReferBack('Referred Back', '4900',this.state.commentsData[this.state.commentsData.length-1]);
 
             this._hanldeFluentDialog(
-              "Refer Back",
+              "refer back",
               "Refered Back",
               "4900",
               "Please check the details filled along with attachment and click on Confirm button to refer back request.",
@@ -3026,7 +3072,7 @@ export default class ViewForm extends React.Component<
           case "4000": //refer
             // this.handleRefer('Refered', '4000',this.state.commentsData[this.state.commentsData.length-1]);
             this._hanldeFluentDialog(
-              "Refer",
+              "refer",
               "Refered",
               "4000",
               ["Add Referee", "Comments"],
@@ -3037,7 +3083,7 @@ export default class ViewForm extends React.Component<
             break;
           case "5000": //return
           this._hanldeFluentDialog(
-            "Return",
+            "return",
             "Returned",
             "5000",
             "Please check the details filled along with attachment and click on Confirm button to return request.",
@@ -3048,7 +3094,7 @@ export default class ViewForm extends React.Component<
             break;
           case "8000": //reject
             this._hanldeFluentDialog(
-              "Reject",
+              "reject",
               "Rejected",
               "8000",
               "Please check the details filled along with attachment and click on Confirm button to reject request.",
@@ -3064,7 +3110,7 @@ export default class ViewForm extends React.Component<
             break;
           case "7500":
             this._hanldeFluentDialog(
-              "Change Approver",
+              "change approver",
               "changeApprover",
               "7500",
               "Change Approver",
@@ -3180,8 +3226,86 @@ export default class ViewForm extends React.Component<
     
   }
 
+  private closeUserExistsModal = () => {
+    
+    this.setState({isUserExistsModalVisible:false})
+  };
+
+  private getUserExistsModalJSX = (): any => {
+    // console.log('enter dialog box');
+    return (
+      <Modal
+        isOpen={this.state.isUserExistsModalVisible}
+        onDismiss={this.closeUserExistsModal}
+        isBlocking={true}
+        styles={{
+          main: {
+            width: "100%",
+            maxWidth: "290px",
+            "@media (min-width: 768px)": {
+              maxWidth: "580px",
+            },
+          },
+        }}
+      >
+        {/* Modal header with alert and close icons */}
+        <div style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "8px 12px",
+          borderBottom: "1px solid #ddd",
+        }}>
+          {/* Info icon and alert text next to each other */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}>
+            <FontIcon iconName="Info" style={{ fontSize: 20 }} />
+            <Text variant="large">Alert</Text>
+          </div>
+  
+          {/* Right-side close icon */}
+          <IconButton
+            iconProps={{ iconName: 'Cancel' }}
+            ariaLabel="Close modal"
+            onClick={this.closeUserExistsModal}
+          />
+        </div>
+  
+        {/* Modal content, centered in the body */}
+        <Stack tokens={{ padding: "16px" }} horizontalAlign="center" verticalAlign="center">
+          <Text style={{ margin: "16px 0", fontSize: "14px", textAlign: "center" }}>
+          The selected approver cannont be same as existing Reviewers/Requester/referee/CurrentActioner
+          </Text>
+        </Stack>
+  
+        {/* Footer with the Close button aligned to the left */}
+        <div style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          padding: "12px 16px",
+          borderTop: "1px solid #ddd",
+        }}>
+          <PrimaryButton
+            text="Close"
+            onClick={this.closeUserExistsModal}
+            ariaLabel="Close modal"
+          />
+        </div>
+      </Modal>
+    );
+  };
+
+
+  private _makeIsPassCodeValidateFalse = ():void =>{
+    this.setState({isPasscodeValidated:false})
+  }
+
   public render(): React.ReactElement<IViewFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
     // console.log((this.state.refferredToDetails[0] ))
@@ -3235,12 +3359,15 @@ export default class ViewForm extends React.Component<
             <PasscodeModal
               createPasscodeUrl={this.props.passCodeUrl}
               isOpen={this.state.isPasscodeModalOpen}
-              onClose={() => this.setState({ isPasscodeModalOpen: false })}
+              onClose={() => this.setState({ isPasscodeModalOpen: false,isPasscodeValidated:false })}
               onSuccess={this.handlePasscodeSuccess} // Pass this function as the success handler
               sp={this.props.sp}
               user={this.props.context.pageContext.user}
+              _makeIsPassCodeValidateFalse = {this._makeIsPassCodeValidateFalse}
             />
             </form>
+
+            {this.getUserExistsModalJSX()}
 
             {/* success  dialog */}
             <SuccessDialog
@@ -3260,7 +3387,22 @@ export default class ViewForm extends React.Component<
                 this._closeDialogAlter("commentsNeeded");
               }}
             />
+
+
             {/* refer back comment  dialog */}
+               {/* NOted comment  dialog */}
+            <NotedCommentDialog
+              statusOfReq={this.state.status}
+              isVisibleAlter={this.state.isNotedCommentsManidatoryAlterDialog}
+              onCloseAlter={() => {
+                this._closeDialogAlter("commentsNeeded");
+              }}
+            />
+
+            
+            {/* NOted comment  dialog */}
+
+
             {/* <PasscodeModal sp={this.props.sp} 
              isOpen={this.state.isPasscodeModalOpen}
              onClose={() => this.setState({ isPasscodeModalOpen: false })}
@@ -4282,6 +4424,7 @@ export default class ViewForm extends React.Component<
         )}
         {!this.state.dialogFluent && (
           <DialogBlockingExample
+          isUserExistingDialog={()=>this.setState({isUserExistsModalVisible:true})}
           dialogUserCheck={{peoplePickerApproverData:this.state.peoplePickerApproverData,peoplePickerData:this.state.peoplePickerData}}
             hiddenProp={this.state.dialogFluent}
             dialogDetails={this.state.dialogDetails}

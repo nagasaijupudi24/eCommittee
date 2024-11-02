@@ -28,6 +28,7 @@ export interface IPasscodeModalProps {
   onClose: () => void;
   onSuccess: () => void;
   createPasscodeUrl: string; // Added property for redirect URL
+  _makeIsPassCodeValidateFalse:any;
 }
 
 export interface IPasscodeModalState {
@@ -155,6 +156,7 @@ export default class PasscodeModal extends React.Component<
     if (userPasscode.passcode === passcode) {
       this.props.onSuccess();
       this.props.onClose();
+      this.setState({passcode:''})
       // console.log("Passcode validated successfully");
     } else {
       this.setState({ errorMessage: "Invalid passcode. Please try again." });
@@ -254,7 +256,7 @@ export default class PasscodeModal extends React.Component<
       footer: {
         display: 'flex',
         justifyContent: 'space-between', // Adjusted to space between
-        marginTop: '20px',
+        // marginTop: '20px',
         borderTop: '1px solid #ddd',
         paddingTop: '10px',
       },
@@ -276,6 +278,10 @@ export default class PasscodeModal extends React.Component<
         marginBottom: '4px'
       }
     });
+
+    // function _makeIsPassCodeValidateFalse() {
+    //   throw new Error("Function not implemented.");
+    // }
 
     return (
       <Modal
@@ -322,7 +328,7 @@ export default class PasscodeModal extends React.Component<
     styles={{ root: { width: '100%' ,marginTop:'5px'} }}  // This line ensures the TextField occupies the full width
   />
   {errorMessage && (
-    <p className={styles.errorMessage}>{errorMessage}</p>
+    <span className={styles.errorMessage}>{errorMessage}</span>
   )}
 </div>
 
@@ -344,7 +350,11 @@ export default class PasscodeModal extends React.Component<
               <DefaultButton
                 className={styles.button}
                 text="Cancel"
-                onClick={onClose}
+                onClick={()=>{
+                 
+                  onClose()
+                  this.setState({passcode:''})
+                }}
                 styles={{ root: styles.buttonContent }}
                 iconProps={{ iconName: "ErrorBadge" }}
               />

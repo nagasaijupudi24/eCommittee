@@ -27,7 +27,15 @@ const RejectBtnCommentCheckDialog: React.FC<{ isVisibleAlter: boolean; onCloseAl
       alignItems: 'center',
       // padding: '10px 0',
       borderBottom: '1px solid #ddd',
+       minHeigth:'50px',
+   padding:'5px'
     },
+    headerTitle: {
+      margin:'5px',
+      marginLeft:'5px',
+      fontSize:'16px',
+      fontWeight:'400'
+     },
     body: {
       display: 'flex',
       flexDirection: 'column',
@@ -35,13 +43,28 @@ const RejectBtnCommentCheckDialog: React.FC<{ isVisibleAlter: boolean; onCloseAl
       justifyContent: 'center',
       textAlign: 'center',
       padding: '20px 0',
+      height:'100%',
+      '@media (min-width: 768px)': {
+        marginLeft: '20px', // Adjust width for smaller screens
+        marginRight: '20px', // Adjust width for medium screens
+      },
+      '@media (max-width: 767px)': {
+        marginLeft: '20px', // Adjust width for smaller screens
+        marginRight: '20px',
+      } 
     },
     footer: {
       display: 'flex',
       justifyContent: 'flex-end',
-      marginTop: '20px',
+     
       borderTop: '1px solid #ddd', // Added border to the top of the footer
       paddingTop: '10px',
+       minHeight:'50px'
+    },
+    button: {
+     
+      maxHeight:'32px',
+     
     },
   });
 
@@ -55,7 +78,7 @@ const RejectBtnCommentCheckDialog: React.FC<{ isVisibleAlter: boolean; onCloseAl
       <div className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <IconButton iconProps={{ iconName: 'Info' }} />
-          <h2 style={{ marginLeft: '10px' }}>Alert</h2>
+          <h4 className={styles.headerTitle}>Alert</h4>
         </div>
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
@@ -63,7 +86,7 @@ const RejectBtnCommentCheckDialog: React.FC<{ isVisibleAlter: boolean; onCloseAl
         <p>Please fill in comments then click on Reject.</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
+        <PrimaryButton className={styles.button}  iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
       </div>
     </Modal>
   );

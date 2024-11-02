@@ -498,13 +498,25 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
       // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
       // errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
-      // console.log("Auto save Entered");
+      console.log("Auto save Entered");
       this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
       // if (this.state.errorFilesList.notePdF === 0 && this.state.errorFilesList.wordDocument === 0 && this.state.errorFilesList.supportingDocument === 0){
       //   this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
       // }else{
       //   console.log('auto save failed due to Error files')
       // }
+
+      if (this._itemId){
+ 
+
+    //  if (this.state.statusNumber === '100'||this.state.statusNumber === '200' ||this.state.statusNumber === '1000' ||this.state.statusNumber === '5000' ){
+        // console.log("Autosave cleared due to status is draft,call back,submitted,returned")
+          console.log("Autosave cleared due to the edit form")
+      clearInterval(this.autoSaveInterval);
+
+     }
+
+      
     }
 
     // console.log(this._itemId > 0);
@@ -526,6 +538,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }
 
   private autoSave = async (): Promise<void> => {
+    console.log("autosave is triggered")
     try {
       // console.log(this.state.errorFilesList.notePdF.length === 0);
       // console.log(this.state.errorFilesList.wordDocument.length === 0);
@@ -841,7 +854,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "CurrentApprover/EMail"
       )
       .expand("Approvers", "Reviewers", "CurrentApprover")();
-    // console.log(`${id} ------Details`, item);
+    console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -869,7 +882,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       searchTextFeildValue:
         item.SearchKeyword !== null ? item.SearchKeyword : "",
       amountFeildValue: item.Amount !== null ? item.Amount : null,
-      puroposeFeildValue: item.Purpose !== null ? item.Purpose : "",
+      puroposeFeildValue: item.Purpose !== null ?JSON.parse( item.Purpose)[0] : "",
+      othersFieldValue: item.Purpose !== null ?JSON.parse( item.Purpose)[1] : "",
       isPuroposeVisable: item.Purpose !== null ? true : false,
       // peoplePickerData:this._getUserDetailsById(item.ReviewerId,"Reviewer"),
       peoplePickerData: this._getJsonifyReviewer(
@@ -885,34 +899,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       statusNumber: item.StatusNumber,
       draftResolutionFieldValue: item.DraftResolution,
       noteSecretaryDetails: JSON.parse(item.NoteSecretaryDTO),
-      eCommitteData: {
-        ...(item.CommitteeName !== null && {
-          CommitteeName: [item.CommitteeName, "Committee Name"],
-        }),
-        ...(item.Subject !== null && { Subject: [item.Subject, "Subject"] }),
-        ...(item.NatureOfNote !== null && {
-          NatureOfNote: [item.NatureOfNote, "Nature of Note"],
-        }),
-        ...(item.NoteType !== null && {
-          NoteType: [item.NoteType, "Note Type"],
-        }),
-        ...(item.NatureOfApprovalOrSanction !== null && {
-          NatureOfApprovalOrSanction: [
-            item.NatureOfApprovalOrSanction,
-            "Nature of Approval or Sanction",
-          ],
-        }),
-        ...(item.FinancialType !== null && {
-          FinancialType: [item.FinancialType, "Financial Type"],
-        }),
-        ...(item.SearchKeyword !== null && {
-          SearchKeyword: [item.SearchKeyword, "Search Keyword"],
-        }),
-        ...(item.Amount !== null && { Amount: [item.Amount, "Amount"] }),
-        ...(item.Purpose !== null && { Purpose: [item.Purpose, "Purpose"] }),
-        // Add more properties as needed
-      },
+      
     });
+    console.log("variable setted")
     return item;
   };
 
@@ -2096,7 +2085,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     });
 
-    // console.log(nw);
+    console.log(nw);
 
     if (purpose === "intialOrderApproverDetails") {
       return nw[0];
@@ -2154,10 +2143,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       FinancialType: this.state.typeOfFinancialNoteFeildValue,
       Amount: parseInt(this.state.amountFeildValue),
       SearchKeyword: this.state.searchTextFeildValue,
-      Purpose:
-        this.state.puroposeFeildValue === "Others"
-          ? this.state.othersFieldValue
-          : this.state.puroposeFeildValue,
+      Purpose: JSON.stringify([this.state.puroposeFeildValue,this.state.othersFieldValue]),
+         
       NoteApproversDTO: this._getApproverDetails(
         this.state.peoplePickerData,
         this.state.peoplePickerApproverData,
@@ -2248,14 +2235,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private _checkValidation = (): any => {
     // console.log(this.state);
     let fieldValues: any;
+    let conditionNumber:any;
+    // let subCondition:any;
     if (
       (this.state.natureOfNoteFeildValue === "Approval" ||
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Financial"
     ) {
-      // console.log("Approval", "Sanction", "Financial");
+      conditionNumber = 1
+      // 
+      console.log("Approval", "Sanction", "Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
         // console.log("Approval", "Financial");
+        
         if (this.state.puroposeFeildValue === "Others") {
           // console.log("Approval", "Financial", "Others");
           fieldValues = {
@@ -2274,7 +2266,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             ////
             noteTofiles: this.state.noteTofiles,
 
-            wordDocumentfiles: this.state.wordDocumentfiles,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
              // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
@@ -2311,11 +2303,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             noteTofiles: this.state.noteTofiles,
 
-            wordDocumentfiles: this.state.wordDocumentfiles,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
             //  // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
             // noteTofiles: this.state.noteTofiles.length ===0,
+
 
             // wordDocumentfiles:this.state.wordDocumentfiles.length ===0,
 
@@ -2348,7 +2341,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ////
           noteTofiles: this.state.noteTofiles,
 
-          wordDocumentfiles: this.state.wordDocumentfiles,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
            // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
@@ -2373,6 +2366,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
+      conditionNumber = 2
       // console.log("Approval", "Sanction", "Non-Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
         // console.log("Approval", "Non-Financial");
@@ -2394,7 +2388,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             noteTofiles: this.state.noteTofiles,
 
-            wordDocumentfiles: this.state.wordDocumentfiles,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
              // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
@@ -2429,7 +2423,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             noteTofiles: this.state.noteTofiles,
 
-            wordDocumentfiles: this.state.wordDocumentfiles,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
              // supportingDocumentfiles: this.state.supportingDocumentfiles,
             // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2463,7 +2457,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ////
           noteTofiles: this.state.noteTofiles,
 
-          wordDocumentfiles: this.state.wordDocumentfiles,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
            // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
@@ -2488,6 +2482,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Ratification") &&
       this.state.noteTypeFeildValue === "Financial"
     ) {
+      conditionNumber = 3
       if (this.state.natureOfNoteFeildValue === "Information") {
         // console.log("Information", "Financial");
         fieldValues = {
@@ -2504,7 +2499,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ////
           noteTofiles: this.state.noteTofiles,
 
-          wordDocumentfiles: this.state.wordDocumentfiles,
+          wordDocumentfiles:this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:[],
 
            // supportingDocumentfiles: this.state.supportingDocumentfiles,
           // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2538,7 +2533,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ////
           noteTofiles: this.state.noteTofiles,
 
-          wordDocumentfiles: this.state.wordDocumentfiles,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
            // supportingDocumentfiles: this.state.supportingDocumentfiles,
           // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2562,6 +2557,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Ratification") &&
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
+      conditionNumber = 4
       if (this.state.natureOfNoteFeildValue === "Information") {
         // console.log("Information", "Non-Financial");
         fieldValues = {
@@ -2577,7 +2573,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ////
           noteTofiles: this.state.noteTofiles,
 
-          wordDocumentfiles: this.state.wordDocumentfiles,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
            // supportingDocumentfiles: this.state.supportingDocumentfiles,
           // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2611,7 +2607,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: this.state.noteTofiles,
 
-          wordDocumentfiles: this.state.wordDocumentfiles,
+          wordDocumentfiles:this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:[],
 
            // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
@@ -2635,6 +2631,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.natureOfNoteFeildValue === "Approval" ||
       this.state.natureOfNoteFeildValue === "Sanction"
     ) {
+      conditionNumber = 5
       // console.log("Approval", "Sanction");
       if (this.state.natureOfNoteFeildValue === "Approval") {
         // console.log("Approval", "Financial");
@@ -2656,7 +2653,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             noteTofiles: this.state.noteTofiles,
 
-            wordDocumentfiles: this.state.wordDocumentfiles,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
              // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
@@ -2691,7 +2688,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             ////
             noteTofiles: this.state.noteTofiles,
 
-            wordDocumentfiles: this.state.wordDocumentfiles,
+            wordDocumentfiles:this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:[],
 
              // supportingDocumentfiles: this.state.supportingDocumentfiles,
             // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2726,7 +2723,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           ////
           noteTofiles: this.state.noteTofiles,
 
-          wordDocumentfiles: this.state.wordDocumentfiles,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
            // supportingDocumentfiles: this.state.supportingDocumentfiles,
 
@@ -2748,6 +2745,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     } else if (this.state.noteTypeFeildValue === "Financial") {
       // console.log("Financial");
+      conditionNumber = 6
       fieldValues = {
         committeeName: this.state.committeeNameFeildValue,
         subject: this.state.subjectFeildValue,
@@ -2762,7 +2760,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: this.state.noteTofiles,
 
-        wordDocumentfiles: this.state.wordDocumentfiles,
+        wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
          // supportingDocumentfiles: this.state.supportingDocumentfiles,
         // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2794,7 +2792,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: this.state.noteTofiles,
 
-        wordDocumentfiles: this.state.wordDocumentfiles,
+        wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
          // supportingDocumentfiles: this.state.supportingDocumentfiles,
         // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2812,6 +2810,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     } else {
+      conditionNumber = 7
+      
       fieldValues = {
         committeeName: this.state.committeeNameFeildValue,
         subject: this.state.subjectFeildValue,
@@ -2825,7 +2825,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: this.state.noteTofiles,
 
-        wordDocumentfiles: this.state.wordDocumentfiles,
+        wordDocumentfiles: this.state.noteSecretaryDetails.length>0?this.state.wordDocumentfiles:false,
 
          // supportingDocumentfiles: this.state.supportingDocumentfiles,
         // noteTofiles: this.state.noteTofiles.length ===0,
@@ -2843,33 +2843,34 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
-
+    console.log(conditionNumber,"Condition Number")
     // console.log(
     //   fieldValues,
     //   "Final FieldValues........................................"
     // );
     const dialogVisable = Object.keys(fieldValues).every(
       (each: keyof typeof fieldValues) => {
-        // console.log(each);
+        console.log(each);
         if (
           fieldValues[each] === "" ||
           fieldValues[each].length === 0 ||
           fieldValues[each] === true
         ) {
-          // console.log("entred", each);
+          console.log("entred", each,fieldValues[each]);
           return false;
         }
         return true;
       }
     );
 
-    // console.log(dialogVisable, "Dialog Visable");
+    console.log(dialogVisable, "Dialog Visable");
 
     return dialogVisable;
   };
 
   private _checkValidationArray = (): any => {
     // console.log(this.state);
+    console.log(this.state.noteSecretaryDetails.length > 0 ,"Checking secretary exist or not")
     let fieldValues;
     if (
       (this.state.natureOfNoteFeildValue === "Approval" ||
@@ -2906,8 +2907,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.noteTofiles,
               "Please select Valid Pdf File",
             ],
-            wordDocumentfiles: [
-              this.state.noteSecretaryDetails.length> 0 ,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+              this.state.wordDocumentfiles  ,
+              "Please select Valid Word Doc File",
+            ]:[
+              false  ,
               "Please select Valid Word Doc File",
             ],
              // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -2961,8 +2965,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.noteTofiles,
               "Please select Valid Pdf File",
             ],
-            wordDocumentfiles: [
-              this.state.noteSecretaryDetails.length> 0 ,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+              this.state.wordDocumentfiles  ,
+              "Please select Valid Word Doc File",
+            ]:[
+              false  ,
               "Please select Valid Word Doc File",
             ],
             //  // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3007,8 +3014,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           purpose: [this.state.puroposeFeildValue, "Purpose"],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-          wordDocumentfiles: [
-            this.state.noteSecretaryDetails.length> 0 ,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+            this.state.wordDocumentfiles  ,
+            "Please select Valid Word Doc File",
+          ]:[
+            false  ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3064,8 +3074,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.noteTofiles,
               "Please select Valid Pdf File",
             ],
-            wordDocumentfiles: [
-              this.state.noteSecretaryDetails.length> 0 ,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+              this.state.wordDocumentfiles  ,
+              "Please select Valid Word Doc File",
+            ]:[
+              false  ,
               "Please select Valid Word Doc File",
             ],
              // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3111,8 +3124,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.noteTofiles,
               "Please select Valid Pdf File",
             ],
-            wordDocumentfiles: [
-              this.state.noteSecretaryDetails.length> 0 ,
+            wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+              this.state.wordDocumentfiles  ,
+              "Please select Valid Word Doc File",
+            ]:[
+              false  ,
               "Please select Valid Word Doc File",
             ],
              // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3153,8 +3169,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           purpose: [this.state.puroposeFeildValue, "Purpose"],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-          wordDocumentfiles: [
-            this.state.noteSecretaryDetails.length> 0 ,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+            this.state.wordDocumentfiles  ,
+            "Please select Valid Word Doc File",
+          ]:[
+            false  ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3201,8 +3220,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           purpose: [this.state.puroposeFeildValue, "Purpose"],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-          wordDocumentfiles: [
-            this.state.noteSecretaryDetails.length> 0 ,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+            this.state.wordDocumentfiles  ,
+            "Please select Valid Word Doc File",
+          ]:[
+            false  ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3243,8 +3265,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           purpose: [this.state.puroposeFeildValue, "Purpose"],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-          wordDocumentfiles: [
-            this.state.noteSecretaryDetails.length> 0 ,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+            this.state.wordDocumentfiles  ,
+            "Please select Valid Word Doc File",
+          ]:[
+            false  ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3287,8 +3312,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           purpose: [this.state.puroposeFeildValue, "Purpose"],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-          wordDocumentfiles: [
-            this.state.noteSecretaryDetails.length> 0 ,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+            this.state.wordDocumentfiles  ,
+            "Please select Valid Word Doc File",
+          ]:[
+            false  ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3325,8 +3353,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           purpose: [this.state.puroposeFeildValue, "Purpose"],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-          wordDocumentfiles: [
-            this.state.noteSecretaryDetails.length> 0 ,
+          wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+            this.state.wordDocumentfiles  ,
+            "Please select Valid Word Doc File",
+          ]:[
+            false  ,
             "Please select Valid Word Doc File",
           ],
            // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3367,8 +3398,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         searchText: [this.state.searchTextFeildValue, "Search Text"],
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-        wordDocumentfiles: [
-          this.state.noteSecretaryDetails.length> 0 ,
+        wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+          this.state.wordDocumentfiles  ,
+          "Please select Valid Word Doc File",
+        ]:[
+          false  ,
           "Please select Valid Word Doc File",
         ],
          // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3404,8 +3438,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         searchText: [this.state.searchTextFeildValue, "Search Text"],
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-        wordDocumentfiles: [
-          this.state.noteSecretaryDetails.length> 0 ,
+        wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+          this.state.wordDocumentfiles  ,
+          "Please select Valid Word Doc File",
+        ]:[
+          false  ,
           "Please select Valid Word Doc File",
         ],
          // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3440,8 +3477,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         searchText: [this.state.searchTextFeildValue, "Search Text"],
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
-        wordDocumentfiles: [
-          this.state.noteSecretaryDetails.length> 0 ,
+        wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+          this.state.wordDocumentfiles  ,
+          "Please select Valid Word Doc File",
+        ]:[
+          false  ,
           "Please select Valid Word Doc File",
         ],
          // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
@@ -3598,7 +3638,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // isWarningPeoplePicker: false,
         });
 
-        this.setState({ isVisibleAlter: true });
+        this.setState({ isVisibleAlter: true ,isConfirmationDialogVisible:false});
 
         // eslint-disable-next-line no-constant-condition
         // if (
@@ -4182,7 +4222,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     FinancialType: this.state.typeOfFinancialNoteFeildValue,
     Amount: this.state.amountFeildValue,
     SearchKeyword: this.state.searchTextFeildValue,
-    Purpose: this.state.puroposeFeildValue,
+    Purpose: JSON.stringify([this.state.puroposeFeildValue,this.state.othersFieldValue]), 
     NoteApproversDTO: this._getApproverDetails(
       this.state.peoplePickerData,
       this.state.peoplePickerApproverData,
@@ -4453,10 +4493,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             .getByTitle(this._listname)
             .items.getById(this._itemId)
             .update(await this.getObject("Submitted", "1000"))
-        : await this.props.sp.web.lists
+        : (this.state.successStatus==='submitted'?await this.props.sp.web.lists
+          .getByTitle(this._listname)
+          .items.getById(this.state.itemId)
+          .update(await this.getObject("Submitted", "1000")):await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.getById(this.state.itemId)
-            .update(await this.getObject("Drafted", "100"));
+            .update(await this.getObject("Drafted", "100")));
 
       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
       // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
@@ -4479,6 +4522,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         ));
 
       // console.log(itemToUpdate, "item updated");
+      this.setState({isConfirmationDialogVisible:false})
 
       if (showAlert) {
         this.setState({ isVisibleAlter: true });
@@ -4913,7 +4957,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
     // console.log(this._formType === "view");
@@ -5518,7 +5562,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   style={{ margin: "4px", marginTop: "18px" }}
                 >
                   <label style={{ fontWeight: "600" }}>
-                    others
+                    Others
                     <SpanComponent />
                   </label>
                   <textarea

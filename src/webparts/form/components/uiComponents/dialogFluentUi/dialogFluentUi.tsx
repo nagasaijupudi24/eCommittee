@@ -18,7 +18,8 @@ interface IDialogProps {
   sp: any;
   context: any;
   fetchAnydata: any;
-  fetchReferData:any
+  fetchReferData:any;
+  isUserExistingDialog:any;
 }
 
 const Header = (props: any) => (
@@ -51,6 +52,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     context,
     sp,
     fetchAnydata,
+    isUserExistingDialog
   } = props
   // console.log(props)
   // console.log(props.dialogDetails);
@@ -81,7 +83,9 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     },
     headerTitle: {
      margin:'5px',
-     marginLeft:'5px'
+     marginLeft:'5px',
+     fontSize:'16px',
+   fontWeight:'400'
     },
     headerIcon: {
      paddingRight: '0px', // Reduced space between the icon and the title
@@ -94,7 +98,15 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       justifyContent: 'center',
       textAlign: 'center',
       padding: '20px 0',
-      height:'100%'
+      height:'100%',
+      '@media (min-width: 768px)': {
+        marginLeft: '20px', // Adjust width for smaller screens
+        marginRight: '20px', // Adjust width for medium screens
+      },
+      '@media (max-width: 767px)': {
+        marginLeft: '20px', // Adjust width for smaller screens
+        marginRight: '20px',
+      } 
     },
     contentContainer:{
       width:'70%',
@@ -107,11 +119,13 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     footer: {
       display: 'flex',
       justifyContent: 'space-between', // Adjusted to space between
-      marginTop: '20px',
+      
       borderTop: '1px solid #ddd',
       paddingTop: '10px',
+      minHeight:'50px'
     },
     button: {
+      maxHeight:'32px',
       flex: '1 1 50%', // Ensures each button takes up 50% of the footer width
       margin: '0 5px', // Adds some space between the buttons
     },
@@ -161,14 +175,17 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         containerClassName={styles.modal}
        
       >
-        <div style={{ borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1px' }}>
+        <div  className={styles.header}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Icon iconName="CheckMark" style={{ marginRight: '10px' }} />
-            <h2 className={styles.headerTitle}>Confirmation</h2>
+            <Icon iconName="WaitlistConfirm" style={{ marginRight: '10px' }} />
+            <h4 className={styles.headerTitle}>Confirmation</h4>
           </div>
           <IconButton iconProps={closeIcon} onClick={dialogDetails.closeFunction} />
         </div>
-        <div style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center', marginTop: '20px' }}>
+        <div
+        className={styles.body}
+        //  style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center', marginTop: '20px' }}
+        >
           <p >{dialogDetails.subText}</p>
           <p style={{textAlign:'center'}}>{dialogDetails.message}</p>
         </div>
@@ -233,11 +250,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     setData(data);
   
     // Call checkReviewer function and display modal if user exists
-    if (checkReviewer(data)) {
-      // console.log('enter dialog box')
-      setIsUserExistsModalVisible(true);  // Show the modal
-      return; // Stop execution if user exists
-    }
+  
     
     fetchAnydata(data, typeOFButtonTriggererd, dialogDetails.status);
   };
@@ -393,7 +406,22 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
          
         </div>
         <div className={styles.footer}>
-          <PrimaryButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={handleChangeApporver} text="Submit" />
+          <PrimaryButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "SkypeCircleCheck" }} className={styles.button} onClick={
+            
+           
+            ()=>{
+              if (checkReviewer(data)) {
+                dialogDetails.closeFunction()
+                isUserExistingDialog()
+              // console.log('enter dialog box')
+              // setIsUserExistsModalVisible(true);  // Show the modal
+              return;
+            }
+            
+            
+            handleChangeApporver()
+            } }
+            text="Submit" />
           <DefaultButton  styles={{ root: styles.buttonContent }} iconProps={{ iconName: "ErrorBadge" }} className={styles.button} onClick={dialogDetails.closeFunction} text="Cancel" />
           </div>
       </Modal>
@@ -419,7 +447,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
               justifyContent: "center",
               alignItems: "center",
               width: "100%",
-              padding: "0 20px",
+              padding: "20px",
             }}
           >
             <div style={{ width: "90%" }}>
@@ -472,10 +500,19 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                   
                 }else{
 
+                  if (checkReviewer(data)) {
+                    dialogDetails.closeFunction()
+                    isUserExistingDialog()
+                  // console.log('enter dialog box')
+                  // setIsUserExistsModalVisible(true);  // Show the modal
+                  return; // Stop execution if user exists
+                }
+
 
                   
                   handleReferData()
                 }
+
 
               }}
               className={styles.button}

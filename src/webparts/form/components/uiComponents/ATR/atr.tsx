@@ -245,7 +245,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
         key: v4(),
         comments: joinedCommentsData.join(', '),
         assignedTo: this.state.selectedValue.text,
-        status: 'submitted',
+        status: 'pending',
        
         ...this.state.selectedValue
       };

@@ -56,11 +56,15 @@ const MyDialog: React.FC<MyDialogProps> = ({
   };
 
   const undefinedData = Object.keys(data).map((each: string) => {
-    // console.log(data)/
+    // console.log(data)
+
     if ((data[each][0] === ""||data[each][0] === null )|| data[each][0].length === 0||data[each][0]===true) {
+     console.log(data[each][1],data[each][0])
       return data[each][1];
     }
   }).filter((each: any) => each);
+
+  console.log(undefinedData)
 
   return (
     <Modal
@@ -77,7 +81,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
       </Stack>
       <h4>Please fill up all the mandatory fields</h4>
       <ul>
-        {undefinedData.map((each) => (
+        {undefinedData.length>0 &&undefinedData.map((each) => (
           <li key={each}>{each}</li>
         ))}
       </ul>
