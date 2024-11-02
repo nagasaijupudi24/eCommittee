@@ -20,6 +20,7 @@ interface IDialogProps {
   fetchAnydata: any;
   fetchReferData:any;
   isUserExistingDialog:any;
+  approverIdsHavingSecretary:any;
 }
 
 const Header = (props: any) => (
@@ -52,7 +53,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     context,
     sp,
     fetchAnydata,
-    isUserExistingDialog
+    isUserExistingDialog,
+    
   } = props
   // console.log(props)
   // console.log(props.dialogDetails);
@@ -448,6 +450,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
               alignItems: "center",
               width: "100%",
               padding: "20px",
+              paddingTop:'5px'
             }}
           >
             <div style={{ width: "90%" }}>

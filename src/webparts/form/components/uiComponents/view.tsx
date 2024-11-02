@@ -230,6 +230,8 @@ export interface IViewFormState {
 
   //refer exist user dailog box 
   isUserExistsModalVisible:any;
+
+  approverIdsHavingSecretary:any;
 }
 
 const getIdFromUrl = (): any => {
@@ -415,7 +417,9 @@ export default class ViewForm extends React.Component<
       // auto save 
       isAutoSaveFailedDialog:false,
 
-      isUserExistsModalVisible:false
+      isUserExistsModalVisible:false,
+      approverIdsHavingSecretary:[]
+
     };
 
     const listTitle = this.props.listId;
@@ -433,6 +437,7 @@ export default class ViewForm extends React.Component<
     // console.log(this._formType);
     // console.log(this._folderName);
     // console.log(this.props.context.pageContext.user);
+    this._fetchApproverDetails();
     this._fetchATRCreatorDetails();
     this._getItemData(this._itemId, this._folderName);
     this._fetchDepartmentAlias().then(async () => {
@@ -517,6 +522,156 @@ export default class ViewForm extends React.Component<
   //     console.error("Error retrieving user profile properties:", error);
   //   }
   // };
+
+
+  private _getUserProperties = async (loginName: any): Promise<any> => {
+    // console.log(loginName)
+    let designation = "NA";
+    let email = "NA";
+    // const loginName = this.state.peoplePickerData[0]
+    const profile = await this.props.sp.profiles.getPropertiesFor(loginName);
+    // console.log(profile);
+    // console.log(profile.DisplayName);
+    // console.log(profile.Email);
+    // console.log(profile.Title);
+    // console.log(profile.UserProfileProperties.length);
+    designation = profile.Title;
+    email = profile.Email;
+    // Properties are stored in inconvenient Key/Value pairs,
+    // so parse into an object called userProperties
+    const props: any = {};
+    profile.UserProfileProperties.forEach(
+      (prop: { Key: string | number; Value: any }) => {
+        props[prop.Key] = prop.Value;
+      }
+    );
+
+    profile.userProperties = props;
+    // console.log("Account Name: " + profile.userProperties.AccountName);
+    return [designation, email];
+  };
+
+
+  private _fetchApproverDetails = async (): Promise<void> => {
+    // const user = await this.props.sp?.web.currentUser();
+    // console.log(user)
+    // const dataRec = await this._getUserProperties(user.LoginName);
+    // console.log(dataRec[0])
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       (
+        await this.props.sp.web.lists
+          .getByTitle("ApproverMatrix")
+          .items.select(
+            "*",
+            "Approver/Title",
+            "Approver/EMail",
+            "Secretary/Title",
+            "Secretary/EMail"
+          )
+          .expand("Approver", "Secretary")()
+      ).map(async (each: any) => {
+        // console.log(each);
+        // console.log(this._getUserProperties(each.email))
+        const user = await this.props.sp.web.siteUsers.getById(
+          each.ApproverId
+        )();
+        // console.log(user);
+        const dataRec = await this._getUserProperties(user.LoginName);
+        // console.log(dataRec);
+        // console.log(dataRec[0]);
+        if (each.ApproverType === "Approver") {
+          const newObj = {
+            text: each.Approver.Title,
+            email: each.Approver.EMail,
+            ApproversId: each.ApproverId,
+            approverType: each.ApproverType,
+            // approversOrder: each.ApproverType === "Approver"?2:1,
+            Title: each.Title,
+            id: each.ApproverId,
+            secretary: each.Secretary.Title,
+            srNo: each.Approver.EMail.split("@")[0],
+            optionalText: dataRec[0],
+            approverTypeNum: 2
+          };
+          // console.log(newObj);
+          const secretaryObj = {
+            noteSecretarieId: each.SecretaryId,
+            noteApproverId: each.ApproverId,
+            noteId: "",
+            secretaryEmail: each.Secretary.EMail,
+            approverEmail: each.Approver.EMail,
+            approverEmailName: each.Approver.Title,
+            secretaryEmailName: each.Secretary.Title,
+            createdBy: "",
+            modifiedDate: "",
+            modifiedBy: "",
+          };
+          this.setState((prev) => {
+            this.setState({
+              // noteSecretaryDetails: [
+              //   ...prev.noteSecretaryDetails,
+              //   secretaryObj,
+              // ],
+              approverIdsHavingSecretary: [
+                ...prev.approverIdsHavingSecretary,
+                {
+                  ApproverId: each.ApproverId,
+                  SecretaryId: each.SecretaryId,
+                  ...secretaryObj,
+                },
+              ],
+            });
+          });
+          if (each.ApproverType === "Approver"&& !this._itemId) {
+            this.setState({ peoplePickerApproverData: [newObj] });
+          }
+        } else {
+          const user = await this.props.sp.web.siteUsers.getById(
+            each.ApproverId
+          )();
+          // console.log(user);
+          const dataRec = await this._getUserProperties(user.LoginName);
+          // console.log(dataRec);
+          // console.log(dataRec[0]);
+
+          const newObj = {
+            text: each.Approver.Title,
+            email: each.Approver.EMail,
+            ApproversId: each.ApproverId,
+            approverType: each.ApproverType,
+            // approversOrder: each.ApproverType === "Approver"?2:1,
+            Title: each.Title,
+            id: each.ApproverId,
+            secretary: each.Secretary.Title,
+            optionalText: dataRec[0],
+            srNo: each.Approver.EMail.split("@")[0],
+            
+            approverTypeNum: 1
+          };
+          // console.log(newObj);
+          if ( !this._itemId) {
+            this.setState({ peoplePickerData: [newObj] });
+          }
+          // this.setState({ peoplePickerData: [newObj] });
+        }
+      });
+
+      // console.log(items);
+
+
+       
+
+      // console.log(atrItems, "Atr Items fetched");
+
+      // this.setState({ itemsFromSpList:items });
+      // this.setState(prevState => ({
+      //   itemsFromSpList: [...prevState.itemsFromSpList, ...items]
+      // }));
+    } catch (error) {
+      console.error("Error fetching list items: ", error);
+    }
+  };
 
   private _fetchATRCreatorDetails = async (): Promise<void> => {
     try {
@@ -1817,13 +1972,13 @@ export default class ViewForm extends React.Component<
   private _checkingCurrentUserIsSecretaryDTO = (): any => {
     const currentUserHavingSecretaryisApproved = this.state.ApproverDetails.filter(
       (each: any) => {
-        // console.log(each);
+        console.log(each);
         if (each.secretary ===this.props.context.pageContext.user.displayName && each.statusNumber !== '9000') {
           return each;
         }
       }
     );
-    // console.log(currentUserHavingSecretaryisApproved);
+    console.log(currentUserHavingSecretaryisApproved);
 
     const userIsSec = this.state.noteSecretaryDetails.some((each: any) => {
       // console.log(each);
@@ -1833,9 +1988,9 @@ export default class ViewForm extends React.Component<
         return true;
       }
     });
-    // console.log(userIsSec);
+    console.log(userIsSec);
 
-    // console.log(userIsSec && currentUserisApproved);
+    console.log(userIsSec && currentUserHavingSecretaryisApproved.length > 0);
     return userIsSec && currentUserHavingSecretaryisApproved.length > 0;
   };
 
@@ -2419,6 +2574,25 @@ export default class ViewForm extends React.Component<
     // this.setState({currentApprover:data})
     // console.log(this.state.currentApprover);
     // let currentApprover ;
+
+
+    const checkSelectedApproverHasSecretary = this.state.approverIdsHavingSecretary.filter((each:any)=>each.ApproverId === this.state.currentApprover[0].id)
+          console.log(checkSelectedApproverHasSecretary)
+
+          const secretaryObj = {
+            noteSecretarieId: checkSelectedApproverHasSecretary[0]?.noteSecretarieId,
+            noteApproverId:  checkSelectedApproverHasSecretary[0]?.noteApproverId,
+            noteId: "",
+            secretaryEmail:checkSelectedApproverHasSecretary[0]?.secretaryEmail,
+            approverEmail: checkSelectedApproverHasSecretary[0]?.approverEmail,
+            approverEmailName:checkSelectedApproverHasSecretary[0]?.approverEmailName,
+            secretaryEmailName: checkSelectedApproverHasSecretary[0]?.secretaryEmailName,
+            createdBy: "",
+            modifiedDate: "",
+            modifiedBy: "",
+          };
+         
+
     const updateCurrentApprover = (): any => {
       const upatedCurrentApprover = this.state.ApproverDetails.filter(
         (each: any) => {
@@ -2434,6 +2608,7 @@ export default class ViewForm extends React.Component<
           // console.log(each.status);
           // console.log(each.status === "pending");
 
+          
           // console.log(each.approverOrder ===this._getApproverOrder(this.state.ApproverDetails)[0])
           if (each.status === "pending") {
             // currentApprover = each.id
@@ -2442,6 +2617,7 @@ export default class ViewForm extends React.Component<
               status: "pending",
               actionDate: new Date(),
               mainStatus: each.mainStatus,
+              secretary:checkSelectedApproverHasSecretary.length >0 ?checkSelectedApproverHasSecretary[0].secretaryEmailName:'',
             };
           }
         }
@@ -2471,6 +2647,8 @@ export default class ViewForm extends React.Component<
             this.state.currentApprover[0].email ||
             this.state.currentApprover[0].secondaryText,
           mainStatus: upatedCurrentApprover[0].mainStatus,
+          statusNumber: upatedCurrentApprover[0].statusNumber,
+          secretary:checkSelectedApproverHasSecretary.length >0 ?checkSelectedApproverHasSecretary[0].secretaryEmailName:'',
         },
       ];
     };
@@ -2503,13 +2681,16 @@ export default class ViewForm extends React.Component<
         AuditTrail: updateAuditTrial,
         NoteApproversDTO: JSON.stringify(modifyApproverDetails),
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
-        FinalApproverId:modifyApproverDetails[modifyApproverDetails.length-1].id
+        FinalApproverId:modifyApproverDetails[modifyApproverDetails.length-1].id,
+        NoteSecretaryDTO:checkSelectedApproverHasSecretary.length >0 ? JSON.stringify([...this.state.noteSecretaryDetails,secretaryObj]):JSON.stringify([...this.state.noteSecretaryDetails]),
+
         
       });
 
     // console.log(itemToUpdate);
     this._closeDialog();
     this.setState({ isVisibleAlter: true });
+    checkSelectedApproverHasSecretary.length > 0 && this.setState({noteSecretaryDetails:[...this.state.noteSecretaryDetails,secretaryObj]})
   };
 
   private _checkApproveredStatusIsFound = (): any => {
@@ -2660,6 +2841,13 @@ export default class ViewForm extends React.Component<
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
             this.setState({ successStatus: "referred" });
+            if (this.state.errorOfDocuments){
+              this.setState({isAutoSaveFailedDialog:true})
+              return;
+
+            }
+
+
             this._hanldeFluentDialog(
               "Refer",
               "Refered",
@@ -2680,6 +2868,11 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "ReturnToSession" }} // Icon for Return
           onClick={(e) => {
+            if (this.state.errorOfDocuments){
+              this.setState({isAutoSaveFailedDialog:true})
+              return
+
+            }
             if (this._checkLastCommentByCurrentUser()) {
               this.setState({ isReturnCommentsCheckAlterDialog: true });
             } else {
@@ -3060,7 +3253,7 @@ export default class ViewForm extends React.Component<
               "refer",
               "Refered",
               "4000",
-              ["Add Referee", "Comments"],
+              "Please check the details filled along with attachment and click on Confirm button to refer request.",
               this.handleRefer,
               this._closeDialog,
               ""
@@ -4331,6 +4524,12 @@ export default class ViewForm extends React.Component<
                       onClick={(e) => {
                         // console.log(this._checkNoteReferIdHavingComments())
                         this.setState({ successStatus: "refered back" });
+
+                        if (this.state.errorOfDocuments){
+                          this.setState({isAutoSaveFailedDialog:true})
+                          return
+            
+                        }
                         if (this._checkLastCommentByCurrentUser()) {
                           this.setState({ isReferBackAlterDialog: true });
                         } else {
@@ -4409,6 +4608,7 @@ export default class ViewForm extends React.Component<
         )}
         {!this.state.dialogFluent && (
           <DialogBlockingExample
+          approverIdsHavingSecretary = {this.state.approverIdsHavingSecretary}
           isUserExistingDialog={()=>this.setState({isUserExistsModalVisible:true})}
           dialogUserCheck={{peoplePickerApproverData:this.state.peoplePickerApproverData,peoplePickerData:this.state.peoplePickerData}}
             hiddenProp={this.state.dialogFluent}

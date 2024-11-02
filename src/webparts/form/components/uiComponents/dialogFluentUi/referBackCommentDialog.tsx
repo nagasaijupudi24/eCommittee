@@ -27,6 +27,7 @@ const ReferBackCommentDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: 
       alignItems: 'center',
       // padding: '10px 0',
       borderBottom: '1px solid #ddd',
+      minHeight:'50px'
     },
     headerTitle: {
       margin:'5px',
