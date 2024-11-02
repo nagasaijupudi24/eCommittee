@@ -13,6 +13,7 @@ import {
   Modal,
   mergeStyleSets,
   IconButton,
+  Icon,
 } from "@fluentui/react";
 
 import * as React from "react";
@@ -363,6 +364,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
         >
           <div className={styles.header}>
             <div style={{ display: "flex", alignItems: "center" }}>
+            <Icon iconName="Info" />
               <h4 className={styles.headerTitle}>Add Comment</h4>
             </div>
             <IconButton
@@ -374,20 +376,20 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
             <div
               style={{ width: "90%" }}
             >
-               <h4 style={{textAlign:'left', display: 'block', marginBottom: '4px' }}>Page#</h4>
+               <label style={{textAlign:'left', display: 'block', marginBottom: '4px' }}>Page#</label>
               <TextField
                 
                 value={this.state.pageNumValue}
                 onChange={(e) => this.handleInputChange(e, "pageNumValue")}
                 
               />
-               <h4 style={{textAlign:'left', display: 'block', marginBottom: '4px' }}>Doc Reference</h4>
+               <label style={{textAlign:'left', display: 'block', marginBottom: '4px' }}>Doc Reference</label>
               <TextField
                 
                 value={this.state.pageValue}
                 onChange={(e) => this.handleInputChange(e, "pageValue")}
               />
-               <h4 style={{ textAlign:'left',display: 'block', marginBottom: '4px' }}>Comment <SpanComponent/></h4>
+               <label style={{ textAlign:'left',display: 'block', marginBottom: '4px' }}>Comment <SpanComponent/></label>
               <TextField
                 
                 value={this.state.commentValue}

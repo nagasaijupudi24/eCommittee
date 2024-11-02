@@ -2,7 +2,7 @@
 /* eslint-disable @rushstack/no-new-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-import { DetailsList, IColumn, Stack, IconButton, DefaultButton, SelectionMode, Modal, Icon, PrimaryButton, mergeStyleSets } from '@fluentui/react';
+import { DetailsList, IColumn, IconButton, SelectionMode, Modal, Icon, PrimaryButton, mergeStyleSets } from '@fluentui/react';
 import { IComboBoxOption } from '@fluentui/react/lib/ComboBox';
 
 import PnPPeoplePicker from '../peoplePicker/peoplePicker';
@@ -319,6 +319,21 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
         justifyContent: "space-between",
         alignItems: "center",
         borderBottom: "1px solid #ddd",
+        minHeight: "50px",
+      },
+      headerTitle: {
+        margin: "5px",
+        marginLeft: "5px",
+        fontSize: "16px",
+        fontWeight: "400",
+       
+      },
+      peoplePickerAndAddCombo:{
+        display:'flex',
+        gap:'5px',
+        width:'60%'
+
+
       },
       body: {
         display: "flex",
@@ -331,18 +346,19 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
       footer: {
         display: "flex",
         justifyContent: "flex-end",
-        // marginTop: "20px",
+        marginTop: "20px",
         borderTop: "1px solid #ddd", // Added border to the top of the footer
         paddingTop: "10px",
       },
     });
+
 
     const {  isModalOpen, modalMessage } = this.state;
 
     return (
       <div>
         {/* Stack to align PeoplePicker, ComboBox, and Add Button beside each other */}
-        <Stack horizontal tokens={{ childrenGap: 10 }}>
+        <div className={styles.peoplePickerAndAddCombo}>
           <PnPPeoplePicker
             context={this.props.context}
             spProp={this.props.sp}
@@ -369,9 +385,9 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
             // autoComplete="on"
             // allowFreeform
           /> */}
-          <DefaultButton iconProps={{iconName:"Add"}} onClick={this._getDetailsFromPeoplePicker}>Add</DefaultButton>
+          <PrimaryButton iconProps={{iconName:"Add"}} onClick={this._getDetailsFromPeoplePicker}>Add</PrimaryButton>
          
-        </Stack>
+        </div>
         
 
         {/* DetailsList to show table data */}
@@ -398,7 +414,7 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
           <div className={styles.header}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <Icon iconName="Info" />
-              <h2 style={{ marginLeft: "10px",marginTop:'4px',marginBottom:'4px' }}>Alert</h2>
+              <h4 className={styles.headerTitle}>Alert</h4>
             </div>
             <IconButton
               iconProps={{ iconName: "ErrorBadge" }}

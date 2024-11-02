@@ -2289,26 +2289,7 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
-    if (!this.state.isPasscodeValidated) {
-      this.setState({
-        isPasscodeModalOpen: true,
-        passCodeValidationFrom: statusNumber,
-      }); // Open the modal
-      return; // Prevent the method from proceeding until passcode is validated
-    }
-    // Assuming you want to check for comments before proceeding with return
-    // const currentUserComment = this.state.commentsData.find(
-    //   (comment: any) => comment.commentedByEmail === this._currentUserEmail
-    // );
-
-    // if (!currentUserComment || currentUserComment.comment.trim() === "") {
-    //   this._showDialog(
-    //     "Missing Comments",
-    //     "Please provide comments before returning the request.",
-    //     "OK"
-    //   );
-    //   return; // Stop further execution
-    // }
+    
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -2569,7 +2550,11 @@ export default class ViewForm extends React.Component<
           }}
           onClick={this._checkCurrentApproverIsInSecretaryDTO() ?(e) => {
             this.setState({ successStatus: "noted" });
-            if (this._checkLastCommentByCurrentUser()) {
+            if (this.state.errorOfDocuments){
+              this.setState({isAutoSaveFailedDialog:true})
+
+            }
+            else if (this._checkLastCommentByCurrentUser()) {
               this.setState({ isNotedCommentsManidatoryAlterDialog: true });
             }else{
               
