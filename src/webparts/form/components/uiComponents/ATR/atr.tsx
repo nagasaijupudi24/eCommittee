@@ -2,7 +2,7 @@
 /* eslint-disable @rushstack/no-new-null */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-import { DetailsList, IColumn, IconButton, SelectionMode, Modal, Icon, PrimaryButton, mergeStyleSets } from '@fluentui/react';
+import { DetailsList, IColumn, IconButton, SelectionMode, Modal, PrimaryButton, mergeStyleSets } from '@fluentui/react';
 import { IComboBoxOption } from '@fluentui/react/lib/ComboBox';
 
 import PnPPeoplePicker from '../peoplePicker/peoplePicker';
@@ -413,12 +413,14 @@ export class ATRAssignee extends React.Component<IATRAssigneeProps, IATRAssignee
         >
           <div className={styles.header}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <Icon iconName="Info" />
+            <IconButton iconProps={{ iconName: 'Info' }}/>
               <h4 className={styles.headerTitle}>Alert</h4>
             </div>
             <IconButton
-              iconProps={{ iconName: "ErrorBadge" }}
-              ariaLabel="Close popup modal"
+          
+              iconProps={{ iconName: 'Cancel' }}
+            
+              
               onClick={this._closeModal}
             />
           </div>

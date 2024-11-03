@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-import { Modal, PrimaryButton, IconButton, Icon, IIconProps, DefaultButton } from '@fluentui/react';
+import { Modal, PrimaryButton, IconButton, IIconProps, DefaultButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
 const GistDocsConfirmation: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any, handleConfirmatBtn:any}> = ({ isVisibleAlter, onCloseAlter, statusOfReq, handleConfirmatBtn }) => {
@@ -28,7 +28,14 @@ const GistDocsConfirmation: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
             justifyContent: 'space-between',
             alignItems: 'center',
             borderBottom: '1px solid #ddd',
+            minHeight:'50px'
         },
+        headerTitle: {
+            margin:'5px',
+            marginLeft:'5px',
+            fontSize:'16px',
+            fontWeight:'400'
+           },
         body: {
             display: 'flex',
             flexDirection: 'column',
@@ -72,9 +79,9 @@ const GistDocsConfirmation: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
         >
             <div style={{ borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1px' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Icon iconName="CheckMark" style={{ marginRight: '10px' }} />
+                <IconButton iconProps={{ iconName: 'WaitlistConfirm' }} />
                     
-                    <h4 style={{marginTop:'4px',marginBottom:'4px'}}>Confirmation</h4>
+                    <h4  className={styles.headerTitle} style={{marginTop:'4px',marginBottom:'4px'}}>Confirmation</h4>
                 </div>
                 <IconButton iconProps={closeIcon} onClick={onCloseAlter} />
             </div>

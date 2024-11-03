@@ -186,6 +186,7 @@ interface IMainFormState {
 
   isWarningAmountField: boolean;
   isWarningPurposeField: boolean;
+  isWarningOthersField:boolean;
   eCommitteData: any;
   eCommitteDataForValidataion: any;
   eCommitteDataForValidataionDialog: any;
@@ -380,7 +381,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       isWarningSearchText: false,
       isWarningAmountField: false,
       isWarningPurposeField: false,
+      isWarningOthersField:false,
       isWarningPeoplePicker: false,
+
       eCommitteData: {},
       eCommitteDataForValidataion: {},
       eCommitteDataForValidataionDialog: {},
@@ -1437,11 +1440,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public removeDataFromGrid = (dataItem: any, typeOfTable: string): void => {
+
+    const filterNoteSecDetails = this.state.noteSecretaryDetails.filter(
+      (each: any) => each.noteApproverId !== dataItem.id
+    )
     this.setState((prev) => ({
-      noteSecretaryDetails: prev.noteSecretaryDetails.filter(
-        (each: any) => each.noteApproverId !== dataItem.id
-      ),
+      noteSecretaryDetails: filterNoteSecDetails
     }));
+
+    if (filterNoteSecDetails.length === 0){
+      this.setState({wordDocumentfiles:[]})
+    }
     // console.log(dataItem);
     if (typeOfTable === "Reviewer") {
       // console.log("Remove triggered from Reviewer Table");
@@ -2827,6 +2836,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.setState({ eCommitteDataForValidataion: fieldValues });
     } else if (this.state.noteTypeFeildValue === "Non-Financial") {
       // console.log("Non-Financial");
+      conditionNumber = 7
       fieldValues = {
         committeeName: this.state.committeeNameFeildValue,
         subject: this.state.subjectFeildValue,
@@ -2858,7 +2868,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     } else {
-      conditionNumber = 7
+      conditionNumber = 9
       
       fieldValues = {
         committeeName: this.state.committeeNameFeildValue,
@@ -2892,10 +2902,62 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
     console.log(conditionNumber,"Condition Number")
+
+
+    const warn:any = {
+      committeeName: [
+        this.state.committeeNameFeildValue,"isWarningCommitteeName",
+        "committeeName",
+      ],
+      subject: [this.state.subjectFeildValue,"isWarningSubject", "subject"],
+      natureOfNote: [this.state.natureOfNoteFeildValue,"isWarningNatureOfNote", "natureOfNote"],
+      natureOfApprovalOrSanction: [
+        this.state.natureOfApprovalOrSanctionFeildValue,"isWarningNatureOfApporvalOrSanction",
+        "natureOfApprovalOrSanction",
+      ],
+      noteType: [this.state.noteTypeFeildValue,"isWarningNoteType", "noteType"],
+      typeOfFinancialNote: [
+        this.state.typeOfFinancialNoteFeildValue,"isWarningTypeOfFinancialNote",
+        "typeOfFinancialNote",
+      ],
+      amount: [this.state.amountFeildValue,"isWarningAmountField", "amount"],
+      searchText: [this.state.searchTextFeildValue,"isWarningSearchText", "searchText"],
+      purpose: [this.state.puroposeFeildValue, "isWarningPurposeField","purpose"],
+      others: [this.state.othersFieldValue,"isWarningOthersField", "others"],
+
+    };
+
+    console.log(warn)
     // console.log(
     //   fieldValues,
     //   "Final FieldValues........................................"
     // );
+
+
+    const newWarnObj:any = {}
+   Object.keys(fieldValues).map(
+      (each: keyof typeof fieldValues) => {
+        console.log(each);
+        if (
+          fieldValues[each] === "" ||
+          fieldValues[each] === null
+        ) {
+          console.log("entred", each,fieldValues[each]);
+          console.log(warn[each],"Warning ...........")
+          console.log(warn[each][1],"Warning ...........1111111")
+          
+         newWarnObj[warn[each][1]] = true;
+         
+        }
+       
+      }
+    );
+    console.log(newWarnObj,"Warning check")
+    this.setState({...newWarnObj})
+
+    // console.log(dialogVisableWarn, "Dialog Visable Warn");
+
+   
     const dialogVisable = Object.keys(fieldValues).every(
       (each: keyof typeof fieldValues) => {
         console.log(each);
@@ -2905,11 +2967,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           fieldValues[each] === true
         ) {
           console.log("entred", each,fieldValues[each]);
+          
+       
           return false;
         }
         return true;
       }
     );
+   
 
     console.log(dialogVisable, "Dialog Visable");
 
@@ -2918,6 +2983,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private _checkValidationArray = (): any => {
     // console.log(this.state);
+    let conditionNumArray:any = ''
     console.log(this.state.noteSecretaryDetails.length > 0 ,"Checking secretary exist or not")
     let fieldValues;
     if (
@@ -2925,6 +2991,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Financial"
     ) {
+      conditionNumArray =1
       // condition = 1
       // console.log("Approval", "Sanction", "Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
@@ -3097,6 +3164,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Sanction") &&
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
+      conditionNumArray =2
       // condition = 2
       // console.log("Approval", "Sanction", "Non-Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
@@ -3253,6 +3321,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Ratification") &&
       this.state.noteTypeFeildValue === "Financial"
     ) {
+      conditionNumArray =3
       // condition = 3
       if (this.state.natureOfNoteFeildValue === "Information") {
         // console.log("Information", "Financial");
@@ -3350,6 +3419,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.natureOfNoteFeildValue === "Ratification") &&
       this.state.noteTypeFeildValue === "Non-Financial"
     ) {
+      conditionNumArray =4
       // condition = 4
       if (this.state.natureOfNoteFeildValue === "Information") {
         // console.log("Information", "Non-Financial");
@@ -3434,8 +3504,178 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
       }
-    } else if (this.state.noteTypeFeildValue === "Financial") {
-      // condition = 5
+    }
+    else if (
+      this.state.natureOfNoteFeildValue === "Approval" ||
+      this.state.natureOfNoteFeildValue === "Sanction"
+    ) {
+      conditionNumArray = 5
+      // console.log("Approval", "Sanction");
+      if (this.state.natureOfNoteFeildValue === "Approval") {
+        // console.log("Approval", "Financial");
+        if (this.state.puroposeFeildValue === "Others") {
+          // console.log("Approval", "Financial", "Others");
+          fieldValues = {
+            committeeName: [
+              this.state.committeeNameFeildValue,
+              "Committe Name",
+            ],
+            subject: [this.state.subjectFeildValue, "Subject"],
+            natureOfNote: [this.state.natureOfNoteFeildValue, "Nature of Note"],
+            natureOfApprovalOrSanction: [
+              this.state.natureOfApprovalOrSanctionFeildValue,
+              "Nature of Approval Or Sanction",
+            ],
+            noteType: [this.state.noteTypeFeildValue, "Note Type"],
+
+            searchText: [this.state.searchTextFeildValue, "Search Text"],
+            purpose: [this.state.puroposeFeildValue, "Purpose"],
+            others: [this.state.othersFieldValue, "others"],
+
+            ////
+
+            noteTofiles: [
+              this.state.noteTofiles,
+              "Please select Valid Pdf File",
+            ],
+            wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+              this.state.wordDocumentfiles  ,
+              "Please select Valid Word Doc File",
+            ]:[
+              false  ,
+              "Please select Valid Word Doc File",
+            ],
+             // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+            errorInPdfFiles: [
+              this.state.errorFilesList.notePdF.length > 0,
+              "Please select Valid Pdf File...",
+            ],
+            errorInWordDocFiles:  [
+              this.state.errorFilesList.wordDocument.length > 0,
+              "Please select Valid Word File...",
+            ],
+            errorInSupportingDocFiles: [
+              this.state.errorFilesList.supportingDocument.length > 0,
+              "Please select Valid Supporting Files...",
+            ],
+
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
+          };
+          // console.log(fieldValues);
+          this.setState({ eCommitteDataForValidataionDialog: fieldValues });
+        } else {
+          // console.log("Approval", "non-Others");
+          fieldValues = {
+            committeeName: [
+              this.state.committeeNameFeildValue,
+              "Committe Name",
+            ],
+            subject: [this.state.subjectFeildValue, "Subject"],
+            natureOfNote: [this.state.natureOfNoteFeildValue, "Nature of Note"],
+            natureOfApprovalOrSanction: [
+              this.state.natureOfApprovalOrSanctionFeildValue,
+              "Nature of Approval Or Sanction",
+            ],
+            noteType: [this.state.noteTypeFeildValue, "Note Type"],
+
+            searchText: [this.state.searchTextFeildValue, "Search Text"],
+            purpose: [this.state.puroposeFeildValue, "Purpose"],
+
+            ////
+            noteTofiles: [
+              this.state.noteTofiles,
+              "Please select Valid Pdf File",
+            ],
+            wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+              this.state.wordDocumentfiles  ,
+              "Please select Valid Word Doc File",
+            ]:[
+              false  ,
+              "Please select Valid Word Doc File",
+            ],
+             // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+            errorInPdfFiles: [
+              this.state.errorFilesList.notePdF.length > 0,
+              "Please select Valid Pdf File...",
+            ],
+            errorInWordDocFiles:  [
+              this.state.errorFilesList.wordDocument.length > 0,
+              "Please select Valid Word File...",
+            ],
+            errorInSupportingDocFiles: [
+              this.state.errorFilesList.supportingDocument.length > 0,
+              "Please select Valid Supporting Files...",
+            ],
+
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
+          };
+          // console.log(fieldValues);/
+          this.setState({ eCommitteDataForValidataionDialog: fieldValues });
+        }
+      } else {
+        // console.log("Sanction");
+        fieldValues = {
+          committeeName: [
+            this.state.committeeNameFeildValue,
+            "Committe Name",
+          ],
+          subject: [this.state.subjectFeildValue, "Subject"],
+          natureOfNote: [this.state.natureOfNoteFeildValue, "Nature of Note"],
+          natureOfApprovalOrSanction: [
+            this.state.natureOfApprovalOrSanctionFeildValue,
+            "Nature of Approval Or Sanction",
+          ],
+          noteType: [this.state.noteTypeFeildValue, "Note Type"],
+
+          searchText: [this.state.searchTextFeildValue, "Search Text"],
+          purpose: [this.state.puroposeFeildValue, "Purpose"],
+
+          noteTofiles: [
+            this.state.noteTofiles,
+            "Please select Valid Pdf File",
+          ],
+          wordDocumentfiles: this.state.noteSecretaryDetails.length > 0 ?[
+            this.state.wordDocumentfiles  ,
+            "Please select Valid Word Doc File",
+          ]:[
+            false  ,
+            "Please select Valid Word Doc File",
+          ],
+           // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
+          errorInPdfFiles: [
+            this.state.errorFilesList.notePdF.length > 0,
+            "Please select Valid Pdf File...",
+          ],
+          errorInWordDocFiles:  [
+            this.state.errorFilesList.wordDocument.length > 0,
+            "Please select Valid Word File...",
+          ],
+          errorInSupportingDocFiles: [
+            this.state.errorFilesList.supportingDocument.length > 0,
+            "Please select Valid Supporting Files...",
+          ],
+
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
+        };
+        // console.log(fieldValues);
+        this.setState({ eCommitteDataForValidataionDialog: fieldValues });
+      }
+    }
+    
+    
+    
+    else if (this.state.noteTypeFeildValue === "Financial") {
+      conditionNumArray =6
+      // condition = 6
       // console.log("Financial");
       fieldValues = {
         committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
@@ -3480,7 +3720,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
     } else if (this.state.noteTypeFeildValue === "Non-Financial") {
-      // condition = 6
+      conditionNumArray =7 
+      // condition = 7
       // console.log("Non-Financial");
       fieldValues = {
         committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
@@ -3521,7 +3762,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
     } else {
-      // condition = 7
+      conditionNumArray =8
+      // condition =8
       fieldValues = {
         committeeName: [this.state.committeeNameFeildValue, "Committe Name"],
         subject: [this.state.subjectFeildValue, "Subject"],
@@ -3562,10 +3804,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
     }
 
-    // console.log(
-    //   fieldValues,
-    //   "Dialog FieldValues........................................"
-    // );
+    console.log(
+      fieldValues,
+      "Dialog FieldValues........................................"
+    );
+    console.log(conditionNumArray,"condition Num Array")
   };
 
   private handleSubmit = async (
@@ -5021,7 +5264,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     )
     console.log(checkSecertaryIsAvailable)
-    return checkSecertaryIsAvailable
+      // if (checkSecertaryIsAvailable === false){
+      //   this.setState({wordDocumentfiles:[]})
+      // }
+      return checkSecertaryIsAvailable
   }
 
   public render(): React.ReactElement<IFormProps> {
@@ -5161,7 +5407,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             {/* Use the CancelConfirmationDialog component */}
             <CancelConfirmationDialog
-              hidden={!this.state.showCancelDialog}
+              hidden={this.state.showCancelDialog}
               onConfirm={this.handleConfirmCancel} // Call handleConfirmCancel on confirm
               onCancel={() => this.setState({ showCancelDialog: false })} // Close the cancel dialog
             />
@@ -5226,14 +5472,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   styles={{
                     dropdown: {
                       // width: 300,
-                      borderRadius: "0px",
+                      borderRadius: "2px",
                       fontSize: "16px",
                       // fontFamily: 'Poppins',
-                      // border:
+                      border:
 
-                      //   this.state.committeeNameFeildValue === ""
-                      //     ? "2px solid red"
-                      //     : "none",
+                        (this.state.committeeNameFeildValue === "" && this.state.isWarningCommitteeName)
+                          ? "2px solid red"
+                          : "1px solid transparent",
                     },
                   }}
                 />
@@ -5260,12 +5506,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     display: "block",
                     paddingLeft: "12px",
                     paddingTop: "5px",
+                    borderRadius:'2px',
                     height: "31px",
                     boxSizing: "border-box",
                     width: "100%",
-                    // border:this.state.subjectFeildValue===''
-                    //         ? "2px solid red"
-                    //         : "1px solid rgb(133, 133, 133)",
+                    border:(this.state.subjectFeildValue==='' && this.state.isWarningSubject)
+                            ? "2px solid red"
+                            : "1px solid rgb(86, 118, 152)",
                   }}
                   value={this.state.subjectFeildValue}
                   onChange={this.handleSubjectChange}
@@ -5296,14 +5543,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   }
                   styles={{
                     dropdown: {
-                      borderRadius: "0px",
+                      borderRadius: "2px",
                       fontSize: "16px",
                       // fontFamily: 'Poppins',
-                      // border:
+                      border:
 
-                      //   this.state.natureOfNoteFeildValue === ""
-                      //     ? "2px solid red"
-                      //     : "none",
+                       ( this.state.natureOfNoteFeildValue === "" && this.state.isWarningNatureOfNote)
+                          ? "2px solid red"
+                          : "1px solid transparent",
                     },
                   }}
                 />
@@ -5335,12 +5582,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     onChange={this.handleNatureOfApprovalOrSanctionChange}
                     styles={{
                       dropdown: {
-                        // border:
+                        border:
 
-                        //   this.state.natureOfApprovalOrSanctionFeildValue === ""
-                        //     ? "1px solid red"
-                        //     : "1px solid rgb(211, 211, 211)",
-                        borderRadius: "0px",
+                          (this.state.natureOfApprovalOrSanctionFeildValue === "" && this.state.isWarningNatureOfApporvalOrSanction)
+                            ? "1px solid red"
+                            : "1px solid transparent",
+                        borderRadius: "2px",
                         fontSize: "16px",
                         // fontFamily: 'Poppins',
                       },
@@ -5371,12 +5618,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   }
                   styles={{
                     dropdown: {
-                      // border:
+                      border:
 
-                      //   this.state.noteTypeFeildValue === ""
-                      //     ? "1px solid red"
-                      //     : "1px solid rgb(211, 211, 211)",
-                      borderRadius: "0px",
+                        (this.state.noteTypeFeildValue === "" && this.state.isWarningNoteType)
+                          ? "1px solid red"
+                          : "1px solid transparent",
+                      borderRadius: "2px",
                       fontSize: "16px",
                       // fontFamily: 'Poppins',
                     },
@@ -5405,13 +5652,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     onChange={this.handleTypeOfFinancialNote}
                     styles={{
                       dropdown: {
-                        // border: `1px solid ${
+                        border: `1px solid ${
 
-                        //   !this.state.typeOfFinancialNoteFeildValue
-                        //     ? "red"
-                        //     : "rgb(211, 211, 211)"
-                        // }`,
-                        borderRadius: "0px",
+                          (!this.state.typeOfFinancialNoteFeildValue && this.state.isWarningTypeOfFinancialNote)
+                            ? "red"
+                            : "transparent"
+                        }`,
+                        borderRadius: "2px",
                       },
                     }}
                   />
@@ -5453,15 +5700,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 <textarea
                   style={{
                     display: "block",
+                    borderRadius:'2px',
                     paddingLeft: "12px",
                     paddingTop: "6px",
                     height: "32px",
                     marginTop:'9px',
                     boxSizing: "border-box",
                     width: "100%",
-                    // border:  this.state.searchTextFeildValue ===''
-                    //         ? "2px solid red"
-                    //         : "1px solid rgb(133, 133, 133)",
+                    border:  (this.state.searchTextFeildValue ==='' && this.state.isWarningSearchText)
+                            ? "2px solid red"
+                            : "1px solid rgb(86, 118, 152)",
                   }}
                   rows={!this.state.searchTextFeildValue ? 3 : 1} // Adjust rows based on warning state
                   value={this.state.searchTextFeildValue}
@@ -5495,9 +5743,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         height: "32px",
                         boxSizing: "border-box",
                         width: "100%",
-                        // border:this.state.amountFeildValue === ''
-                        //   ? '2px solid red'
-                        //   : '1px solid rgb(133, 133, 133)',
+                        border:(this.state.amountFeildValue === '' && this.state.isWarningAmountField)
+                          ? '2px solid red'
+                          : '1px solid black',
                       },
                     }}
                     onChange={this.handleAmountChange}
@@ -5554,10 +5802,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         styles={{
                           dropdown: {
                             display: "block",
+                            borderRadius:'2px',
                             
                             height: "32px",
                             boxSizing: "border-box",
                             width: "100%",
+                            border: `1px solid ${
+
+                              (!this.state.puroposeFeildValue && this.state.isWarningPurposeField)
+                                ? "red"
+                                : "transparent"
+                            }`,
                           },
                         }}
                       />
@@ -5588,17 +5843,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }
                         styles={{
                           dropdown: {
-                            // border: `1px solid ${
+                            border: `1px solid ${
 
-                            //   !this.state.puroposeFeildValue
-                            //     ? "red"
-                            //     : "rgb(211, 211, 211)"
-                            // }`,
+                              (!this.state.puroposeFeildValue && this.state.isWarningPurposeField)
+                                ? "red"
+                                : "transparent"
+                            }`,
                             display: "block",
                            
                             height: "32px",
                             boxSizing: "border-box",
                             width: "100%",
+                            borderRadius:'2px'
                           },
                         }}
                       />
@@ -5622,13 +5878,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <textarea
                       style={{
                         display: "block",
-                       
+                        borderRadius:'2px',
                         height: "32px",
                         boxSizing: "border-box",
                         width: "100%",
-                        // border: this.state.isWarningSubject
-                        //       ? "2px solid red"
-                        //       : "1px solid rgb(133, 133, 133)",
+                        border: `1px solid ${
+
+                          (!this.state.puroposeFeildValue && this.state.isWarningPurposeField)
+                            ? "red"
+                            : "rgb(86, 118, 152)"
+                        }`,
                       }}
                       rows={
                         this.state.isWarningPurposeField &&
@@ -5653,15 +5912,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   </label>
                   <textarea
                     style={{
+                      borderRadius:'2px',
                       display: "block",
                       paddingLeft: "12px",
                       paddingTop: "5px",
                       height: "31px",
                       boxSizing: "border-box",
                       width: "100%",
-                      // border: this.state.subjectFeildValue===''
-                      // ? "2px solid red"
-                      // : "1px solid rgb(133, 133, 133)",
+                      border: `1px solid ${
+
+                        (!this.state.othersFieldValue && this.state.isWarningOthersField)
+                          ? "red"
+                          : "rgb(86, 118, 152)"
+                      }`,
                     }}
                     rows={!this.state.othersFieldValue ? 3 : 1}
                     value={this.state.othersFieldValue}
@@ -6034,7 +6297,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   this.state.statusNumber !== '3000' &&
   this.state.statusNumber !== '4000' &&
   this.state.statusNumber !== '4900' &&
-  this.state.statusNumber !== '9000'
+  this.state.statusNumber !== '9000' &&
+  this.state.statusNumber !== '300'
 ) && <div  style={{
                 // margin: "10px 0px",
                 display: "flex",

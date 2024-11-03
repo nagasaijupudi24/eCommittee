@@ -15,7 +15,7 @@ const styles = mergeStyleSets({
   modal: {
     minWidth: '300px',
     maxWidth: '80vw',
-    // width: '100%',
+    width: '100%',
     '@media (min-width: 768px)': {
       maxWidth: '580px', // Adjust width for medium screens
     },
@@ -39,7 +39,7 @@ const styles = mergeStyleSets({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottom: '1px solid #ddd',
-   minHeigth:'50px',
+    minHeight:'50px',
    padding:'5px'
   },
   headerTitle: {

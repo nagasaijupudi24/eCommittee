@@ -26,8 +26,16 @@ const GistDocEmptyModal: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () =>
       justifyContent: 'space-between',
       alignItems: 'center',
       // padding: '10px 0',
+      
       borderBottom: '1px solid #ddd',
+      minHeight: "50px",
     },
+    headerTitle: {
+      margin:'5px',
+      marginLeft:'5px',
+      fontSize:'16px',
+      fontWeight:'400'
+     },
     body: {
       display: 'flex',
       flexDirection: 'column',
@@ -45,6 +53,7 @@ const GistDocEmptyModal: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () =>
     },
   });
 
+
   return (
     <Modal
       isOpen={isVisibleAlter}
@@ -55,7 +64,7 @@ const GistDocEmptyModal: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () =>
       <div className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <IconButton iconProps={{ iconName: 'Info' }} />
-          <h2 style={{ marginLeft: '10px' }}>Alert</h2>
+          <h4 className={styles.headerTitle}>Alert</h4>
         </div>
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>

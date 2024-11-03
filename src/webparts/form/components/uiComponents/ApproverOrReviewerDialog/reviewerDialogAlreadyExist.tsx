@@ -9,7 +9,7 @@ import {
   IModalStyles,
   Stack,
   Text,
-  FontIcon,
+ 
 } from "@fluentui/react";
 
 // Define the interface for the component props
@@ -78,7 +78,7 @@ const ReviewerExistModal: React.FC<MyModalProps> = ({
       <div style={headerStyles}>
         {/* Info icon and alert text next to each other */}
         <div style={alertStyles}>
-          <FontIcon iconName="Info" style={{ fontSize: 20, }} />
+        <IconButton iconProps={{ iconName: 'info' }} />
           <Text variant="large">Alert</Text>
         </div>
 

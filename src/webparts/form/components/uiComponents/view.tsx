@@ -28,10 +28,7 @@ import ApproverAndReviewerTableInViewForm from "./simpleTable/reviewerAndApprove
 import CommentsLogTable from "./simpleTable/commentsTable";
 import WorkFlowLogsTable from "./simpleTable/workFlowLogsTable";
 import FileAttatchmentTable from "./simpleTable/fileAttatchmentsTable";
-// import PDFView from "../pdfVeiwer/pdfVeiwer";
-// import PDFViews from "../pdfVeiwer/pdfreact";
-//spinner related
-// import WebViewer from "../comPdfKit/comPdfKit";
+
 
 import { Spinner } from "@fluentui/react/lib/Spinner";
 // import AdobePdfWebPart from "../../../adobePdf/AdobePdfWebPart";
@@ -159,6 +156,7 @@ export interface IViewFormState {
   auditTrail: any;
   filesClear: any;
   createdByEmail: any;
+  createdByID:any;
   ApproverDetails: any;
   ApproverOrder: any;
   ApproverType: any;
@@ -356,6 +354,7 @@ export default class ViewForm extends React.Component<
       //   "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/SupportingDocument/Export.xlsx?d=w5597c83c4c7744daab598c33704569bc"
       // "https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB", // Link to the PDF
       createdByEmail: "",
+      createdByID:"",
       ApproverOrder: "",
       dialogFluent: true,
       dialogDetails: {},
@@ -1084,6 +1083,7 @@ export default class ViewForm extends React.Component<
       auditTrail: JSON.parse(item.AuditTrail),
       isLoading: false,
       createdByEmail: item.Author.EMail,
+      createdByID:item.AuthorId,
       status:
         item.Status === "Submitted"
           ? this._getStatus(item.NoteApproversDTO)
@@ -1796,11 +1796,79 @@ export default class ViewForm extends React.Component<
     });
   };
 
+
+  private _defaultUserAsATR = async (): Promise<any> => {
+      let defaultAtrObj ={}
+     
+      try {
+
+           // console.log(this.state.commentsData)
+      const joinedCommentsData = this.state.commentsData
+      .filter((each: any) => !!each)
+      .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
+      console.log(joinedCommentsData)
+      console.log(joinedCommentsData.join(', '))
+        // const itemAddResult =
+         await this.props.sp.web.lists
+          .getByTitle("ATRRequests")
+          .items.add({
+            Title: this.state.title,
+            NoteTo: "",
+            Status: "Pending",
+            ATRNoteID: this.state.title,
+            Department: this.state.department,
+            Subject: this.state.subjectFeildValue,
+            AssignedById: this.state.createdByID,
+            // Remarks: "Sample Remarks",
+            Comments:joinedCommentsData.join(', '),
+          
+            AssigneeId: [(await this.props.sp?.web.currentUser())?.Id][0],
+            StatusNumber: "1000",
+            NoteID: `${this._itemId}`,
+            CurrentApproverId: this.state.currentApprover[0].id,
+            NoteType: this._committeeType,
+          });
+
+
+
+        
+           defaultAtrObj =  {
+              Title: this.state.title,
+              NoteTo: "",
+              Status: "Pending",
+              ATRNoteID: this.state.title,
+              Department: this.state.department,
+              Subject: this.state.subjectFeildValue,
+              AssignedById: this.state.createdByID,
+              // Remarks: "Sample Remarks",
+              Comments:joinedCommentsData.join(', '),
+            
+              AssigneeId: [(await this.props.sp?.web.currentUser())?.Id][0],
+              StatusNumber: "1000",
+              NoteID: `${this._itemId}`,
+              CurrentApproverId: this.state.currentApprover[0].id,
+              NoteType: this._committeeType,
+            }
+     
+        
+        // console.log(`Item added with ID: ${itemAddResult.Id}`);
+        // await this.updateNoteID(itemAddResult.Id);
+      } catch (error) {
+        console.error("Error adding item: ", error);
+      }
+
+
+      return defaultAtrObj
+ 
+  };
+
+
   private _handleApproverButton = async (
     statusFromEvent: string,
     statusNumber: string
   ) => {
     let previousApprover: any;
+    // console.log(await this._defaultUserAsATR())
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         // console.log(each);
@@ -1906,7 +1974,8 @@ export default class ViewForm extends React.Component<
 
     // console.log(itemToUpdate);
 
-    this.state.atrGridData.length > 0 && (await this._updateATRRequest());
+    this.state.atrGridData.length > 0 ? (await this._updateATRRequest()):(await this._defaultUserAsATR());
+   
     await this.updateSupportingDocumentFolderItems(
       this.state.supportingFilesInViewForm,
       `${this._folderName}/SupportingDocument`,
@@ -3130,6 +3199,7 @@ export default class ViewForm extends React.Component<
       case "5000":  //"Returned":
       case "200":  //"Call Back":
       case "9000":  //"Approved":
+        case "300":  //"Cancelled":
         return false;
       default:
         return true;
@@ -4617,6 +4687,7 @@ export default class ViewForm extends React.Component<
         )}
         {!this.state.dialogFluent && (
           <DialogBlockingExample
+          requesterEmail={this.state.createdByEmail}
           approverIdsHavingSecretary = {this.state.approverIdsHavingSecretary}
           isUserExistingDialog={()=>this.setState({isUserExistsModalVisible:true})}
           dialogUserCheck={{peoplePickerApproverData:this.state.peoplePickerApproverData,peoplePickerData:this.state.peoplePickerData}}

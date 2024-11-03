@@ -10,8 +10,10 @@ import { IconButton, Text } from "@fluentui/react";
 import { v4 } from "uuid";
 import ReferCommentsMandatoryDialog from "./referCommentsMandiatory";
 import SpanComponent from "../spanComponent/spanComponent";
+import ChangeApproverMandatoryDialog from "./changeApproverMandiatory";
 
 interface IDialogProps {
+  requesterEmail:any;
   dialogUserCheck:any;
   hiddenProp: any;
   dialogDetails: any;
@@ -54,6 +56,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     sp,
     fetchAnydata,
     isUserExistingDialog,
+    requesterEmail
     
   } = props
   // console.log(props)
@@ -237,10 +240,11 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     
     const isCurrentUserReviewer = context.pageContext.user.email === reviewerEmail;
     // console.log(isCurrentUserReviewer)
+    const isRequester = reviewerInfo.email === requesterEmail
 
     // console.log(isReviewerOrApprover || isCurrentUserReviewer)
   
-    return isReviewerOrApprover || isCurrentUserReviewer;
+    return isReviewerOrApprover || isCurrentUserReviewer ||isRequester;
     
   };
   
@@ -398,6 +402,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         isBlocking={true}
         containerClassName={styles.modal}
       >
+        <ChangeApproverMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/>
         <Header heading={'Change Approver'} onClose={dialogDetails.closeFunction} />
         <div className={styles.body} style={{paddingTop:'10px'}}>
           <div className={styles.contentContainer}>
@@ -417,6 +422,12 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             
            
             ()=>{
+              if (data ===''){
+
+                setType("data")
+                setIsVisableAlter(true)
+                return
+              }
               if (checkReviewer(data)) {
                 dialogDetails.closeFunction()
                 isUserExistingDialog()

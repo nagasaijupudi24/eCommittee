@@ -1,11 +1,9 @@
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
-const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
+const ChangeApproverMandatoryDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
   const styles = mergeStyleSets({
     modal: {
       padding: '10px',
@@ -29,11 +27,11 @@ const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
       alignItems: 'center',
       // padding: '10px 0',
       borderBottom: '1px solid #ddd',
-      minHeight:'50px',
+        minHeight:'50px'
     },
     headerTitle: {
       margin:'5px',
-      marginLeft:'5px',
+      marginLeft:'0px',
       fontSize:'16px',
       fontWeight:'400'
      },
@@ -54,8 +52,6 @@ const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
     },
   });
 
-//   console.log(statusOfReq)
-
   return (
     <Modal
       isOpen={isVisibleAlter}
@@ -71,7 +67,8 @@ const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        <p>Invalid files attached. Kindly remove the invalid files.</p>
+        {statusOfReq === 'data'?<p>Please select the Approver then click on Submit.</p>:<p>Please fill in comments then click on Submit.</p>}
+        
       </div>
       <div className={styles.footer}>
         <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
@@ -80,5 +77,4 @@ const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
   );
 };
 
-export default AutoSaveFailedDialog;
-
+export default ChangeApproverMandatoryDialog;

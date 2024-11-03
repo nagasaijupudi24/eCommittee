@@ -205,7 +205,7 @@ import {
   IconButton,
  
   Modal,
-  Icon,
+
   PrimaryButton,
   SelectionMode,
 } from "@fluentui/react";
@@ -497,12 +497,15 @@ export class MarkInfo extends React.Component<
         >
           <div className={styles.header}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <Icon iconName="Info" />
+              
+              <IconButton iconProps={{ iconName: 'Info' }}/>
               <h4 className={styles.headerTitle}>Alert</h4>
             </div>
             <IconButton
-              iconProps={{ iconName: "ErrorBadge" }}
-              ariaLabel="Close popup modal"
+          
+              iconProps={{ iconName: 'Cancel' }}
+            
+              
               onClick={this._closeModal}
             />
           </div>

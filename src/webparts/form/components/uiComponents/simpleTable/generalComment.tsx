@@ -13,7 +13,7 @@ import {
   Modal,
   mergeStyleSets,
   IconButton,
-  Icon,
+
 } from "@fluentui/react";
 
 import * as React from "react";
@@ -364,7 +364,11 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
         >
           <div className={styles.header}>
             <div style={{ display: "flex", alignItems: "center" }}>
-            <Icon iconName="Info" />
+           
+            <IconButton
+              iconProps={{ iconName: "Info" }}
+              
+            />
               <h4 className={styles.headerTitle}>Add Comment</h4>
             </div>
             <IconButton
