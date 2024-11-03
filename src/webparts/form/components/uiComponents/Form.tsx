@@ -188,6 +188,9 @@ interface IMainFormState {
   isWarningPurposeField: boolean;
   isWarningOthersField:boolean;
   eCommitteData: any;
+
+  conditionNumber:any;
+  conditionNumArray:any;
   eCommitteDataForValidataion: any;
   eCommitteDataForValidataionDialog: any;
 
@@ -385,6 +388,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       isWarningPeoplePicker: false,
 
       eCommitteData: {},
+
+      conditionNumber:"",
+  conditionNumArray:"",
       eCommitteDataForValidataion: {},
       eCommitteDataForValidataionDialog: {},
       noteTofiles: [],
@@ -512,7 +518,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
       // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
       // errorInSupportingDocFiles:this.state.errorFilesList.supportingDocument.length > 0,
-      console.log("Auto save Entered");
+      // console.log("Auto save Entered");
       this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
       // if (this.state.errorFilesList.notePdF === 0 && this.state.errorFilesList.wordDocument === 0 && this.state.errorFilesList.supportingDocument === 0){
       //   this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
@@ -525,7 +531,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     //  if (this.state.statusNumber === '100'||this.state.statusNumber === '200' ||this.state.statusNumber === '1000' ||this.state.statusNumber === '5000' ){
         // console.log("Autosave cleared due to status is draft,call back,submitted,returned")
-          console.log("Autosave cleared due to the edit form")
+          // console.log("Autosave cleared due to the edit form")
       clearInterval(this.autoSaveInterval);
 
      }
@@ -547,7 +553,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }
 
   private autoSave = async (): Promise<void> => {
-    console.log("autosave is triggered")
+    // console.log("autosave is triggered")
     try {
       // console.log(this.state.errorFilesList.notePdF.length === 0);
       // console.log(this.state.errorFilesList.wordDocument.length === 0);
@@ -863,7 +869,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "CurrentApprover/EMail"
       )
       .expand("Approvers", "Reviewers", "CurrentApprover")();
-    console.log(`${id} ------Details`, item);
+    // console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -910,7 +916,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       noteSecretaryDetails: JSON.parse(item.NoteSecretaryDTO),
       
     });
-    console.log("variable setted")
+    // console.log("variable setted")
     return item;
   };
 
@@ -1338,10 +1344,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private _getPeoplePickerItemsApporvers = async (items: any[]) => {
-    console.log("Items:", items);
+    // console.log("Items:", items);
 
     const checkSelectedApproverHasSecretary = this.state.approverIdsHavingSecretary.filter((each:any)=>each.ApproverId === items[0].id)
-    console.log(checkSelectedApproverHasSecretary)
+    // console.log(checkSelectedApproverHasSecretary)
     // fetchedData = items
     // console.log(items[0].loginName);
 
@@ -1529,12 +1535,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private _clearReviewerPeoplePicker = () => {
-    console.log('Function called for clearing')
+    // console.log('Function called for clearing')
     this.setState({ reviewerInfo: [], reviewerKey: this.state.reviewerKey + 1 }); // Update the key to force re-render
   };
 
   private _clearApproverPeoplePicker = () => {
-    console.log('Function called for clearing')
+    // console.log('Function called for clearing')
     this.setState({ approverInfo: [], approverKey: this.state.approverKey + 1 }); // Update the key to force re-render
   };
 
@@ -1612,7 +1618,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // console.log(each);
             return each.ApproverId === this.state.approverInfo[0].id;
           });
-        console.log(getSecretaryDetails);
+        // console.log(getSecretaryDetails);
         if (getSecretaryDetails.length > 0) {
           this.setState((prev) => ({
             peoplePickerApproverData: [
@@ -2142,7 +2148,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     });
 
-    console.log(nw);
+    // console.log(nw);
 
     if (purpose === "intialOrderApproverDetails") {
       return nw[0];
@@ -2301,7 +2307,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     ) {
       conditionNumber = 1
       // 
-      console.log("Approval", "Sanction", "Financial");
+      // console.log("Approval", "Sanction", "Financial");
       if (this.state.natureOfNoteFeildValue === "Approval") {
         // console.log("Approval", "Financial");
         
@@ -2901,7 +2907,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
-    console.log(conditionNumber,"Condition Number")
+    // console.log(conditionNumber,"Condition Number")
 
 
     const warn:any = {
@@ -2927,7 +2933,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
     };
 
-    console.log(warn)
+    // console.log(warn)
     // console.log(
     //   fieldValues,
     //   "Final FieldValues........................................"
@@ -2937,14 +2943,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const newWarnObj:any = {}
    Object.keys(fieldValues).map(
       (each: keyof typeof fieldValues) => {
-        console.log(each);
+        // console.log(each);
         if (
           fieldValues[each] === "" ||
           fieldValues[each] === null
         ) {
-          console.log("entred", each,fieldValues[each]);
-          console.log(warn[each],"Warning ...........")
-          console.log(warn[each][1],"Warning ...........1111111")
+          // console.log("entred", each,fieldValues[each]);
+          // console.log(warn[each],"Warning ...........")
+          // console.log(warn[each][1],"Warning ...........1111111")
           
          newWarnObj[warn[each][1]] = true;
          
@@ -2952,7 +2958,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
        
       }
     );
-    console.log(newWarnObj,"Warning check")
+    // console.log(newWarnObj,"Warning check")
     this.setState({...newWarnObj})
 
     // console.log(dialogVisableWarn, "Dialog Visable Warn");
@@ -2960,13 +2966,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
    
     const dialogVisable = Object.keys(fieldValues).every(
       (each: keyof typeof fieldValues) => {
-        console.log(each);
+        // console.log(each);
         if (
           fieldValues[each] === "" ||
           fieldValues[each].length === 0 ||
           fieldValues[each] === true
         ) {
-          console.log("entred", each,fieldValues[each]);
+          // console.log("entred", each,fieldValues[each]);
           
        
           return false;
@@ -2976,15 +2982,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     );
    
 
-    console.log(dialogVisable, "Dialog Visable");
-
+    // console.log(dialogVisable, "Dialog Visable");
+    this.setState({conditionNumber:conditionNumber})
     return dialogVisable;
   };
 
   private _checkValidationArray = (): any => {
     // console.log(this.state);
     let conditionNumArray:any = ''
-    console.log(this.state.noteSecretaryDetails.length > 0 ,"Checking secretary exist or not")
+    // console.log(this.state.noteSecretaryDetails.length > 0 ,"Checking secretary exist or not")
     let fieldValues;
     if (
       (this.state.natureOfNoteFeildValue === "Approval" ||
@@ -3803,12 +3809,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
     }
+    this.setState({conditionNumArray:conditionNumArray})
 
     // console.log(
     //   fieldValues,
     //   "Dialog FieldValues........................................"
     // );
-    console.log(conditionNumArray,"condition Num Array")
+    // console.log(conditionNumArray,"condition Num Array")
   };
 
   private handleSubmit = async (
@@ -5263,7 +5270,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         }
       }
     )
-    console.log(checkSecertaryIsAvailable)
+    // console.log(checkSecertaryIsAvailable)
       // if (checkSecertaryIsAvailable === false){
       //   this.setState({wordDocumentfiles:[]})
       // }
@@ -5271,8 +5278,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }
 
   public render(): React.ReactElement<IFormProps> {
-    console.log(this.state);
-    console.log(this._committeeType)
+    // console.log(this.state);
+    // console.log(this._committeeType)
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
     // console.log(this._formType === "view");

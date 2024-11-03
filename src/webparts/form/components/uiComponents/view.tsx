@@ -959,7 +959,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    console.log(`${id} ------Details`, item);
+    // console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -1758,8 +1758,8 @@ export default class ViewForm extends React.Component<
       const joinedCommentsData = this.state.commentsData
       .filter((each: any) => !!each)
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
-      console.log(joinedCommentsData)
-      console.log(joinedCommentsData.join(', '))
+      // console.log(joinedCommentsData)
+      // console.log(joinedCommentsData.join(', '))
         // const itemAddResult =
          await this.props.sp.web.lists
           .getByTitle("ATRRequests")
@@ -1806,8 +1806,8 @@ export default class ViewForm extends React.Component<
       const joinedCommentsData = this.state.commentsData
       .filter((each: any) => !!each)
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
-      console.log(joinedCommentsData)
-      console.log(joinedCommentsData.join(', '))
+      // console.log(joinedCommentsData)
+      // console.log(joinedCommentsData.join(', '))
         // const itemAddResult =
          await this.props.sp.web.lists
           .getByTitle("ATRRequests")
@@ -2041,13 +2041,13 @@ export default class ViewForm extends React.Component<
   private _checkingCurrentUserIsSecretaryDTO = (): any => {
     const currentUserHavingSecretaryisApproved = this.state.ApproverDetails.filter(
       (each: any) => {
-        console.log(each);
+        // console.log(each);
         if (each.secretary ===this.props.context.pageContext.user.displayName && each.statusNumber !== '9000') {
           return each;
         }
       }
     );
-    console.log(currentUserHavingSecretaryisApproved);
+    // console.log(currentUserHavingSecretaryisApproved);
 
     const userIsSec = this.state.noteSecretaryDetails.some((each: any) => {
       // console.log(each);
@@ -2057,9 +2057,9 @@ export default class ViewForm extends React.Component<
         return true;
       }
     });
-    console.log(userIsSec);
+    // console.log(userIsSec);
 
-    console.log(userIsSec && currentUserHavingSecretaryisApproved.length > 0);
+    // console.log(userIsSec && currentUserHavingSecretaryisApproved.length > 0);
     return userIsSec && currentUserHavingSecretaryisApproved.length > 0;
   };
 
@@ -2646,7 +2646,7 @@ export default class ViewForm extends React.Component<
 
 
     const checkSelectedApproverHasSecretary = this.state.approverIdsHavingSecretary.filter((each:any)=>each.ApproverId === this.state.currentApprover[0].id)
-          console.log(checkSelectedApproverHasSecretary)
+          // console.log(checkSelectedApproverHasSecretary)
 
           const secretaryObj = {
             noteSecretarieId: checkSelectedApproverHasSecretary[0]?.noteSecretarieId,
@@ -2978,7 +2978,7 @@ export default class ViewForm extends React.Component<
     } 
     else{
       const currentApp = this.state.currentApprover?(this.state.currentApprover[0]?.text) :[];
-      console.log(currentApp)
+      // console.log(currentApp)
       return currentApp
     }
     // else {
@@ -3561,8 +3561,8 @@ export default class ViewForm extends React.Component<
   }
 
   public render(): React.ReactElement<IViewFormProps> {
-    console.log(this.state);
-    console.log(this._committeeType)
+    // console.log(this.state);
+    // console.log(this._committeeType)
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
     // console.log((this.state.refferredToDetails[0] ))

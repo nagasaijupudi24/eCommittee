@@ -125,13 +125,13 @@ const MyDialog: React.FC<MyDialogProps> = ({
         data[each][0].length === 0 ||
         data[each][0] === true
       ) {
-        console.log(data[each][1], data[each][0]);
+        // console.log(data[each][1], data[each][0]);
         return data[each][1];
       }
     })
     .filter((each: any) => each);
 
-  console.log(undefinedData);
+  // console.log(undefinedData);
 
   return (
     <Modal

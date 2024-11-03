@@ -4,7 +4,7 @@ import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
 const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any;typeOfNote:any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq ,typeOfNote}) => {
-  console.log(typeOfNote)
+  // console.log(typeOfNote)
   const styles = mergeStyleSets({
     modal: {
       padding: '10px',
