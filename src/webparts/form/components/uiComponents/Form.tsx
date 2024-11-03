@@ -73,6 +73,7 @@ import { DetailsListDragDropExample } from "./draggableGridKendo/dragAndDropFlue
 import ConfirmationDialog from "./dialogFluentUi/submitConfirmation";
 import AutoSaveDialog from "./dialog/autoSaveStopped";
 import AutoSaveFailedDialog from "./dialogFluentUi/autoSaveFailedDialog";
+import ReviewerExistModal from "./ApproverOrReviewerDialog/reviewerDialogAlreadyExist";
 
 // const customTheme = createTheme({
 //   palette: {
@@ -248,6 +249,8 @@ interface IMainFormState {
 
   autosave: boolean;
   autoSavedialog: boolean;
+
+  isReviewerDialogHandel:boolean;
 }
 
 // let fetchedData:any[];
@@ -316,7 +319,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _committeeType: any =
-    this.props.formType === "BoardNoteNew" ? "Board" : "eCommittee";
+    (this.props.formType === "BoardNoteNew" ||this.props.formType === "BoardNoteView") ? "Board" : "eCommittee";
+   
 
   private _folderName: any = "";
 
@@ -395,6 +399,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       isDialogHidden: true,
       isApproverOrReviewerDialogHandel: true,
+      isReviewerDialogHandel:true,
       peoplePickerData: [],
       peoplePickerApproverData: [],
       approverInfo: [],
@@ -438,7 +443,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const libraryTilte = this.props.libraryId;
     this._libraryName = libraryTilte?.title;
     
-   
+    
     // console.log(this._libraryName)
     // console.log(this._itemId);
     // console.log(this._formType);
@@ -1523,7 +1528,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(type,newItemsData,"test",designation)
       if (this.checkReviewer()) {
         // console.log("Data already Exist in Reviewer Table or Approver Table");
-        this.setState({ isApproverOrReviewerDialogHandel: false });
+        this.setState({ isReviewerDialogHandel: false });
       } else {
         // console.log(this.state.reviewerInfo, "Reviewer Info");
         const getSecretaryDetails =
@@ -1539,10 +1544,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               ...prev.peoplePickerData,
               ...this.state.reviewerInfo,
             ],
-            noteSecretaryDetails: [
-              ...prev.noteSecretaryDetails,
-              getSecretaryDetails[0]?.secretaryObj,
-            ],
+            // noteSecretaryDetails: [
+            //   ...prev.noteSecretaryDetails,
+            //   getSecretaryDetails[0]?.secretaryObj,
+            // ],
           }));
         } else {
           // console.log("else entered");
@@ -1576,17 +1581,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // console.log(each);
             return each.ApproverId === this.state.approverInfo[0].id;
           });
-        // console.log(getSecretaryDetails);
+        console.log(getSecretaryDetails);
         if (getSecretaryDetails.length > 0) {
           this.setState((prev) => ({
             peoplePickerApproverData: [
               ...prev.peoplePickerApproverData,
               ...this.state.approverInfo,
             ],
-            noteSecretaryDetails: [
-              ...prev.noteSecretaryDetails,
-              getSecretaryDetails[0]?.secretaryObj,
-            ],
+            // noteSecretaryDetails: [
+            //   ...prev.noteSecretaryDetails,
+            //   getSecretaryDetails[0]?.secretaryObj,
+            // ],
           }));
         } else {
           this.setState((prev) => ({
@@ -4800,7 +4805,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   public handleApproverOrReviewerDialogBox = (): void => {
     // console.log("Dialog handling");
-    this.setState({ isApproverOrReviewerDialogHandel: true });
+    this.setState({ isApproverOrReviewerDialogHandel: true,isReviewerDialogHandel:true });
   };
 
   public checkUserIsIBTes2 = (
@@ -4997,6 +5002,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   public render(): React.ReactElement<IFormProps> {
     console.log(this.state);
+    console.log(this._committeeType)
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
     // console.log(this._formType === "view");
@@ -5071,6 +5077,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             {/* success  dialog */}
             <SuccessDialog
               typeOfNote = {this._committeeType}
+              
               statusOfReq={this.state.successStatus}
               isVisibleAlter={this.state.isVisibleAlter}
               onCloseAlter={this._closeDialogAlter}
@@ -5093,8 +5100,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               data={this.state.eCommitteDataForValidataionDialog}
               handleDialogBox={this.handleDialogBox}
             />
-            <ApproverOrReviewerDialog
+
+<ApproverOrReviewerDialog
               hidden={this.state.isApproverOrReviewerDialogHandel}
+              handleDialogBox={this.handleApproverOrReviewerDialogBox}
+            />
+            <ReviewerExistModal
+              hidden={this.state.isReviewerDialogHandel}
               handleDialogBox={this.handleApproverOrReviewerDialogBox}
             />
 
@@ -5496,14 +5508,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       className={styles.halfWidth}
                       style={{ margin: "4px", marginTop: "18px" }}
                     >
+                      <label
+                      style={{
+                        display: "block",
+                        fontWeight: "600",
+                        marginBottom: "5px",
+                      }}
+                    >
+                      Purpose
+                      <SpanComponent />
+                    </label>
                       <Dropdown
                         placeholder="Select a purpose"
-                        label={
-                          <label>
-                            Purpose
-                            <SpanComponent />
-                          </label>
-                        }
+                        
                         options={this.state.purpose.slice(0, 4)}
                         selectedKey={this.state.puroposeFeildValue}
                         onChange={this.handlePurposeDropDown}
@@ -5512,13 +5529,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }
                         styles={{
                           dropdown: {
-                            // border: `1px solid ${
-
-                            //   !this.state.noteTypeFeildValue
-                            //     ? "red"
-                            //     : "rgb(211, 211, 211)"
-                            // }`,
-                            borderRadius: "0px",
+                            display: "block",
+                            
+                            height: "32px",
+                            boxSizing: "border-box",
+                            width: "100%",
                           },
                         }}
                       />
@@ -5527,15 +5542,20 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <div
                       className={styles.halfWidth}
                       style={{ margin: "4px", marginTop: "18px" }}
+                    > 
+                    <label
+                      style={{
+                        display: "block",
+                        fontWeight: "600",
+                        marginBottom: "5px",
+                      }}
                     >
+                      Purpose
+                      <SpanComponent />
+                    </label>
                       <Dropdown
                         placeholder="Select a purpose"
-                        label={
-                          <label>
-                            Purpose
-                            <SpanComponent />
-                          </label>
-                        }
+                       
                         options={this.state.purpose.slice(4)} // Slice starting from index 4 to get remaining items
                         selectedKey={this.state.puroposeFeildValue}
                         onChange={this.handlePurposeDropDown}
@@ -5550,7 +5570,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                             //     ? "red"
                             //     : "rgb(211, 211, 211)"
                             // }`,
-                            borderRadius: "0px",
+                            display: "block",
+                           
+                            height: "32px",
+                            boxSizing: "border-box",
+                            width: "100%",
                           },
                         }}
                       />
@@ -5574,9 +5598,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <textarea
                       style={{
                         display: "block",
-                        paddingLeft: "12px",
-                        paddingTop: "5px",
-                        height: "31px",
+                       
+                        height: "32px",
                         boxSizing: "border-box",
                         width: "100%",
                         // border: this.state.isWarningSubject

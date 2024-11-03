@@ -254,6 +254,7 @@ h4{
 
 @media (max-width: 768px) { /* Mobile and small tablets */
   .expansionAndPdfContainer {
+  
     flex-direction: column; /* Change direction to column */
     justify-content: center; /* Center items vertically */
     align-items: center; /* Center items horizontally */
@@ -265,6 +266,8 @@ h4{
   }
 
   .expandingContainer {
+    padding-top: 5px;
+    padding-right: 0px;
     order: 2; /* Make expandingContainer appear second */
     width: 100%; /* Full width */
   }
@@ -283,6 +286,8 @@ h4{
   }
 
   .expandingContainer {
+    padding-top: 5px;
+    padding-right: 0px;
     order: 2; /* Make expandingContainer appear second */
     width: 100%; /* Full width */
   }

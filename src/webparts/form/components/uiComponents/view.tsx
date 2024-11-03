@@ -265,7 +265,7 @@ export default class ViewForm extends React.Component<
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: any = "";
   private _committeeType: any =
-    this.props.formType === "BoardNoteNew" ? "Board" : "eCommittee";
+    this.props.formType === "BoardNoteView" ? "Board" : "eCommittee";
 
     private _listname:any;
   private _libraryName:any;
@@ -3484,6 +3484,7 @@ export default class ViewForm extends React.Component<
 
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
+    console.log(this._committeeType)
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
     // console.log((this.state.refferredToDetails[0] ))
