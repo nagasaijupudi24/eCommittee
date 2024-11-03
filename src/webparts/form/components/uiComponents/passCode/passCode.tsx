@@ -204,6 +204,12 @@ export default class PasscodeModal extends React.Component<
         marginBottom:'4px',
         fontWeight:'400'
       },
+      headerTitle: {
+        margin:'5px',
+        marginLeft:'5px',
+        fontSize:'16px',
+        fontWeight:'400'
+       },
       body: {
         display: 'flex',
         flexDirection: 'column',
@@ -291,7 +297,7 @@ export default class PasscodeModal extends React.Component<
       containerClassName={styles.modal}
     >
       <div className={styles.header}>
-        <h4 style={{marginTop:'4px',marginBottom:'4px'}}>Passcode Verification</h4>
+        <h4 className={styles.headerTitle}>Passcode Verification</h4>
         <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
       </div>
       <div className={styles.body} style={{ textAlign: "center" }}>

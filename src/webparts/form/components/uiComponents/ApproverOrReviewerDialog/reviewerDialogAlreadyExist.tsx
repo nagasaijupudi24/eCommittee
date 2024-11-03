@@ -20,7 +20,7 @@ interface MyModalProps {
 
 // Close and info icons
 const closeIcon: IIconProps = { iconName: 'Cancel' };
-const okIcon: IIconProps = { iconName: 'CheckMark' }; // Icon for the OK button
+const okIcon: IIconProps = { iconName: 'ReturnToSession' }; // Icon for the OK button
 
 const ReviewerExistModal: React.FC<MyModalProps> = ({
   hidden,

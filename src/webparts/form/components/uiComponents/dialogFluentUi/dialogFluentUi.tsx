@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Modal } from "@fluentui/react/lib/Modal";
 import { PrimaryButton, DefaultButton } from "@fluentui/react/lib/Button";
-import { FontIcon, Icon, IIconProps, mergeStyleSets, Stack, TextField } from "@fluentui/react";
+import {  IIconProps, mergeStyleSets, Stack, TextField } from "@fluentui/react";
 import PnPPeoplePicker from "../peoplePicker/peoplePicker";
 import { IconButton, Text } from "@fluentui/react";
 import { v4 } from "uuid";
@@ -34,7 +34,7 @@ const Header = (props: any) => (
       {/* <TooltipHost content="Information about adding a referee"> */}
         <IconButton iconProps={{ iconName: "Info" }} />
       {/* </TooltipHost> */}
-      <Text variant="large" styles={{ root: { marginLeft: "3px" } }}>
+      <Text variant="large" styles={{ root: { marginLeft: "3px",fontSize:'16px' } }}>
         {props.heading}
       </Text>
     </Stack>
@@ -82,6 +82,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       justifyContent: 'space-between',
       alignItems: 'center',
       borderBottom: '1px solid #ddd',
+        height:'50px'
     },
     headerTitle: {
      margin:'5px',
@@ -179,7 +180,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
       >
         <div  className={styles.header}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Icon iconName="WaitlistConfirm" style={{ marginRight: '10px' }} />
+            {/* <Icon iconName="WaitlistConfirm" style={{ marginRight: '10px' }} /> */}
+            <IconButton iconProps={{ iconName: "WaitlistConfirm" }} />
             <h4 className={styles.headerTitle}>Confirmation</h4>
           </div>
           <IconButton iconProps={closeIcon} onClick={dialogDetails.closeFunction} />
@@ -344,8 +346,9 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             alignItems: "center",
             gap: "8px",
           }}>
-            <FontIcon iconName="Info" style={{ fontSize: 20 }} />
-            <Text variant="large">Alert</Text>
+            <IconButton iconProps={{ iconName: "Info" }} />
+           
+            <h4 className={styles.headerTitle}>Alert</h4>
           </div>
   
           {/* Right-side close icon */}
@@ -371,7 +374,9 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
           borderTop: "1px solid #ddd",
         }}>
           <PrimaryButton
-            text="Close"
+          iconProps={{ iconName: 'ReturnToSession', styles: { root: styles.buttonIcon } }}
+           
+            text="ok"
             onClick={closeUserExistsModal}
             ariaLabel="Close modal"
           />
@@ -394,7 +399,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         containerClassName={styles.modal}
       >
         <Header heading={'Change Approver'} onClose={dialogDetails.closeFunction} />
-        <div className={styles.body}>
+        <div className={styles.body} style={{paddingTop:'10px'}}>
           <div className={styles.contentContainer}>
             <p>{dialogDetails.message}<SpanComponent/></p>
             <PnPPeoplePicker

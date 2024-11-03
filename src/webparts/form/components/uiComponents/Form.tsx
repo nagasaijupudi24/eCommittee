@@ -206,6 +206,9 @@ interface IMainFormState {
   isDialogHidden: boolean;
   isApproverOrReviewerDialogHandel: boolean;
 
+  reviewerKey:any;
+  approverKey:any;
+
   peoplePickerData: any;
   peoplePickerApproverData: any;
   approverInfo: any;
@@ -400,6 +403,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       isDialogHidden: true,
       isApproverOrReviewerDialogHandel: true,
       isReviewerDialogHandel:true,
+
+      reviewerKey:0,
+      approverKey:0,
       peoplePickerData: [],
       peoplePickerApproverData: [],
       approverInfo: [],
@@ -1513,6 +1519,19 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return returnBoolean;
   };
 
+  private _clearReviewerPeoplePicker = () => {
+    console.log('Function called for clearing')
+    this.setState({ reviewerInfo: [], reviewerKey: this.state.reviewerKey + 1 }); // Update the key to force re-render
+  };
+
+  private _clearApproverPeoplePicker = () => {
+    console.log('Function called for clearing')
+    this.setState({ approverInfo: [], approverKey: this.state.approverKey + 1 }); // Update the key to force re-render
+  };
+
+
+
+
   private handleOnAdd = async (event: any, type: string): Promise<void> => {
     // console.log(type);
     if (type === "reveiwer") {
@@ -1558,7 +1577,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             ],
           }));
         }
+
       }
+
+      this._clearReviewerPeoplePicker()
 
       // console.log(fetchedData)
       // this._getPeoplePickerItems()
@@ -1602,6 +1624,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           }));
         }
       }
+
+      this._clearApproverPeoplePicker()
 
       // console.log(fetchedData)
       // this._getPeoplePickerItems()
@@ -5675,6 +5699,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 >
                   <div style={{ display: "flex" }}>
                     <PeoplePicker
+                       key={this.state.reviewerKey}
                       placeholder="Reviewer Details"
                       context={this._peopplePicker}
                       // titleText="People Picker"
@@ -5738,6 +5763,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 >
                   <div style={{ display: "flex" }}>
                     <PeoplePicker
+                     key={this.state.approverKey}
                       placeholder="Approver Details"
                       context={this._peopplePicker}
                       // titleText="People Picker"

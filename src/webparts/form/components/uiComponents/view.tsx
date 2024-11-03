@@ -8,7 +8,7 @@
 /* eslint-disable no-void */
 import * as React from "react";
 import { IViewFormProps } from "../IViewFormProps"; // Ensure this file exists
-import { FontIcon, IDropdownOption, Modal, Stack } from "office-ui-fabric-react";
+import { IDropdownOption, Modal, Stack } from "office-ui-fabric-react";
 import {
   
   IconButton,
@@ -2698,15 +2698,19 @@ export default class ViewForm extends React.Component<
       this.state.ApproverDetails.reduce((accu: any, each: any) => {
         // console.log(each);
         // console.log(each.status);
-        return accu.concat(each.status);
+        return accu.concat(each.statusNumber);
       }, []);
     // console.log(checkApproverdStatusisAvailableInApproverDetails);
     // console.log(
     //   checkApproverdStatusisAvailableInApproverDetails.includes("Approved")
     // );
     return checkApproverdStatusisAvailableInApproverDetails.includes(
-      "Approved"
+      "9000"
     );
+    // if (this.state.statusNumber ==='9000'){
+    //   return false
+    // }
+    // return true
   };
 
   private _getApproverAndReviewerStageButton = (): any => {
@@ -3121,11 +3125,11 @@ export default class ViewForm extends React.Component<
   };
 
   public _checkCurrentRequestIsReturnedOrRejected = (): boolean => {
-    switch (this.state.status) {
-      case "Rejected":
-      case "Returned":
-      case "Call Back":
-      case "Approved":
+    switch (this.state.statusNumber) {
+      case "8000":  //"Rejected":
+      case "5000":  //"Returned":
+      case "200":  //"Call Back":
+      case "9000":  //"Approved":
         return false;
       default:
         return true;
@@ -3221,10 +3225,10 @@ export default class ViewForm extends React.Component<
         switch (this.state.passCodeValidationFrom) {
           case "9000": //Approved
             this._hanldeFluentDialog(
-              "approve",
-              "Approved",
+              this.state.successStatus==='approved'?"approve":'note',
+              this.state.successStatus==='approved'?"Noted":'Approved' ,
               "9000",
-              "Please check the details filled along with attachment and click on Confirm button to approve request.",
+              this.state.successStatus==='approved'?"Please check the details filled along with attachment and click on Confirm button to approve the request.":"Please check the details filled along with attachment and click on Confirm button to note the request.",
               this._handleApproverButton,
               this._closeDialog,
               ""
@@ -3241,7 +3245,7 @@ export default class ViewForm extends React.Component<
               "refer back",
               "Refered Back",
               "4900",
-              "Please check the details filled along with attachment and click on Confirm button to refer back request.",
+              "Please check the details filled along with attachment and click on Confirm button to refer back the request.",
               this.handleReferBack,
               this._closeDialog,
               ""
@@ -3253,7 +3257,7 @@ export default class ViewForm extends React.Component<
               "refer",
               "Refered",
               "4000",
-              "Please check the details filled along with attachment and click on Confirm button to refer request.",
+              "Please check the details filled along with attachment and click on Confirm button to refer the request.",
               this.handleRefer,
               this._closeDialog,
               ""
@@ -3264,7 +3268,7 @@ export default class ViewForm extends React.Component<
             "return",
             "Returned",
             "5000",
-            "Please check the details filled along with attachment and click on Confirm button to return request.",
+            "Please check the details filled along with attachment and click on Confirm button to return the request.",
             this.handleReturn,
             this._closeDialog,
             ""
@@ -3275,7 +3279,7 @@ export default class ViewForm extends React.Component<
               "reject",
               "Rejected",
               "8000",
-              "Please check the details filled along with attachment and click on Confirm button to reject request.",
+              "Please check the details filled along with attachment and click on Confirm button to reject the request.",
               this.handleReject,
               this._closeDialog,
               ""
@@ -3291,7 +3295,7 @@ export default class ViewForm extends React.Component<
               "change approver",
               "changeApprover",
               "7500",
-              "Change Approver",
+              "Please click on Confirm button to change approver.",
               this.handleChangeApprover,
               this._closeDialog,
               ""
@@ -3441,8 +3445,10 @@ export default class ViewForm extends React.Component<
             alignItems: "center",
             gap: "8px",
           }}>
-            <FontIcon iconName="Info" style={{ fontSize: 20 }} />
-            <Text variant="large">Alert</Text>
+           <IconButton iconProps={{ iconName: "Info" }} />
+           
+           <h4 className={styles.headerTitle}>Alert</h4>
+         
           </div>
   
           {/* Right-side close icon */}
@@ -3468,7 +3474,9 @@ export default class ViewForm extends React.Component<
           borderTop: "1px solid #ddd",
         }}>
           <PrimaryButton
-            text="Close"
+            iconProps={{ iconName: 'ReturnToSession'}}
+           
+            text="ok"
             onClick={this.closeUserExistsModal}
             ariaLabel="Close modal"
           />

@@ -89,7 +89,7 @@ const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => voi
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        {statusOfReq === 'approver changed'?<p>The current actioner(Approver/Reviewer/Referee) has been updated successfully.</p>:<p>The request for {typeOfNote} note has been {statusOfReq} successfully.</p>}
+        {statusOfReq === 'approver changed'?<p>The current actioner(Approver/Reviewer/Referee) has been updated successfully.</p>:<p>The request for {typeOfNote} note has been {statusOfReq.toLowerCase()} successfully.</p>}
         
       </div>
       <div className={styles.footer}>
