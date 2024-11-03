@@ -23,19 +23,13 @@ import {
   Icon,
 } from "@fluentui/react";
 import styles from "../Form.module.scss";
-// import DraggableTable from "./draggableGridKendo/draggableGridKendo";
 import ApproverAndReviewerTableInViewForm from "./simpleTable/reviewerAndApproverTableInViewForm";
 import CommentsLogTable from "./simpleTable/commentsTable";
 import WorkFlowLogsTable from "./simpleTable/workFlowLogsTable";
 import FileAttatchmentTable from "./simpleTable/fileAttatchmentsTable";
-
-
 import { Spinner } from "@fluentui/react/lib/Spinner";
-// import AdobePdfWebPart from "../../../adobePdf/AdobePdfWebPart";
-// import AdobePdfViewer from "../adobe/adobepdf";
 import { DialogBlockingExample } from "./dialogFluentUi/dialogFluentUi";
 import { format } from "date-fns";
-// import PdfViewer from "../pdfVeiwer/pdfreact";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
 import UploadFileComponent from "./uploadFile";
 import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
@@ -46,7 +40,6 @@ import ReferBackCommentDialog from "./dialogFluentUi/referBackCommentDialog";
 import RejectBtnCommentCheckDialog from "./dialogFluentUi/rejectCommentsCheckDialog";
 import ReturnBtnCommentCheckDialog from "./dialogFluentUi/returnCommentsCheck";
 import PDFViewer from "./pdfviewPdfDist/pdfDist";
-// import PDFViewerComponent from "./pdfviewPdfDist/ibpdf";
 import PasscodeModal from "./passCode/passCode";
 import GistDocsConfirmation from "./dialogFluentUi/gistDocsConfirmationDialog";
 
@@ -57,14 +50,6 @@ import GistDocSubmitted from "./dialogFluentUi/gistDocs";
 import GistDocEmptyModal from "./dialogFluentUi/gistDocEmptyModal";
 import AutoSaveFailedDialog from "./dialogFluentUi/autoSaveFailedDialog";
 import NotedCommentDialog from "./dialogFluentUi/notedCommentsDialog";
-
-// import ViewPdf from "../pdfVeiwer/viewPdf";
-// import PasscodeModal from "./passCode/passCode";
-// import PSPDFKitViewer from "../psdpdfKit/psdPDF";
-// import PnPPeoplePicker from "./peoplePicker/peoplePicker";
-// import PnPPeoplePicker2 from "./peoplePicker/people";
-// import { WebPartContext } from "@microsoft/sp-webpart-base";
-// import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 export interface IFileDetails {
   name?: string;
@@ -240,12 +225,7 @@ const getIdFromUrl = (): any => {
   return Id;
 };
 
-// const getFromType = (): any => {
-//   const params = new URLSearchParams(window.location.search);
-//   const formType = params.get("type");
-//   // console.log(Id);
-//   return formType;
-// };
+
 
 export default class ViewForm extends React.Component<
   IViewFormProps,
@@ -255,11 +235,6 @@ export default class ViewForm extends React.Component<
   private _itemId: number = Number(getIdFromUrl());
   private _currentUserEmail = this.props.context.pageContext.user.email;
 
-  // private _currentUserEmail ="ib.test4@xencia.com";
-  // private _currentUserEmail ="Manidhar.j@xencia.com";
-  // private _currentUserEmail ="ib.test2@xencia.com";
-  // private _currentUserEmail ="Nandu.krishna@xencia.com";
-  // private _formType: string = getFromType();
   private _absUrl: any = this.props.context.pageContext.web.serverRelativeUrl;
   private _folderName: any = "";
   private _committeeType: any =
@@ -350,10 +325,7 @@ export default class ViewForm extends React.Component<
       expandSections: { generalSection: true }, // Keeps track of expanded sections
       pdfLink: "",
 
-      // "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/Pdf/E0300SBIBZ.pdf",
-      //   "https://xencia1.sharepoint.com/sites/XenciaDemoApps/uco/ECommitteeDocuments/AD1-2024-25-C147/SupportingDocument/Export.xlsx?d=w5597c83c4c7744daab598c33704569bc"
-      // "https://xencia1.sharepoint.com/:b:/s/XenciaDemoApps/uco/EcFS2u_tQFhMmEy0LV6wx5wBEf8gycMjKYn0RIHHvCVzRw?e=de5FmB", // Link to the PDF
-      createdByEmail: "",
+    createdByEmail: "",
       createdByID:"",
       ApproverOrder: "",
       dialogFluent: true,
@@ -449,9 +421,6 @@ export default class ViewForm extends React.Component<
       await this._getItemDocumentsData();
     });
 
-    // this._getUserCountry();
-    // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest()
-    // console.log(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest())
   }
 
   private _fetchDepartmentAlias = async (): Promise<void> => {
@@ -505,23 +474,7 @@ export default class ViewForm extends React.Component<
     }
   };
 
-  // private _getUserCountry = async () => {
-  //   try {
-  //     // Get the current user's regional settings
-  //   const regionalSettings = await this.props.sp.web.regionalSettings.timeZone.get();
-
-  //   // Log or return the time zone details
-  //   console.log("Time Zone Description:", regionalSettings.Description);
-  //   console.log("Time Zone ID:", regionalSettings.Id);
-
-  //   return regionalSettings;
-
-  //     // return country;
-  //   } catch (error) {
-  //     console.error("Error retrieving user profile properties:", error);
-  //   }
-  // };
-
+ 
 
   private _getUserProperties = async (loginName: any): Promise<any> => {
     // console.log(loginName)
@@ -724,16 +677,7 @@ export default class ViewForm extends React.Component<
     }
   };
 
-  //  public async _folderNameGenerate(id: any): Promise<any> {
-
-  //   console.log(this.state)
-  //   const currentyear = new Date().getFullYear();
-  //   const nextYear = (currentyear + 1).toString().slice(-2);
-
-  //   const requesterNo = this.props.formType==="BoardNoteView"? `${this.state?.departmentAlias}/${currentyear}-${nextYear}/B${id}`:`${this.state?.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
-  //   const folderName = requesterNo.replace(/\//g, "-");
-  //   return folderName;
-  // }
+  
 
   public _folderNameGenerate(id: any): any {
     // console.log(this.state.departmentAlias);
@@ -881,37 +825,7 @@ export default class ViewForm extends React.Component<
     return ids; // Return the array of resolved objects
   };
 
-  //   data: any,
-  //   idData: any
-  // ): Promise<any> => {
-  //   console.log(
-  //     "*********************************************************************************************************"
-  //   );
-  //   console.log(data);
-
-  //   // Create an array of promises using Promise.all
-  //   const ids = await Promise.all(
-  //     data.map( (each: any) => {
-  //       console.log(each);
-  //       // Create a new object with text and email
-  //       const userInfo = { text: each.Title, email: each.EMail };
-  //       // Fetch the user by email
-  //       const users = await this.props.sp.web.siteUsers.getByEmail(
-  //         userInfo.email
-  //       )();
-  //       console.log(users);
-  //       // Get the user ID
-  //       const id = users.Id;
-  //       console.log(id);
-  //       // Return the new object with the ID
-  //       return { ...userInfo, id };
-  //     })
-  //   );
-
-  //   console.log(ids); // Log the resolved array of user information
-
-  //   return ids; // Return the array of resolved objects
-  // };
+  
 
 
   private _getCommentsData = (data: any) => {
@@ -1265,36 +1179,7 @@ export default class ViewForm extends React.Component<
     return result; // Return the final result
   };
 
-  // private _getApproverOrder = (data: any,statusNum:any): any => {
-  //   console.log(statusNum)
-  //   console.log(data)
-  //   console.log(statusNum !=='5000' || statusNum !=='6000')
-  //   console.log(statusNum !=='5000' || statusNum !=='6000'?statusNum !=='5000':statusNum !=='6000')
-  //   console.log(statusNum !=='5000' || statusNum !=='6000'?false:true)
-  //   if(statusNum !=='5000' || statusNum !=='6000'?false:true){
-  //     const order = data.filter((each: any) => {
-
-  //       // console.log(each);
-  //       console.log(each.approverEmail);
-  //       console.log(this._currentUserEmail);
-  //       console.log(each.approverEmail || each.email);
-
-  //       console.log(each.approverEmail === this._currentUserEmail);
-
-  //       if ((each.approverEmail || each.email) === this._currentUserEmail) {
-  //         // console.log(each.approverOrder);
-  //         return each;
-  //       }
-  //     });
-  //     console.log(order);
-  //     return [order[0].approverOrder, order[0].approverType];
-
-  //   }
-  //   else{
-  //     return ''
-  //   }
-
-  // };
+  
 
   private _getFileObj = (data: any): any => {
     const tenantUrl = window.location.protocol + "//" + window.location.host;
@@ -1328,20 +1213,7 @@ export default class ViewForm extends React.Component<
 
   private _getItemDocumentsData = async () => {
     try {
-      // console.log("------------------Pdf-----------------------------------");
-      // //   const SupportingDocuments = await this.props.sp.web
-      // //     .getFolderByServerRelativePath(`EnoteDocuments/AD1-2024-25-415/SupportingDocuments`)
-      // //     .files.select("*")
-      // //     .expand("Author", "Editor")()
-      // //     .then((res) => res);
-
-      // //     console.log(SupportingDocuments)   //testing based on other author name (other than current user)
-      // const _folderName: any =await `${this._absUrl}/${
-      //   this.props.libraryId
-      // }/${this._folderNameGenerate(this._itemId)}`;
-      // console.log(_folderName,'folder name')
-      // console.log(`${this._folderName}/Pdf`);
-      // console.log(this._folderName);
+      
 
       const folderItemsPdf = await this.props.sp.web
         .getFolderByServerRelativePath(`${this._folderName}/Pdf`)
@@ -1484,22 +1356,9 @@ export default class ViewForm extends React.Component<
     // const { pdfLink } = this.state;
     return (
       <div style={{width:'100%'}}
-      // className={styles.pdfViewer}
+      
       >
-        {/* <iframe
-          src={pdfLink}
-          width="100%"
-          height="100%"
-          style={{ border: "none" }}
-          title="PDF Viewer"
-        /> */}
-        {/* <ViewPdf pdfUrl={this.state.pdfLink}/> */}
-        {/* <AdobePdfViewer
-          clientId={"e32773e52b624acba0e9bd777c8dd310"}
-          fileUrl={this.state.pdfLink}
-          // height={800}
-          defaultViewMode={"FIT_PAGE"}
-        /> */}
+       
         <PDFViewer pdfPath={this.state.pdfLink} noteNumber={this.state.title} />
       </div>
     );
@@ -1551,33 +1410,7 @@ export default class ViewForm extends React.Component<
     return JSON.stringify([...this.state.auditTrail, ...auditLog]);
   };
 
-  // public async clearFolder(
-  //   libraryName: any,
-  //   folderRelativeUrl: string
-  // ): Promise<void> {
-  //   try {
-  //     // Get the folder
-  //     const folder = await this.props.sp.web.getFolderByServerRelativePath(
-  //       folderRelativeUrl
-  //     );
-
-  //     // Get all items in the folder
-  //     const items = await folder.files();
-
-  //     // Loop through each item and delete it
-  //     for (const item of items) {
-  //       await this.props.sp.web
-  //         .getFileByServerRelativePath(item.ServerRelativeUrl)
-  //         .recycle();
-  //     }
-
-  //     console.log(
-  //       `All files in folder '${folderRelativeUrl}' have been deleted.`
-  //     );
-  //   } catch (error) {
-  //     console.error("Error clearing folder:", error);
-  //   }
-  // }
+  
 
   public async clearFolder(
     libraryName: any,
@@ -1724,21 +1557,7 @@ export default class ViewForm extends React.Component<
     }
   }
 
-  // private async updateNoteID(itemId: number): Promise<void> {
-  //   try {
-  //      await this.props.sp.web.lists
-  //       .getByTitle("ATRRequests")
-  //       .items.getById(itemId)
-  //       .update({
-  //         ATRNoteID: `ATR-${itemId}`,
-  //       });
-  //     // console.log(itemUpdateResult);
-  //     // console.log(`Item with ID ${itemId} updated with new NoteID: ${itemId}`);
-  //   } catch (error) {
-  //     console.error("Error updating NoteID: ", error);
-  //   }
-  // }
-
+ 
   private _updateATRRequest = async (): Promise<void> => {
     this.state.noteATRAssigneeDetails.map(async (each: any) => {
       // console.log(each);
@@ -2063,22 +1882,7 @@ export default class ViewForm extends React.Component<
     return userIsSec && currentUserHavingSecretaryisApproved.length > 0;
   };
 
-  // private _showDialog = (
-  //   title: string,
-  //   message: string,
-  //   buttonText: string
-  // ) => {
-  //   const dialogContent = {
-  //     title: title,
-  //     message: message,
-  //     buttonText: buttonText,
-  //   };
-
-  //   this.setState({
-  //     isDialogVisible: true,
-  //     dialogContent: dialogContent,
-  //   });
-  // };
+  
 
   private _checkLastCommentByCurrentUser = () => {
     const { commentsData } = this.state;
@@ -2098,18 +1902,7 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
-    // const currentUserComment = this.state.commentsData.find(
-    //   (comment: any) => comment.commentedByEmail === this._currentUserEmail
-    // );
-
-    // if (!currentUserComment || currentUserComment.comment.trim() === "") {
-    //   this._showDialog(
-    //     "Missing Comments",
-    //     "Please provide comments before rejecting the request.",
-    //     "OK"
-    //   );
-    //   return; // Stop further execution
-    // }
+    
 
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -2358,39 +2151,7 @@ export default class ViewForm extends React.Component<
     this.setState({ isVisibleAlter: true });
   };
 
-  // private _checkNoteReferIdHavingComments = ():any=>{
-  //   const filterReferCommentId =this.state.noteReferrerDTO.filter((each:any)=>{
-  //     console.log(each)
-  //     console.log(each.noteReferrerId)
-  //     console.log(this.state.referredFromDetails[0].noteReferrerId)
-  //     console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
-  //     return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
-  //   })
-  //   console.log(filterReferCommentId)
-
-  //   const filterReferCommentsDTO =this.state.noteReferrerCommentsDTO.filter(
-  //     (each:any)=>{
-  //       console.log(each)
-  //       console.log(each.noteReferrerId)
-  //       console.log(this.state.referredFromDetails[0].noteReferrerId)
-  //       console.log(each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId)
-  //       return each.noteReferrerId === this.state.referredFromDetails[0].noteReferrerId
-
-  //     }
-  //   )
-  //   console.log(filterReferCommentsDTO)
-
-  //   console.log(filterReferCommentId[0].noteReferrerId ===( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
-
-  //   return (filterReferCommentId[0].noteReferrerId === ( this.state.noteReferrerCommentsDTO.length > 0 &&filterReferCommentsDTO[0]?.noteReferrerId))
-
-  // }
-
-  // private _getLastCommnet = ():any =>{
-
-  //   this.state.noteReferrerCommentsDTO.map()
-  //   return [...this.state.noteReferrerCommentsDTO,this.state.commentsData[this.state.commentsData.length-1]]
-  // }
+  
 
   private handleReferBack = async (
     statusFromEvent: string,
@@ -2635,14 +2396,7 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     data: any
   ) => {
-    //   if (!this.state.isPasscodeValidated) {
-    //     this.setState({ isPasscodeModalOpen: true,passCodeValidationFrom:statusNumber }); // Open the modal
-    //     return; // Prevent the method from proceeding until passcode is validated
-    // }
-    // console.log(data)
-    // this.setState({currentApprover:data})
-    // console.log(this.state.currentApprover);
-    // let currentApprover ;
+
 
 
     const checkSelectedApproverHasSecretary = this.state.approverIdsHavingSecretary.filter((each:any)=>each.ApproverId === this.state.currentApprover[0].id)
@@ -2812,13 +2566,7 @@ export default class ViewForm extends React.Component<
               this.setState({ isNotedCommentsManidatoryAlterDialog: true });
             }else{
               
-            // if (!this.state.isPasscodeValidated) {
-            //   this.setState({
-            //     isPasscodeModalOpen: true,
-            //     passCodeValidationFrom: "9000",
-            //   }); // Open the modal
-            //   return; // Prevent the method from proceeding until passcode is validated
-            // }
+          
 
             this.setState({
               isPasscodeModalOpen: true,
@@ -2837,13 +2585,7 @@ export default class ViewForm extends React.Component<
 
             }else{
               this.setState({ successStatus: "approved" });
-            // if (!this.state.isPasscodeValidated) {
-            //   this.setState({
-            //     isPasscodeModalOpen: true,
-            //     passCodeValidationFrom: "9000",
-            //   }); // Open the modal
-            //   return; // Prevent the method from proceeding until passcode is validated
-            // }
+          
 
             this.setState({
               isPasscodeModalOpen: true,
@@ -2887,13 +2629,7 @@ export default class ViewForm extends React.Component<
             } else {
               this.setState({ successStatus: "rejected" });
 
-              // if (!this.state.isPasscodeValidated) {
-              //   this.setState({
-              //     isPasscodeModalOpen: true,
-              //     passCodeValidationFrom: "8000",
-              //   }); // Open the modal
-              //   return; // Prevent the method from proceeding until passcode is validated
-              // }
+             
 
               this.setState({
                 isPasscodeModalOpen: true,
@@ -2981,34 +2717,7 @@ export default class ViewForm extends React.Component<
       // console.log(currentApp)
       return currentApp
     }
-    // else {
-    //   const currentStatusOfApproverDetails = data.filter((each: any) => {
-    //     // console.log(each);
-    //     // console.log(each.status);
-    //     if (each.statusNumber === "2000" ||each.statusNumber === "3000" || each.status === "Refered"||each.statusNumber === "4900") {
-    //       // console.log(each.status);
-    //       return each;
-    //     }
-    //     // return each.status === "pending" && each.approverEmailName
-    //   });
-    //   // console.log(currentStatusOfApproverDetails);
-
-    //   if (currentStatusOfApproverDetails.length > 0) {
-    //     // console.log(
-    //     //   currentStatusOfApproverDetails[0].approverEmailName,
-    //     //   currentStatusOfApproverDetails[0].text,"---",
-    //     //   currentStatusOfApproverDetails[0].approverEmailName ||currentStatusOfApproverDetails[0].text,
-    //     //   "currentStatusOfApproverDetails"
-    //     // );
-
-    //     return (
-    //       currentStatusOfApproverDetails[0].text ||
-    //       currentStatusOfApproverDetails[0].approverEmailName
-    //     );
-    //   } else {
-    //     return "";
-    //   }
-    // }
+   
   };
 
   private _closeDialog = () => {
@@ -3206,35 +2915,7 @@ export default class ViewForm extends React.Component<
     }
   };
 
-  // private _getNewUpdatedNoteApproverDTO = (re:any,ap:any):any=>{
-  //   console.log(re)
-  //   console.log(ap)
-  //   const newupdate = [...re,...ap].map(
-  //     (each:any)=>{
-  //       console.log(each)
-  //       if (each.approversOrder === 1){
-  //         console.log("entered")
-  //         if (each.approverType ==="Reviewer"){
-  //           return {...each,status:'pending',mainstatus:'pending with Reviewer',
-
-  //           }
-
-  //         } else{
-  //           return {...each,status:'pending',mainstatus:'pending with Approver'}
-  //         }
-
-  //       }else{
-  //         return {...each, status:'waiting',mainstatus:'waiting'}
-
-  //       }
-
-  //     }
-  //   )
-
-  //   console.log(newupdate)
-  //   return newupdate
-
-  // }
+  
 
   private _checkCurrentUserIsAATRAssignee = (): any => {
     const checkingATRAvailable = this.state.atrCreatorsList.some(
@@ -3405,30 +3086,7 @@ export default class ViewForm extends React.Component<
   // }
 
   private _getFileWithError = (data: any): any => {
-    // console.log(data);
-    // const itemIds = data[0].map(
-    //   (each:any)=>{
-    //     console.log(each)
-    //     return each.id
-    //   }
-    // )
-    // console.log(itemIds)
-
-    // const updateErrorFileList  = this.state.errorFilesList.map(
-    //   (each:any)=>{
-    //     console.log(each)
-    //     return each[0].filter(
-    //       (item:any)=>{
-    //         console.log(item)
-    //        if( !itemIds.includes(item.id)) {
-    //           return each
-    //        }
-    //       }
-    //     )
-
-    //   }
-    // )
-    // console.log(updateErrorFileList)
+  
     const newObj = this.state.errorFilesList;
     newObj[data[1]] = data[0];
 
