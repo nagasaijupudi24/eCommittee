@@ -218,6 +218,7 @@ interface ITableItem {
   comments: any;
   assignedTo: any;
   status: any;
+ 
 }
 
 // Interface for the component's props
@@ -242,6 +243,7 @@ interface IATRAssigneeState {
   isModalOpen: boolean;
   modalMessage: string;
   clearPeoplePicker:any;
+  warnType:any;
 }
 
 export class MarkInfo extends React.Component<
@@ -261,6 +263,7 @@ export class MarkInfo extends React.Component<
       isModalOpen: false,
       modalMessage: "",
       clearPeoplePicker:"",
+      warnType:''
     };
   }
 
@@ -318,6 +321,7 @@ export class MarkInfo extends React.Component<
       this.setState({
         isModalOpen: true,
         modalMessage: "Please select a user and click Add.",
+        warnType:'no'
       });
       return;
     }
@@ -326,6 +330,7 @@ export class MarkInfo extends React.Component<
       this.setState({
         isModalOpen: true,
         modalMessage: "You cannot add more than 10 items.",
+         warnType:'no'
       });
       return;
     }
@@ -338,6 +343,7 @@ export class MarkInfo extends React.Component<
       this.setState({
         isModalOpen: true,
         modalMessage: "The selected user already exist. Kindly choose another user.",
+         warnType:'no'
       });
       return;
     }
@@ -371,6 +377,7 @@ export class MarkInfo extends React.Component<
       this.setState({
         isModalOpen: true,
         modalMessage: "Please select a user and click Add.",
+         warnType:'no'
       });
       return;
     }
@@ -379,6 +386,7 @@ export class MarkInfo extends React.Component<
     this.setState({
       isModalOpen: true,
       modalMessage: "The mark for information has been updated successfully.",
+       warnType:'yes'
     });
   };
 
@@ -516,9 +524,15 @@ export class MarkInfo extends React.Component<
             <PrimaryButton
               iconProps={{ iconName: "ReturnToSession" }}
               // onClick={this._closeModal}
+
+              
               onClick={() => {
-                const pageURL: string = this.props.homePageUrl;
+                if (this.state.warnType !=="no"){
+                  const pageURL: string = this.props.homePageUrl;
                 window.location.href = `${pageURL}`;
+                
+
+                }
                 this._closeModal()
               }}
               text="OK"

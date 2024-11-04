@@ -19,6 +19,7 @@ export interface IAllRequestProps {
           
           homePageUrl:any;
           passCodeUrl:any;
+          existPageUrl:any;
   }
 
 

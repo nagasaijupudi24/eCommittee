@@ -32,6 +32,7 @@ export interface IFormWebPartProps {
   libraryId:any;
   homePageUrl:any;
   passCodeUrl:any;
+  existPageUrl:any;
 }
 
 export {};
@@ -73,7 +74,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
           homePageUrl:this.properties.homePageUrl,
-          passCodeUrl:this.properties.passCodeUrl
+          passCodeUrl:this.properties.passCodeUrl,
+          existPageUrl:this.properties.existPageUrl
         }
       );
      
@@ -93,7 +95,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
           homePageUrl:this.properties.homePageUrl,
-          passCodeUrl:this.properties.passCodeUrl
+          passCodeUrl:this.properties.passCodeUrl,
+          existPageUrl:this.properties.existPageUrl
         }
       );
      
@@ -113,7 +116,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
           homePageUrl:this.properties.homePageUrl,
-          passCodeUrl:this.properties.passCodeUrl
+          passCodeUrl:this.properties.passCodeUrl,
+          existPageUrl:this.properties.existPageUrl
 
         }
       );
@@ -136,7 +140,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           libraryId:this.properties.libraryId,
           formType:this.properties.FormType,
           homePageUrl:this.properties.homePageUrl,
-          passCodeUrl:this.properties.passCodeUrl
+          passCodeUrl:this.properties.passCodeUrl,
+          existPageUrl:this.properties.existPageUrl
         }
       );
      
@@ -158,7 +163,8 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
           formType:this.properties.FormType,
           
           homePageUrl:this.properties.homePageUrl,
-          passCodeUrl:this.properties.passCodeUrl
+          passCodeUrl:this.properties.passCodeUrl,
+          existPageUrl:this.properties.existPageUrl
          
         }
       );

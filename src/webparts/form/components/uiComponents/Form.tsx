@@ -5161,7 +5161,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               <DefaultButton
                 // type="button"
                 onClick={() => {
-                  const pageURL: string = this.props.homePageUrl;
+                  const pageURL: string = this.props.existPageUrl;
                   window.location.href = `${pageURL}`;
                 }}
                 className={`${styles.responsiveButton} `}

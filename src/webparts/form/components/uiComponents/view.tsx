@@ -4333,7 +4333,7 @@ export default class ViewForm extends React.Component<
                   style={{ marginLeft: "10px" }}
                   iconProps={{ iconName: "Cancel" }}
                   onClick={() => {
-                    const pageURL: string = this.props.homePageUrl;
+                    const pageURL: string = this.props.existPageUrl;
                     window.location.href = `${pageURL}`;
                   }}
                 >

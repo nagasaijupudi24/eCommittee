@@ -17,6 +17,7 @@ export interface IViewFormProps {
     formType:any;
     homePageUrl:any;
     passCodeUrl:any;
+    existPageUrl:any;
   }
 
 

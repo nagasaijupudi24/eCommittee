@@ -67,7 +67,7 @@ const ChangeApproverMandatoryDialog: React.FC<{ isVisibleAlter: boolean; onClose
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        {statusOfReq === 'data'?<p>Please select the Approver then click on Submit.</p>:<p>Please fill in comments then click on Submit.</p>}
+        {statusOfReq === 'data'?<p>Please fill up all the mandatory fields.</p>:<p>Please fill up all the mandatory fields.</p>}
         
       </div>
       <div className={styles.footer}>
