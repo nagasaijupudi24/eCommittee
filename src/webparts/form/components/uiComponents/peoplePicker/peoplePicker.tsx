@@ -11,6 +11,7 @@ import {
 // import styles from "../../Form.module.scss";
 
 export interface IPnPPeoplePickerProps {
+  disabled:any;
   context: WebPartContext;
   spProp: any;
   getDetails:any;
@@ -150,7 +151,7 @@ export default class PnPPeoplePicker extends React.Component<
     
 
     return (
-      <div style={{ width:'100%' }}>
+      <div style={{ minWidth: '180px!important' }}>
         <PeoplePicker
           key={this.state.key}
           context={peoplePickerContext}
@@ -158,11 +159,12 @@ export default class PnPPeoplePicker extends React.Component<
           personSelectionLimit={1}
           groupName={""}
           showtooltip={true}
-          disabled={false}
+          disabled={this.props.disabled}
           ensureUser={true}
           onChange={this._getPeoplePickerItems.bind(this)}
           principalTypes={[PrincipalType.User]}
           resolveDelay={1000}
+          styles={{ root: {minWidth: '180px!important' } }}
         />
         {/* <DefaultButton
           type="button"

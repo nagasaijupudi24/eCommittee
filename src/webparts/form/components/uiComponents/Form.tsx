@@ -226,8 +226,9 @@ const getFromType = (): any => {
 export default class Form extends React.Component<IFormProps, IMainFormState> {
   private autoSaveInterval: any;
   private _peopplePicker: IPeoplePickerContext;
-  private _userName: string;
-  private _role: string;
+  private _noteId:any;
+  // private _userName: string;
+  // private _role: string;
   private _itemId: number = Number(getIdFromUrl());
   private _formType: string = getFromType();
   private _currentUserEmail = this.props.context.pageContext.user.email;
@@ -651,8 +652,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       const profile = await this.props.sp.profiles.myProperties();
 
-      this._userName = profile.DisplayName;
-      this._role = profile.Title;
+      // this._userName = profile.DisplayName;
+      // this._role = profile.Title;
 
       profile.UserProfileProperties.filter((element: any) => {
         if (element.Key === "Department") {
@@ -772,7 +773,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // approversOrder: each.ApproverType === "Approver"?2:1,
             Title: each.Title,
             id: each.ApproverId,
+            userId: each.ApproverId,  
             secretary: each.Secretary.Title,
+            secretaryEmail:each.Secretary.EMail,
             srNo: each.Approver.EMail.split("@")[0],
             optionalText: dataRec[0],
             approverTypeNum: 2,
@@ -781,7 +784,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           const secretaryObj = {
             noteSecretarieId: each.SecretaryId,
             noteApproverId: each.ApproverId,
-            noteId: "",
+            noteId: this._noteId,
             secretaryEmail: each.Secretary.EMail,
             approverEmail: each.Approver.EMail,
             approverEmailName: each.Approver.Title,
@@ -821,10 +824,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             email: each.Approver.EMail,
             ApproversId: each.ApproverId,
             approverType: each.ApproverType,
-
+            
             Title: each.Title,
             id: each.ApproverId,
-            secretary: each.Secretary.Title,
+            userId: each.ApproverId,
+            secretary: "",
+            secretaryEmail:"",
             optionalText: dataRec[0],
             srNo: each.Approver.EMail.split("@")[0],
 
@@ -863,6 +868,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             optionalText: "N/A",
             approverTypeNum: 1,
             secretary: "",
+            secretaryEmail:"",
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -883,6 +889,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             optionalText: dataRec[0],
             approverTypeNum: 1,
             secretary: "",
+            secretaryEmail:"",
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -903,7 +910,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const secretaryObj = {
       noteSecretarieId: checkSelectedApproverHasSecretary[0]?.noteSecretarieId,
       noteApproverId: checkSelectedApproverHasSecretary[0]?.noteApproverId,
-      noteId: "",
+      noteId: this._noteId,
       secretaryEmail: checkSelectedApproverHasSecretary[0]?.secretaryEmail,
       approverEmail: checkSelectedApproverHasSecretary[0]?.approverEmail,
       approverEmailName:
@@ -934,6 +941,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               checkSelectedApproverHasSecretary.length > 0
                 ? checkSelectedApproverHasSecretary[0].secretaryEmailName
                 : "",
+                secretaryEmail:checkSelectedApproverHasSecretary[0].secretaryEmail,
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -958,6 +966,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               checkSelectedApproverHasSecretary.length > 0
                 ? checkSelectedApproverHasSecretary[0].secretaryEmailName
                 : "",
+                secretaryEmail:checkSelectedApproverHasSecretary[0].secretaryEmail,
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -1449,6 +1458,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverOrder: index + 1,
             approverStatus: 1,
             id: each.id,
+            "userId": each.id,
             status: index === 0 ? "Pending" : "Waiting",
             statusNumber: index === 0 ? "2000" : "",
             mainStatus: index === 0 ? "Pending with reviewer" : "Waiting",
@@ -1456,6 +1466,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
+            actionDate:""
           };
         } else {
           return {
@@ -1465,6 +1476,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverOrder: index + 1,
             approverStatus: 1,
             id: each.id,
+            "userId": each.id,
             statusNumber: index === 0 ? "3000" : "",
             status: index === 0 ? "Pending" : "Waiting",
             mainStatus: index === 0 ? "Pending with approver" : "Waiting",
@@ -1472,6 +1484,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
+            actionDate:""
           };
         }
       }
@@ -1491,17 +1504,20 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(this._userName, this._role);
     const auditLog = [
       {
-        Actioner: this._userName,
-        ActionerEmail: this._currentUserEmail,
 
-        ActionTaken:
+        
+        
+        
+        "actionBy": this.props.context.pageContext.user.displayName,
+       
+        "action":
           this.props.formType === "New"
             ? `ECommittee Note ${status}`
             : `Board Note ${status}`,
-        Role: this._role,
-        ActionTakenOn:
+       
+        "createdDate":
           new Date().toDateString() + " " + new Date().toLocaleTimeString(),
-        Comments: "No Comments",
+        
       },
     ];
     // console.log(this.state.auditTrail);
@@ -3222,6 +3238,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           .getByTitle(this._listname)
           .items.add(await this.createEcommitteeObject(statusOfForm, "100"));
         id = response.Id;
+        this._noteId = id
         this.setState({ itemId: id });
         // console.log(id, "id created");
         await this._generateRequsterNumber(this.state.itemId || id);
@@ -3328,7 +3345,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     StatusNumber: statusNumber,
     AuditTrail: this.state.itemId
       ? JSON.stringify(this.state.auditTrail)
-      : this._getAuditTrail("ReSubmitted"),
+      : this._getAuditTrail("Submitted"),     // ReSubmitted
     // Reviewer:{result:this._getReviewerId()}
     ReviewersId: this._getReviewerId(),
     ApproversId: this._getApproverId(),
@@ -3788,7 +3805,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // }
 
   private _getFileWithError = (data: any): any => {
-    // console.log(data);
+    console.log(data);
     // const itemIds = data[0].map(
     //   (each:any)=>{
     //     console.log(each)
@@ -3802,6 +3819,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //     console.log(each)
     //     return each[0].filter(
     //       (item:any)=>{
+
     //         console.log(item)
     //        if( !itemIds.includes(item.id)) {
     //           return each
@@ -4074,7 +4092,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
     // console.log(this._committeeType)
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
@@ -4551,6 +4569,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                           dropdown: {
                             display: "block",
                             borderRadius: "2px",
+                            paddingLeft: "12px",
+                            paddingTop: "5px",
 
                             height: "32px",
                             boxSizing: "border-box",
@@ -4598,7 +4618,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                             }`,
                             display: "block",
 
-                            height: "32px",
+                            height: "31px",
                             boxSizing: "border-box",
                             width: "100%",
                             borderRadius: "2px",
@@ -4626,7 +4646,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       style={{
                         display: "block",
                         borderRadius: "2px",
-                        height: "32px",
+                        height: "31px",
                         boxSizing: "border-box",
                         width: "100%",
                         border: `1px solid ${
@@ -4661,8 +4681,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     style={{
                       borderRadius: "2px",
                       display: "block",
-                      paddingLeft: "12px",
-                      paddingTop: "5px",
+                      // paddingLeft: "12px",
+                      // paddingTop: "5px",
                       height: "31px",
                       boxSizing: "border-box",
                       width: "100%",
@@ -4852,15 +4872,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   this.state.noteTofiles.length > 0 ? (
                     <div style={{ width: "100%", margin: "0px" }}>
                       <UploadFileComponent
-                        errorData={this._getFileWithError}
-                        typeOfDoc="notePdF"
-                        onChange={this.handleNoteToFileChange}
-                        accept=".pdf"
-                        multiple={false}
-                        maxFileSizeMB={10}
-                        maxTotalSizeMB={10}
-                        data={this.state.noteTofiles}
-                        // value={this.state.noteTofiles}
+                          errorData={this._getFileWithError}
+                          typeOfDoc="notePdF"
+                          onChange={this.handleNoteToFileChange}
+                          accept=".pdf"
+                          multiple={false}
+                          maxFileSizeMB={10}
+                          maxTotalSizeMB={10}
+                          data={this.state.noteTofiles} addtionalData={[]}                        // value={this.state.noteTofiles}
                       />
                     </div>
                   ) : (
@@ -4872,30 +4891,28 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       }}
                     >
                       <UploadFileComponent
-                        errorData={this._getFileWithError}
-                        typeOfDoc="notePdF"
-                        onChange={this.handleNoteToFileChange}
-                        accept=".pdf"
-                        multiple={false}
-                        maxFileSizeMB={10}
-                        maxTotalSizeMB={10}
-                        data={this.state.noteTofiles}
-                        // value={this.state.noteTofiles}
+                            errorData={this._getFileWithError}
+                            typeOfDoc="notePdF"
+                            onChange={this.handleNoteToFileChange}
+                            accept=".pdf"
+                            multiple={false}
+                            maxFileSizeMB={10}
+                            maxTotalSizeMB={10}
+                            data={this.state.noteTofiles} addtionalData={[]}                        // value={this.state.noteTofiles}
                       />
                     </div>
                   )
                 ) : (
                   <div style={{ width: "100%", margin: "0px" }}>
                     <UploadFileComponent
-                      errorData={this._getFileWithError}
-                      typeOfDoc="notePdF"
-                      onChange={this.handleNoteToFileChange}
-                      accept=".pdf"
-                      multiple={false}
-                      maxFileSizeMB={10}
-                      maxTotalSizeMB={10}
-                      data={this.state.noteTofiles}
-                      // value={this.state.noteTofiles}
+                          errorData={this._getFileWithError}
+                          typeOfDoc="notePdF"
+                          onChange={this.handleNoteToFileChange}
+                          accept=".pdf"
+                          multiple={false}
+                          maxFileSizeMB={10}
+                          maxTotalSizeMB={10}
+                          data={this.state.noteTofiles} addtionalData={[]}                      // value={this.state.noteTofiles}
                     />
                   </div>
                 )}
@@ -4917,15 +4934,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     this.state.wordDocumentfiles.length > 0 ? (
                       <div style={{ width: "100%", margin: "0px" }}>
                         <UploadFileComponent
-                          errorData={this._getFileWithError}
-                          typeOfDoc="wordDocument"
-                          onChange={this.handleWordDocumentFileChange}
-                          accept=".doc,.docx"
-                          multiple={false}
-                          maxFileSizeMB={10}
-                          maxTotalSizeMB={10}
-                          data={this.state.wordDocumentfiles}
-                          // value={this.state.wordDocumentfiles}
+                            errorData={this._getFileWithError}
+                            typeOfDoc="wordDocument"
+                            onChange={this.handleWordDocumentFileChange}
+                            accept=".doc,.docx"
+                            multiple={false}
+                            maxFileSizeMB={10}
+                            maxTotalSizeMB={10}
+                            data={this.state.wordDocumentfiles} addtionalData={[]}                          // value={this.state.wordDocumentfiles}
                         />
                       </div>
                     ) : (
@@ -4937,30 +4953,28 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }}
                       >
                         <UploadFileComponent
-                          errorData={this._getFileWithError}
-                          typeOfDoc="wordDocument"
-                          onChange={this.handleWordDocumentFileChange}
-                          accept=".doc,.docx"
-                          multiple={false}
-                          maxFileSizeMB={10}
-                          maxTotalSizeMB={10}
-                          data={this.state.wordDocumentfiles}
-                          // value={this.state.wordDocumentfiles}
+                              errorData={this._getFileWithError}
+                              typeOfDoc="wordDocument"
+                              onChange={this.handleWordDocumentFileChange}
+                              accept=".doc,.docx"
+                              multiple={false}
+                              maxFileSizeMB={10}
+                              maxTotalSizeMB={10}
+                              data={this.state.wordDocumentfiles} addtionalData={[]}                          // value={this.state.wordDocumentfiles}
                         />
                       </div>
                     )
                   ) : (
                     <div style={{ width: "100%", margin: "0px" }}>
                       <UploadFileComponent
-                        errorData={this._getFileWithError}
-                        typeOfDoc="wordDocument"
-                        onChange={this.handleWordDocumentFileChange}
-                        accept=".doc,.docx"
-                        multiple={false}
-                        maxFileSizeMB={10}
-                        maxTotalSizeMB={10}
-                        data={this.state.wordDocumentfiles}
-                        // value={this.state.wordDocumentfiles}
+                            errorData={this._getFileWithError}
+                            typeOfDoc="wordDocument"
+                            onChange={this.handleWordDocumentFileChange}
+                            accept=".doc,.docx"
+                            multiple={false}
+                            maxFileSizeMB={10}
+                            maxTotalSizeMB={10}
+                            data={this.state.wordDocumentfiles} addtionalData={[]}                        // value={this.state.wordDocumentfiles}
                       />
                     </div>
                   )}
@@ -4986,29 +5000,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     }}
                   >
                     <UploadFileComponent
-                      errorData={this._getFileWithError}
-                      typeOfDoc="supportingDocument"
-                      onChange={this.handleSupportingFileChange}
-                      accept=".xlsx,.pdf,.doc,.docx"
-                      multiple={true}
-                      maxFileSizeMB={25}
-                      maxTotalSizeMB={25}
-                      data={this.state.supportingDocumentfiles}
-                      // value={this.state.supportingDocumentfiles}
+                        errorData={this._getFileWithError}
+                        typeOfDoc="supportingDocument"
+                        onChange={this.handleSupportingFileChange}
+                        accept=".xlsx,.pdf,.doc,.docx"
+                        multiple={true}
+                        maxFileSizeMB={25}
+                        maxTotalSizeMB={25}
+                        data={this.state.supportingDocumentfiles} addtionalData={[]}                      // value={this.state.supportingDocumentfiles}
                     />
                   </div>
                 ) : (
                   <div style={{ width: "100%", margin: "0px" }}>
                     <UploadFileComponent
-                      errorData={this._getFileWithError}
-                      typeOfDoc="supportingDocument"
-                      onChange={this.handleSupportingFileChange}
-                      accept=".xlsx,.pdf,.doc,.docx"
-                      multiple={true}
-                      maxFileSizeMB={25}
-                      maxTotalSizeMB={25}
-                      data={this.state.supportingDocumentfiles}
-                      // value={this.state.supportingDocumentfiles}
+                          errorData={this._getFileWithError}
+                          typeOfDoc="supportingDocument"
+                          onChange={this.handleSupportingFileChange}
+                          accept=".xlsx,.pdf,.doc,.docx"
+                          multiple={true}
+                          maxFileSizeMB={25}
+                          maxTotalSizeMB={25}
+                          data={this.state.supportingDocumentfiles} addtionalData={[]}                      // value={this.state.supportingDocumentfiles}
                     />
                   </div>
                 )}

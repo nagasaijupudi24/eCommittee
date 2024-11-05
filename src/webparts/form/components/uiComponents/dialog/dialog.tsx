@@ -8,6 +8,7 @@ import {
   IStackStyles,
   Icon,
   mergeStyleSets,
+  IconButton,
 } from "@fluentui/react";
 
 interface MyDialogProps {
@@ -142,7 +143,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
     >
       <div className={styles.header}>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <Icon iconName="Info" />
+        <IconButton iconProps={{ iconName: 'Info' }} />
           <h4 className={styles.headerTitle}>Alert</h4>
         </div>
         <Icon iconName="Cancel" onClick={handleDialogBox} />

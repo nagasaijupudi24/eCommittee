@@ -411,7 +411,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
               context={context}
               spProp={sp}
               getDetails={_getDetails}
-              typeOFButton="Change Approver" clearPeoplePicker={undefined}/>
+              typeOFButton="Change Approver" clearPeoplePicker={undefined} disabled={true}   />
 
           </div>
           
@@ -475,8 +475,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                 context={context}
                 spProp={sp}
                 getDetails={_getDetails}
-                typeOFButton="Refer" clearPeoplePicker={undefined}                // styles={{ root: { width: '95%' } }}
-              />
+                typeOFButton="Refer" clearPeoplePicker={undefined} // styles={{ root: { width: '95%' } }}
+                disabled={true}              />
             </div>
             <TextField
               label={dialogDetails.message[1]}

@@ -18,17 +18,17 @@ const WorkFlowLogsTable = (props: any) => {
 
     // Define the columns for the DetailsList
     const columns: IColumn[] = [
-        { key: 'ActionTaken', name: 'Action', fieldName: 'ActionTaken', minWidth: 200, maxWidth: 250, isResizable: true },
-        { key: 'Actioner', name: 'Action By', fieldName: 'Actioner', minWidth: 80, maxWidth: 150, isResizable: true },
+        { key: 'action', name: 'Action', fieldName: 'action', minWidth: 200, maxWidth: 250, isResizable: true },
+        { key: 'actionBy', name: 'Action By', fieldName: 'actionBy', minWidth: 80, maxWidth: 150, isResizable: true },
         {
-            key: 'ActionTakenOn',
+            key: 'createdDate',
             name: 'Action Date',
-            fieldName: 'ActionTakenOn',
+            fieldName: 'createdDate',
             minWidth: 120,
             maxWidth: 150,
             isResizable: true,
             onRender: (item: any) => (
-                <span>{formatDateTime(item.ActionTakenOn)}</span>
+                <span>{formatDateTime(item.createdDate)}</span>
             ),
         },
     ];

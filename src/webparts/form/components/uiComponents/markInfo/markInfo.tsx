@@ -458,15 +458,12 @@ export class MarkInfo extends React.Component<
             context={this.props.context}
             spProp={this.props.sp}
             getDetails={this._getDetailsFromPeoplePickerData}
-            typeOFButton="markInfo" 
-            clearPeoplePicker={
-              (data:any,funtionName:any)=>{
-                // console.log(data)
-                // console.log(funtionName)
-                this.setState({clearPeoplePicker:data})
-              }
-              
-            }         />
+            typeOFButton="markInfo"
+            clearPeoplePicker={(data: any, funtionName: any) => {
+              // console.log(data)
+              // console.log(funtionName)
+              this.setState({ clearPeoplePicker: data });
+            } } disabled={true}         />
 
           <PrimaryButton
             iconProps={{ iconName: "Add" }}

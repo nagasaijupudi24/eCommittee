@@ -16,6 +16,7 @@ export interface IUploadFileProps {
   maxTotalSizeMB?: number;
   data: File[];
   errorData: any;
+  addtionalData:any[];
 }
 
 interface IFileWithError {
@@ -124,14 +125,33 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
   private handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
         const files = Array.from(e.target.files);
-        const filePromises = files.map((file) => this.convertToFileArrayBuffer(file));
+
+        // Check if anotherArray has items
+        const hasAdditionalArray = this.props.addtionalData && this.props.addtionalData.length > 0;
+
+        const newFiles = files.filter(file => {
+            const isDuplicateInSelectedFiles = this.state.selectedFiles.some(
+                selectedFile => selectedFile.file.name === file.name
+            );
+
+            const isDuplicateInAnotherArray = hasAdditionalArray
+                ? this.props.addtionalData.some(
+                      anotherFile => anotherFile.name === file.name
+                  )
+                : false;
+
+            // File is new if it's not in either selectedFiles or anotherArray
+            return !isDuplicateInSelectedFiles && !isDuplicateInAnotherArray;
+        });
+        const filePromises = newFiles.map((file) => this.convertToFileArrayBuffer(file));
 
         Promise.all(filePromises).then((fileBuffers) => {
             const filesWithBuffers = fileBuffers.map((buffer, index) => ({
                 id: `${files[index].name}-${index}`,
                 file: files[index],
                 buffer: buffer,
-                error: null
+                error: null,
+                cummulativeError:this.state.cummError
             }));
 
             const updatedFiles = this.props.multiple
@@ -275,7 +295,7 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
                         paddingLeft: '4px',
                       }}
                     >
-                      {file.name}
+                      {file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}
                     </p>
                     {error && (
                       <span

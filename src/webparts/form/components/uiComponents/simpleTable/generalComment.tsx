@@ -29,6 +29,12 @@ interface IGridRow {
   commentedBy: string;
   commentedByEmail: any;
   commentsFrom: any;
+
+  pageNumber: any;
+  docReference: any;
+  comments: any;
+  commentBy: any;
+  actionDate: any;
 }
 
 interface IGridProps {
@@ -208,6 +214,14 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
       commentsFrom: "generalComments",
       commentedBy: this.props.currentUserDetails.displayName,
       commentedByEmail: this.props.currentUserDetails.email,
+
+      pageNumber: pageNumValue,
+      docReference: pageValue,
+      comments: commentValue,
+      commentBy: this.props.currentUserDetails.displayName,
+      actionDate: new Date()
+      
+
     };
 
     this.setState((prevState) => ({

@@ -142,6 +142,7 @@ export interface IViewFormState {
   filesClear: any;
   createdByEmail: any;
   createdByID:any;
+  createdByEmailName:any;
   ApproverDetails: any;
   ApproverOrder: any;
   ApproverType: any;
@@ -168,6 +169,7 @@ export interface IViewFormState {
   atrGridData: any;
   noteATRAssigneeDetails: any;
   atrJoinedComments:any;
+  atrType:any;
 
   // reject and return dialog box
   isDialogVisible: any;
@@ -239,6 +241,9 @@ export default class ViewForm extends React.Component<
   private _folderName: any = "";
   private _committeeType: any =
     this.props.formType === "BoardNoteView" ? "Board" : "eCommittee";
+
+    private _committeeTypeForATR: any =
+    this.props.formType === "BoardNoteView" ? "boardnote" : "committeenote";
 
     private _listname:any;
   private _libraryName:any;
@@ -327,6 +332,7 @@ export default class ViewForm extends React.Component<
 
     createdByEmail: "",
       createdByID:"",
+      createdByEmailName:'',
       ApproverOrder: "",
       dialogFluent: true,
       dialogDetails: {},
@@ -349,6 +355,7 @@ export default class ViewForm extends React.Component<
       atrGridData: [],
       noteATRAssigneeDetails: [],
       atrJoinedComments:[],
+      atrType:'Default',
 
       // reject dialog box
       isDialogVisible: false,
@@ -873,7 +880,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    // console.log(`${id} ------Details`, item);
+    console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -997,6 +1004,7 @@ export default class ViewForm extends React.Component<
       auditTrail: JSON.parse(item.AuditTrail),
       isLoading: false,
       createdByEmail: item.Author.EMail,
+      createdByEmailName: item.Author.Title,
       createdByID:item.AuthorId,
       status:
         item.Status === "Submitted"
@@ -1388,22 +1396,25 @@ export default class ViewForm extends React.Component<
 
   private _getAuditTrail = async (status: any) => {
     // console.log(this._currentUserEmail, this._role);
-    const profile = await this.props.sp.profiles.myProperties();
+    
     // console.log(profile);
 
     const auditLog = [
       {
-        Actioner: this.props.context.pageContext.user.displayName,
-        ActionerEmail: this._currentUserEmail,
-        ActionTaken:
+
+        
+        
+        
+        "actionBy": this.props.context.pageContext.user.displayName,
+       
+        "action":
           this.props.formType === "View"
             ? `ECommittee Note ${status}`
             : `Board Note ${status}`,
-        Role: profile.Title,
-        // Role: this.props.context.pageContext.user.,
-        ActionTakenOn:
+       
+        "createdDate":
           new Date().toDateString() + " " + new Date().toLocaleTimeString(),
-        Comments: "No Comments",
+        
       },
     ];
 
@@ -1557,6 +1568,83 @@ export default class ViewForm extends React.Component<
     }
   }
 
+  private _updateDefaultNoteATRAssigneeDetails = async ():Promise<any>=>{
+    const currentAtrCreator =
+    this.state.atrCreatorsList.filter(
+      (each: any) =>
+        each.atrCreatorEmail ===
+        this.props.context.pageContext.user.email
+    );
+  // console.log(currentAtrCreator);
+  const  assigneeDetails  = {id:this.state.createdByID,email:this.state.createdByEmail,text:this.state.createdByEmailName};
+  console.log(assigneeDetails)
+
+  const defaultNoteATRAssigneeDetails = [
+      
+    {
+      atrAssigneeId: assigneeDetails.id,
+      atrCreatorId:
+        currentAtrCreator[0].atrCreatorId,
+      atrCreatorEmail:
+        currentAtrCreator[0].atrCreatorEmail,
+      // "atrAssignerEmail": "ib.test4@xencia.com",  from data
+      // atrAssignerEmailName:
+      //   assigneeDetails.text,
+        atrAssignerEmail:
+        assigneeDetails.email,
+      approverEmailName:
+        this.state.currentApprover[0].text,
+      atrCreatorEmailName:
+        currentAtrCreator[0]
+          .atrCreatorEmailName,
+      noteRequesterComments: [
+        ...this.state.commentsData
+       
+      ],
+      createdDate: new Date(),
+      createdBy:
+        this.props.context.pageContext.user
+          .email,
+      modifiedDate: new Date(),
+      modifiedBy:
+        this.props.context.pageContext.user
+          .email,
+      statusMessage: null,
+      atrId: "",
+      noteApproverId:
+        this.state.currentApprover[0]
+          .ApproversId,
+      approverType:
+        this.state.currentApprover[0]
+          .approverType,
+      approverOrder:
+        this.state.currentApprover[0]
+          .approverOrder,
+      approverStatus: 1,
+      approverEmail:
+        this.state.currentApprover[0]
+          .approverEmail,
+      noteApproverComments: "T",
+      strATRStatus: "Submitted",
+      atrStatus: 1,
+      noteId: this._itemId,
+    },
+  ]
+  this.setState({
+    
+    //  [
+    //   data.comments,
+    //   ...this.state.atrGridData,
+    // ],
+
+    noteATRAssigneeDetails: defaultNoteATRAssigneeDetails
+  });
+
+  console.log(defaultNoteATRAssigneeDetails)
+  return defaultNoteATRAssigneeDetails
+   
+  }
+
  
   private _updateATRRequest = async (): Promise<void> => {
     this.state.noteATRAssigneeDetails.map(async (each: any) => {
@@ -1585,13 +1673,14 @@ export default class ViewForm extends React.Component<
           .items.add({
             Title: this.state.title,
             NoteTo: "",
-            Status: "Pending",
+            Status: "Submitted",
             ATRNoteID: this.state.title,
             Department: this.state.department,
             Subject: this.state.subjectFeildValue,
             AssignedById: each.atrCreatorId,
             // Remarks: "Sample Remarks",
-            Comments:joinedCommentsData.join(', '),
+
+            Remarks:joinedCommentsData.join(', '),
             // Comments: JSON.stringify(this.state.atrGridData.map((item:any) =>{
             //   console.log(each)
             //   item.comments
@@ -1604,7 +1693,11 @@ export default class ViewForm extends React.Component<
             StatusNumber: "1000",
             NoteID: `${this._itemId}`,
             CurrentApproverId: this.state.currentApprover[0].id,
-            NoteType: this._committeeType,
+            NoteType: this._committeeTypeForATR,
+            CommitteeName:this.state.committeeNameFeildValue,
+            NoteApproversDTO:JSON.stringify(this.state.ApproverDetails),
+            startProcessing:true,
+            ATRType:this.state.atrType
           });
         // console.log(itemAddResult);
         // console.log(`Item added with ID: ${itemAddResult.Id}`);
@@ -1618,8 +1711,12 @@ export default class ViewForm extends React.Component<
 
   private _defaultUserAsATR = async (): Promise<any> => {
       let defaultAtrObj ={}
-     
+
+
+   
       try {
+
+        
 
            // console.log(this.state.commentsData)
       const joinedCommentsData = this.state.commentsData
@@ -1627,48 +1724,43 @@ export default class ViewForm extends React.Component<
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
       // console.log(joinedCommentsData)
       // console.log(joinedCommentsData.join(', '))
+
+      defaultAtrObj =  {
+        Title: this.state.title,
+        NoteTo: "",
+        Status: "Pending",
+        ATRNoteID: this.state.title,
+        Department: this.state.department,
+        Subject: this.state.subjectFeildValue,
+        AssignedById: this.state.createdByID,
+        // Remarks: "Sample Remarks",
+        Remarks:joinedCommentsData.join(', '),
+      
+        AssigneeId: [(await this.props.sp?.web.currentUser())?.Id][0],
+        StatusNumber: "1000",
+        NoteID: `${this._itemId}`,
+        CurrentApproverId: this.state.currentApprover[0].id,
+        NoteType: this._committeeTypeForATR,
+        CommitteeName:this.state.committeeNameFeildValue,
+        NoteApproversDTO:JSON.stringify(this.state.ApproverDetails),
+        startProcessing:true,
+        ATRType:this.state.atrType
+      }
+
+      console.log(defaultAtrObj)
+ 
+
         // const itemAddResult =
          await this.props.sp.web.lists
           .getByTitle("ATRRequests")
-          .items.add({
-            Title: this.state.title,
-            NoteTo: "",
-            Status: "Pending",
-            ATRNoteID: this.state.title,
-            Department: this.state.department,
-            Subject: this.state.subjectFeildValue,
-            AssignedById: this.state.createdByID,
-            // Remarks: "Sample Remarks",
-            Comments:joinedCommentsData.join(', '),
-          
-            AssigneeId: [(await this.props.sp?.web.currentUser())?.Id][0],
-            StatusNumber: "1000",
-            NoteID: `${this._itemId}`,
-            CurrentApproverId: this.state.currentApprover[0].id,
-            NoteType: this._committeeType,
-          });
+          .items.add(
+           defaultAtrObj
+        );
 
 
 
         
-           defaultAtrObj =  {
-              Title: this.state.title,
-              NoteTo: "",
-              Status: "Pending",
-              ATRNoteID: this.state.title,
-              Department: this.state.department,
-              Subject: this.state.subjectFeildValue,
-              AssignedById: this.state.createdByID,
-              // Remarks: "Sample Remarks",
-              Comments:joinedCommentsData.join(', '),
-            
-              AssigneeId: [(await this.props.sp?.web.currentUser())?.Id][0],
-              StatusNumber: "1000",
-              NoteID: `${this._itemId}`,
-              CurrentApproverId: this.state.currentApprover[0].id,
-              NoteType: this._committeeType,
-            }
-     
+          
         
         // console.log(`Item added with ID: ${itemAddResult.Id}`);
         // await this.updateNoteID(itemAddResult.Id);
@@ -1763,59 +1855,68 @@ export default class ViewForm extends React.Component<
 
     //  }
 
-    const updateAuditTrial = await this._getAuditTrail(
-      this._checkCurrentApproverIsInSecretaryDTO() ? "Noted" : "Approved"
-    );
-    // console.log(updateAuditTrial);
-    const updateItems = {
-      NoteApproversDTO: JSON.stringify(modifyApproveDetails),
-      Status: currentApproverDetail?.mainStatus,
-      StatusNumber: currentApproverDetail?.statusNumber,
-      AuditTrail: updateAuditTrial,
-      NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
-      // PreviousApproverId:_getPreviousApproverId(),
-      CurrentApproverId:
-        this.state.ApproverOrder === modifyApproveDetails.length
-          ? null
-          : currentApproverDetail.id,
-      PreviousApproverId: previousApprover[0].id,
-      NoteATRAssigneeDTO: this._checkCurrentUserIsAATRAssignee()
-        ? JSON.stringify(this.state.noteATRAssigneeDetails)
-        : "",
-      PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
-      startProcessing: true,
-    };
-    // console.log(updateItems);
-     await this.props.sp.web.lists
-      .getByTitle(this._listname)
-      .items.getById(this._itemId)
-      .update(updateItems);
+    try{
+      this._checkCurrentUserIsAATRAssignee() &&(this.state.atrGridData.length > 0 ? (await this._updateATRRequest()):(await this._defaultUserAsATR()));
 
-    // console.log(itemToUpdate);
-
-    this.state.atrGridData.length > 0 ? (await this._updateATRRequest()):(await this._defaultUserAsATR());
-   
-    await this.updateSupportingDocumentFolderItems(
-      this.state.supportingFilesInViewForm,
-      `${this._folderName}/SupportingDocument`,
-      "Supporting documents"
-    );
-
-    if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
-      this.setState({ status: statusFromEvent });
+      const updateAuditTrial = await this._getAuditTrail(
+        this._checkCurrentApproverIsInSecretaryDTO() ? "Noted" : "Approved"
+      );
+      // console.log(updateAuditTrial);
+      const updateItems = {
+        NoteApproversDTO: JSON.stringify(modifyApproveDetails),
+        Status: currentApproverDetail?.mainStatus,
+        StatusNumber: currentApproverDetail?.statusNumber,
+        AuditTrail: updateAuditTrial,
+        NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
+        // PreviousApproverId:_getPreviousApproverId(),
+        CurrentApproverId:
+          this.state.ApproverOrder === modifyApproveDetails.length
+            ? null
+            : currentApproverDetail.id,
+        PreviousApproverId: previousApprover[0].id,
+        NoteATRAssigneeDTO: this._checkCurrentUserIsAATRAssignee()
+          ? JSON.stringify(this.state.atrGridData.length > 0?this.state.noteATRAssigneeDetails:this._updateDefaultNoteATRAssigneeDetails())
+          : "",
+        PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
+        startProcessing: true,
+      };
+      // console.log(updateItems);
        await this.props.sp.web.lists
         .getByTitle(this._listname)
         .items.getById(this._itemId)
-        .update({
-          Status: statusFromEvent,
-          StatusNumber: statusNumber,
-        });
+        .update(updateItems);
+  
+      // console.log(itemToUpdate);
+  
+     
+     
+      await this.updateSupportingDocumentFolderItems(
+        this.state.supportingFilesInViewForm,
+        `${this._folderName}/SupportingDocument`,
+        "Supporting documents"
+      );
+  
+      if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
+        this.setState({ status: statusFromEvent });
+         await this.props.sp.web.lists
+          .getByTitle(this._listname)
+          .items.getById(this._itemId)
+          .update({
+            Status: statusFromEvent,
+            StatusNumber: statusNumber,
+          });
+  
+        // console.log(itemToUpdateStatusToApproved);
+      }
+      this._closeDialog();
+  
+      this.setState({ isVisibleAlter: true });
 
-      // console.log(itemToUpdateStatusToApproved);
+    }catch  (error){
+      console.error("Error in _handleApproverButton:", error);
     }
-    this._closeDialog();
 
-    this.setState({ isVisibleAlter: true });
+   
   };
 
   private _checkCurrentApproverIsInSecretaryDTO = (): any => {
@@ -1860,14 +1961,21 @@ export default class ViewForm extends React.Component<
   private _checkingCurrentUserIsSecretaryDTO = (): any => {
     const currentUserHavingSecretaryisApproved = this.state.ApproverDetails.filter(
       (each: any) => {
-        // console.log(each);
-        if (each.secretary ===this.props.context.pageContext.user.displayName && each.statusNumber !== '9000') {
+        console.log(each);
+        if (each.secretary ===this.props.context.pageContext.user.displayName && each.statusNumber !== '9000' &&each.approverType === "Approver") {
           return each;
         }
       }
     );
-    // console.log(currentUserHavingSecretaryisApproved);
+    console.log(currentUserHavingSecretaryisApproved);
 
+    const filterAllApproverMailHavingSec = currentUserHavingSecretaryisApproved.map((each:any)=>each.approverEmail)
+
+    const checkCurrentUserISanApprover =this.state.currentApprover?.length > 0 && filterAllApproverMailHavingSec.includes(this.state.currentApprover[0]?.approverEmail)
+    console.log(checkCurrentUserISanApprover)
+
+    // const checkCurrentUserISanApprover = currentUserHavingSecretaryisApproved[0].approverEmail === this.state.currentApprover[0].approverEmail
+    // console.log(checkCurrentUserISanApprover)
     const userIsSec = this.state.noteSecretaryDetails.some((each: any) => {
       // console.log(each);
       // console.log(this._currentUserEmail);
@@ -1878,8 +1986,10 @@ export default class ViewForm extends React.Component<
     });
     // console.log(userIsSec);
 
+
+
     // console.log(userIsSec && currentUserHavingSecretaryisApproved.length > 0);
-    return userIsSec && currentUserHavingSecretaryisApproved.length > 0;
+    return userIsSec && currentUserHavingSecretaryisApproved.length > 0 && checkCurrentUserISanApprover;
   };
 
   
@@ -1935,6 +2045,7 @@ export default class ViewForm extends React.Component<
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
+        NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
         
       PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       startProcessing: true,
@@ -2300,10 +2411,11 @@ export default class ViewForm extends React.Component<
       .items.getById(this._itemId)
       .update({
         NoteApproversDTO: JSON.stringify(modifyApproveDetails),
-        NoteApproverCommentsDTO: JSON.stringify(modifyApproveDetails),
+        
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
+        NoteApproverCommentsDTO: JSON.stringify(this.state.commentsData),
 
         startProcessing: true,
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
@@ -2405,7 +2517,7 @@ export default class ViewForm extends React.Component<
           const secretaryObj = {
             noteSecretarieId: checkSelectedApproverHasSecretary[0]?.noteSecretarieId,
             noteApproverId:  checkSelectedApproverHasSecretary[0]?.noteApproverId,
-            noteId: "",
+            noteId: this._itemId,
             secretaryEmail:checkSelectedApproverHasSecretary[0]?.secretaryEmail,
             approverEmail: checkSelectedApproverHasSecretary[0]?.approverEmail,
             approverEmailName:checkSelectedApproverHasSecretary[0]?.approverEmailName,
@@ -2441,6 +2553,7 @@ export default class ViewForm extends React.Component<
               actionDate: new Date(),
               mainStatus: each.mainStatus,
               secretary:checkSelectedApproverHasSecretary.length >0 ?checkSelectedApproverHasSecretary[0].secretaryEmailName:'',
+              secretaryEmail:checkSelectedApproverHasSecretary.length >0 ?checkSelectedApproverHasSecretary[0].secretaryEmail:'',
             };
           }
         }
@@ -2934,6 +3047,37 @@ export default class ViewForm extends React.Component<
     return checkingATRAvailable;
   };
 
+
+
+
+  private _checkCurrentUserIsApproverType = (): any => {
+    const checkingATRAvailable = this.state.ApproverDetails.some(
+      (each: any) => {
+        // console.log(each);
+        // console.log(each.atrCreatorEmail);
+        // console.log(this._currentUserEmail);
+        // console.log(each.atrCreatorEmail === this._currentUserEmail);
+        if (each.approverEmail === this._currentUserEmail && each.approverType==="Approver") {
+          // console.log(each);
+          return true;
+        }
+      }
+    );
+    console.log(checkingATRAvailable);
+    return checkingATRAvailable;
+  };
+
+
+
+  private _checkingCurrentATRCreatorisCurrentApproverOrNot = (): any => {
+    const checkingCurrentATRCreatorisCurrentApproverOrNot =(this.state.currentApprover[0]?.email === this._currentUserEmail ) 
+          // console.log(each);
+         
+    
+    console.log(checkingCurrentATRCreatorisCurrentApproverOrNot,"_checkingCurrentATRCreatorisCurrentApproverOrNot");
+    return checkingCurrentATRCreatorisCurrentApproverOrNot;
+  };
+
   public _closeDialogAlter = (type: string) => {
     if (type === "success") {
       const pageURL: string = this.props.homePageUrl;
@@ -3219,7 +3363,7 @@ export default class ViewForm extends React.Component<
   }
 
   public render(): React.ReactElement<IViewFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
     // console.log(this._committeeType)
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
@@ -3637,7 +3781,7 @@ export default class ViewForm extends React.Component<
                   )}
 
                   {/* ATR Assignees */}
-                  {this._checkCurrentUserIsAATRAssignee() && (
+                  {(this._checkCurrentUserIsAATRAssignee() && this._checkCurrentUserIsApproverType())&& (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -3664,12 +3808,16 @@ export default class ViewForm extends React.Component<
                         >
                           <div style={{ padding: "15px" }}>
                             <ATRAssignee
+
+                              checkingCurrentATRCreatorisCurrentApproverOrNot={this._checkingCurrentATRCreatorisCurrentApproverOrNot()}
                               getATRJoinedComments = {
                                 (data:any)=>{
                                   // console.log(data,'joined data comments')
                                   this.setState({atrJoinedComments:data})
                                 }
                               }
+                              approverDetails ={this.state.ApproverDetails}
+                              currentATRCreatorDetails ={this._currentUserEmail}
                               sp={this.props.sp}
                               context={this.props.context}
                               atrCreatorsList={this.state.atrCreatorsList}
@@ -3679,7 +3827,8 @@ export default class ViewForm extends React.Component<
                                 this.setState({ atrGridData: data });
                               }}
                               updategirdData={(data: any): void => {
-                                // console.log(data);
+                                console.log(data);
+                                this.setState({atrType:data.atrType})
 
                                 const currentAtrCreator =
                                   this.state.atrCreatorsList.filter(
@@ -3689,6 +3838,7 @@ export default class ViewForm extends React.Component<
                                   );
                                 // console.log(currentAtrCreator);
                                 const { assigneeDetails } = data;
+                                console.log(assigneeDetails)
                                 this.setState({
                                   atrGridData: data.comments,
                                   //  [
@@ -3706,13 +3856,15 @@ export default class ViewForm extends React.Component<
                                       // "atrAssignerEmail": "ib.test4@xencia.com",  from data
                                       atrAssignerEmailName:
                                         assigneeDetails.text,
+                                        atrAssignerEmail:
+                                        assigneeDetails.email,
                                       approverEmailName:
                                         this.state.currentApprover[0].text,
                                       atrCreatorEmailName:
                                         currentAtrCreator[0]
                                           .atrCreatorEmailName,
                                       noteRequesterComments: [
-                                        data.comments,
+                                        ...data.comments,
                                         ...this.state.atrGridData,
                                       ],
                                       createdDate: new Date(),
@@ -3829,6 +3981,7 @@ export default class ViewForm extends React.Component<
                               maxFileSizeMB={25}
                               maxTotalSizeMB={25}
                               data={this.state.supportingFilesInViewForm}
+                              addtionalData={this.state.supportingDocumentfiles}
 
                               // value={this.state.supportingDocumentfiles}
                             />
@@ -3888,15 +4041,14 @@ export default class ViewForm extends React.Component<
 
                               {this._checkingCurrentUserIsSecretaryDTO() && (
                                 <UploadFileComponent
-                                errorData={this._getFileWithError}
-                                  typeOfDoc="gistDocument"
-                                  onChange={this.handleGistDocuments}
-                                  accept=".pdf,.doc,.docx "
-                                  multiple={false}
-                                  maxFileSizeMB={5}
-                                  maxTotalSizeMB={5}
-                                  data={this.state.secretaryGistDocs}
-
+                                    errorData={this._getFileWithError}
+                                    typeOfDoc="gistDocument"
+                                    onChange={this.handleGistDocuments}
+                                    accept=".pdf,.doc,.docx "
+                                    multiple={false}
+                                    maxFileSizeMB={5}
+                                    maxTotalSizeMB={5}
+                                    data={this.state.secretaryGistDocs} addtionalData={[]}
                                   // value={this.state.supportingDocumentfiles}
                                 />
                               )}
