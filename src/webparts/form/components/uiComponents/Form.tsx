@@ -4567,14 +4567,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }
                         styles={{
                           dropdown: {
-                            display: "block",
+                           
                             borderRadius: "2px",
-                            paddingLeft: "12px",
-                            paddingTop: "5px",
+                            marginTop:'8px',
+                           
 
-                            height: "32px",
-                            boxSizing: "border-box",
-                            width: "100%",
+                            fontSize: "16px",
+                           
+                           
                             border: `1px solid ${
                               !this.state.puroposeFeildValue &&
                               this.state.isWarningPurposeField
@@ -4616,12 +4616,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                                 ? "red"
                                 : "transparent"
                             }`,
-                            display: "block",
-
-                            height: "31px",
-                            boxSizing: "border-box",
-                            width: "100%",
                             borderRadius: "2px",
+                           marginTop:'8px',
+
+                            fontSize: "16px",
                           },
                         }}
                       />
@@ -4645,8 +4643,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <textarea
                       style={{
                         display: "block",
+                        paddingLeft:'12px',
+                        paddingTop: "5px",
                         borderRadius: "2px",
-                        height: "31px",
+                        height: "32px",
                         boxSizing: "border-box",
                         width: "100%",
                         border: `1px solid ${
@@ -4681,9 +4681,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     style={{
                       borderRadius: "2px",
                       display: "block",
-                      // paddingLeft: "12px",
-                      // paddingTop: "5px",
-                      height: "31px",
+                      paddingLeft: "12px",
+                      paddingTop: "5px",
+                      height: "32px",
                       boxSizing: "border-box",
                       width: "100%",
                       border: `1px solid ${

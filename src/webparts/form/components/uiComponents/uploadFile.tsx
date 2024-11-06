@@ -227,7 +227,7 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
                   }
                 }}
               >
-                Upload File
+                Choose File
               </button>
 
               <input

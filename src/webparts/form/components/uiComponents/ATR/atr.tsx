@@ -37,6 +37,7 @@ interface IDropdownOption {
 
 // Interface for the component's props
 interface IATRAssigneeProps {
+  clearAtrGridDataOnSelectionOFATRType:any;
   checkingCurrentATRCreatorisCurrentApproverOrNot: any;
   getATRJoinedComments: any;
   gridData: any;
@@ -186,7 +187,7 @@ export class ATRAssignee extends React.Component<
     const newStatus = option?.text || "";
     console.log(newStatus);
     console.log(option);
-    this.setState({ selectedValue: option,selectedDropDownValue:newStatus });
+    this.setState({ selectedValue: option,selectedUsers: option,selectedDropDownValue:newStatus });
     console.log(this.props.atrCreatorsList);
     //     const filterATRData = this.props.atrCreatorsList.filter(
     //         (each:any)=>{
@@ -256,8 +257,8 @@ export class ATRAssignee extends React.Component<
   };
 
   public _getDetailsFromPeoplePicker = (): any => {
-    // console.log("add btn triggered in ATR Assignee")
-    // console.log(this.state.selectedValue)
+    console.log("add btn triggered in ATR Assignee")
+    console.log(this.state.selectedValue)
     if (Object.keys(this.state.selectedValue).length === 0) {
       // console.log('entered into empty value')
       this.setState({
@@ -316,9 +317,10 @@ export class ATRAssignee extends React.Component<
       this.props.getATRJoinedComments(joinedCommentsData.join(", "));
       this.setState({
         tableData: [...this.state.tableData, newTableData],
-        selectedValue: "",
+        selectedValue: {},selectedUsers:{},selectedDropDownValue:''
       });
-      this.state.clearPeoplePicker();
+      // eslint-disable-next-line no-unused-expressions
+      (this.state.selectedChoice === "External" && Object.keys(this.state.selectedValue).length > 0) && this.state.clearPeoplePicker();
     }
   };
 
@@ -338,7 +340,12 @@ export class ATRAssignee extends React.Component<
 
   private _closeModal = (): void => {
     this.setState({ isModalOpen: false });
-    this.state.clearPeoplePicker();
+    this.setState({
+      
+      selectedValue: {},selectedUsers:{},selectedDropDownValue:''
+    });
+    // eslint-disable-next-line no-unused-expressions
+    (this.state.selectedChoice === "External" && Object.keys(this.state.selectedValue).length > 0) &&this.state.clearPeoplePicker();
   };
 
   // Handler for ChoiceGroup change event
@@ -347,8 +354,9 @@ export class ATRAssignee extends React.Component<
     option?: IChoiceGroupOption
   ): void => {
     if (option) {
-      this.setState({ selectedChoice: option.key,selectedValue:{},tableData:[],selectedDropDownValue:'' });
+      this.setState({ selectedChoice: option.key,selectedValue:{},tableData:[],selectedDropDownValue:'' ,selectedUsers:{}});
       console.log("Selected choice:", option.key);
+      this.props.clearAtrGridDataOnSelectionOFATRType()
 
     }
   };

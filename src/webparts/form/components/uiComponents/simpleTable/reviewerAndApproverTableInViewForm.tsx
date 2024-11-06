@@ -17,7 +17,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
     const { type } = props;
     const gridData = props.data;
 
-    // console.log(gridData, `----${type} Of Grid-----------`);
+    console.log(gridData, `----${type} Of Grid-----------`);
 
     // Define the columns for the DetailsList
     const columns: IColumn[] = [
@@ -26,9 +26,9 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
         { key: 'srNo', name: 'SR No', fieldName: 'srNo', minWidth: 60, maxWidth: 120, isResizable: true },
         { key: 'optionalText', name: 'Designation', fieldName: 'optionalText', minWidth: 80, maxWidth: 150, isResizable: true },
         {
-          key: 'mainStatus',
+          key: 'status',
           name: 'Status',
-          fieldName: 'mainStatus',
+          fieldName: 'status',
           minWidth: 100,
           maxWidth: 150,
           isResizable: true,
@@ -69,7 +69,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
             return (
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                 <Icon iconName={iconName} />
-                <span style={{ marginLeft: '8px', lineHeight: '24px' }}>{item.mainStatus}</span>
+                <span style={{ marginLeft: '8px', lineHeight: '24px' }}>{item.status}</span>
               </div>
             );
           },

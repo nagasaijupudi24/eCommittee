@@ -88,6 +88,7 @@ export default class PnPPeoplePicker extends React.Component<
   // };
 
   private _getPeoplePickerItems = async (items: any[]) => {
+    console.log(this.props.typeOFButton)
     // console.log("Items:", items);
     // fetchedData = items
     // console.log(items[0].loginName);
@@ -142,6 +143,7 @@ export default class PnPPeoplePicker extends React.Component<
   public render(): React.ReactElement<IPnPPeoplePickerProps> {
     // console.log(this.state);
     // console.log(this.props)
+    console.log(this.props.typeOFButton)  
     const peoplePickerContext = {
       absoluteUrl: this.props.context.pageContext.web.absoluteUrl,
       msGraphClientFactory: this.props.context.msGraphClientFactory,
@@ -159,7 +161,7 @@ export default class PnPPeoplePicker extends React.Component<
           personSelectionLimit={1}
           groupName={""}
           showtooltip={true}
-          disabled={this.props.disabled}
+          disabled={this.props.typeOFButton ==='atr' && this.props.disabled}
           ensureUser={true}
           onChange={this._getPeoplePickerItems.bind(this)}
           principalTypes={[PrincipalType.User]}
