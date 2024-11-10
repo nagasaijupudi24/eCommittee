@@ -187,6 +187,9 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
     }
   };
 
+
+  
+
   return (
     <div 
     // style={{border:"1px solid red",width:'100%'}}

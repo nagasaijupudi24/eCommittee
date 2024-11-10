@@ -632,8 +632,23 @@ h4{
   margin: 0px;
   display: flex;
   padding-left: 4px;
+  padding:6px 4px;
+  
 
   justify-content: space-between;
+}
+
+.fileIconAndNameWithErrorContainer{
+  display: flex;
+}
+
+.fileNameAndErrorContainer{
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  margin-left: 5px;
 }
 
 .customFileUpload {

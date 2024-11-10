@@ -46,7 +46,7 @@ const ReferCommentsMandatoryDialog: React.FC<{ isVisibleAlter: boolean; onCloseA
     footer: {
       display: 'flex',
       justifyContent: 'flex-end',
-      marginTop: '20px',
+      // marginTop: '20px',
       borderTop: '1px solid #ddd', // Added border to the top of the footer
       paddingTop: '10px',
     },
@@ -67,7 +67,7 @@ const ReferCommentsMandatoryDialog: React.FC<{ isVisibleAlter: boolean; onCloseA
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        {statusOfReq === 'data'?<p>Please select the Referrer then click on Submit.</p>:<p>Please fill in comments then click on Submit.</p>}
+        {statusOfReq.length === 0?<p>Please select the Referrer then click on Submit.</p>:<p>Please fill in comments then click on Submit.</p>}
         
       </div>
       <div className={styles.footer}>

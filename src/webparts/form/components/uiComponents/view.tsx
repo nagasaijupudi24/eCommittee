@@ -20,7 +20,7 @@ import {
   SelectionMode,
   Dialog,
   DialogFooter,
-  Icon,
+  // Icon,
 } from "@fluentui/react";
 import styles from "../Form.module.scss";
 import ApproverAndReviewerTableInViewForm from "./simpleTable/reviewerAndApproverTableInViewForm";
@@ -50,6 +50,10 @@ import GistDocSubmitted from "./dialogFluentUi/gistDocs";
 import GistDocEmptyModal from "./dialogFluentUi/gistDocEmptyModal";
 import AutoSaveFailedDialog from "./dialogFluentUi/autoSaveFailedDialog";
 import NotedCommentDialog from "./dialogFluentUi/notedCommentsDialog";
+import SupportingDocumentsUploadFileComponent from "./supportingDocuments";
+import CummulativeErrorDialog from "./dialogFluentUi/cummulativeDialog";
+import ReferCommentsMandatoryDialog from "./dialogFluentUi/referCommentsMandiatory";
+import ChangeApproverMandatoryDialog from "./dialogFluentUi/changeApproverMandiatory";
 
 export interface IFileDetails {
   name?: string;
@@ -126,6 +130,8 @@ export interface IViewFormState {
 
   errorOfDocuments: any;
   errorFilesList: any;
+  errorForCummulative:any;
+  dialogboxForCummulativeError:any;
 
   isWarningPeoplePicker: boolean;
   isDialogHidden: boolean;
@@ -180,6 +186,14 @@ export interface IViewFormState {
   successStatus: any;
   isGistSuccessVisibleAlter: boolean;
 
+
+  //refer data and comments needed dailog 
+  isReferDataAndCommentsNeeded:boolean;
+
+
+  //change Approver data  dialog \
+  isChangeApproverNeeded:boolean;
+
   // referback dialog
   noteReferrerCommentsDTO: any;
   isReferBackAlterDialog: boolean;
@@ -217,6 +231,8 @@ export interface IViewFormState {
   isUserExistsModalVisible:any;
 
   approverIdsHavingSecretary:any;
+
+  peoplePickerSelectedDataWhileReferOrChangeApprover:any;
 }
 
 const getIdFromUrl = (): any => {
@@ -312,8 +328,12 @@ export default class ViewForm extends React.Component<
         wordDocument: [],
         notePdF: [],
         supportingDocument: [],
-        gistDocument:[]
+        gistDocument:[],
+        cummlativeError:[]
       },
+
+      errorForCummulative:false,
+      dialogboxForCummulativeError:false,
 
       isDialogHidden: true,
       isApproverOrReviewerDialogHandel: true,
@@ -366,6 +386,13 @@ export default class ViewForm extends React.Component<
       isGistSuccessVisibleAlter: false,
       successStatus: "",
 
+
+      //refer data and comments dialog \
+      isReferDataAndCommentsNeeded:false,
+
+      //change Approver data  dialog \
+      isChangeApproverNeeded:false,
+
       // referback dialog
       noteReferrerCommentsDTO: [],
       isReferBackAlterDialog: false,
@@ -396,7 +423,9 @@ export default class ViewForm extends React.Component<
       isAutoSaveFailedDialog:false,
 
       isUserExistsModalVisible:false,
-      approverIdsHavingSecretary:[]
+      approverIdsHavingSecretary:[],
+
+      peoplePickerSelectedDataWhileReferOrChangeApprover:[]
 
     };
 
@@ -880,7 +909,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    console.log(`${id} ------Details`, item);
+    // console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -1399,8 +1428,8 @@ export default class ViewForm extends React.Component<
     // console.log(this._currentUserEmail, this._role);
     
     // console.log(profile);
-    console.log(status)
-    console.log(status ==="gistDocuments")
+    // console.log(status)
+    // console.log(status ==="gistDocuments")
 
     if (status ==="gistDocuments"){
 
@@ -1803,7 +1832,7 @@ export default class ViewForm extends React.Component<
         ATRType:this.state.atrType
       }
 
-      console.log(defaultAtrObj)
+      // console.log(defaultAtrObj)
  
 
         // const itemAddResult =
@@ -1982,60 +2011,108 @@ export default class ViewForm extends React.Component<
    
   };
 
-  private _checkCurrentApproverIsInSecretaryDTO = (): any => {
-    const currentApproverIsInSecreDTO = this.state.noteSecretaryDetails.filter(
-      (each: any) => {
-        // console.log(each);
-        // console.log(this._currentUserEmail);
-        // console.log(each.approverEmail === this._currentUserEmail);
-        if (each.approverEmail === this._currentUserEmail) {
-          return true;
-        }
-      }
-    );
-    // console.log(currentApproverIsInSecreDTO);
-    // console.log(currentApproverIsInSecreDTO[0]?.approverEmail);
-    // console.log(this._currentUserEmail);
-    // console.log(
-    //   currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
-    // );
-    return (
-      currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
-    );
-  };
+  // private _checkCurrentApproverIsInSecretaryDTO = (): any => {
+  //   const currentApproverIsInSecreDTO = this.state.noteSecretaryDetails.filter(
+  //     (each: any) => {
+  //       // console.log(each);
+  //       // console.log(this._currentUserEmail);
+  //       // console.log(each.approverEmail === this._currentUserEmail);
+  //       if (each.approverEmail === this._currentUserEmail) {
+  //         return true;
+  //       }
+  //     }
+  //   );
+  //   // console.log(currentApproverIsInSecreDTO);
+  //   // console.log(currentApproverIsInSecreDTO[0]?.approverEmail);
+  //   // console.log(this._currentUserEmail);
+  //   // console.log(
+  //   //   currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
+  //   // );
+  //   return (
+  //     currentApproverIsInSecreDTO[0]?.approverEmail === this._currentUserEmail
+  //   );
+  // };
 
   private _checkingCurrentUserInSecretaryDTO = (): any => {
-    return this.state.noteSecretaryDetails.some((each: any) => {
-      // console.log(each);
+    // const currrentUserSect = this.state.noteSecretaryDetails.filter((each: any) => {
+    //   console.log(each);
+    //   // console.log(this._currentUserEmail);
+    //   // console.log(
+    //   //   each.secretaryEmail === this._currentUserEmail ||
+    //   //     each.approverEmail === this._currentUserEmail
+    //   // );
+    //   if (
+    //    ( each.secretaryEmail === this._currentUserEmail) 
+    //   ) {
+    //     return each;
+    //   }
+    // });
+
+    // console.log(currrentUserSect)
+
+    // const currentUserIsAnSec =currrentUserSect.length>0 && currrentUserSect.some((each:any)=>each.secretaryEmail ===this._currentUserEmail)
+    // console.log(currentUserIsAnSec,"currentUserIsAnSec")
+    // const checkCurrentUserIsAnApprover = this.state.ApproverDetails.filter((each:any)=>((each.secretaryEmail) && each.approverType === "Approver"))
+    // console.log(checkCurrentUserIsAnApprover,"checkCurrentUserIsAnApprover having Secretary")
+
+    // const currentUserHavingSecratoryAndHeIsAnApprover = checkCurrentUserIsAnApprover.some((each:any)=>each.approverEmail===this._currentUserEmail)
+    // console.log(currentUserHavingSecratoryAndHeIsAnApprover,"currentUserHavingSecratoryAndHeIsAnApprover")
+
+    // return currentUserIsAnSec && checkCurrentUserIsAnApprover.length > 0
+    const checkCurrentApproverIsAnApproverOrNot = this.state.currentApprover[0].approverType ==="Approver"
+    console.log(checkCurrentApproverIsAnApproverOrNot)
+
+    const currentUserIsFromSecDTOAndHeIsSECOrApp = this.state.noteSecretaryDetails.some((each: any) => {
+      console.log(each);
       // console.log(this._currentUserEmail);
       // console.log(
       //   each.secretaryEmail === this._currentUserEmail ||
       //     each.approverEmail === this._currentUserEmail
       // );
       if (
-        each.secretaryEmail === this._currentUserEmail ||
-        each.approverEmail === this._currentUserEmail
+       ( each.secretaryEmail === this._currentUserEmail ||
+        each.approverEmail === this._currentUserEmail) 
       ) {
         return true;
       }
     });
+    console.log(currentUserIsFromSecDTOAndHeIsSECOrApp)
+    return checkCurrentApproverIsAnApproverOrNot &&currentUserIsFromSecDTOAndHeIsSECOrApp
   };
+
+  // private _checkingCurrentUserInSecretaryDTOOrApprover = (): any => {
+  //   return this.state.noteSecretaryDetails.fi((each: any) => {
+  //     // console.log(each);
+  //     // console.log(this._currentUserEmail);
+  //     // console.log(
+  //     //   each.secretaryEmail === this._currentUserEmail ||
+  //     //     each.approverEmail === this._currentUserEmail
+  //     // );
+  //     if (
+  //       each.secretaryEmail === this._currentUserEmail ||
+  //       each.approverEmail === this._currentUserEmail
+  //     ) {
+  //       return true;
+  //     }
+  //   });
+  // };
+  
 
   private _checkingCurrentUserIsSecretaryDTO = (): any => {
     const currentUserHavingSecretaryisApproved = this.state.ApproverDetails.filter(
       (each: any) => {
-        console.log(each);
+        // console.log(each);
         if (each.secretary ===this.props.context.pageContext.user.displayName && each.statusNumber !== '9000' &&each.approverType === "Approver") {
           return each;
         }
       }
     );
-    console.log(currentUserHavingSecretaryisApproved);
+    // console.log(currentUserHavingSecretaryisApproved);
 
     const filterAllApproverMailHavingSec = currentUserHavingSecretaryisApproved.map((each:any)=>each.approverEmail)
 
     const checkCurrentUserISanApprover =this.state.currentApprover?.length > 0 && filterAllApproverMailHavingSec.includes(this.state.currentApprover[0]?.approverEmail)
-    console.log(checkCurrentUserISanApprover)
+    // console.log(checkCurrentUserISanApprover)
 
     // const checkCurrentUserISanApprover = currentUserHavingSecretaryisApproved[0].approverEmail === this.state.currentApprover[0].approverEmail
     // console.log(checkCurrentUserISanApprover)
@@ -2149,6 +2226,7 @@ export default class ViewForm extends React.Component<
       this.setState({
         isPasscodeModalOpen: true,
         passCodeValidationFrom: "4000",
+        dialogFluent:true
       }); // Open the modal
       return; // Prevent the method from proceeding until passcode is validated
     }
@@ -2159,16 +2237,35 @@ export default class ViewForm extends React.Component<
       this.setState({
         isPasscodeModalOpen: true,
         passCodeValidationFrom: "7500",
+        dialogFluent:true
+
       }); // Open the modal
       return; // Prevent the method from proceeding until passcode is validated
     }
   };
+
+
+
+
+  private _referCommentsAndDataMandatory = ():any=>{
+    if (this.state.peoplePickerSelectedDataWhileReferOrChangeApprover.length === 0){
+      this.setState({dialogFluent:true,isReferDataAndCommentsNeeded:true})
+
+    }else{
+      this.setState({dialogFluent:true,isReferDataAndCommentsNeeded:true})
+
+    }
+  }
 
   private handleRefer = async (
     statusFromEvent: string,
     statusNumber: string,
     commentsObj: any
   ) => {
+
+   
+
+
     
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
@@ -2339,7 +2436,7 @@ export default class ViewForm extends React.Component<
     // if (this._checkNoteReferIdHavingComments()){
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
-        console.log(each);
+        // console.log(each);
         // console.log(each.approverEmail);
         // console.log(this._currentUserEmail);
         // console.log(
@@ -2582,6 +2679,14 @@ export default class ViewForm extends React.Component<
     // console.log(itemToUpdate);
   };
 
+
+  private _changeApproverDataMandatory = ():any=>{
+    if (this.state.peoplePickerSelectedDataWhileReferOrChangeApprover.length === 0){
+      this.setState({dialogFluent:true,isChangeApproverNeeded:true})
+
+    }
+  }
+
   private handleChangeApprover = async (
     statusFromEvent: string,
     statusNumber: string,
@@ -2749,8 +2854,14 @@ export default class ViewForm extends React.Component<
               border: "none",
             },
           }}
-          onClick={this._checkCurrentApproverIsInSecretaryDTO() ?(e) => {
+          onClick={(this._checkCurrentUserIsAATRAssignee() && this._checkCurrentUserIsApproverType()) ?(e) => {
             this.setState({ successStatus: "noted" });
+
+            if(this.state.errorForCummulative){
+              this.setState({dialogboxForCummulativeError:true})
+              return
+            }
+
             if (this.state.errorOfDocuments){
               this.setState({isAutoSaveFailedDialog:true})
 
@@ -2773,6 +2884,12 @@ export default class ViewForm extends React.Component<
             
           }:
             (e) => {
+
+
+              if(this.state.errorForCummulative){
+                this.setState({dialogboxForCummulativeError:true})
+                return
+              }
             if (this.state.errorOfDocuments){
               this.setState({isAutoSaveFailedDialog:true})
 
@@ -2792,7 +2909,8 @@ export default class ViewForm extends React.Component<
             
           }}
         >
-          {this._checkCurrentUserIsAATRAssignee() ? "Noted" : "Approve"}
+          
+          {(this._checkCurrentUserIsAATRAssignee() && this._checkCurrentUserIsApproverType()) ? "Noted" : "Approve"}
         </PrimaryButton>
 
         <PrimaryButton
@@ -2813,6 +2931,12 @@ export default class ViewForm extends React.Component<
             },
           }}
           onClick={(e) => {
+
+            if(this.state.errorForCummulative){
+              this.setState({dialogboxForCummulativeError:true})
+              return
+            }
+
             if (this.state.errorOfDocuments){
               this.setState({isAutoSaveFailedDialog:true})
 
@@ -2842,6 +2966,13 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "Share" }} // Icon for Refer
           onClick={(e) => {
+
+
+            if(this.state.errorForCummulative){
+              this.setState({dialogboxForCummulativeError:true})
+              return
+            }
+
             this.setState({ successStatus: "referred" });
             if (this.state.errorOfDocuments){
               this.setState({isAutoSaveFailedDialog:true})
@@ -2870,6 +3001,14 @@ export default class ViewForm extends React.Component<
           className={`${styles.responsiveButton}`}
           iconProps={{ iconName: "ReturnToSession" }} // Icon for Return
           onClick={(e) => {
+
+
+            if(this.state.errorForCummulative){
+              this.setState({dialogboxForCummulativeError:true})
+              return
+            }
+
+
             if (this.state.errorOfDocuments){
               this.setState({isAutoSaveFailedDialog:true})
               return
@@ -2947,7 +3086,7 @@ export default class ViewForm extends React.Component<
     type: string = "",
     id: string = ""
   ) => {
-    console.log(commentsData);
+    // console.log(commentsData);
     // console.log(id);
     if (type === "add") {
       // console.log("entered into Add");
@@ -2973,7 +3112,7 @@ export default class ViewForm extends React.Component<
       });
     } else if (type === "delete") {
       // console.log("entered into delete");
-      const filteredComments = this.state.commentsData.filter(
+      const filteredComments = this.state.commentsLog.filter(
         (comment: any) => comment !== null
       );
 
@@ -2992,7 +3131,7 @@ export default class ViewForm extends React.Component<
     } else {
       // console.log("entered into save");
       // console.log(id);
-      const filterNullData = this.state.commentsData.filter((each:any)=>each!==null)
+      const filterNullData = this.state.commentsLog.filter((each:any)=>each!==null)
       // console.log(filterNullData)
       const filterIdforUpdateState = filterNullData.filter(
         (each: any) => each?.id === id
@@ -3032,7 +3171,8 @@ export default class ViewForm extends React.Component<
       };
 
       // console.log(returnValue(this.state.commentsData));
-      this.setState({ commentsData: returnValue(this.state.commentsData), commentsLog: returnValue(this.state.commentsData) ,generalComments:returnValueGen(this.state.generalComments) });
+      // console.log(returnValue(this.state.commentsLog))
+      this.setState({ commentsData: returnValue(this.state.commentsData), commentsLog: returnValue(this.state.commentsLog) ,generalComments:returnValueGen(this.state.generalComments) });
     }
   };
 
@@ -3041,7 +3181,7 @@ export default class ViewForm extends React.Component<
     typeOfDoc: string
   ) => {
     // console.log(typeOfDoc);
-    // console.log(files);
+    console.log(files);
     for (let i = 0; i < files.length; i++) {
       // console.log(files[i]);
     }
@@ -3061,6 +3201,10 @@ export default class ViewForm extends React.Component<
         this.setState({
           supportingFilesInViewForm: [...filesArray],
           // supportingDocumentfiles: [...filesArray],
+        });
+      }else {
+        this.setState({
+          supportingFilesInViewForm: filesArray,
         });
       }
     }
@@ -3124,7 +3268,7 @@ export default class ViewForm extends React.Component<
         }
       }
     );
-    console.log(checkingATRAvailable,"_checkCurrentUserIsAATRAssignee");
+    // console.log(checkingATRAvailable,"_checkCurrentUserIsAATRAssignee");
     return checkingATRAvailable;
   };
 
@@ -3144,19 +3288,20 @@ export default class ViewForm extends React.Component<
         }
       }
     );
-    console.log(checkingATRAvailable,"_checkCurrentUserIsApproverType");
+    // console.log(checkingATRAvailable,"_checkCurrentUserIsApproverType");
     return checkingATRAvailable;
   };
 
 
 
   private _checkingCurrentATRCreatorisCurrentApproverOrNot = (): any => {
+    console.log(this._currentUserEmail)
     const checkingCurrentATRCreatorisCurrentApproverOrNot =(this.state.currentApprover?.length > 0 && this.state.currentApprover[0]?.email === this._currentUserEmail ) 
           // console.log(each);
          
     
-    console.log(checkingCurrentATRCreatorisCurrentApproverOrNot,"_checkingCurrentATRCreatorisCurrentApproverOrNot");
-    return checkingCurrentATRCreatorisCurrentApproverOrNot;
+    // console.log(checkingCurrentATRCreatorisCurrentApproverOrNot,"_checkingCurrentATRCreatorisCurrentApproverOrNot");
+    return checkingCurrentATRCreatorisCurrentApproverOrNot && this.state.statusNumber!=='4000' && this.state.statusNumber!=='5000' && this.state.statusNumber!=='4900' && this.state.statusNumber!=='8000' ;
   };
 
   public _closeDialogAlter = (type: string) => {
@@ -3267,6 +3412,7 @@ export default class ViewForm extends React.Component<
             this.handleCallBack("Call Back", "200");
             break;
           case "7500":
+            this.setState({dialogFluent:true})
             this._hanldeFluentDialog(
               "change approver",
               "Approver Changed",
@@ -3287,33 +3433,214 @@ export default class ViewForm extends React.Component<
     );
   };
 
-  private getFileTypeIcon = (
-    fileName: string
-  ): { iconName: string; color: string } => {
-    const extension = fileName.split(".").pop()?.toLowerCase();
-    switch (extension) {
-      case "pdf":
-        return { iconName: "PDF", color: "#FF0000" }; // Red for PDF
-      case "doc":
+
+  private _randomFileIcon = (docType: string):any => {
+    // const FILE_ICONS: { name: string }[] = [
+    //   { name: 'accdb' },
+    //   { name: 'audio' },
+    //   { name: 'code' },
+    //   { name: 'csv' },
+    //   { name: 'docx' },
+    //   { name: 'dotx' },
+    //   { name: 'mpp' },
+    //   { name: 'mpt' },
+    //   { name: 'model' },
+    //   { name: 'one' },
+    //   { name: 'onetoc' },
+    //   { name: 'potx' },
+    //   { name: 'ppsx' },
+    //   { name: 'pdf' },
+    //   { name: 'photo' },
+    //   { name: 'pptx' },
+    //   { name: 'presentation' },
+    //   { name: 'potx' },
+    //   { name: 'pub' },
+    //   { name: 'rtf' },
+    //   { name: 'spreadsheet' },
+    //   { name: 'txt' },
+    //   { name: 'vector' },
+    //   { name: 'vsdx' },
+    //   { name: 'vssx' },
+    //   { name: 'vstx' },
+    //   { name: 'xlsx' },
+    //   { name: 'xltx' },
+    //   { name: 'xsn' },
+    // ];
+    const docExtension = docType.split(".");
+    const fileExtession = docExtension[docExtension.length - 1];
+  
+    let doctype = "txt"; // Default value
+  
+    switch (fileExtession.toLocaleLowerCase()) {
+      case "accdb":
+        doctype = "accdb";
+        break;
+      case "audio":
+        doctype = "audio";
+        break;
+      case "code":
+        doctype = "code";
+        break;
+      case "csv":
+        doctype = "csv";
+        break;
       case "docx":
-        return { iconName: "WordDocument", color: "#2B579A" }; // Blue for Word
+        doctype = "docx";
+        break
+        case "doc":
+          doctype = "docx";
+        break;
+      case "dotx":
+        doctype = "dotx";
+        break;
+      case "mpp":
+        doctype = "mpp";
+        break;
+      case "mpt":
+        doctype = "mpt";
+        break;
+      case "model":
+        doctype = "model";
+        break;
+      case "one":
+        doctype = "one";
+        break;
+      case "onetoc":
+        doctype = "onetoc";
+        break;
+      case "potx":
+        doctype = "potx";
+        break;
+      case "ppsx":
+        doctype = "ppsx";
+        break;
+      case "pdf":
+        doctype = "pdf";
+        break;
+      case "photo":
+        doctype = "photo";
+        break;
+      case "pptx":
+        doctype = "pptx";
+        break;
+      case "presentation":
+        doctype = "presentation";
+        break;
+      case "pub":
+        doctype = "pub";
+        break;
+      case "rtf":
+        doctype = "rtf";
+        break;
+      case "spreadsheet":
+        doctype = "spreadsheet";
+        break;
+      case "txt":
+        doctype = "txt";
+        break;
+      case "vector":
+        doctype = "vector";
+        break;
+      case "vsdx":
+        doctype = "vsdx";
+        break;
+      case "vssx":
+        doctype = "vssx";
+        break;
+      case "vstx":
+        doctype = "vstx";
+        break;
       case "xlsx":
-      case "xls":
-        return { iconName: "ExcelDocument", color: "#217346" }; // Green for Excel
+        doctype = "xlsx";
+        break;
+      case "xltx":
+        doctype = "xltx";
+        break;
+      case "xsn":
+        doctype = "xsn";
+        break;
+      case "png":
+        doctype = "photo";
+        break;
+      case "jpeg":
+        doctype = "photo";
+        break;
+      case "jpg":
+        doctype = "photo";
+        break;
+      case "img":
+        doctype = "photo";
+        break;
       default:
-        return { iconName: "Page", color: "#605E5C" }; // Gray for other files
+        doctype = "txt";
+        console.log("Unknown file type.");
     }
+  
+    console.log(`Document type is: ${doctype}`);
+  
+    const url = `https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/item-types/16/${doctype}.svg`;
+    return url;
   };
+
+  // private getFileTypeIcon = (
+  //   fileName: string
+  // ): { iconName: string; color: string } => {
+  //   const extension = fileName.split(".").pop()?.toLowerCase();
+  //   switch (extension) {
+  //     case "pdf":
+  //       return { iconName: "PDF", color: "#FF0000" }; // Red for PDF
+  //     case "doc":
+  //     case "docx":
+  //       return { iconName: "WordDocument", color: "#2B579A" }; // Blue for Word
+  //     case "xlsx":
+  //     case "xls":
+  //       return { iconName: "ExcelDocument", color: "#217346" }; // Green for Excel
+  //     default:
+  //       return { iconName: "Page", color: "#605E5C" }; // Gray for other files
+  //   }
+  // };
 
   // private _getFileWithError = (data:any):any=>{
   //   console.log(data)
 
   // }
 
+  private _getCummulativeError = (data:any):any=>{
+    console.log(data)
+    data!==null?this.setState({errorForCummulative:true,
+      // dialogboxForCummulativeError:true
+    }):this.setState({errorForCummulative:false,
+      // dialogboxForCummulativeError:false
+    })
+  }
+
   private _getFileWithError = (data: any): any => {
+    // console.log(data)
+
+    // let cummErrorFoundBoolean = false
+
+    // if (data[1] === "supportingDocument"){
+    //   const cummmErroFound = data[0].map((each:any)=>each.cumulativeError)
+    //   // console.log(cummmErroFound)
+    //   // if (cummmErroFound.length >0){
+    //   //   cummErrorFoundBoolean = true
+    //   // }
+    //   if (cummmErroFound.length > 0){
+    //     const newObj = this.state.errorFilesList;
+    //     newObj.cummlativeError = data[0];
+
+    //   }
+     
+    //   // newObj.supportingDocument=[]
+    // }
   
     const newObj = this.state.errorFilesList;
     newObj[data[1]] = data[0];
+
+    // if (cummErrorFoundBoolean){
+    //   newObj.supportingDocument=[]
+
+    // }
 
     this.setState({ errorFilesList: newObj });
     // const updateErrorInObj = data[0].map(
@@ -3339,9 +3666,13 @@ export default class ViewForm extends React.Component<
       newObj.gistDocument.length > 0
 
     ) {
-      this.setState({ errorOfDocuments: true ,isAutoSaveFailedDialog:true});
+      this.setState({ errorOfDocuments: true ,
+        // isAutoSaveFailedDialog:true
+      });
     } else {
-      this.setState({ errorOfDocuments: false,isAutoSaveFailedDialog:false });
+      this.setState({ errorOfDocuments: false,
+        // isAutoSaveFailedDialog:false 
+      });
     }
   };
 
@@ -3519,6 +3850,19 @@ export default class ViewForm extends React.Component<
                 } } typeOfNote={this._committeeType}            />
             {/* success  dialog */}
 
+            
+                   {/* changeApprover data mandiatory  dialog */}
+
+            <ChangeApproverMandatoryDialog isVisibleAlter={this.state.isChangeApproverNeeded} onCloseAlter={()=>{
+              this.setState({isChangeApproverNeeded:false})
+            } } />
+                  
+                   {/* changeApprover data mandiatory  dialog */}
+                   {/* refer  comment  dialog */}
+            <ReferCommentsMandatoryDialog isVisibleAlter={this.state.isReferDataAndCommentsNeeded} onCloseAlter={()=>{
+              this.setState({isReferDataAndCommentsNeeded:false})
+            } } statusOfReq={this.state.peoplePickerSelectedDataWhileReferOrChangeApprover}/>
+                   {/* refer  comment  dialog */}
             {/* refer back comment  dialog */}
             <ReferBackCommentDialog
               statusOfReq={this.state.status}
@@ -3658,7 +4002,12 @@ export default class ViewForm extends React.Component<
             {/* dialog box details */}
             {/* dialog box details */}
 
+               {/*CummulativeErrorDialog dialog box details */}
+            <CummulativeErrorDialog isVisibleAlter={this.state.dialogboxForCummulativeError} onCloseAlter={() => {
+                this.setState({ dialogboxForCummulativeError: false });
+              } } statusOfReq={undefined}/>
 
+                 {/*CummulativeErrorDialog dialog box details */}
              {/* auto save failed  dialog */}
              {this.state.isAutoSaveFailedDialog && (
               <AutoSaveFailedDialog
@@ -3916,12 +4265,19 @@ export default class ViewForm extends React.Component<
                         >
                           <div style={{ padding: "15px" }}>
                             <ATRAssignee
+                            atrType={this.state.atrType}
+                            getATRTypeOnChange={
+                              (type:any)=>{
+                                this.setState({atrType:type})
+                              }
+                            }
 
                             clearAtrGridDataOnSelectionOFATRType= {
                               ()=>{
                                 this.setState({atrGridData:[],noteATRAssigneeDetails:[]})
                               }
                             }
+
 
                               checkingCurrentATRCreatorisCurrentApproverOrNot={this._checkingCurrentATRCreatorisCurrentApproverOrNot()}
                               getATRJoinedComments = {
@@ -3941,7 +4297,7 @@ export default class ViewForm extends React.Component<
                                 this.setState({ atrGridData: data });
                               }}
                               updategirdData={(data: any): void => {
-                                console.log(data);
+                                // console.log(data);
                                 this.setState({atrType:data.atrType})
 
                                 const currentAtrCreator =
@@ -3952,7 +4308,7 @@ export default class ViewForm extends React.Component<
                                   );
                                 // console.log(currentAtrCreator);
                                 const { assigneeDetails } = data;
-                                console.log(assigneeDetails)
+                                // console.log(assigneeDetails)
                                 this.setState({
                                   atrGridData: data.comments,
                                   //  [
@@ -4081,19 +4437,16 @@ export default class ViewForm extends React.Component<
                           style={{ width: "100%", margin: "0px" }}
                         >
                           <div style={{ padding: "15px", paddingTop: "4px" }}>
-                            <UploadFileComponent
-                             errorData={this._getFileWithError}
-                              typeOfDoc="supportingDocument"
-                              onChange={
-                                this.handleSupportingFileChangeInViewForm
-                              }
-                              accept=".xlsx,.pdf,.doc,.docx"
-                              multiple={true}
-                              maxFileSizeMB={25}
-                              maxTotalSizeMB={25}
-                              data={this.state.supportingFilesInViewForm}
-                              addtionalData={this.state.supportingDocumentfiles}
-
+                            <SupportingDocumentsUploadFileComponent
+                                  errorData={this._getFileWithError}
+                                  typeOfDoc="supportingDocument"
+                                  onChange={this.handleSupportingFileChangeInViewForm}
+                                  accept=".xlsx,.pdf,.doc,.docx"
+                                  multiple={true}
+                                  maxFileSizeMB={25}
+                                  maxTotalSizeMB={25}
+                                  data={this.state.supportingFilesInViewForm}
+                                  addtionalData={this.state.supportingDocumentfiles} cummulativeError={this._getCummulativeError}
                               // value={this.state.supportingDocumentfiles}
                             />
                             <p
@@ -4112,7 +4465,7 @@ export default class ViewForm extends React.Component<
                   )}
 
                   {/*Gist Document Section */}
-                  {this._checkingCurrentUserInSecretaryDTO() ? (
+                  {this._checkingCurrentUserInSecretaryDTO() &&(this.state.statusNumber!=='5000' &&this.state.statusNumber!=='8000'&&this.state.statusNumber!=='4000') ? (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -4137,7 +4490,7 @@ export default class ViewForm extends React.Component<
                           className={`${styles.expansionPanelInside}`}
                           style={{ width: "100%", margin: "0px" }}
                         >
-                          <div style={{ padding: "15px", paddingTop: "4px" }}>
+                          <div style={{ padding: "6px", paddingTop: "4px" }}>
                             {/* {this.state.noteSecretaryDetails} */}
                             <div
                               style={{
@@ -4159,8 +4512,7 @@ export default class ViewForm extends React.Component<
                                     multiple={false}
                                     maxFileSizeMB={5}
                                     maxTotalSizeMB={5}
-                                    data={this.state.secretaryGistDocs} addtionalData={[]}
-                                  // value={this.state.supportingDocumentfiles}
+                                    data={this.state.secretaryGistDocs} addtionalData={this.state.secretaryGistDocsList} cummulativeError={undefined}                                  // value={this.state.supportingDocumentfiles}
                                 />
                               )}
                               {this._checkingCurrentUserIsSecretaryDTO() && (
@@ -4183,39 +4535,33 @@ export default class ViewForm extends React.Component<
 
                                   // console.log(file);
                                   // console.log(file.fileUrl);
-                                  const { iconName, color } =
-                                    this.getFileTypeIcon(file.name);
+                                  // const { iconName, color } =
+                                  //   this.getFileTypeIcon(file.name);
                                   return (
                                     <li
                                       key={index} // Use index as the key here, assuming files are unique
-                                      style={{
-                                        // display: "flex",
-                                        // alignItems: "center",
-                                        width:'100%',
-                                        // border:'1px solid red'
-                                        marginTop:'5px'
-                                      }}
+                                      style={{width:"100%",marginTop:'5px'}}
                                       className={`${styles.basicLi} ${styles.attachementli}`}
                                     >
                                       <div
-                                        style={{
-                                          padding: "2px",
-                                          marginBottom: "4px",
-                                          display: "flex",
-                                          justifyContent: "flex-start",
-                                          alignContent: "center",
-                                          flexGrow: "1",
-                                        }}
+                                         className={`${styles.fileIconAndNameWithErrorContainer}`}
                                       >
                                         {/* <div> */}
-                                          <Icon
+
+                                        <img
+                      // className={ `${styles.fileImgIcon} `}
+                        src={this._randomFileIcon(file.name)}
+                        width={32}
+                        height={32}
+                      />
+                                          {/* <Icon
                                             iconName={iconName}
                                             style={{
                                               fontSize: "24px",
                                               marginTop: "8px",
                                               color: color,
                                             }}
-                                          />
+                                          /> */}
 
                                           <a
                                             href={file.fileUrl}
@@ -4227,13 +4573,30 @@ export default class ViewForm extends React.Component<
                                               marginTop: "9px",
                                               paddingLeft: "4px",
                                               textDecoration: "none", // Optional: removes underline
-                                              color: "#0078d4", // Optional: sets Fluent UI link color
+                                              // color: "#0078d4", // Optional: sets Fluent UI link color
                                             }}
                                           >
-                                            {file.name}
+                                             <span
+                      style={{
+                        paddingBottom: '0px',
+                        marginBottom: '0px',
+                        paddingLeft: '4px',
+                      }}
+                    >
+                      {file.name.length > 30 ? `${file.name.slice(0, 20)}...` : file.name}
+                    </span>
                                           </a>
                                         {/* </div> */}
                                       </div>
+
+                                      <IconButton
+                  iconProps={{ iconName: 'Cancel' }}
+                  title="Delete File"
+                  ariaLabel="Delete File"
+                  onClick={() => {
+                    this.setState({secretaryGistDocsList:[]})
+                  }}
+                />
                                     </li>
                                   );
                                 }
@@ -4525,6 +4888,12 @@ export default class ViewForm extends React.Component<
                         // console.log(this._checkNoteReferIdHavingComments())
                         this.setState({ successStatus: "refered back" });
 
+                        if(this.state.errorForCummulative){
+                          this.setState({dialogboxForCummulativeError:true})
+                          return
+                        }
+
+
                         if (this.state.errorOfDocuments){
                           this.setState({isAutoSaveFailedDialog:true})
                           return
@@ -4557,7 +4926,7 @@ export default class ViewForm extends React.Component<
                   ))}
                 {/* {this._getApproverAndReviewerStageButton()} */}
 
-                {this._checkingCurrentUserIsSecretaryDTO() && (
+                {(this._checkingCurrentUserIsSecretaryDTO() && (this.state.statusNumber!=='5000' &&this.state.statusNumber!=='8000'&&this.state.statusNumber!=='9000'&&this.state.statusNumber!=='4000')) && (
                   <PrimaryButton
                   iconProps={{ iconName: "Send" }}
                     style={{
@@ -4628,6 +4997,10 @@ export default class ViewForm extends React.Component<
         )}
         {!this.state.dialogFluent && (
           <DialogBlockingExample
+          changeApproverDataMandatory={this._changeApproverDataMandatory}
+          referCommentsAndDataMandatory = {this._referCommentsAndDataMandatory}
+          statusNumberForChangeApprover={this.state.statusNumber}
+          referDto={this.state.noteReferrerDTO[this.state.noteReferrerDTO.length-1]}
           requesterEmail={this.state.createdByEmail}
           approverIdsHavingSecretary = {this.state.approverIdsHavingSecretary}
           isUserExistingDialog={()=>this.setState({isUserExistsModalVisible:true})}
@@ -4643,6 +5016,11 @@ export default class ViewForm extends React.Component<
                 commentsLog:[...this.state.commentsLog,data]
               });
             }}
+            fetchReferComments = {
+              (data:any)=>{
+                console.log(data)
+              }
+            }
             fetchAnydata={(data: any, typeOfBtnTriggered: any, status: any) => {
               // console.log(data);
               // console.log(this.state.currentApprover);
@@ -4665,6 +5043,7 @@ export default class ViewForm extends React.Component<
               //     // "statusMessage": null
               // }
               // console.log(typeOfBtnTriggered);
+              this.setState({peoplePickerSelectedDataWhileReferOrChangeApprover:data})
               if (typeOfBtnTriggered === "Refer") {
                 this.setState({
                   refferredToDetails: [{ ...data[0], status: status }],

@@ -17,7 +17,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
     const { type } = props;
     const gridData = props.data;
 
-    console.log(gridData, `----${type} Of Grid-----------`);
+    // console.log(gridData, `----${type} Of Grid-----------`);
 
     // Define the columns for the DetailsList
     const columns: IColumn[] = [
@@ -37,7 +37,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
         
             let iconName = '';
             // console.log(item);
-            console.log(item.statusNumber);
+            // console.log(item.statusNumber);
             switch (item.statusNumber) {
               case "2000": // pending reviewer
               case "3000": // pending approver

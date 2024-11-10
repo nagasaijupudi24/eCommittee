@@ -8,17 +8,22 @@ import {  IIconProps, mergeStyleSets, Stack, TextField } from "@fluentui/react";
 import PnPPeoplePicker from "../peoplePicker/peoplePicker";
 import { IconButton, Text } from "@fluentui/react";
 import { v4 } from "uuid";
-import ReferCommentsMandatoryDialog from "./referCommentsMandiatory";
+// import ReferCommentsMandatoryDialog from "./referCommentsMandiatory";
 import SpanComponent from "../spanComponent/spanComponent";
-import ChangeApproverMandatoryDialog from "./changeApproverMandiatory";
+// import ChangeApproverMandatoryDialog from "./changeApproverMandiatory";
 
 interface IDialogProps {
+  changeApproverDataMandatory:any;
+  referCommentsAndDataMandatory:any;
+  statusNumberForChangeApprover:any;
+  referDto:any;
   requesterEmail:any;
   dialogUserCheck:any;
   hiddenProp: any;
   dialogDetails: any;
   sp: any;
   context: any;
+  fetchReferComments:any;
   fetchAnydata: any;
   fetchReferData:any;
   isUserExistingDialog:any;
@@ -153,18 +158,18 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
   const [data, setData] = React.useState<any>('');
   const [isUserExistsModalVisible, setIsUserExistsModalVisible] = React.useState(false); // Modal visibility state  const [data, setData] =
     React.useState<any>('');
-    const [isVisibleAlter, setIsVisableAlter] =
-    React.useState<any>(false);
+    // const [isVisibleAlter, setIsVisableAlter] =
+    // React.useState<any>(false);
   const [referredCommentTextBoxValue, setReferredCommentTextBoxValue] =
     React.useState<any>('');
 
-    const [type, setType] =
-    React.useState<any>('');
+    // const [type, setType] =
+    // React.useState<any>('');
 
   const handleConfirmBtn = () => {
     // console.log("Confirm btn triggered");
     dialogDetails.functionType(
-      dialogDetails.status,
+      dialogDetails.status === "Noted"?"Approved":dialogDetails.status,
       dialogDetails.statusNumber
     );
   };
@@ -243,8 +248,29 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
     const isRequester = reviewerInfo.email === requesterEmail
 
     // console.log(isReviewerOrApprover || isCurrentUserReviewer)
+    console.log(props.referDto)
+
+   
+
+    if (props.dialogDetails.type === 'Refer'){
+      return isReviewerOrApprover || isCurrentUserReviewer ||isRequester 
+
+    }else{
+      if (props.statusNumberForChangeApprover === '4000'){
+        const isSelectedUserIsAnReferee =(Object.keys(props.referDto).length > 0) ? props.referDto.referrerEmail ===  reviewerInfo.email :false
+        console.log(isSelectedUserIsAnReferee)
+        console.log(props.dialogDetails)
+        return isReviewerOrApprover || isCurrentUserReviewer ||isRequester ||isSelectedUserIsAnReferee;
+
+      }
+      return isReviewerOrApprover || isCurrentUserReviewer ||isRequester 
+      
+      
+
+    }
+    
   
-    return isReviewerOrApprover || isCurrentUserReviewer ||isRequester;
+   
     
   };
   
@@ -402,10 +428,10 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         isBlocking={true}
         containerClassName={styles.modal}
       >
-        <ChangeApproverMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/>
+        {/* <ChangeApproverMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/> */}
         <Header heading={'Change Approver'} onClose={dialogDetails.closeFunction} />
         <div className={styles.body} style={{paddingTop:'10px'}}>
-          <div className={styles.contentContainer}>
+          {/* <div className={styles.contentContainer} style={{ width: "90%" }}>
             <p>{dialogDetails.message}<SpanComponent/></p>
             <PnPPeoplePicker
               context={context}
@@ -413,7 +439,20 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
               getDetails={_getDetails}
               typeOFButton="Change Approver" clearPeoplePicker={undefined} disabled={true}   />
 
-          </div>
+          </div> */}
+
+          <div style={{ width: "90%" }}>
+            <div style={{width:'100%'}}>
+            <p style={{textAlign:'left'}}>{dialogDetails.message}<SpanComponent/></p>
+            <PnPPeoplePicker
+              context={context}
+              spProp={sp}
+              getDetails={_getDetails}
+              typeOFButton="Change Approver" clearPeoplePicker={undefined} disabled={true}   />
+
+            </div>
+             
+            </div>
           
          
         </div>
@@ -422,10 +461,13 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             
            
             ()=>{
+              console.log(data)
               if (data ===''){
 
-                setType("data")
-                setIsVisableAlter(true)
+                // setType("data")
+               
+                // setIsVisableAlter(true)
+                props.changeApproverDataMandatory()
                 return
               }
               if (checkReviewer(data)) {
@@ -454,7 +496,7 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
         isBlocking={true}
         containerClassName={styles.modal}
       >
-          <ReferCommentsMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/>
+          {/* <ReferCommentsMandatoryDialog isVisibleAlter={isVisibleAlter} onCloseAlter={()=>setIsVisableAlter(false) } statusOfReq={type}/> */}
         <div>
           <Header heading={'Add Refree'} onClose={dialogDetails.closeFunction} />
           <div
@@ -470,7 +512,8 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
             }}
           >
             <div style={{ width: "90%" }}>
-              <h5 style={{ width: "95%" }}>{dialogDetails.message[0]}</h5>
+            <h4 className={styles.headerTitle}>{dialogDetails.message[0]}</h4>
+             
               <PnPPeoplePicker
                 context={context}
                 spProp={sp}
@@ -478,8 +521,10 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                 typeOFButton="Refer" clearPeoplePicker={undefined} // styles={{ root: { width: '95%' } }}
                 disabled={true}              />
             </div>
+            <div style={{width:'90%'}}>
+            <h4 className={styles.headerTitle} style={{alignSelf:'flex-start'}}>{dialogDetails.message[1]}</h4>
             <TextField
-              label={dialogDetails.message[1]}
+             
               multiline
               rows={3}
               onChange={(
@@ -502,8 +547,11 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                   return commentsObj;
                 });
               }}
-              styles={{ root: { width: "90%" } }}
+              styles={{ root: { width: "100%" } }}
             />
+
+            </div>
+           
           </div>
           <div className={styles.footer}
           >
@@ -511,14 +559,16 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
               onClick={()=>{
                 if (data ===''){
 
-                  setType("data")
-                  setIsVisableAlter(true)
+                  // setType("data")
+                  // setIsVisableAlter(true)
+                  props.referCommentsAndDataMandatory()
                 }else if(referredCommentTextBoxValue===''){
-                  setType("comments")
-                  setIsVisableAlter(true)
+                  // setType("comments")
+                  // setIsVisableAlter(true)
+                  props.referCommentsAndDataMandatory()
                   
                 }else{
-
+                // if(data !== ''){
                   if (checkReviewer(data)) {
                     dialogDetails.closeFunction()
                     isUserExistingDialog()
@@ -526,6 +576,10 @@ export const DialogBlockingExample: React.FunctionComponent<IDialogProps> = (pro
                   // setIsUserExistsModalVisible(true);  // Show the modal
                   return; // Stop execution if user exists
                 }
+
+                // }
+
+                 
 
 
                   

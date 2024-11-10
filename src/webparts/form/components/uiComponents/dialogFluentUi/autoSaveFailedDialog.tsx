@@ -48,7 +48,7 @@ const AutoSaveFailedDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: ()
     footer: {
       display: 'flex',
       justifyContent: 'flex-end',
-      marginTop: '20px',
+      
       borderTop: '1px solid #ddd', // Added border to the top of the footer
       paddingTop: '10px',
     },

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
-const ChangeApproverMandatoryDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
+const ChangeApproverMandatoryDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void;  }> = ({ isVisibleAlter, onCloseAlter }) => {
   const styles = mergeStyleSets({
     modal: {
       padding: '10px',
@@ -67,7 +67,7 @@ const ChangeApproverMandatoryDialog: React.FC<{ isVisibleAlter: boolean; onClose
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        {statusOfReq === 'data'?<p>Please fill up all the mandatory fields.</p>:<p>Please fill up all the mandatory fields.</p>}
+          <p>Please fill up all the mandatory fields.</p>
         
       </div>
       <div className={styles.footer}>

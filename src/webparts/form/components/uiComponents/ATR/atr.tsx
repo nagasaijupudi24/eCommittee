@@ -37,6 +37,8 @@ interface IDropdownOption {
 
 // Interface for the component's props
 interface IATRAssigneeProps {
+  atrType:any;
+  getATRTypeOnChange:any;
   clearAtrGridDataOnSelectionOFATRType:any;
   checkingCurrentATRCreatorisCurrentApproverOrNot: any;
   getATRJoinedComments: any;
@@ -100,7 +102,7 @@ export class ATRAssignee extends React.Component<
       modalMessage: "",
       clearPeoplePicker: "",
       atrJoinedComments: "",
-      selectedChoice: "Internal",
+      selectedChoice: this.props.atrType,
       statusOptions:[],
       selectedDropDownValue:'',
 
@@ -121,7 +123,7 @@ export class ATRAssignee extends React.Component<
     const indexOF = this.props.approverDetails.findIndex(
       (each: any) => each.approverEmail === this.props.currentATRCreatorDetails
     );
-    console.log(indexOF);
+    // console.log(indexOF);
     const optionUptoATRCreator = this.props.approverDetails.slice(0, indexOF);
 
     // Only push if it doesn't already exist
@@ -176,6 +178,7 @@ export class ATRAssignee extends React.Component<
           iconProps={{ iconName: "Delete" }}
           title="Delete"
           ariaLabel="Delete"
+          styles={{ root: { paddingBottom: '16px' } }}
           onClick={() => this.handleDeleteRow(item.key)} // Delete row handler
         />
       ),
@@ -185,10 +188,10 @@ export class ATRAssignee extends React.Component<
   // Handle ComboBox change for status
   private handleStatusChange = (option: IComboBoxOption | undefined): void => {
     const newStatus = option?.text || "";
-    console.log(newStatus);
-    console.log(option);
+    // console.log(newStatus);
+    // console.log(option);
     this.setState({ selectedValue: option,selectedUsers: option,selectedDropDownValue:newStatus });
-    console.log(this.props.atrCreatorsList);
+    // console.log(this.props.atrCreatorsList);
     //     const filterATRData = this.props.atrCreatorsList.filter(
     //         (each:any)=>{
     //             console.log(each)
@@ -257,8 +260,8 @@ export class ATRAssignee extends React.Component<
   };
 
   public _getDetailsFromPeoplePicker = (): any => {
-    console.log("add btn triggered in ATR Assignee")
-    console.log(this.state.selectedValue)
+    // console.log("add btn triggered in ATR Assignee")
+    // console.log(this.state.selectedValue)
     if (Object.keys(this.state.selectedValue).length === 0) {
       // console.log('entered into empty value')
       this.setState({
@@ -355,7 +358,8 @@ export class ATRAssignee extends React.Component<
   ): void => {
     if (option) {
       this.setState({ selectedChoice: option.key,selectedValue:{},tableData:[],selectedDropDownValue:'' ,selectedUsers:{}});
-      console.log("Selected choice:", option.key);
+      // console.log("Selected choice:", option.key);
+      this.props.getATRTypeOnChange(option.key)
       this.props.clearAtrGridDataOnSelectionOFATRType()
 
     }
@@ -425,10 +429,10 @@ export class ATRAssignee extends React.Component<
 
     const { isModalOpen, modalMessage, selectedChoice, isDisabled,selectedDropDownValue } =
       this.state;
-      console.log(this.state)
-      console.log(this.state.selectedValue)
-      console.log(this.state.selectedValue.text)
-      console.log(selectedDropDownValue)
+      // console.log(this.state)
+      // console.log(this.state.selectedValue)
+      // console.log(this.state.selectedValue.text)
+      // console.log(selectedDropDownValue)
 
     return (
       <div>

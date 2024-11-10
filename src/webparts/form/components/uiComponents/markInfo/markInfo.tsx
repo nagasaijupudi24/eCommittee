@@ -235,6 +235,7 @@ interface IATRAssigneeProps {
 
 // Interface for the component's state
 interface IATRAssigneeState {
+  submitBtnVisable:any;
   tableData: any;
   selectedUsers: any;
   currentRowKey: any;
@@ -255,6 +256,7 @@ export class MarkInfo extends React.Component<
 
     // Initialize state
     this.state = {
+      submitBtnVisable:false,
       tableData: this.props.artCommnetsGridData,
       selectedUsers: {},
       currentRowKey: null,
@@ -298,6 +300,7 @@ export class MarkInfo extends React.Component<
           iconProps={{ iconName: "Delete" }}
           title="Delete"
           ariaLabel="Delete"
+          styles={{ root: { paddingBottom: '16px' } }}
           onClick={() => this.handleDeleteRow(item.id)} // Delete row handler
         />
       ),
@@ -320,7 +323,7 @@ export class MarkInfo extends React.Component<
     if (Object.keys(this.state.selectedValue).length === 0) {
       this.setState({
         isModalOpen: true,
-        modalMessage: "Please select a user and click Add.",
+        modalMessage: "Please select the user then click on Add User.",
         warnType:'no'
       });
       return;
@@ -357,7 +360,7 @@ export class MarkInfo extends React.Component<
   
     if (Object.keys(this.state.selectedValue).length > 0) {
       this.setState({
-        tableData: [...tableData, selectedValue],
+        tableData: [...tableData, selectedValue],submitBtnVisable:true
       });
     }
   };
@@ -375,6 +378,7 @@ export class MarkInfo extends React.Component<
   private _handleSubmit = (): void => {
     if (this.state.tableData.length === 0) {
       this.setState({
+        
         isModalOpen: true,
         modalMessage: "Please select a user and click Add.",
          warnType:'no'
@@ -386,7 +390,8 @@ export class MarkInfo extends React.Component<
     this.setState({
       isModalOpen: true,
       modalMessage: "The mark for information has been updated successfully.",
-       warnType:'yes'
+       warnType:'yes',
+       submitBtnVisable:false
     });
   };
 
@@ -469,7 +474,7 @@ export class MarkInfo extends React.Component<
             iconProps={{ iconName: "Add" }}
             onClick={this._handleAdd}
           >
-            Add
+            Add User
           </PrimaryButton>
         </div>
 
@@ -484,13 +489,15 @@ export class MarkInfo extends React.Component<
           ariaLabelForSelectAllCheckbox="Toggle selection for all items"
         />
 
-        <div style={{ textAlign: "right", marginTop: "10px" }}>
-          <PrimaryButton
+        <div style={{  marginTop: "10px" }}>
+          {this.state.submitBtnVisable?
+            <PrimaryButton
             iconProps={{ iconName: "Save" }}
             onClick={this._handleSubmit}
           >
             Submit
-          </PrimaryButton>
+          </PrimaryButton>:''}
+        
         </div>
 
         {/* Modal for alerts */}

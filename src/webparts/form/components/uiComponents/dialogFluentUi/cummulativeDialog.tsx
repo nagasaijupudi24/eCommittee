@@ -1,9 +1,11 @@
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
-const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
+const CummulativeErrorDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
   const styles = mergeStyleSets({
     modal: {
       padding: '10px',
@@ -26,9 +28,8 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
       justifyContent: 'space-between',
       alignItems: 'center',
       // padding: '10px 0',
-      
       borderBottom: '1px solid #ddd',
-      minHeight: "50px",
+      minHeight:'50px',
     },
     headerTitle: {
       margin:'5px',
@@ -47,11 +48,13 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
     footer: {
       display: 'flex',
       justifyContent: 'flex-end',
-      marginTop: '20px',
+      
       borderTop: '1px solid #ddd', // Added border to the top of the footer
       paddingTop: '10px',
     },
   });
+
+//   console.log(statusOfReq)
 
   return (
     <Modal
@@ -68,7 +71,7 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        <p>The request has been updated Successfully</p>
+        <p>Cumulative size of all the supporting documents should not exceed 25 MB.</p>
       </div>
       <div className={styles.footer}>
         <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
@@ -77,4 +80,5 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
   );
 };
 
-export default GistDocSubmitted;
+export default CummulativeErrorDialog;
+

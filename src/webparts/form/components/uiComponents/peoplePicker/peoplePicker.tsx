@@ -42,7 +42,7 @@ export default class PnPPeoplePicker extends React.Component<
   
 
   private _clearPeoplePicker = () => {
-    console.log('Function called for clearing')
+    // console.log('Function called for clearing')
     this.setState({ selectedPeople: [], key: this.state.key + 1 }); // Update the key to force re-render
   };
 
@@ -88,7 +88,7 @@ export default class PnPPeoplePicker extends React.Component<
   // };
 
   private _getPeoplePickerItems = async (items: any[]) => {
-    console.log(this.props.typeOFButton)
+    // console.log(this.props.typeOFButton)
     // console.log("Items:", items);
     // fetchedData = items
     // console.log(items[0].loginName);
@@ -143,7 +143,7 @@ export default class PnPPeoplePicker extends React.Component<
   public render(): React.ReactElement<IPnPPeoplePickerProps> {
     // console.log(this.state);
     // console.log(this.props)
-    console.log(this.props.typeOFButton)  
+    // console.log(this.props.typeOFButton)  
     const peoplePickerContext = {
       absoluteUrl: this.props.context.pageContext.web.absoluteUrl,
       msGraphClientFactory: this.props.context.msGraphClientFactory,

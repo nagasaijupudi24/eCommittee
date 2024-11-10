@@ -118,12 +118,13 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       maxWidth: 50,
       isResizable: false,
       onRender: (item: any) => (
-        <IconButton
-                iconProps={{ iconName: 'GlobalNavButton' }} // Hamburger icon
-                title="Menu"
-                ariaLabel="Menu"
-                styles={{ root: { marginTop: '-5px' } }} // Adjust the margin to move the icon up
-            />
+        <div >  <IconButton
+        iconProps={{ iconName: 'GlobalNavButton' }} // Hamburger icon
+        title="Menu"
+        ariaLabel="Menu"
+        // styles={{ root: { marginTop: '-5px' } }} // Adjust the margin to move the icon up
+    /></div>
+      
       ),
     },
     {
@@ -134,7 +135,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       maxWidth: 80,
       isResizable: false,
       onRender: (_item: any, _index?: number) => (
-        <span>{(_index !== undefined ? _index : 0) + 1}</span>
+        <div style={{ marginTop: '8px' }}>{(_index !== undefined ? _index : 0) + 1}</div>
       ),
     },
     {
@@ -144,6 +145,9 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
+      onRender: (item: any) => (
+        <div style={{ marginTop: '8px' }}>{item.text}</div> // Adjust the margin value as needed
+      ),
     },
     {
       key: 'srNo',
@@ -152,6 +156,9 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
+      onRender: (item: any) => (
+        <div style={{ marginTop: '8px' }}>{item.srNo}</div> // Adjust the margin value as needed
+      ),
     },
     {
       key: 'optionalText',
@@ -160,6 +167,9 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       minWidth: 100,
       maxWidth: 200,
       isResizable: true,
+      onRender: (item: any) => (
+        <div style={{ marginTop: '8px' }}>{item.optionalText}</div> // Adjust the margin value as needed
+      ),
     },
     {
       key: 'actions',

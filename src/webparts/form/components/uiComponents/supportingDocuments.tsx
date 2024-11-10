@@ -86,7 +86,7 @@ const _randomFileIcon = (docType: string):any => {
       break;
     case "docx":
       doctype = "docx";
-      break;
+      break
       case "doc":
         doctype = "docx";
       break;
@@ -200,7 +200,7 @@ const _randomFileIcon = (docType: string):any => {
 //   }
 // };
 
-export default class UploadFileComponent extends React.Component<IUploadFileProps, IUploadFileState> {
+export default class SupportingDocumentsUploadFileComponent extends React.Component<IUploadFileProps, IUploadFileState> {
   private fileInputRef: React.RefObject<HTMLInputElement>;
 
   public constructor(props: IUploadFileProps) {
@@ -247,7 +247,17 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
         error = `File size should not exceed more ${maxFileSizeMB}MB`;
       } else if (!this.isFileNameValid(file.name)) {
         error = 'File name should not contain special characters';
-      } else if (
+      }
+
+      console.log( currentTotalSize,"currentTotalSize" )
+      console.log(  file.size,"file.size" )
+      console.log(  maxFileSizeBytes,"maxFileSizeBytes")
+      console.log(currentTotalSize + file.size,"currentTotalSize + file.size")
+
+      console.log( currentTotalSize + file.size > maxFileSizeBytes)
+      
+      
+      if  (
         // maxTotalSizeBytes &&
         currentTotalSize + file.size > maxFileSizeBytes
       ) {
@@ -255,6 +265,8 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
           'Cumulative size of all the supporting documents should not exceed 25 MB.';
           
           
+      }else{
+        cumulativeError = null
       }
 
       currentTotalSize += file.size;
@@ -267,7 +279,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
       )
       // console.log(filterNullerrorInvalidFiles)
       this.props.errorData([filterNullerrorInvalidFiles, this.props.typeOfDoc]);
-      // this.props.cummulativeError(cumulativeError)
+      this.props.cummulativeError(cumulativeError)
       this.setState({ errorOfFile: error,cummError:cumulativeError });
     }
 
@@ -346,12 +358,57 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
 
 
   private handleDeleteFile = (fileId: string): void => {
+
+    
     const updatedFiles = this.state.selectedFiles.filter(
       (fileWithError) => fileWithError.id !== fileId
     );
+    console.log(updatedFiles)
+
+    const { maxFileSizeMB } = this.props;
+    const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
+
+    let cumulativeError = null
+    let currentTotalSize = 0;
+    // let cumulativeError = null;
+
+
+    for (let i = 0; i < updatedFiles.length; i++) {
+        const file = updatedFiles[i];
+        console.log(file)
+        console.log(file.file.size)
+        // let error: string | null = null;
+  
+      
+  
+        console.log( currentTotalSize,"currentTotalSize" )
+        console.log( file.file.size,"file.size" )
+        console.log(  maxFileSizeBytes,"maxFileSizeBytes")
+        console.log(currentTotalSize + file.file.size,"currentTotalSize + file.size")
+  
+        console.log( currentTotalSize + file.file.size > maxFileSizeBytes)
+        
+        
+        if  (
+          // maxTotalSizeBytes &&
+          currentTotalSize + file.file.size > maxFileSizeBytes
+        ) {
+          cumulativeError =
+            'Cumulative size of all the supporting documents should not exceed 25 MB.';
+            
+            
+        }else{
+          cumulativeError = null
+        }
+  
+      }
+
+      console.log(cumulativeError)
+
+
     // console.log(updatedFiles)
     this.props.errorData([updatedFiles, this.props.typeOfDoc]);
-    // this.props.cummulativeError(this.state.cummError)
+    this.props.cummulativeError(cumulativeError)
 
     this.setState({ selectedFiles: updatedFiles }, () => {
       this.validateFiles(updatedFiles.map((f) => f.file));
@@ -362,6 +419,9 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
       this.props.typeOfDoc
     );
   };
+
+
+  
 
   public render(): React.ReactElement<IUploadFileProps> {
     const { accept, typeOfDoc, multiple } = this.props;
@@ -401,7 +461,7 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
                   style={{
                     color: 'red',
                     fontSize: '10px',
-                    paddingLeft: '4px',
+                    // paddingLeft: '4px',
                     margin: '0px',
                   }}
                 >
@@ -417,7 +477,7 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
             // const extension = file.name.split('.').pop()?.toLowerCase();
             // console.log(extension)
             return (
-              <li
+                <li
                 key={id}
                 
                 className={`${styles.basicLi} ${styles.attachementli}`}

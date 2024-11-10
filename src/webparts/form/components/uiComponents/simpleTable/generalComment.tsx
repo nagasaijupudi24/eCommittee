@@ -393,21 +393,21 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
           <div className={styles.body}>
             <div
               style={{ width: "90%" }}
-            >
-               <label style={{textAlign:'left', display: 'block', marginBottom: '4px' }}>Page#</label>
+            > 
+               <label style={{textAlign:'left', display: 'block', marginBottom: '4px',fontWeight:'400',fontSize:'16px' }}>Page#</label>
               <TextField
                 
                 value={this.state.pageNumValue}
                 onChange={(e) => this.handleInputChange(e, "pageNumValue")}
                 
               />
-               <label style={{textAlign:'left', display: 'block', marginBottom: '4px' }}>Doc Reference</label>
+               <label style={{textAlign:'left', display: 'block', marginBottom: '4px',fontWeight:'400',fontSize:'16px' }}>Doc Reference</label>
               <TextField
                 
                 value={this.state.pageValue}
                 onChange={(e) => this.handleInputChange(e, "pageValue")}
               />
-               <label style={{ textAlign:'left',display: 'block', marginBottom: '4px' }}>Comment <SpanComponent/></label>
+               <label style={{ textAlign:'left',display: 'block', marginBottom: '4px',fontWeight:'400',fontSize:'16px' }}>Comment <SpanComponent/></label>
               <TextField
                 
                 value={this.state.commentValue}
