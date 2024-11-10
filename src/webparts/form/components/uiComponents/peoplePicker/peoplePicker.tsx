@@ -134,7 +134,8 @@ export default class PnPPeoplePicker extends React.Component<
       });
       // console.log(newItemsData)
       this.props.getDetails(newItemsData,this.props.typeOFButton)
-      this.props.clearPeoplePicker(this._clearPeoplePicker,"clearFuntion")
+      // eslint-disable-next-line no-unused-expressions
+      newItemsData.length > 0 && this.props.clearPeoplePicker(this._clearPeoplePicker,"clearFuntion")
       this.setState({ selectedPeople: newItemsData });
       // this._clearPeoplePicker();
     }

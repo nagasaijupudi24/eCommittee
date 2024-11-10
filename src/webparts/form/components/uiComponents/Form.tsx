@@ -1180,13 +1180,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       isWarningNatureOfNote: !value, // Set warning state if value is empty
     });
 
-    if (value === "Information" || value === "Ratification") {
-      this.setState({
-        natureOfApprovalOrSanctionFeildValue: "",
-        puroposeFeildValue: "",
-        othersFieldValue: "",
-      });
-    }
+    this.setState({
+      natureOfApprovalOrSanctionFeildValue: "",
+      puroposeFeildValue: "",
+      othersFieldValue: "",
+    });
+
+    
+
+    // if (value === "Information" || value === "Ratification") {
+      
+    // }
   };
 
   private handleNatureOfApprovalOrSanctionChange = (
@@ -2343,7 +2347,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
-    // console.log(conditionNumber,"Condition Number")
+    console.log(conditionNumber,"Condition Number")
 
     const warn: any = {
       committeeName: [
@@ -2403,16 +2407,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         newWarnObj[warn[each][1]] = true;
       }
     });
-    // console.log(newWarnObj,"Warning check")
+    console.log(newWarnObj,"Warning check")
     this.setState({ ...newWarnObj });
 
     // console.log(dialogVisableWarn, "Dialog Visable Warn");
 
     const dialogVisable = Object.keys(fieldValues).every(
       (each: keyof typeof fieldValues) => {
-        // console.log(each);
+        console.log(each);
         if (
           fieldValues[each] === "" ||
+          fieldValues[each] === null ||
           fieldValues[each].length === 0 ||
           fieldValues[each] === true
         ) {
@@ -3294,7 +3299,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   fieldValues,
     //   "Dialog FieldValues........................................"
     // );
-    // console.log(conditionNumArray,"condition Num Array")
+    console.log(conditionNumArray,"condition Num Array")
   };
 
   private handleSubmit = async (
@@ -3442,7 +3447,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     CommitteeType:
       this.props.formType === "BoardNoteNew" ? "Board" : "Committee",
     PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
-    startProcessing: true,
+    startProcessing:this.state.itemId?false: true,
   });
 
   public async clearFolder(
@@ -4632,11 +4637,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         height: "32px",
                         boxSizing: "border-box",
                         width: "100%",
-                        border:
-                          this.state.amountFeildValue === "" &&
+                        border: `1px solid ${
+                          !this.state.amountFeildValue &&
                           this.state.isWarningAmountField
-                            ? "2px solid red"
-                            : "1px solid black",
+                            ? "red"
+                            : "rgb(86, 118, 152)"
+                        }`,
                       },
                     }}
                     onChange={this.handleAmountChange}

@@ -909,7 +909,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    // console.log(`${id} ------Details`, item);
+    console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -1043,19 +1043,23 @@ export default class ViewForm extends React.Component<
       ApproverDetails: JSON.parse(item.NoteApproversDTO),
       currentApprover:await this._getCurrentApproverDetails(
         item.CurrentApprover,
-        item.NoteApproversDTO
+        item.NoteApproversDTO,
+        item.StatusNumber,
+        item.CurrentApproverId
       ),
       ApproverOrder:
         (item.CurrentApprover &&item.StatusNumber!=='4000') &&
         this._getCurrentApproverDetails(
           item.CurrentApprover,
-          item.NoteApproversDTO
-        )[0].approverOrder,
+          item.NoteApproversDTO,
+          item.StatusNumber,
+          item.CurrentApproverId)[0].approverOrder,
+          
       ApproverType:
       (item.CurrentApprover &&item.StatusNumber!=='4000') &&
         this._getCurrentApproverDetails(
           item.CurrentApprover,
-          item.NoteApproversDTO
+          item.NoteApproversDTO,item.StatusNumber,item.CurrentApproverId
         )[0].approverType,
         department:item.Department,
 
@@ -1123,11 +1127,25 @@ export default class ViewForm extends React.Component<
 
   private _getCurrentApproverDetails = (
     currentApproverData: any,
-    ApproverDetails: any
+    ApproverDetails: any,
+    statusNumber:any,
+    id:any
   ): any => {
     ApproverDetails = JSON.parse(ApproverDetails);
-    // console.log(currentApproverData,"currentApproverData")
+    console.log(currentApproverData,"currentApproverData")
     // console.log(currentApproverData);
+
+    if (statusNumber === '4000'){
+      return [{
+        email:currentApproverData.EMail,
+        text:currentApproverData.Title,
+        id:id
+
+      }]
+    }
+
+
+    
 
     if (currentApproverData) {
       const filterApproverData = ApproverDetails.filter((each: any) => {
@@ -2059,7 +2077,7 @@ export default class ViewForm extends React.Component<
     // console.log(currentUserHavingSecratoryAndHeIsAnApprover,"currentUserHavingSecratoryAndHeIsAnApprover")
 
     // return currentUserIsAnSec && checkCurrentUserIsAnApprover.length > 0
-    const checkCurrentApproverIsAnApproverOrNot = this.state.currentApprover[0].approverType ==="Approver"
+    const checkCurrentApproverIsAnApproverOrNot = this.state.currentApprover[0]?.approverType ==="Approver"
     console.log(checkCurrentApproverIsAnApproverOrNot)
 
     const currentUserIsFromSecDTOAndHeIsSECOrApp = this.state.noteSecretaryDetails.some((each: any) => {
@@ -2597,6 +2615,12 @@ export default class ViewForm extends React.Component<
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       });
 
+      await this.updateSupportingDocumentFolderItems(
+        this.state.supportingFilesInViewForm,
+        `${this._folderName}/SupportingDocument`,
+        "Supporting documents"
+      );
+
     // console.log(itemToUpdate);
 
     if (this.state.ApproverDetails.length === this.state.ApproverOrder) {
@@ -2611,11 +2635,7 @@ export default class ViewForm extends React.Component<
 
       // console.log(itemToUpdateStatusToApproved);
 
-      await this.updateSupportingDocumentFolderItems(
-        this.state.supportingFilesInViewForm,
-        `${this._folderName}/SupportingDocument`,
-        "Supporting documents"
-      );
+     
     }
     this._closeDialog();
     this.setState({ isVisibleAlter: true });
@@ -3908,24 +3928,36 @@ export default class ViewForm extends React.Component<
                 this.setState({ isGistDocCnrf: false });
               }}
               handleConfirmatBtn={async () => {
-                this.updateGistDocumentFolderItems(
-                  this.state.secretaryGistDocs,
-                  `${this._folderName}/GistDocuments`,
-                  "gistDocument"
-                ).then(
-                  async ()=>{
-                    const updateAuditTrial = await this._getAuditTrail("gistDocuments");
-                                await this.props.sp.web.lists
-                    .getByTitle(this._listname)
-                    .items.getById(this._itemId)
-                    .update({
-                      AuditTrail: updateAuditTrial,
 
-                    });
+                try{
+                  await this.updateGistDocumentFolderItems(
+                    this.state.secretaryGistDocs,
+                    `${this._folderName}/GistDocuments`,
+                    "gistDocument"
+                  ).then(
+                    async ()=>{
+                      const updateAuditTrial = await this._getAuditTrail("gistDocuments");
+                                  await this.props.sp.web.lists
+                      .getByTitle(this._listname)
+                      .items.getById(this._itemId)
+                      .update({
+                        AuditTrail: updateAuditTrial,
+  
+                      });
+  
+  
+                    }
+                  )
 
+                  this.setState({
+                    isGistDocCnrf: false,
+                    isGistSuccessVisibleAlter: true,
+                  });
 
-                  }
-                )
+                }catch(e){
+                  console.log('Error while updating gist documents',e)
+                }
+              
                 // .then(
                   
                 //   async ()=>{
@@ -3941,10 +3973,7 @@ export default class ViewForm extends React.Component<
                 //   }
                 // );
 
-                this.setState({
-                  isGistDocCnrf: false,
-                  isGistSuccessVisibleAlter: true,
-                });
+                
               }}
               statusOfReq={undefined}
             />

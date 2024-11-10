@@ -1,14 +1,14 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @rushstack/no-new-null */
-import * as React from 'react';
-import { IconButton } from '@fluentui/react';
+import * as React from "react";
+import { IconButton } from "@fluentui/react";
 
 // import { getFileTypeIconProps } from '@fluentui/react-file-type-icons';
-import styles from '../Form.module.scss';
+import styles from "../Form.module.scss";
 
 export interface IUploadFileProps {
-  cummulativeError:any;
+  cummulativeError: any;
   typeOfDoc: string;
   onChange: (files: File[] | null, typeOfDoc: string) => void;
   accept?: string;
@@ -17,14 +17,14 @@ export interface IUploadFileProps {
   maxTotalSizeMB?: any;
   data: File[];
   errorData: any;
-  addtionalData:any[];
+  addtionalData: any[];
 }
 
 interface IFileWithError {
   id: string;
   file: File;
   error: string | null;
-  cumulativeError:any;
+  cumulativeError: any;
 }
 
 interface IUploadFileState {
@@ -33,8 +33,7 @@ interface IUploadFileState {
   errorOfFile: any;
 }
 
-
-const _randomFileIcon = (docType: string):any => {
+const _randomFileIcon = (docType: string): any => {
   // const FILE_ICONS: { name: string }[] = [
   //   { name: 'accdb' },
   //   { name: 'audio' },
@@ -87,8 +86,8 @@ const _randomFileIcon = (docType: string):any => {
     case "docx":
       doctype = "docx";
       break;
-      case "doc":
-        doctype = "docx";
+    case "doc":
+      doctype = "docx";
       break;
     case "dotx":
       doctype = "dotx";
@@ -200,7 +199,10 @@ const _randomFileIcon = (docType: string):any => {
 //   }
 // };
 
-export default class UploadFileComponent extends React.Component<IUploadFileProps, IUploadFileState> {
+export default class UploadFileComponent extends React.Component<
+  IUploadFileProps,
+  IUploadFileState
+> {
   private fileInputRef: React.RefObject<HTMLInputElement>;
 
   public constructor(props: IUploadFileProps) {
@@ -208,7 +210,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
     this.state = {
       selectedFiles: [],
       cummError: null,
-      errorOfFile: null
+      errorOfFile: null,
     };
     this.fileInputRef = React.createRef<HTMLInputElement>();
   }
@@ -231,7 +233,7 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
   private validateFiles(files: File[]): void {
     const { maxFileSizeMB } = this.props;
     const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
-   
+
     let validFiles: IFileWithError[] = [];
     let currentTotalSize = 0;
     let cumulativeError = null;
@@ -240,35 +242,41 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
       const file = files[i];
       let error: string | null = null;
 
-      const allowedFileTypes = ['.pdf', '.doc', '.docx', '.xlsx'];
-      if (!allowedFileTypes.includes(file.name.substring(file.name.lastIndexOf('.')))) {
-        error = 'File type is not allowed';
+      const allowedFileTypes = [".pdf", ".doc", ".docx", ".xlsx"];
+      if (
+        !allowedFileTypes.includes(
+          file.name.substring(file.name.lastIndexOf("."))
+        )
+      ) {
+        error = "File type is not allowed";
       } else if (file.size > maxFileSizeBytes) {
         error = `File size should not exceed more ${maxFileSizeMB}MB`;
       } else if (!this.isFileNameValid(file.name)) {
-        error = 'File name should not contain special characters';
+        error = "File name should not contain special characters";
       } else if (
         // maxTotalSizeBytes &&
-        currentTotalSize + file.size > maxFileSizeBytes
+        currentTotalSize + file.size >
+        maxFileSizeBytes
       ) {
         cumulativeError =
-          'Cumulative size of all the supporting documents should not exceed 25 MB.';
-          
-          
+          "Cumulative size of all the supporting documents should not exceed 25 MB.";
       }
 
       currentTotalSize += file.size;
-      validFiles.push({ id: `${file.name}-${i}`, file, error,cumulativeError });
+      validFiles.push({
+        id: `${file.name}-${i}`,
+        file,
+        error,
+        cumulativeError,
+      });
       // console.log(validFiles)
-      const filterNullerrorInvalidFiles = validFiles.filter(
-        (each:any)=>{
-          return each.error !==null 
-        }
-      )
+      const filterNullerrorInvalidFiles = validFiles.filter((each: any) => {
+        return each.error !== null;
+      });
       // console.log(filterNullerrorInvalidFiles)
       this.props.errorData([filterNullerrorInvalidFiles, this.props.typeOfDoc]);
       // this.props.cummulativeError(cumulativeError)
-      this.setState({ errorOfFile: error,cummError:cumulativeError });
+      this.setState({ errorOfFile: error, cummError: cumulativeError });
     }
 
     this.setState({ selectedFiles: validFiles, cummError: cumulativeError });
@@ -276,74 +284,78 @@ export default class UploadFileComponent extends React.Component<IUploadFileProp
 
   private handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
-        const files = Array.from(e.target.files);
+      const files = Array.from(e.target.files);
 
-        // Check if anotherArray has items
-        const hasAdditionalArray = this.props.addtionalData && this.props.addtionalData.length > 0;
+      // Check if anotherArray has items
+      const hasAdditionalArray =
+        this.props.addtionalData && this.props.addtionalData.length > 0;
 
-        const newFiles = files.filter(file => {
-            const isDuplicateInSelectedFiles = this.state.selectedFiles.some(
-                selectedFile => selectedFile.file.name === file.name
-            );
+      const newFiles = files.filter((file) => {
+        const isDuplicateInSelectedFiles = this.state.selectedFiles.some(
+          (selectedFile) => selectedFile.file.name === file.name
+        );
 
-            const isDuplicateInAnotherArray = hasAdditionalArray
-                ? this.props.addtionalData.some(
-                      anotherFile => anotherFile.name === file.name
-                  )
-                : false;
+        const isDuplicateInAnotherArray = hasAdditionalArray
+          ? this.props.addtionalData.some(
+              (anotherFile) => anotherFile.name === file.name
+            )
+          : false;
 
-            // File is new if it's not in either selectedFiles or anotherArray
-            return !isDuplicateInSelectedFiles && !isDuplicateInAnotherArray;
-        });
-        const filePromises = newFiles.map((file) => this.convertToFileArrayBuffer(file));
+        // File is new if it's not in either selectedFiles or anotherArray
+        return !isDuplicateInSelectedFiles && !isDuplicateInAnotherArray;
+      });
+      const filePromises = newFiles.map((file) =>
+        this.convertToFileArrayBuffer(file)
+      );
 
-        Promise.all(filePromises).then((fileBuffers) => {
-            const filesWithBuffers = fileBuffers.map((buffer, index) => ({
-                id: `${files[index].name}-${index}`,
-                file: files[index],
-                buffer: buffer,
-                error: null,
-                cumulativeError:null
-            }));
+      Promise.all(filePromises)
+        .then((fileBuffers) => {
+          const filesWithBuffers = fileBuffers.map((buffer, index) => ({
+            id: `${files[index].name}-${index}`,
+            file: files[index],
+            buffer: buffer,
+            error: null,
+            cumulativeError: null,
+          }));
 
-            const updatedFiles = this.props.multiple
-                ? [...this.state.selectedFiles, ...filesWithBuffers]
-                : filesWithBuffers;
+          const updatedFiles = this.props.multiple
+            ? [...this.state.selectedFiles, ...filesWithBuffers]
+            : filesWithBuffers;
 
-            this.setState({ selectedFiles: updatedFiles }, () => {
-                this.validateFiles(updatedFiles.map((f) => f.file));
-            });
+          this.setState({ selectedFiles: updatedFiles }, () => {
+            this.validateFiles(updatedFiles.map((f) => f.file));
+          });
 
-            this.props.onChange(
-                updatedFiles.map((f) => f.file),
-                this.props.typeOfDoc
-            );
+          this.props.onChange(
+            updatedFiles.map((f) => f.file),
+            this.props.typeOfDoc
+          );
 
-            if (this.fileInputRef.current) {
-                this.fileInputRef.current.value = '';
-            }
-        }).catch((error) => {
-            console.error('Error converting files to ArrayBuffer', error);
+          if (this.fileInputRef.current) {
+            this.fileInputRef.current.value = "";
+          }
+        })
+        .catch((error) => {
+          console.error("Error converting files to ArrayBuffer", error);
         });
     }
-};
+  };
 
-// Convert file to ArrayBuffer
-private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
+  // Convert file to ArrayBuffer
+  private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (reader.result instanceof ArrayBuffer) {
-                resolve(reader.result);
-            } else {
-                reject('FileReader result is not an ArrayBuffer');
-            }
-        };
-        reader.onerror = (error) => reject(error);
-        reader.readAsArrayBuffer(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result instanceof ArrayBuffer) {
+          resolve(reader.result);
+        } else {
+          reject("FileReader result is not an ArrayBuffer");
+        }
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsArrayBuffer(file);
     });
-}
-
+  }
 
   private handleDeleteFile = (fileId: string): void => {
     const updatedFiles = this.state.selectedFiles.filter(
@@ -363,15 +375,31 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
     );
   };
 
+  private _truncateFileName = (fileName: any): any => {
+    const maxNameLength = 40; // Adjust as needed based on width
+
+    // Get the extension
+    const extensionIndex = fileName.lastIndexOf(".");
+    const namePart =
+      extensionIndex === -1 ? fileName : fileName.slice(0, extensionIndex);
+    const extension =
+      extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
+
+    // Truncate only the filename, not the extension
+    return namePart.length > maxNameLength
+      ? `${namePart.slice(0, maxNameLength)}...${extension}`
+      : fileName;
+  };
+
   public render(): React.ReactElement<IUploadFileProps> {
     const { accept, typeOfDoc, multiple } = this.props;
     const { selectedFiles, cummError } = this.state;
-    console.log(this.state)
+    console.log(this.state);
 
     return (
       <ul className={`${styles.fileAttachementsUl}`}>
         <li className={`${styles.basicLi} ${styles.inputField}`}>
-          <div style={{ padding: '8px' }}>
+          <div style={{ padding: "8px" }}>
             <div>
               <button
                 type="button"
@@ -390,19 +418,19 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
                 onChange={this.handleFileChange}
                 accept={accept}
                 multiple={multiple}
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
               />
             </div>
 
-            {typeOfDoc === 'supportingDocument' &&
+            {typeOfDoc === "supportingDocument" &&
               cummError &&
-              cummError.trim() !== '' && (
+              cummError.trim() !== "" && (
                 <span
                   style={{
-                    color: 'red',
-                    fontSize: '10px',
-                    paddingLeft: '4px',
-                    margin: '0px',
+                    color: "red",
+                    fontSize: "10px",
+                    paddingLeft: "4px",
+                    margin: "0px",
                   }}
                 >
                   {cummError}
@@ -419,38 +447,39 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
             return (
               <li
                 key={id}
-                
                 className={`${styles.basicLi} ${styles.attachementli}`}
               >
-                <div
-                 className={`${styles.fileIconAndNameWithErrorContainer}`}
-                  
-                >
-                 
-                   <img
-                      // className={ `${styles.fileImgIcon} `}
-                        src={_randomFileIcon(file.name)}
-                        width={32}
-                        height={32}
-                      />
+                <div className={`${styles.fileIconAndNameWithErrorContainer}`}>
+                  <img
+                    // className={ `${styles.fileImgIcon} `}
+                    src={_randomFileIcon(file.name)}
+                    width={32}
+                    height={32}
+                  />
                   {/* <Icon {...getFileTypeIconProps({ extension:extension , size: 16 })} />; */}
-                  <span className={ `${styles.fileNameAndErrorContainer} `}>
+                  <span className={`${styles.fileNameAndErrorContainer} `}>
                     <span
                       style={{
-                        paddingBottom: '0px',
-                        marginBottom: '0px',
-                        paddingLeft: '4px',
+                        paddingBottom: "0px",
+                        marginBottom: "0px",
+                        paddingLeft: "4px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "inline-block",
+                        maxWidth: "150px", // Adjust max width as needed
                       }}
                     >
-                      {file.name.length > 30 ? `${file.name.slice(0, 20)}...` : file.name}
+                      {/* Dynamic truncation of filename */}
+                      {this._truncateFileName(file.name)}
                     </span>
                     {error && (
                       <span
                         style={{
-                          color: 'red',
-                          fontSize: '10px',
-                          paddingLeft: '4px',
-                          margin: '0px',
+                          color: "red",
+                          fontSize: "10px",
+                          paddingLeft: "4px",
+                          margin: "0px",
                         }}
                       >
                         {error}
@@ -460,7 +489,7 @@ private convertToFileArrayBuffer(file: File): Promise<ArrayBuffer> {
                 </div>
 
                 <IconButton
-                  iconProps={{ iconName: 'Cancel' }}
+                  iconProps={{ iconName: "Cancel" }}
                   title="Delete File"
                   ariaLabel="Delete File"
                   onClick={() => this.handleDeleteFile(id)}

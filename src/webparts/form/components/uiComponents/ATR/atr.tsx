@@ -125,18 +125,21 @@ export class ATRAssignee extends React.Component<
     );
     // console.log(indexOF);
     const optionUptoATRCreator = this.props.approverDetails.slice(0, indexOF);
+    console.log(optionUptoATRCreator)
 
     // Only push if it doesn't already exist
     // if (!exists) {
-    optionUptoATRCreator.map((each: any) => {
-      this.setState({statusOptions:[...this.state.statusOptions,{
+    const newOptions = optionUptoATRCreator.map((each: any) => {
+      return ({
         key:  each.approverEmailName,
         text: each.approverEmailName,
         id: each.id,
         email: each.email,
-      }]})
+      })
       
     });
+
+    this.setState({statusOptions:newOptions})
 
     // }
   };
