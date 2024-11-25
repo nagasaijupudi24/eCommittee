@@ -72,7 +72,7 @@ const GistDocEmptyModal: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () =>
         <p>Please Upload Gist Document and Click Submit</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
+        <PrimaryButton iconProps={{ iconName: 'ReplyMirrored' }} onClick={onCloseAlter} text="OK" />
       </div>
     </Modal>
   );

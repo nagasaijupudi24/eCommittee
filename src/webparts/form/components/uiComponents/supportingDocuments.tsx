@@ -172,10 +172,10 @@ const _randomFileIcon = (docType: string): any => {
       break;
     default:
       doctype = "txt";
-      console.log("Unknown file type.");
+      // console.log("Unknown file type.");
   }
 
-  console.log(`Document type is: ${doctype}`);
+  // console.log(`Document type is: ${doctype}`);
 
   const url = `https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/item-types/16/${doctype}.svg`;
   return url;
@@ -255,12 +255,12 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
         error = "File name should not contain special characters";
       }
 
-      console.log(currentTotalSize, "currentTotalSize");
-      console.log(file.size, "file.size");
-      console.log(maxFileSizeBytes, "maxFileSizeBytes");
-      console.log(currentTotalSize + file.size, "currentTotalSize + file.size");
+      // console.log(currentTotalSize, "currentTotalSize");
+      // console.log(file.size, "file.size");
+      // console.log(maxFileSizeBytes, "maxFileSizeBytes");
+      // console.log(currentTotalSize + file.size, "currentTotalSize + file.size");
 
-      console.log(currentTotalSize + file.size > maxFileSizeBytes);
+      // console.log(currentTotalSize + file.size > maxFileSizeBytes);
 
       if (
         // maxTotalSizeBytes &&
@@ -369,18 +369,19 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
   }
 
   private _truncateFileName = (fileName: any): any => {
-    const maxNameLength = 20; // Adjust as needed based on width
+    const maxNameLength = 80; // Adjust as needed based on width
 
     // Get the extension
     const extensionIndex = fileName.lastIndexOf(".");
+    const extensionConcate = fileName.split(".");
     const namePart =
       extensionIndex === -1 ? fileName : fileName.slice(0, extensionIndex);
-    const extension =
-      extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
+    // const extension =
+    //   extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
 
     // Truncate only the filename, not the extension
     return namePart.length > maxNameLength
-      ? `${namePart.slice(0, maxNameLength)}...${extension}`
+      ? `${namePart.slice(0, maxNameLength)}...${extensionConcate[1]}`
       : fileName;
   };
 
@@ -388,7 +389,7 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
     const updatedFiles = this.state.selectedFiles.filter(
       (fileWithError) => fileWithError.id !== fileId
     );
-    console.log(updatedFiles);
+    // console.log(updatedFiles);
 
     const { maxFileSizeMB } = this.props;
     const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
@@ -399,19 +400,19 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
 
     for (let i = 0; i < updatedFiles.length; i++) {
       const file = updatedFiles[i];
-      console.log(file);
-      console.log(file.file.size);
-      // let error: string | null = null;
+      // console.log(file);
+      // console.log(file.file.size);
+      // // let error: string | null = null;
 
-      console.log(currentTotalSize, "currentTotalSize");
-      console.log(file.file.size, "file.size");
-      console.log(maxFileSizeBytes, "maxFileSizeBytes");
-      console.log(
-        currentTotalSize + file.file.size,
-        "currentTotalSize + file.size"
-      );
+      // console.log(currentTotalSize, "currentTotalSize");
+      // console.log(file.file.size, "file.size");
+      // console.log(maxFileSizeBytes, "maxFileSizeBytes");
+      // console.log(
+      //   currentTotalSize + file.file.size,
+      //   "currentTotalSize + file.size"
+      // );
 
-      console.log(currentTotalSize + file.file.size > maxFileSizeBytes);
+      // console.log(currentTotalSize + file.file.size > maxFileSizeBytes);
 
       if (
         // maxTotalSizeBytes &&
@@ -425,7 +426,7 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
       }
     }
 
-    console.log(cumulativeError);
+    // console.log(cumulativeError);
 
     // console.log(updatedFiles)
     this.props.errorData([updatedFiles, this.props.typeOfDoc]);
@@ -444,7 +445,7 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
   public render(): React.ReactElement<IUploadFileProps> {
     const { accept, typeOfDoc, multiple } = this.props;
     const { selectedFiles, cummError } = this.state;
-    console.log(this.state);
+    // console.log(this.state);
 
     return (
       <ul className={`${styles.fileAttachementsUl}`}>

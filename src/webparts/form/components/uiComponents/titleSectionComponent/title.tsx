@@ -28,15 +28,10 @@ const Title: React.FC<TitleProps> = (props) => {
   return (
     <div style={{ flexGrow: 1, margin: "10 10px" }}>
       <div
-        className={`${styles.noteTitle} ${styles.commonProperties}`}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
-          alignItems: "center",
-          width: "100%",
-        }}
+        className={`${styles.noteTitle}`}
+     
       >
-        <div>
+        <div  className={`${styles.statusContainer}`}>
           {props.itemId ? (
             <p className={`${styles.status}`}>
               Status: {props.statusOfRequest}
@@ -52,7 +47,7 @@ const Title: React.FC<TitleProps> = (props) => {
         </h1>
         <p
           className={`${styles.titleDate}`}
-          style={{ textAlign: "right" }}
+         
         >
           Date: {formattedDate}
         </p>

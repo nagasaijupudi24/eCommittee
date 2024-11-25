@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from "react";
-import { DetailsList, IColumn, SelectionMode } from '@fluentui/react';
+import { DetailsList, IColumn, Link, SelectionMode } from '@fluentui/react';
 
 const FileAttachmentTable = (props: any) => {
   const gridData = props.data;
@@ -15,9 +15,13 @@ const FileAttachmentTable = (props: any) => {
       minWidth: 250,
       maxWidth: 300, // Set max width for Document Link
       onRender: (item: any) => (
-        <a href={item.fileUrl} target="_blank" rel="noopener noreferrer">
-  {item.name}
-</a>
+        <Link 
+        href={item.fileUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+      >
+        {item.name}
+      </Link>
       ),
     },
     {

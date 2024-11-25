@@ -1,3 +1,8 @@
+
+
+
+
+
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-floating-promises */
@@ -16,9 +21,13 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
   const pdfViewerRef = useRef<HTMLDivElement>(null);
   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
+  // console.log(numPages,"numPages")
   const [currentPage, setCurrentPage] = useState(1);
+  // console.log(currentPage,"currentPage")
   const [zoomLevel, setZoomLevel] = useState(1);
+  // console.log(zoomLevel,"zoomLevel")
   const [renderedPages, setRenderedPages] = useState<Map<number, string>>(new Map());
+  // console.log(renderedPages,"renderedPages")
 
   // Load PDF document
   useEffect(() => {
@@ -81,6 +90,12 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
     }
   }, [zoomLevel, pdfDocument, numPages]);
 
+
+  useEffect(() => {
+    // Reset the page to 1 whenever the zoom level changes
+    setCurrentPage(1);
+  }, [zoomLevel]);
+
   const handleZoomIn = () => {
     const currentZoomIndex = zoomLevels.findIndex(level => parseFloat(level.value) === zoomLevel);
     if (currentZoomIndex < zoomLevels.length - 1) {
@@ -109,19 +124,29 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
 
   const handleNextPage = () => {
     if (currentPage < numPages && pdfViewerRef.current) {
-      const nextPageTop = (currentPage * pdfViewerRef.current.scrollHeight) / numPages;
-      pdfViewerRef.current.scrollTo({ top: nextPageTop, behavior: 'smooth' });
-      setCurrentPage(currentPage + 1);
+      const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
+      const nextPageTop = pageHeight * currentPage * zoomLevel;  // Adjusting the scroll position for zoom level
+      pdfViewerRef.current.scrollTo({
+        top: nextPageTop,
+        behavior: 'smooth',
+      });
+      setCurrentPage(prevPage => prevPage + 1);  // Ensure currentPage is updated correctly
     }
   };
-
+  
   const handlePreviousPage = () => {
     if (currentPage > 1 && pdfViewerRef.current) {
-      const prevPageTop = ((currentPage - 2) * pdfViewerRef.current.scrollHeight) / numPages;
-      pdfViewerRef.current.scrollTo({ top: prevPageTop, behavior: 'smooth' });
-      setCurrentPage(currentPage - 1);
+      const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
+      const prevPageTop = pageHeight * (currentPage - 2) * zoomLevel;  // Adjust scroll position
+      pdfViewerRef.current.scrollTo({
+        top: prevPageTop,
+        behavior: 'smooth',
+      });
+      setCurrentPage(prevPage => prevPage - 1);  // Ensure currentPage is updated correctly
     }
   };
+  
+
 
   const handleSave = () => {
     const a = document.createElement('a');

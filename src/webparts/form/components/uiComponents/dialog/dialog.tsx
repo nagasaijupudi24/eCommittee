@@ -162,7 +162,7 @@ const MyDialog: React.FC<MyDialogProps> = ({
       <div className={styles.footer}>
         <PrimaryButton
           text="OK"
-          iconProps={{ iconName: "ReturnToSession" }}
+          iconProps={{ iconName: "ReplyMirrored" }}
           onClick={handleDialogBox}
           styles={buttonStyles}
         />

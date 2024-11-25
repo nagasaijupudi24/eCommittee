@@ -71,7 +71,7 @@ const NotedCommentDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () =
         <p>Please fill in comments then click on noted.</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
+        <PrimaryButton iconProps={{ iconName: 'ReplyMirrored' }} onClick={onCloseAlter} text="OK" />
       </div>
     </Modal>
   );

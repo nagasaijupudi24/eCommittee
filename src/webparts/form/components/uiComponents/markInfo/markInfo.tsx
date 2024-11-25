@@ -286,7 +286,7 @@ export class MarkInfo extends React.Component<
       name: "User Info",
       fieldName: "text",
       minWidth: 100,
-      maxWidth: 150,
+      maxWidth: 290,
       isResizable: true,
     },
     {
@@ -312,7 +312,7 @@ export class MarkInfo extends React.Component<
     const updatedTableData = this.state.tableData.filter(
       (item: { id: number }) => item.id !== rowKey
     );
-    this.setState({ tableData: updatedTableData,selectedValue:[] });
+    this.setState({ tableData: updatedTableData,selectedValue:[], submitBtnVisable:true});
     this.props.deletedGridData(updatedTableData);
   };
 
@@ -321,6 +321,7 @@ export class MarkInfo extends React.Component<
   
     // Check if no user is selected
     if (Object.keys(this.state.selectedValue).length === 0) {
+      this.state.clearPeoplePicker()
       this.setState({
         isModalOpen: true,
         modalMessage: "Please select the user then click on Add User.",
@@ -330,6 +331,7 @@ export class MarkInfo extends React.Component<
     }
   
     if (tableData.length >= 10) {
+      this.state.clearPeoplePicker()
       this.setState({
         isModalOpen: true,
         modalMessage: "You cannot add more than 10 items.",
@@ -343,6 +345,7 @@ export class MarkInfo extends React.Component<
     );
   
     if (itemExists) {
+      this.state.clearPeoplePicker()
       this.setState({
         isModalOpen: true,
         modalMessage: "The selected user already exist. Kindly choose another user.",
@@ -434,7 +437,8 @@ export class MarkInfo extends React.Component<
       peoplePickerAndAddCombo:{
         display:'flex',
         gap:'5px',
-        width:'60%'
+        width:'60%',
+        flexWrap:'wrap',
 
 
       },
@@ -526,14 +530,14 @@ export class MarkInfo extends React.Component<
           </div>
           <div className={styles.footer}>
             <PrimaryButton
-              iconProps={{ iconName: "ReturnToSession" }}
+              iconProps={{ iconName: "ReplyMirrored" }}
               // onClick={this._closeModal}
 
               
               onClick={() => {
                 if (this.state.warnType !=="no"){
                   const pageURL: string = this.props.homePageUrl;
-                window.location.href = `${pageURL}`;
+                  window.location.href = `${pageURL}`;
                 
 
                 }

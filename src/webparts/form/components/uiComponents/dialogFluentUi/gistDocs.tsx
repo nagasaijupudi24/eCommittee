@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
-const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq }) => {
+const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any ,existUrl:any}> = ({ isVisibleAlter, onCloseAlter, statusOfReq ,existUrl}) => {
   const styles = mergeStyleSets({
     modal: {
       padding: '10px',
@@ -71,7 +71,12 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
         <p>The request has been updated Successfully</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
+        <PrimaryButton iconProps={{ iconName: 'ReplyMirrored' }} onClick={()=>{
+          onCloseAlter()
+          const pageURL: string =existUrl;
+          window.location.href = `${pageURL}`;
+          
+        }} text="OK" />
       </div>
     </Modal>
   );

@@ -172,10 +172,10 @@ const _randomFileIcon = (docType: string): any => {
       break;
     default:
       doctype = "txt";
-      console.log("Unknown file type.");
+      // console.log("Unknown file type.");
   }
 
-  console.log(`Document type is: ${doctype}`);
+  // console.log(`Document type is: ${doctype}`);
 
   const url = `https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/item-types/16/${doctype}.svg`;
   return url;
@@ -376,25 +376,26 @@ export default class UploadFileComponent extends React.Component<
   };
 
   private _truncateFileName = (fileName: any): any => {
-    const maxNameLength = 40; // Adjust as needed based on width
+    const maxNameLength = 80; // Adjust as needed based on width
 
     // Get the extension
     const extensionIndex = fileName.lastIndexOf(".");
+    const extensionConcate = fileName.split(".");
     const namePart =
       extensionIndex === -1 ? fileName : fileName.slice(0, extensionIndex);
-    const extension =
-      extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
+    // const extension =
+    //   extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
 
     // Truncate only the filename, not the extension
     return namePart.length > maxNameLength
-      ? `${namePart.slice(0, maxNameLength)}...${extension}`
+      ? `${namePart.slice(0, maxNameLength)}...${extensionConcate[1]}`
       : fileName;
   };
 
   public render(): React.ReactElement<IUploadFileProps> {
     const { accept, typeOfDoc, multiple } = this.props;
     const { selectedFiles, cummError } = this.state;
-    console.log(this.state);
+    // console.log(this.state);
 
     return (
       <ul className={`${styles.fileAttachementsUl}`}>

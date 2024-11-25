@@ -125,7 +125,7 @@ export class ATRAssignee extends React.Component<
     );
     // console.log(indexOF);
     const optionUptoATRCreator = this.props.approverDetails.slice(0, indexOF);
-    console.log(optionUptoATRCreator)
+    // console.log(optionUptoATRCreator)
 
     // Only push if it doesn't already exist
     // if (!exists) {
@@ -284,6 +284,18 @@ export class ATRAssignee extends React.Component<
         });
         return;
       }
+      // console.log(this.props.currentATRCreatorDetails)
+      // console.log(this.state.selectedValue.email)
+      // console.log(this.props.currentATRCreatorDetails === this.state.selectedValue.email)
+
+      if (this.props.currentATRCreatorDetails === this.state.selectedValue.email) {
+        this.setState({
+          isModalOpen: true,
+          modalMessage:
+            "Current Approver cannot be  assignee.",
+        });
+        return;
+      }
 
       // console.log(this.state.commentsData)
       const joinedCommentsData = this.state.commentsData
@@ -369,7 +381,7 @@ export class ATRAssignee extends React.Component<
   };
 
   public render(): React.ReactElement<IATRAssigneeProps> {
-    // console.log(this.state)
+    console.log(this.state)
     const { tableData } = this.state;
     // console.log(statusOptions)
     // console.log(this.state)
@@ -409,6 +421,7 @@ export class ATRAssignee extends React.Component<
         display: "flex",
         gap: "5px",
         width: "60%",
+        flexWrap:'wrap',
       },
       body: {
         display: "flex",
@@ -540,7 +553,7 @@ export class ATRAssignee extends React.Component<
           </div>
           <div className={styles.footer}>
             <PrimaryButton
-              iconProps={{ iconName: "ReturnToSession" }}
+              iconProps={{ iconName: "ReplyMirrored" }}
               onClick={this._closeModal}
               text="OK"
             />

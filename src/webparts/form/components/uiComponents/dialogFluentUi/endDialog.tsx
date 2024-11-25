@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Modal, PrimaryButton, IconButton } from '@fluentui/react';
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
 
-const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any;typeOfNote:any }> = ({ isVisibleAlter, onCloseAlter, statusOfReq ,typeOfNote}) => {
+const SuccessDialog: React.FC<{existUrl:any; isVisibleAlter: boolean; onCloseAlter: () => void; statusOfReq: any;typeOfNote:any }> = ({ existUrl,isVisibleAlter, onCloseAlter, statusOfReq ,typeOfNote}) => {
   // console.log(typeOfNote)
   const styles = mergeStyleSets({
     modal: {
@@ -93,7 +93,12 @@ const SuccessDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => voi
         
       </div>
       <div className={styles.footer}>
-        <PrimaryButton className={styles.button}  iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
+        <PrimaryButton className={styles.button}  iconProps={{ iconName: 'ReplyMirrored' }} onClick={()=>{
+          onCloseAlter()
+          const pageURL: string =existUrl;
+          window.location.href = `${pageURL}`;
+          
+        }} text="OK" />
       </div>
     </Modal>
   );

@@ -143,7 +143,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       name:this.props.type, // replace 'type' with your actual title
       fieldName: 'text',
       minWidth: 100,
-      maxWidth: 200,
+      maxWidth: 295,
       isResizable: true,
       onRender: (item: any) => (
         <div style={{ marginTop: '8px' }}>{item.text}</div> // Adjust the margin value as needed
@@ -154,7 +154,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       name: 'SR No',
       fieldName: 'srNo',
       minWidth: 100,
-      maxWidth: 200,
+      maxWidth: 295,
       isResizable: true,
       onRender: (item: any) => (
         <div style={{ marginTop: '8px' }}>{item.srNo}</div> // Adjust the margin value as needed
@@ -165,7 +165,7 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       name: 'Designation',
       fieldName: 'optionalText',
       minWidth: 100,
-      maxWidth: 200,
+      maxWidth: 295,
       isResizable: true,
       onRender: (item: any) => (
         <div style={{ marginTop: '8px' }}>{item.optionalText}</div> // Adjust the margin value as needed
@@ -175,8 +175,8 @@ export class DetailsListDragDropExample extends React.Component<any, IDetailsLis
       key: 'actions',
       name: 'Actions',
       fieldName: 'actions',
-      minWidth: 100,
-      maxWidth: 200,
+      minWidth: 50,
+      maxWidth: 80,
       isResizable: false,
       onRender: (_item: any) => (
         <IconButton

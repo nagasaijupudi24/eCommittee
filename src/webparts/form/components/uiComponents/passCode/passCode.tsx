@@ -28,7 +28,7 @@ export interface IPasscodeModalProps {
   onClose: () => void;
   onSuccess: () => void;
   createPasscodeUrl: string; // Added property for redirect URL
-  _makeIsPassCodeValidateFalse:any;
+  _makeIsPassCodeValidateFalse: any;
 }
 
 export interface IPasscodeModalState {
@@ -46,8 +46,8 @@ export default class PasscodeModal extends React.Component<
   IPasscodeModalState
 > {
   // private encryptionKey: string = 'default_secret_key'; // Use a secure key in production
-  private key = CryptoJS.enc.Utf8.parse('b75524255a7f54d2726a951bb39204df');
-  private iv = CryptoJS.enc.Utf8.parse('1583288699248111');
+  private key = CryptoJS.enc.Utf8.parse("b75524255a7f54d2726a951bb39204df");
+  private iv = CryptoJS.enc.Utf8.parse("1583288699248111");
   constructor(props: IPasscodeModalProps) {
     super(props);
 
@@ -156,7 +156,7 @@ export default class PasscodeModal extends React.Component<
     if (userPasscode.passcode === passcode) {
       this.props.onSuccess();
       this.props.onClose();
-      this.setState({passcode:''})
+      this.setState({ passcode: "" });
       // console.log("Passcode validated successfully");
     } else {
       this.setState({ errorMessage: "Invalid passcode. Please try again." });
@@ -200,32 +200,32 @@ export default class PasscodeModal extends React.Component<
         justifyContent: "space-between",
         alignItems: "center",
         borderBottom: "1px solid #ddd",
-        marginTop:'4px',
-        marginBottom:'4px',
-        fontWeight:'400'
+        marginTop: "4px",
+        marginBottom: "4px",
+        fontWeight: "400",
+        padding: "5px",
       },
       headerTitle: {
-        margin:'5px',
-        marginLeft:'5px',
-        fontSize:'16px',
-        fontWeight:'400'
-       },
-      body: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: '20px 0',
-        height:'100%'
+        margin: "5px",
+        marginLeft: "5px",
+        fontSize: "16px",
+        fontWeight: "400",
       },
-      contentContainer:{
-        width:'70%',
-        display:'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems:'flex-start'
-  
+      body: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        padding: "20px 0",
+        height: "120px",
+      },
+      contentContainer: {
+        width: "70%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
       },
       // footer: {
       //   display: "flex",
@@ -246,43 +246,43 @@ export default class PasscodeModal extends React.Component<
         color: "#0078d4",
       },
       errorMessage: {
-        color: 'red',
-        marginTop: '10px',
-        alignSelf:'center',
+        color: "red",
+        marginTop: "10px",
+        alignSelf: "center",
       },
       noHover: {
-        ':hover': {
-          transform: 'none !important',
-          transition: 'none !important',
-          boxShadow: 'none !important',
-          backgroundColor: 'transparent !important',
+        ":hover": {
+          transform: "none !important",
+          transition: "none !important",
+          boxShadow: "none !important",
+          backgroundColor: "transparent !important",
         },
       },
 
       footer: {
-        display: 'flex',
-        justifyContent: 'space-between', // Adjusted to space between
+        display: "flex",
+        justifyContent: "space-between", // Adjusted to space between
         // marginTop: '20px',
-        borderTop: '1px solid #ddd',
-        paddingTop: '10px',
+        borderTop: "1px solid #ddd",
+        paddingTop: "10px",
       },
       button: {
-        flex: '1 1 50%', // Ensures each button takes up 50% of the footer width
-        margin: '0 5px', // Adds some space between the buttons
+        flex: "1 1 50%", // Ensures each button takes up 50% of the footer width
+        margin: "0 5px", // Adds some space between the buttons
       },
       buttonContent: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       },
       buttonIcon: {
-        marginRight: '4px', // Adjust the space between the icon and text
+        marginRight: "4px", // Adjust the space between the icon and text
       },
-    
-      removeTopMargin:{
-        marginTop: '4px',
-        marginBottom: '4px'
-      }
+
+      removeTopMargin: {
+        marginTop: "4px",
+        marginBottom: "4px",
+      },
     });
 
     // function _makeIsPassCodeValidateFalse() {
@@ -291,82 +291,79 @@ export default class PasscodeModal extends React.Component<
 
     return (
       <Modal
-      isOpen={isOpen}
-      onDismiss={onClose}
-      isBlocking={true}
-      containerClassName={styles.modal}
-    >
-      <div className={styles.header}>
-        <h4 className={styles.headerTitle}>Passcode Verification</h4>
-        <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
-      </div>
-      <div className={styles.body} style={{ textAlign: "center" }}>
-        {isCreating ? (
-          <>
-            <MessageBar messageBarType={MessageBarType.info}>
-              Passcode is not set. Please create a passcode to proceed further.
-            </MessageBar>
-            <div className={styles.footer}>
-              <PrimaryButton
-                className={styles.button}
-                text="Create Passcode"
-                onClick={this.redirectToCreatePasscode}
-                iconProps={{ iconName: "OpenInNewTab" }}
-              />
-              <DefaultButton
-                className={styles.button}
-                text="Cancel"
-                onClick={onClose}
-                iconProps={{ iconName: "ErrorBadgeIcon" }}
-                styles={{ textContainer: styles.buttonText }}
-              />
-            </div>
-          </>
-        ) : (
-          <>
-          <div className={styles.contentContainer}>
-  <label>Enter your passcode for verification:</label>
-  <TextField
-    value={passcode}
-    canRevealPassword
-    onChange={this.onPasscodeChange}
-    type="password"
-    styles={{ root: { width: '100%' ,marginTop:'5px'} }}  // This line ensures the TextField occupies the full width
-  />
-  {errorMessage && (
-    <span className={styles.errorMessage}>{errorMessage}</span>
-  )}
-</div>
-
-         
-          
-           
-          </>
-        )}
-        
-      </div>
-      <div className={styles.footer}>
-              <PrimaryButton
-                className={styles.button}
-                text="Verify"
-                styles={{ root: styles.buttonContent }}
-                iconProps={{ iconName: "CheckedOutByOther12" }}
-                onClick={this.validatePasscode}
-              />
-              <DefaultButton
-                className={styles.button}
-                text="Cancel"
-                onClick={()=>{
-                 
-                  onClose()
-                  this.setState({passcode:''})
-                }}
-                styles={{ root: styles.buttonContent }}
-                iconProps={{ iconName: "ErrorBadge" }}
-              />
-            </div>
-    </Modal>
-    
-    )
+        isOpen={isOpen}
+        onDismiss={onClose}
+        isBlocking={true}
+        containerClassName={styles.modal}
+      >
+        <div className={styles.header}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <IconButton iconProps={{ iconName: "Lock" }} />
+            <h4 className={styles.headerTitle}>Passcode Verification</h4>
+          </div>
+          <IconButton iconProps={{ iconName: "Cancel" }} onClick={onClose} />
+        </div>
+        <div className={styles.body} style={{ textAlign: "center" }}>
+          {isCreating ? (
+            <>
+              <MessageBar messageBarType={MessageBarType.info}>
+                Passcode is not set. Please create a passcode to proceed
+                further.
+              </MessageBar>
+              <div className={styles.footer}>
+                <PrimaryButton
+                  className={styles.button}
+                  text="Create Passcode"
+                  onClick={this.redirectToCreatePasscode}
+                  iconProps={{ iconName: "OpenInNewTab" }}
+                />
+                <DefaultButton
+                  className={styles.button}
+                  text="Cancel"
+                  onClick={onClose}
+                  iconProps={{ iconName: "ErrorBadgeIcon" }}
+                  styles={{ textContainer: styles.buttonText }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={styles.contentContainer}>
+                <label>Enter your passcode for verification:</label>
+                <TextField
+                  value={passcode}
+                  canRevealPassword
+                  onChange={this.onPasscodeChange}
+                  type="password"
+                  styles={{ root: { width: "100%", marginTop: "5px" } }} // This line ensures the TextField occupies the full width
+                />
+                {errorMessage && (
+                  <span className={styles.errorMessage}>{errorMessage}</span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        <div className={styles.footer}>
+          <PrimaryButton
+            className={styles.button}
+            text="Verify"
+            styles={{ root: styles.buttonContent }}
+            iconProps={{ iconName: "CheckedOutByOther12" }}
+            onClick={this.validatePasscode}
+          />
+          <DefaultButton
+            className={styles.button}
+            text="Cancel"
+            onClick={() => {
+              onClose();
+              this.setState({ passcode: "" });
+            }}
+            styles={{ root: styles.buttonContent }}
+            iconProps={{ iconName: "ErrorBadge" }}
+          />
+        </div>
+      </Modal>
+    );
   }
 }

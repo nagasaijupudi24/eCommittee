@@ -86,7 +86,7 @@ const RejectBtnCommentCheckDialog: React.FC<{ isVisibleAlter: boolean; onCloseAl
         <p>Please fill in comments then click on Reject.</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton className={styles.button}  iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
+        <PrimaryButton className={styles.button}  iconProps={{ iconName: 'ReplyMirrored' }} onClick={onCloseAlter} text="OK" />
       </div>
     </Modal>
   );

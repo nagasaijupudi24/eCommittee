@@ -208,8 +208,8 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
 
     const commentsObj: IGridRow = {
       id: v4(),
-      pageNum: pageNumValue,
-      page: pageValue,
+      pageNum: pageNumValue?pageNumValue:'N/A',
+      page: pageValue?pageValue:'N/A',
       comment: commentValue,
       commentsFrom: "generalComments",
       commentedBy: this.props.currentUserDetails.displayName,
@@ -380,9 +380,10 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
             <div style={{ display: "flex", alignItems: "center" }}>
            
             <IconButton
-              iconProps={{ iconName: "Info" }}
+              iconProps={{ iconName: "CommentAdd" }}
               
             />
+            
               <h4 className={styles.headerTitle}>Add Comment</h4>
             </div>
             <IconButton

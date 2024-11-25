@@ -74,7 +74,7 @@ const CummulativeErrorDialog: React.FC<{ isVisibleAlter: boolean; onCloseAlter: 
         <p>Cumulative size of all the supporting documents should not exceed 25 MB.</p>
       </div>
       <div className={styles.footer}>
-        <PrimaryButton iconProps={{ iconName: 'ReturnToSession' }} onClick={onCloseAlter} text="OK" />
+        <PrimaryButton iconProps={{ iconName: 'ReplyMirrored' }} onClick={onCloseAlter} text="OK" />
       </div>
     </Modal>
   );

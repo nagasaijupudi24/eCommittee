@@ -428,21 +428,22 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private autoSave = async (): Promise<void> => {
     try {
-      if (
-        this.state.errorFilesList.notePdF.length === 0 &&
-        this.state.errorFilesList.wordDocument.length === 0 &&
-        this.state.errorFilesList.supportingDocument.length === 0&&
-        this.state.errorForCummulative ===false
-      ) {
-        await this.handleSubmit(this.state.autoSaveStatus, false);
-      } else {
-        if (this.state.errorForCummulative){
-          this.setState({dialogboxForCummulativeError:true})
-          return
-        }
+      // if (
+      //   this.state.errorFilesList.notePdF.length === 0 &&
+      //   this.state.errorFilesList.wordDocument.length === 0 &&
+      //   this.state.errorFilesList.supportingDocument.length === 0&&
+      //   this.state.errorForCummulative ===false
+      // ) {
+      //   await this.handleSubmit(this.state.autoSaveStatus, false);
+      // } else {
+      //   if (this.state.errorForCummulative){
+      //     this.setState({dialogboxForCummulativeError:true})
+      //     return
+      //   }
 
-        this.setState({ isAutoSaveFailedDialog: true });
-      }
+      //   this.setState({ isAutoSaveFailedDialog: true });
+      // }
+      await this.handleSubmit(this.state.autoSaveStatus, false);
     } catch (error) {
       console.error("Auto-save failed:", error);
     }
@@ -776,7 +777,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         const dataRec = await this._getUserProperties(user.LoginName);
 
-        if (each.ApproverType === "Approver") {
+        if (each.ApproverType === "Approver" ) {
           const newObj = {
             text: each.Approver.Title,
             email: each.Approver.EMail,
@@ -824,6 +825,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           if (each.ApproverType === "Approver" && !this._itemId &&  each.Approver.EMail !== this._currentUserEmail ) {
             this.setState({ peoplePickerApproverData: [newObj] });
           }
+          // else{
+          //   this.setState({ peoplePickerData: [newObj] });
+
+          // }
+          
         } else {
           const user = await this.props.sp.web.siteUsers.getById(
             each.ApproverId
@@ -848,7 +854,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverTypeNum: 1,
           };
 
-          if (!this._itemId  &&  each.Approver.EMail !== this._currentUserEmail) {
+          if (each.ApproverType === "Reviewer" &&!this._itemId  &&  each.Approver.EMail !== this._currentUserEmail) {
             this.setState({ peoplePickerData: [newObj] });
           }
         }
@@ -1307,6 +1313,126 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // general section --------handling---------end
   // general section --------handling---------end
   // general section --------handling---------end
+  private autoCreateSubFolder = async (parentFolderPath: string): Promise<void> => {
+    async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
+      if (file.arrayBuffer) {
+        return await file.arrayBuffer();
+      } else {
+        let blob: Blob;
+        if (file instanceof Blob) {
+          blob = file;
+        } else {
+          blob = new Blob([file]);
+        }
+  
+        return new Promise<ArrayBuffer>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (reader.result) {
+              resolve(reader.result as ArrayBuffer);
+            } else {
+              reject(new Error("Failed to read file as ArrayBuffer"));
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsArrayBuffer(blob);
+        });
+      }
+    }
+  
+    try {
+      const { sp } = this.props;
+      const filesDataArray = [
+        {
+          folderName: "Pdf",
+          files: this.state.noteTofiles,
+          errorCondition: this.state.errorFilesList.notePdF.length > 0
+        },
+        {
+          folderName: "SupportingDocument",
+          files: this.state.supportingDocumentfiles,
+          errorCondition: this.state.errorFilesList.supportingDocument.length > 0
+        },
+        {
+          folderName: "WordDocument",
+          files: this._checkSecertaryIsAvailable() ? this.state.wordDocumentfiles : [],
+          errorCondition: this.state.errorFilesList.wordDocument.length > 0
+        },
+      ];
+  
+      // if (this.state.itemId && 
+      //   (this.state.errorFilesList.notePdF.length > 0 || 
+      //    this.state.errorFilesList.wordDocument.length > 0 || 
+      //    this.state.errorFilesList.supportingDocument.length > 0 || 
+      //    this.state.errorForCummulative)) {
+      //   console.log("Conditions prevent file upload. Exiting...");
+      //   return;
+      // }
+  
+      const gistFolderPath = `${parentFolderPath}/GistDocuments`;
+      try {
+        await sp.web.getFolderByServerRelativePath(gistFolderPath)();
+      } catch (error) {
+        if (error.status === 404) {
+          await sp.web.rootFolder.folders.addUsingPath(gistFolderPath);
+        } else {
+          throw error;
+        }
+      }
+  
+      for (const { folderName, files, errorCondition } of filesDataArray) {
+  const siteUrl = `${parentFolderPath}/${folderName}`;
+  let folderExists = false;
+
+  try {
+    // Check if folder already exists
+    await sp.web.getFolderByServerRelativePath(siteUrl)();
+    folderExists = true;
+  } catch (error) {
+    if (error.status === 404) {
+      folderExists = false;
+    } else {
+      throw error;
+    }
+  }
+
+  // Create the folder if it doesn't exist
+  if (!folderExists) {
+    await sp.web.rootFolder.folders.addUsingPath(siteUrl);
+    // console.log(`Folder '${folderName}' created successfully`);
+  }
+
+  // If there's an error, skip file upload and show appropriate dialog
+  if (errorCondition) {
+    // console.log(`Skipping file upload for '${folderName}' due to error condition`);
+    
+    // Show the dialog based on error type
+    if (this.state.errorForCummulative) {
+      // this.setState({ dialogboxForCummulativeError: true });
+      return;
+    } else {
+      // this.setState({ isAutoSaveFailedDialog: true });
+
+      
+      continue;
+    }
+  }
+
+  // Proceed with file upload if no error condition
+  for (const file of files) {
+    const arrayBuffer = await getFileArrayBuffer(file);
+    await sp.web
+      .getFolderByServerRelativePath(siteUrl)
+      .files.addUsingPath(file.name, arrayBuffer, {
+        Overwrite: true,
+      });
+  }
+}
+
+    } catch (error) {
+      console.error(`Error creating folder: ${error}`);
+    }
+  };
 
   private createSubFolder = async (parentFolderPath: string): Promise<void> => {
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
@@ -1339,6 +1465,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     }
 
+    
+
     try {
       const { sp } = this.props;
       const filesDataArray = [
@@ -1357,6 +1485,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             : [],
         },
       ];
+      // console.log(this.state.itemId)
+
+      if(this.state.itemId){
+       await this.autoCreateSubFolder(parentFolderPath)
+        
+        return 
+
+      }
+
+
 
       // if (this._checkSecertaryIsAvailable()) {
       const gistFolderPath = `${parentFolderPath}/GistDocuments`;
@@ -1373,6 +1511,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // }
 
       for (const { folderName, files } of filesDataArray) {
+        
         const siteUrl = `${parentFolderPath}/${folderName}`;
         // console.log(siteUrl);
 
@@ -1451,7 +1590,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
 
       // eslint-disable-next-line no-void
-      void this.createSubFolder(siteUrl);
+      await this.createSubFolder(siteUrl);
     } catch (error) {
       // console.error(`Error creating folder: ${error}`);
     }
@@ -1625,11 +1764,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.peoplePickerApproverData,
         "allDetails"
       ),
-      Status: status,
+      Status:status ==='Drafted'?'Draft': status,
       StatusNumber: status === "Submitted" ? statusNumber : "100",
       AuditTrail:
         this.state.status === "Call Back"
-          ? this._getAuditTrail("Re-submitted")
+          ? this._getAuditTrail("Submitted")
           : this._getAuditTrail(status),
       ReviewersId: this._getReviewerId(),
       ApproversId: this._getApproverId(),
@@ -2347,7 +2486,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
-    console.log(conditionNumber,"Condition Number")
+    // console.log(conditionNumber,"Condition Number")
 
     const warn: any = {
       committeeName: [
@@ -2407,14 +2546,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         newWarnObj[warn[each][1]] = true;
       }
     });
-    console.log(newWarnObj,"Warning check")
+    // console.log(newWarnObj,"Warning check")
     this.setState({ ...newWarnObj });
 
     // console.log(dialogVisableWarn, "Dialog Visable Warn");
 
     const dialogVisable = Object.keys(fieldValues).every(
       (each: keyof typeof fieldValues) => {
-        console.log(each);
+        // console.log(each);
         if (
           fieldValues[each] === "" ||
           fieldValues[each] === null ||
@@ -3299,7 +3438,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   fieldValues,
     //   "Dialog FieldValues........................................"
     // );
-    console.log(conditionNumArray,"condition Num Array")
+    // console.log(conditionNumArray,"condition Num Array")
   };
 
   private handleSubmit = async (
@@ -3307,6 +3446,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     statusOfForm: string,
     showAlert: boolean = true
   ): Promise<void> => {
+
+    this.setState({ isConfirmationDialogVisible: false,isLoading:true });
     if (statusOfForm === "Drafted" && this.state.successStatus === "") {
 
       let id;
@@ -3325,11 +3466,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this._noteId = id
         this.setState({ itemId: id });
         // console.log(id, "id created");
+
         await this._generateRequsterNumber(this.state.itemId || id);
       }
 
       // console.log("Item Drafted successfully");
-      this.setState({ isConfirmationDialogVisible: false });
+      if (id){
+        this.setState({ isLoading: false });
+
+      }
+     
 
       if (showAlert) {
         this.setState({ isVisibleAlter: true });
@@ -3698,7 +3844,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         : await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.getById(this.state.itemId)
-            .update(await this.getObject("Drafted", "100"));
+            .update(await this.getObject("Draft", "100"));
 
       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
       // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
@@ -3890,7 +4036,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
 
   private _getCummulativeError = (data:any):any=>{
-    console.log(data)
+    // console.log(data)
     data!==null?this.setState({errorForCummulative:true,
       // dialogboxForCummulativeError:true
     }):this.setState({errorForCummulative:false,
@@ -3924,7 +4070,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   }
     // )
     // console.log(updateErrorFileList)
-    console.log(data)
+    // console.log(data)
 
     // if (data[1] === "supportingDocument"){
     //   const cummmErroFound = data[0].map((each:any)=>each.cumulativeError)
@@ -4202,7 +4348,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    console.log(this.state);
+    // console.log(this.state);
     // console.log(this._committeeType)
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
@@ -4230,7 +4376,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   "Data..........Approver PeoplePicker"
     // );
 
-    return (
+    return (  
       // <ThemeProvider theme={customTheme}>
       <div>
         {this.state.isLoading ? (
@@ -4265,6 +4411,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             {/* success  dialog */}
             <SuccessDialog
+              existUrl = {this.props.existPageUrl}
               typeOfNote={this._committeeType}
               statusOfReq={this.state.successStatus}
               isVisibleAlter={this.state.isVisibleAlter}
@@ -4422,7 +4569,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       this.state.subjectFeildValue === "" &&
                       this.state.isWarningSubject
                         ? "2px solid red"
-                        : "1px solid rgb(86, 118, 152)",
+                        : "",
                   }}
                   value={this.state.subjectFeildValue}
                   onChange={this.handleSubjectChange}
@@ -4603,7 +4750,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       this.state.searchTextFeildValue === "" &&
                       this.state.isWarningSearchText
                         ? "2px solid red"
-                        : "1px solid rgb(86, 118, 152)",
+                        : "",
                   }}
                   rows={!this.state.searchTextFeildValue ? 3 : 1} // Adjust rows based on warning state
                   value={this.state.searchTextFeildValue}
@@ -4842,7 +4989,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     marginBottom: "8px",
                   }}
                 >
-                  <div style={{ display: "flex" }}>
+                  <div style={{ display: "flex" ,flexWrap:'wrap'}}>
                     <PeoplePicker
                       key={this.state.reviewerKey}
                       placeholder="Reviewer Details"
@@ -4870,8 +5017,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       Add
                     </DefaultButton>
                   </div>
-                  <span style={{ color: "blue" }}>
-                    (Please enter minimum character to search)
+                  <span className={`${styles.spanForPeoplePicker}`}>
+                    (Please enter minimum 3 character to search)
                   </span>
                 </div>
               </div>
@@ -4897,7 +5044,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     marginBottom: "8px",
                   }}
                 >
-                  <div style={{ display: "flex" }}>
+                  <div style={{ display: "flex",flexWrap:'wrap' }}>
                     <PeoplePicker
                       key={this.state.approverKey}
                       placeholder="Approver Details"
@@ -4925,8 +5072,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       Add
                     </DefaultButton>
                   </div>
-                  <span style={{ color: "blue" }}>
-                    (Please enter minimum character to search)
+                  <span className={`${styles.spanForPeoplePicker}`} >
+                    (Please enter minimum 3 character to search)
                   </span>
                 </div>
               </div>

@@ -27,7 +27,7 @@ const DraftSuccessDialog: React.FC<IDraftSuccessDialogProps> = ({ hidden, onClos
         <DefaultButton
           text="OK"
           onClick={onClose}
-          iconProps={{ iconName: "CheckMark" }}
+          iconProps={{ iconName: "ReplyMirrored" }}
         />
       </DialogFooter>
     </Dialog>
