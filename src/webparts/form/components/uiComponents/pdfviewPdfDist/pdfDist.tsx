@@ -17,6 +17,7 @@ import { Icon } from '@fluentui/react';
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
+
   const { pdfPath, noteNumber } = props;
   const pdfViewerRef = useRef<HTMLDivElement>(null);
   const [pdfDocument, setPdfDocument] = useState<pdfjsLib.PDFDocumentProxy | null>(null);
@@ -123,28 +124,35 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
   };
 
   const handleNextPage = () => {
-    if (currentPage < numPages && pdfViewerRef.current) {
-      const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
-      const nextPageTop = pageHeight * currentPage * zoomLevel;  // Adjusting the scroll position for zoom level
-      pdfViewerRef.current.scrollTo({
-        top: nextPageTop,
-        behavior: 'smooth',
-      });
-      setCurrentPage(prevPage => prevPage + 1);  // Ensure currentPage is updated correctly
-    }
+    setCurrentPage(prevPage => {
+      const nextPage = Math.min(prevPage + 1, numPages);
+      if (pdfViewerRef.current) {
+        const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
+        const nextPageTop = pageHeight * (nextPage - 1) * zoomLevel; // Adjust scroll position
+        pdfViewerRef.current.scrollTo({
+          top: nextPageTop,
+          behavior: 'smooth',
+        });
+      }
+      return nextPage;
+    });
   };
   
   const handlePreviousPage = () => {
-    if (currentPage > 1 && pdfViewerRef.current) {
-      const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
-      const prevPageTop = pageHeight * (currentPage - 2) * zoomLevel;  // Adjust scroll position
-      pdfViewerRef.current.scrollTo({
-        top: prevPageTop,
-        behavior: 'smooth',
-      });
-      setCurrentPage(prevPage => prevPage - 1);  // Ensure currentPage is updated correctly
-    }
+    setCurrentPage(prevPage => {
+      const newPage = Math.max(prevPage - 1, 1); // Calculate the new page number
+      if (pdfViewerRef.current) {
+        const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
+        const prevPageTop = pageHeight * (newPage - 1) * zoomLevel; // Adjust scroll position
+        pdfViewerRef.current.scrollTo({
+          top: prevPageTop,
+          behavior: 'smooth',
+        });
+      }
+      return newPage; // Return the updated page number
+    });
   };
+  
   
 
 
@@ -156,26 +164,25 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
   };
 
   const handlePrint = async () => {
-    if (!pdfDocument) return;
+    const containerRef: React.RefObject<HTMLDivElement> = React.createRef() ;
+    const pdfContainer = containerRef.current;
+    if (!pdfContainer) return;
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
-    const printContent = document.createElement('div');
-    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-      await renderPage(pageNum);
-      const imgSrc = renderedPages.get(pageNum);
-      if (imgSrc) {
-        const img = new Image();
-        img.src = imgSrc;
-        img.style.width = '100%';
-        printContent.appendChild(img);
-        printContent.appendChild(document.createElement('br'));
-      }
-    }
+    const canvases = Array.from(pdfContainer.querySelectorAll('canvas[data-page-number]')) as HTMLCanvasElement[];
+    let printContent = '<html><head><title>Print PDF</title>';
+    printContent += '<style>@media print { canvas { page-break-after: always; } }</style>';
+    printContent += '</head><body>';
 
-    printWindow.document.write('<html><head><title>Print PDF</title></head><body></body></html>');
-    printWindow.document.body.appendChild(printContent);
+    canvases.forEach(canvas => {
+      const imgData = canvas.toDataURL("image/png");
+      printContent += `<img src="${imgData}" style="width: 100%; height: auto;" />`;
+    });
+
+    printContent += '</body></html>';
+    printWindow.document.write(printContent);
     printWindow.document.close();
 
     printWindow.onload = () => {
@@ -233,10 +240,10 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
             </div>
             <div id={styles.toolbarViewerMiddle}>
               <button className={styles.toolbarButton} title="Zoom Out" onClick={handleZoomOut}>
-                <Icon iconName="ZoomOut" />
+                <Icon iconName="Remove" />
               </button>
               <button className={styles.toolbarButton} title="Zoom In" onClick={handleZoomIn}>
-                <Icon iconName="ZoomIn" />
+                <Icon iconName="Add" />
               </button>
               <div className={styles.dropdownToolbarButton}>
                 <span id="scaleSelectContainer" className={styles.dropdownToolbarButton}>
@@ -253,7 +260,7 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
                 <Icon iconName="Print" />
               </button>
               <button className={styles.toolbarButton} title="Download" onClick={handleSave}>
-                <Icon iconName="Download" />
+                <Icon iconName="Save" />
               </button>
             </div>
           </div>

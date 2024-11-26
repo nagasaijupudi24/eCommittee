@@ -26,7 +26,7 @@ import ApproverAndReviewerTableInViewForm from "./simpleTable/reviewerAndApprove
 import CommentsLogTable from "./simpleTable/commentsTable";
 import WorkFlowLogsTable from "./simpleTable/workFlowLogsTable";
 import FileAttatchmentTable from "./simpleTable/fileAttatchmentsTable";
-import { Spinner } from "@fluentui/react/lib/Spinner";
+import { Spinner, SpinnerSize } from "@fluentui/react/lib/Spinner";
 import { DialogBlockingExample } from "./dialogFluentUi/dialogFluentUi";
 import { format } from "date-fns";
 import GeneralCommentsFluentUIGrid from "./simpleTable/generalComment";
@@ -1407,7 +1407,9 @@ export default class ViewForm extends React.Component<
     // const { pdfLink } = this.state;
     return (
       <div style={{ width: "100%" }}>
-        <PDFViewer pdfPath={this.state.pdfLink} noteNumber={this.state.title} />
+                <PDFViewer pdfPath={this.state.pdfLink} noteNumber={this.state.title}  />
+
+        {/* <PDFViewer pdfLink={this.state.pdfLink} noteNumber={this.state.title} itemId={this._itemId} /> */}
       </div>
     );
   };
@@ -1891,6 +1893,9 @@ export default class ViewForm extends React.Component<
         ? null
         : currentApproverDetail.id;
 
+        this._closeDialog();
+        this.setState({isLoading:true})
+
     try {
       const updateAuditTrial = await this._getAuditTrail(
         this._checkCurrentUserIsAATRAssignee() ? "Noted" : "Approved"
@@ -1952,9 +1957,9 @@ export default class ViewForm extends React.Component<
 
         // console.log(itemToUpdateStatusToApproved);
       }
-      this._closeDialog();
+    
 
-      this.setState({ isVisibleAlter: true });
+      this.setState({isLoading:false, isVisibleAlter: true });
     } catch (error) {
       console.error("Error in _handleApproverButton:", error);
     }
@@ -2023,8 +2028,8 @@ export default class ViewForm extends React.Component<
         //     each.approverEmail === this._currentUserEmail
         // );
         if (
-          each.secretaryEmail === this._currentUserEmail ||
-          each.approverEmail === this._currentUserEmail
+          each.secretaryEmail === this._currentUserEmail  &&
+          each.approverEmail === this.state.currentApprover[0]?.approverEmail
         ) {
           return true;
         }
@@ -2119,6 +2124,9 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+
+    this._closeDialog();
+    this.setState({isLoading:true})
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
@@ -2182,8 +2190,8 @@ export default class ViewForm extends React.Component<
       );
     }
 
-    this._closeDialog();
-    this.setState({ isVisibleAlter: true });
+    
+    this.setState({ isVisibleAlter: true ,isLoading:false});
   };
 
   private referPassCodeTrigger = (): any => {
@@ -3816,7 +3824,7 @@ export default class ViewForm extends React.Component<
   };
 
   public render(): React.ReactElement<IViewFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
     // console.log(this._committeeType)
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
@@ -3856,14 +3864,32 @@ export default class ViewForm extends React.Component<
     return (
       <div className={styles.viewForm}>
         {this.state.isLoading ? (
-          <Spinner
-            label="Wait, wait..."
-            ariaLive="assertive"
-            // labelPosition="right"
-          />
+          <div>
+          <Modal
+          isOpen={this.state.isLoading}
+
+           containerClassName={styles.spinnerModalTranparency}
+           styles={{
+            main: {
+              background: 'transparent', // Removes background color
+              boxShadow: 'none', // Removes box shadow
+            },
+          }}
+        >
+          <div className="spinner" >
+            <Spinner
+              label="still loading..."
+              ariaLive="assertive"
+              size={SpinnerSize.large}
+            />
+          </div>
+        </Modal>
+
+        </div>
         ) : (
           <div className={styles.viewFormMainContainer}>
             {/* Passcode Modal */}
+            
             <form>
               <PasscodeModal
                 createPasscodeUrl={this.props.passCodeUrl}
@@ -3904,6 +3930,31 @@ export default class ViewForm extends React.Component<
                 this.setState({ isChangeApproverNeeded: false });
               }}
             />
+
+{this.state.isLoading && (
+                <div>
+                <Modal
+                isOpen={this.state.isLoading}
+    
+                 containerClassName={styles.spinnerModalTranparency}
+                 styles={{
+                  main: {
+                    background: 'transparent', // Removes background color
+                    boxShadow: 'none', // Removes box shadow
+                  },
+                }}
+              >
+                <div className="spinner" >
+                  <Spinner
+                    label="still loading..."
+                    ariaLive="assertive"
+                    size={SpinnerSize.large}
+                  />
+                </div>
+              </Modal>
+    
+              </div>
+            )}
 
             {/* changeApprover data mandiatory  dialog */}
             {/* refer  comment  dialog */}
@@ -4460,6 +4511,7 @@ export default class ViewForm extends React.Component<
                           <CommentsLogTable
                             data={this.state.commentsLog} //have change data valu
                             type="commentsLog"
+                            formType = {" "}
                           />
                         </div>
                       </div>

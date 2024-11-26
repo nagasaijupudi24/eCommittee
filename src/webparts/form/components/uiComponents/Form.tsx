@@ -18,12 +18,17 @@ import {
   Stack,
   TextField,
 } from "@fluentui/react";
-import { IDropdownOption } from "office-ui-fabric-react";
+import {
+  IDropdownOption,
+  Modal,
+  Spinner,
+  SpinnerSize,
+} from "office-ui-fabric-react";
 import { PrimaryButton } from "@fluentui/react/lib/Button";
 
 //spinner related
 
-import { Spinner } from "@fluentui/react/lib/Spinner";
+// import { Spinner } from "@fluentui/react/lib/Spinner";
 import UploadFileComponent from "./uploadFile";
 import Title from "./titleSectionComponent/title";
 import SpanComponent from "./spanComponent/spanComponent";
@@ -57,6 +62,8 @@ import AutoSaveFailedDialog from "./dialogFluentUi/autoSaveFailedDialog";
 import ReviewerExistModal from "./ApproverOrReviewerDialog/reviewerDialogAlreadyExist";
 import CummulativeErrorDialog from "./dialogFluentUi/cummulativeDialog";
 import SupportingDocumentsUploadFileComponent from "./supportingDocuments";
+import CommentsLogTable from "./simpleTable/commentsTable";
+// import PageLoader from "../Pageloder";
 
 interface INoteObject {
   Department: string;
@@ -90,6 +97,7 @@ export interface IFileDetails {
 
 interface IMainFormState {
   isLoading: boolean;
+  isLoadingOnForm: boolean;
   department: string;
   departmentAlias: string;
   noteTypeValue?: IDropdownOption;
@@ -154,8 +162,8 @@ interface IMainFormState {
 
   errorOfDocuments: any;
   errorFilesList: any;
-  errorForCummulative:any;
-  dialogboxForCummulativeError:any;
+  errorForCummulative: any;
+  dialogboxForCummulativeError: any;
 
   isWarningPeoplePicker: boolean;
   isDialogHidden: boolean;
@@ -209,6 +217,7 @@ interface IMainFormState {
   autoSavedialog: boolean;
 
   isReviewerDialogHandel: boolean;
+  commentsLog:any;
 }
 
 export const FormContext = React.createContext<any>(null);
@@ -230,7 +239,7 @@ const getFromType = (): any => {
 export default class Form extends React.Component<IFormProps, IMainFormState> {
   private autoSaveInterval: any;
   private _peopplePicker: IPeoplePickerContext;
-  private _noteId:any;
+  private _noteId: any;
   // private _userName: string;
   // private _role: string;
   private _itemId: number = Number(getIdFromUrl());
@@ -259,6 +268,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       itemId: null,
       autoSaveStatus: "Drafted",
       isLoading: true,
+      isLoadingOnForm: false,
       department: "",
       departmentAlias: "",
       isNoteType: false,
@@ -323,8 +333,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         notePdF: [],
         supportingDocument: [],
       },
-      errorForCummulative:false,
-      dialogboxForCummulativeError:false,
+      errorForCummulative: false,
+      dialogboxForCummulativeError: false,
 
       isDialogHidden: true,
       isApproverOrReviewerDialogHandel: true,
@@ -366,6 +376,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       successStatus: "",
       autosave: true,
       autoSavedialog: true,
+      commentsLog:[]
     };
     const listTitle = this.props.listId;
 
@@ -599,6 +610,26 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
   };
 
+  private _getCommentsData = (data: any) => {
+    // Create a set to store unique ids
+    const uniqueIds = new Set<string>();
+
+    // Filter out duplicate entries based on the id property
+    const filterdata = data
+      .filter((each: any) => each !== null) // Filter out null values first
+      .filter((each: any) => {
+        if (!uniqueIds.has(each.id)) {
+          uniqueIds.add(each.id);
+          return true; // Include this object as it's the first occurrence of the id
+        }
+        return false; // Exclude this object if the id is already in the set
+      });
+
+    // console.log(filterdata);
+    return filterdata;
+  };
+
+
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
       .getByTitle(this._listname)
@@ -652,6 +683,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       statusNumber: item.StatusNumber,
       draftResolutionFieldValue: item.DraftResolution,
       noteSecretaryDetails: JSON.parse(item.NoteSecretaryDTO),
+      commentsLog:
+      item.NoteApproverCommentsDTO !== null
+        ? this._getCommentsData(JSON.parse(item.NoteApproverCommentsDTO))
+        : [],
     });
 
     return item;
@@ -749,7 +784,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // Assuming fieldDetails is an array of items you want to add
       this.setState((prevState) => ({
         itemsFromSpList: [...prevState.itemsFromSpList, ...finalList],
-        isLoading: false,
+        isLoading: false,isLoadingOnForm:false
       }));
     } catch (error) {
       console.error("Error fetching field details: ", error);
@@ -777,7 +812,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         const dataRec = await this._getUserProperties(user.LoginName);
 
-        if (each.ApproverType === "Approver" ) {
+        if (each.ApproverType === "Approver") {
           const newObj = {
             text: each.Approver.Title,
             email: each.Approver.EMail,
@@ -786,9 +821,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             // approversOrder: each.ApproverType === "Approver"?2:1,
             Title: each.Title,
             id: each.ApproverId,
-            userId: each.ApproverId,  
+            userId: each.ApproverId,
             secretary: each.Secretary.Title,
-            secretaryEmail:each.Secretary.EMail,
+            secretaryEmail: each.Secretary.EMail,
             srNo: each.Approver.EMail.split("@")[0],
             optionalText: dataRec[0],
             approverTypeNum: 2,
@@ -822,14 +857,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               ],
             });
           });
-          if (each.ApproverType === "Approver" && !this._itemId &&  each.Approver.EMail !== this._currentUserEmail ) {
+          if (
+            each.ApproverType === "Approver" &&
+            !this._itemId &&
+            each.Approver.EMail !== this._currentUserEmail
+          ) {
             this.setState({ peoplePickerApproverData: [newObj] });
           }
           // else{
           //   this.setState({ peoplePickerData: [newObj] });
 
           // }
-          
         } else {
           const user = await this.props.sp.web.siteUsers.getById(
             each.ApproverId
@@ -842,19 +880,23 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             email: each.Approver.EMail,
             ApproversId: each.ApproverId,
             approverType: each.ApproverType,
-            
+
             Title: each.Title,
             id: each.ApproverId,
             userId: each.ApproverId,
             secretary: "",
-            secretaryEmail:"",
+            secretaryEmail: "",
             optionalText: dataRec[0],
             srNo: each.Approver.EMail.split("@")[0],
 
             approverTypeNum: 1,
           };
 
-          if (each.ApproverType === "Reviewer" &&!this._itemId  &&  each.Approver.EMail !== this._currentUserEmail) {
+          if (
+            each.ApproverType === "Reviewer" &&
+            !this._itemId &&
+            each.Approver.EMail !== this._currentUserEmail
+          ) {
             this.setState({ peoplePickerData: [newObj] });
           }
         }
@@ -886,7 +928,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             optionalText: "N/A",
             approverTypeNum: 1,
             secretary: "",
-            secretaryEmail:"",
+            secretaryEmail: "",
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -907,7 +949,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             optionalText: dataRec[0],
             approverTypeNum: 1,
             secretary: "",
-            secretaryEmail:"",
+            secretaryEmail: "",
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -924,7 +966,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       this.state.approverIdsHavingSecretary.filter(
         (each: any) => each.ApproverId === items[0].id
       );
-      // console.log(checkSelectedApproverHasSecretary)
+    // console.log(checkSelectedApproverHasSecretary)
 
     const secretaryObj = {
       noteSecretarieId: checkSelectedApproverHasSecretary[0]?.noteSecretarieId,
@@ -957,11 +999,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             optionalText: "N/A",
             approverTypeNum: 2,
             secretary:
-
               checkSelectedApproverHasSecretary.length > 0
                 ? checkSelectedApproverHasSecretary[0]?.secretaryEmailName
                 : "",
-                secretaryEmail:checkSelectedApproverHasSecretary[0]?.secretaryEmail,
+            secretaryEmail:
+              checkSelectedApproverHasSecretary[0]?.secretaryEmail,
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -986,7 +1028,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               checkSelectedApproverHasSecretary.length > 0
                 ? checkSelectedApproverHasSecretary[0]?.secretaryEmailName
                 : "",
-                secretaryEmail:checkSelectedApproverHasSecretary[0]?.secretaryEmail,
+            secretaryEmail:
+              checkSelectedApproverHasSecretary[0]?.secretaryEmail,
 
             srNo: dataRec[1].split("@")[0] || obj.secondaryText.split("@")[0],
             text: obj.text,
@@ -1192,10 +1235,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       othersFieldValue: "",
     });
 
-    
-
     // if (value === "Information" || value === "Ratification") {
-      
+
     // }
   };
 
@@ -1313,7 +1354,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   // general section --------handling---------end
   // general section --------handling---------end
   // general section --------handling---------end
-  private autoCreateSubFolder = async (parentFolderPath: string): Promise<void> => {
+  private autoCreateSubFolder = async (
+    parentFolderPath: string
+  ): Promise<void> => {
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
         return await file.arrayBuffer();
@@ -1324,7 +1367,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         } else {
           blob = new Blob([file]);
         }
-  
+
         return new Promise<ArrayBuffer>((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () => {
@@ -1339,96 +1382,107 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         });
       }
     }
-  
+
     try {
       const { sp } = this.props;
       const filesDataArray = [
         {
           folderName: "Pdf",
           files: this.state.noteTofiles,
-          errorCondition: this.state.errorFilesList.notePdF.length > 0
+          errorCondition: this.state.errorFilesList.notePdF.length > 0,
         },
         {
           folderName: "SupportingDocument",
           files: this.state.supportingDocumentfiles,
-          errorCondition: this.state.errorFilesList.supportingDocument.length > 0
+          errorCondition:
+            this.state.errorFilesList.supportingDocument.length > 0,
         },
         {
           folderName: "WordDocument",
-          files: this._checkSecertaryIsAvailable() ? this.state.wordDocumentfiles : [],
-          errorCondition: this.state.errorFilesList.wordDocument.length > 0
+          files: this._checkSecertaryIsAvailable()
+            ? this.state.wordDocumentfiles
+            : [],
+          errorCondition: this.state.errorFilesList.wordDocument.length > 0,
         },
       ];
-  
-      // if (this.state.itemId && 
-      //   (this.state.errorFilesList.notePdF.length > 0 || 
-      //    this.state.errorFilesList.wordDocument.length > 0 || 
-      //    this.state.errorFilesList.supportingDocument.length > 0 || 
+
+      // if (this.state.itemId &&
+      //   (this.state.errorFilesList.notePdF.length > 0 ||
+      //    this.state.errorFilesList.wordDocument.length > 0 ||
+      //    this.state.errorFilesList.supportingDocument.length > 0 ||
       //    this.state.errorForCummulative)) {
       //   console.log("Conditions prevent file upload. Exiting...");
       //   return;
       // }
-  
+
       const gistFolderPath = `${parentFolderPath}/GistDocuments`;
-      try {
-        await sp.web.getFolderByServerRelativePath(gistFolderPath)();
-      } catch (error) {
-        if (error.status === 404) {
-          await sp.web.rootFolder.folders.addUsingPath(gistFolderPath);
-        } else {
-          throw error;
+
+      let gistFolderExists = false;
+
+      if (!gistFolderExists) {
+        await sp.web.rootFolder.folders.addUsingPath(gistFolderPath);
+      } else {
+        try {
+          // Check if folder already exists
+          await sp.web.getFolderByServerRelativePath(gistFolderPath)();
+          gistFolderExists = true;
+        } catch (error) {
+          if (error.status === 404) {
+            gistFolderExists = false;
+          } else {
+            throw error;
+          }
         }
       }
-  
+
       for (const { folderName, files, errorCondition } of filesDataArray) {
-  const siteUrl = `${parentFolderPath}/${folderName}`;
-  let folderExists = false;
+        const siteUrl = `${parentFolderPath}/${folderName}`;
+        let folderExists = false;
 
-  try {
-    // Check if folder already exists
-    await sp.web.getFolderByServerRelativePath(siteUrl)();
-    folderExists = true;
-  } catch (error) {
-    if (error.status === 404) {
-      folderExists = false;
-    } else {
-      throw error;
-    }
-  }
+        // Create the folder if it doesn't exist
+        if (!folderExists) {
+          await sp.web.rootFolder.folders.addUsingPath(siteUrl);
+          // console.log(`Folder '${folderName}' created successfully`);
+        } else {
+          try {
+            // Check if folder already exists
+            await sp.web.getFolderByServerRelativePath(siteUrl)();
+            folderExists = true;
+          } catch (error) {
+            if (error.status === 404) {
+              folderExists = false;
+            } else {
+              throw error;
+            }
+          }
+        }
 
-  // Create the folder if it doesn't exist
-  if (!folderExists) {
-    await sp.web.rootFolder.folders.addUsingPath(siteUrl);
-    // console.log(`Folder '${folderName}' created successfully`);
-  }
+        // If there's an error, skip file upload and show appropriate dialog
+        if (errorCondition) {
+          // console.log(`Skipping file upload for '${folderName}' due to error condition`);
 
-  // If there's an error, skip file upload and show appropriate dialog
-  if (errorCondition) {
-    // console.log(`Skipping file upload for '${folderName}' due to error condition`);
-    
-    // Show the dialog based on error type
-    if (this.state.errorForCummulative) {
-      // this.setState({ dialogboxForCummulativeError: true });
-      return;
-    } else {
-      // this.setState({ isAutoSaveFailedDialog: true });
+          // Show the dialog based on error type
+          if (this.state.errorForCummulative) {
+            // this.setState({ dialogboxForCummulativeError: true });
+            return;
+          } else {
+            // this.setState({ isAutoSaveFailedDialog: true });
 
-      
-      continue;
-    }
-  }
+            continue;
+          }
+        }
 
-  // Proceed with file upload if no error condition
-  for (const file of files) {
-    const arrayBuffer = await getFileArrayBuffer(file);
-    await sp.web
-      .getFolderByServerRelativePath(siteUrl)
-      .files.addUsingPath(file.name, arrayBuffer, {
-        Overwrite: true,
-      });
-  }
-}
-
+        // Proceed with file upload if no error condition
+        for (const file of files) {
+          const arrayBuffer = await getFileArrayBuffer(file);
+          await sp.web
+            .getFolderByServerRelativePath(siteUrl)
+            .files.addUsingPath(file.name, arrayBuffer, {
+              Overwrite: true,
+            });
+        }
+      }
+      this.setState({ isLoadingOnForm: false, isVisibleAlter: true });
     } catch (error) {
       console.error(`Error creating folder: ${error}`);
     }
@@ -1465,8 +1519,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     }
 
-    
-
     try {
       const { sp } = this.props;
       const filesDataArray = [
@@ -1487,14 +1539,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       ];
       // console.log(this.state.itemId)
 
-      if(this.state.itemId){
-       await this.autoCreateSubFolder(parentFolderPath)
-        
-        return 
+      if (this.state.itemId) {
+        await this.autoCreateSubFolder(parentFolderPath);
 
+        return;
       }
-
-
 
       // if (this._checkSecertaryIsAvailable()) {
       const gistFolderPath = `${parentFolderPath}/GistDocuments`;
@@ -1511,7 +1560,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // }
 
       for (const { folderName, files } of filesDataArray) {
-        
         const siteUrl = `${parentFolderPath}/${folderName}`;
         // console.log(siteUrl);
 
@@ -1553,6 +1601,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         // console.log(`Folder '${folderName}' created successfully in list`);/
       }
+
+      this.setState({ isLoadingOnForm: false, isVisibleAlter: true });
     } catch (error) {
       // console.error(`Error creating folder: ${error}`);
     }
@@ -1570,16 +1620,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // Check if the folder already exists
       let folderExists = false;
-      try {
-        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
-        folderExists = true;
-      } catch (error) {
-        if (error.status === 404) {
-          folderExists = false;
-        } else {
-          throw error;
-        }
-      }
 
       if (!folderExists) {
         // Create the folder if it doesn't exist
@@ -1587,6 +1627,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // console.log(`Folder '${folderName}' created successfully in list`);
       } else {
         // console.log(`Folder '${folderName}' already exists`);
+        try {
+          await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+          folderExists = true;
+        } catch (error) {
+          if (error.status === 404) {
+            folderExists = false;
+          } else {
+            throw error;
+          }
+        }
       }
 
       // eslint-disable-next-line no-void
@@ -1615,7 +1665,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverOrder: index + 1,
             approverStatus: 1,
             id: each.id,
-            "userId": each.id,
+            userId: each.id,
             status: index === 0 ? "Pending" : "Waiting",
             statusNumber: index === 0 ? "2000" : "",
             mainStatus: index === 0 ? "Pending with reviewer" : "Waiting",
@@ -1623,7 +1673,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
-            actionDate:""
+            actionDate: "",
           };
         } else {
           return {
@@ -1633,7 +1683,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             approverOrder: index + 1,
             approverStatus: 1,
             id: each.id,
-            "userId": each.id,
+            userId: each.id,
             statusNumber: index === 0 ? "3000" : "",
             status: index === 0 ? "Pending" : "Waiting",
             mainStatus: index === 0 ? "Pending with approver" : "Waiting",
@@ -1641,7 +1691,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             designation: each.optionalText,
             approverEmailName: each.text,
             srNo: each.srNo,
-            actionDate:""
+            actionDate: "",
           };
         }
       }
@@ -1661,20 +1711,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(this._userName, this._role);
     const auditLog = [
       {
+        actionBy: this.props.context.pageContext.user.displayName,
 
-        
-        
-        
-        "actionBy": this.props.context.pageContext.user.displayName,
-       
-        "action":
+        action:
           this.props.formType === "New"
             ? `ECommittee Note ${status}`
             : `Board Note ${status}`,
-       
-        "createdDate":
+
+        createdDate:
           new Date().toDateString() + " " + new Date().toLocaleTimeString(),
-        
       },
     ];
     // console.log(this.state.auditTrail);
@@ -1764,7 +1809,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         this.state.peoplePickerApproverData,
         "allDetails"
       ),
-      Status:status ==='Drafted'?'Draft': status,
+      Status: status === "Drafted" ? "Draft" : status,
       StatusNumber: status === "Submitted" ? statusNumber : "100",
       AuditTrail:
         this.state.status === "Call Back"
@@ -1879,7 +1924,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.errorFilesList.supportingDocument.length > 0,
 
             AppoverData: this.state.peoplePickerApproverData,
-            cummulativeErrorDisplay:this.state.errorForCummulative
+            cummulativeErrorDisplay: this.state.errorForCummulative,
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -1919,7 +1964,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.errorFilesList.supportingDocument.length > 0,
 
             AppoverData: this.state.peoplePickerApproverData,
-            cummulativeErrorDisplay:this.state.errorForCummulative
+            cummulativeErrorDisplay: this.state.errorForCummulative,
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -1959,7 +2004,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.errorFilesList.supportingDocument.length > 0,
 
           AppoverData: this.state.peoplePickerApproverData,
-          cummulativeErrorDisplay:this.state.errorForCummulative
+          cummulativeErrorDisplay: this.state.errorForCummulative,
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2009,7 +2054,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.errorFilesList.supportingDocument.length > 0,
 
             AppoverData: this.state.peoplePickerApproverData,
-            cummulativeErrorDisplay:this.state.errorForCummulative
+            cummulativeErrorDisplay: this.state.errorForCummulative,
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2046,7 +2091,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.errorFilesList.supportingDocument.length > 0,
 
             AppoverData: this.state.peoplePickerApproverData,
-            cummulativeErrorDisplay:this.state.errorForCummulative
+            cummulativeErrorDisplay: this.state.errorForCummulative,
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2084,7 +2129,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.errorFilesList.supportingDocument.length > 0,
 
           AppoverData: this.state.peoplePickerApproverData,
-          cummulativeErrorDisplay:this.state.errorForCummulative
+          cummulativeErrorDisplay: this.state.errorForCummulative,
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2128,7 +2173,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.errorFilesList.supportingDocument.length > 0,
 
           AppoverData: this.state.peoplePickerApproverData,
-          cummulativeErrorDisplay:this.state.errorForCummulative
+          cummulativeErrorDisplay: this.state.errorForCummulative,
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2165,7 +2210,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.errorFilesList.supportingDocument.length > 0,
 
           AppoverData: this.state.peoplePickerApproverData,
-          cummulativeErrorDisplay:this.state.errorForCummulative
+          cummulativeErrorDisplay: this.state.errorForCummulative,
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2208,7 +2253,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.errorFilesList.supportingDocument.length > 0,
 
           AppoverData: this.state.peoplePickerApproverData,
-          cummulativeErrorDisplay:this.state.errorForCummulative
+          cummulativeErrorDisplay: this.state.errorForCummulative,
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2246,7 +2291,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.errorFilesList.supportingDocument.length > 0,
 
           AppoverData: this.state.peoplePickerApproverData,
-          cummulativeErrorDisplay:this.state.errorForCummulative
+          cummulativeErrorDisplay: this.state.errorForCummulative,
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2295,7 +2340,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.errorFilesList.supportingDocument.length > 0,
 
             AppoverData: this.state.peoplePickerApproverData,
-            cummulativeErrorDisplay:this.state.errorForCummulative
+            cummulativeErrorDisplay: this.state.errorForCummulative,
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2332,7 +2377,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.errorFilesList.supportingDocument.length > 0,
 
             AppoverData: this.state.peoplePickerApproverData,
-            cummulativeErrorDisplay:this.state.errorForCummulative
+            cummulativeErrorDisplay: this.state.errorForCummulative,
           };
           // console.log(fieldValues);/
           this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2371,7 +2416,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.errorFilesList.supportingDocument.length > 0,
 
           AppoverData: this.state.peoplePickerApproverData,
-          cummulativeErrorDisplay:this.state.errorForCummulative
+          cummulativeErrorDisplay: this.state.errorForCummulative,
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2409,7 +2454,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.errorFilesList.supportingDocument.length > 0,
 
         AppoverData: this.state.peoplePickerApproverData,
-        cummulativeErrorDisplay:this.state.errorForCummulative
+        cummulativeErrorDisplay: this.state.errorForCummulative,
       };
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2445,7 +2490,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.errorFilesList.supportingDocument.length > 0,
 
         AppoverData: this.state.peoplePickerApproverData,
-        cummulativeErrorDisplay:this.state.errorForCummulative
+        cummulativeErrorDisplay: this.state.errorForCummulative,
       };
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2481,7 +2526,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.errorFilesList.supportingDocument.length > 0,
 
         AppoverData: this.state.peoplePickerApproverData,
-        cummulativeErrorDisplay:this.state.errorForCummulative
+        cummulativeErrorDisplay: this.state.errorForCummulative,
       };
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
@@ -2640,9 +2685,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.peoplePickerApproverData,
               "Please select atleast one Approver to submit request",
             ],
-            cummulativeErrorDisplay:[this.state.errorForCummulative,
-              "Cumulative size of all the supporting documents should not exceed 25 MB."
-            ]
+            cummulativeErrorDisplay: [
+              this.state.errorForCummulative,
+              "Cumulative size of all the supporting documents should not exceed 25 MB.",
+            ],
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -2701,9 +2747,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.peoplePickerApproverData,
               "Please select atleast one Approver to submit request",
             ],
-            cummulativeErrorDisplay:[this.state.errorForCummulative,
-              "Cumulative size of all the supporting documents should not exceed 25 MB."
-            ]
+            cummulativeErrorDisplay: [
+              this.state.errorForCummulative,
+              "Cumulative size of all the supporting documents should not exceed 25 MB.",
+            ],
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -2753,9 +2800,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData,
             "Please select atleast one Approver to submit request",
           ],
-          cummulativeErrorDisplay:[this.state.errorForCummulative,
-            "Cumulative size of all the supporting documents should not exceed 25 MB."
-          ]
+          cummulativeErrorDisplay: [
+            this.state.errorForCummulative,
+            "Cumulative size of all the supporting documents should not exceed 25 MB.",
+          ],
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -2818,9 +2866,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.peoplePickerApproverData,
               "Please select atleast one Approver to submit request",
             ],
-            cummulativeErrorDisplay:[this.state.errorForCummulative,
-              "Cumulative size of all the supporting documents should not exceed 25 MB."
-            ]
+            cummulativeErrorDisplay: [
+              this.state.errorForCummulative,
+              "Cumulative size of all the supporting documents should not exceed 25 MB.",
+            ],
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -2871,9 +2920,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.peoplePickerApproverData,
               "Please select atleast one Approver to submit request",
             ],
-            cummulativeErrorDisplay:[this.state.errorForCummulative,
-              "Cumulative size of all the supporting documents should not exceed 25 MB."
-            ]
+            cummulativeErrorDisplay: [
+              this.state.errorForCummulative,
+              "Cumulative size of all the supporting documents should not exceed 25 MB.",
+            ],
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -2919,9 +2969,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData,
             "Please select atleast one Approver to submit request",
           ],
-          cummulativeErrorDisplay:[this.state.errorForCummulative,
-            "Cumulative size of all the supporting documents should not exceed 25 MB."
-          ]
+          cummulativeErrorDisplay: [
+            this.state.errorForCummulative,
+            "Cumulative size of all the supporting documents should not exceed 25 MB.",
+          ],
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -2975,9 +3026,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData,
             "Please select atleast one Approver to submit request",
           ],
-          cummulativeErrorDisplay:[this.state.errorForCummulative,
-            "Cumulative size of all the supporting documents should not exceed 25 MB."
-          ]
+          cummulativeErrorDisplay: [
+            this.state.errorForCummulative,
+            "Cumulative size of all the supporting documents should not exceed 25 MB.",
+          ],
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3023,9 +3075,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData,
             "Please select atleast one Approver to submit request",
           ],
-          cummulativeErrorDisplay:[this.state.errorForCummulative,
-            "Cumulative size of all the supporting documents should not exceed 25 MB."
-          ]
+          cummulativeErrorDisplay: [
+            this.state.errorForCummulative,
+            "Cumulative size of all the supporting documents should not exceed 25 MB.",
+          ],
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3075,9 +3128,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData,
             "Please select atleast one Approver to submit request",
           ],
-          cummulativeErrorDisplay:[this.state.errorForCummulative,
-            "Cumulative size of all the supporting documents should not exceed 25 MB."
-          ]
+          cummulativeErrorDisplay: [
+            this.state.errorForCummulative,
+            "Cumulative size of all the supporting documents should not exceed 25 MB.",
+          ],
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3119,9 +3173,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData,
             "Please select atleast one Approver to submit request",
           ],
-          cummulativeErrorDisplay:[this.state.errorForCummulative,
-            "Cumulative size of all the supporting documents should not exceed 25 MB."
-          ]
+          cummulativeErrorDisplay: [
+            this.state.errorForCummulative,
+            "Cumulative size of all the supporting documents should not exceed 25 MB.",
+          ],
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3184,9 +3239,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.peoplePickerApproverData,
               "Please select atleast one Approver to submit request",
             ],
-            cummulativeErrorDisplay:[this.state.errorForCummulative,
-              "Cumulative size of all the supporting documents should not exceed 25 MB."
-            ]
+            cummulativeErrorDisplay: [
+              this.state.errorForCummulative,
+              "Cumulative size of all the supporting documents should not exceed 25 MB.",
+            ],
           };
           // console.log(fieldValues);
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3238,9 +3294,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.peoplePickerApproverData,
               "Please select atleast one Approver to submit request",
             ],
-            cummulativeErrorDisplay:[this.state.errorForCummulative,
-              "Cumulative size of all the supporting documents should not exceed 25 MB."
-            ]
+            cummulativeErrorDisplay: [
+              this.state.errorForCummulative,
+              "Cumulative size of all the supporting documents should not exceed 25 MB.",
+            ],
           };
           // console.log(fieldValues);/
           this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3286,9 +3343,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             this.state.peoplePickerApproverData,
             "Please select atleast one Approver to submit request",
           ],
-          cummulativeErrorDisplay:[this.state.errorForCummulative,
-            "Cumulative size of all the supporting documents should not exceed 25 MB."
-          ]
+          cummulativeErrorDisplay: [
+            this.state.errorForCummulative,
+            "Cumulative size of all the supporting documents should not exceed 25 MB.",
+          ],
         };
         // console.log(fieldValues);
         this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3336,9 +3394,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.peoplePickerApproverData,
           "Please select atleast one Approver to submit request",
         ],
-        cummulativeErrorDisplay:[this.state.errorForCummulative,
-          "Cumulative size of all the supporting documents should not exceed 25 MB."
-        ]
+        cummulativeErrorDisplay: [
+          this.state.errorForCummulative,
+          "Cumulative size of all the supporting documents should not exceed 25 MB.",
+        ],
       };
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3381,9 +3440,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.peoplePickerApproverData,
           "Please select atleast one Approver to submit request",
         ],
-        cummulativeErrorDisplay:[this.state.errorForCummulative,
-          "Cumulative size of all the supporting documents should not exceed 25 MB."
-        ]
+        cummulativeErrorDisplay: [
+          this.state.errorForCummulative,
+          "Cumulative size of all the supporting documents should not exceed 25 MB.",
+        ],
       };
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3425,9 +3485,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.peoplePickerApproverData,
           "Please select atleast one Approver to submit request",
         ],
-        cummulativeErrorDisplay:[this.state.errorForCummulative,
-          "Cumulative size of all the supporting documents should not exceed 25 MB."
-        ]
+        cummulativeErrorDisplay: [
+          this.state.errorForCummulative,
+          "Cumulative size of all the supporting documents should not exceed 25 MB.",
+        ],
       };
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataionDialog: fieldValues });
@@ -3446,10 +3507,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     statusOfForm: string,
     showAlert: boolean = true
   ): Promise<void> => {
-
-    this.setState({ isConfirmationDialogVisible: false,isLoading:true });
     if (statusOfForm === "Drafted" && this.state.successStatus === "") {
-
       let id;
 
       if (this.state.itemId || this._itemId) {
@@ -3459,45 +3517,61 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // this.setState({autosave:false})
       } else {
         // Create new item
+        console.log("save as draft triggered");
+
+        this.setState({
+          isLoadingOnForm: true,
+        });
         const response = await this.props.sp.web.lists
           .getByTitle(this._listname)
           .items.add(await this.createEcommitteeObject(statusOfForm, "100"));
         id = response.Id;
-        this._noteId = id
+        this._noteId = id;
         this.setState({ itemId: id });
         // console.log(id, "id created");
 
         await this._generateRequsterNumber(this.state.itemId || id);
+
+        // if (id){
+        //   this.setState({isVisibleAlter:true})
+        // }
       }
 
       // console.log("Item Drafted successfully");
-      if (id){
-        this.setState({ isLoading: false });
+      this.setState({ isConfirmationDialogVisible: false });
 
-      }
-     
-
-      if (showAlert) {
-        this.setState({ isVisibleAlter: true });
-      }
+      // if (showAlert) {
+      //   this.setState({ isVisibleAlter: true });
+      // }
     } else {
       try {
         if (
           this.state.statusNumber === "200" ||
           this.state.statusNumber === "5000"
         ) {
+          console.log("Draft , Returned Submission")
+          this.setState({
+            isLoadingOnForm: true,
+            isConfirmationDialogVisible: false,
+          });
           await this.handleUpdate();
         } else if (statusOfForm === "update") {
           // console.log("entered into updatee else if block");
+          console.log('update submission')
           await this.handleUpdate();
         } else {
+          this.setState({
+            isLoadingOnForm: true,
+            isConfirmationDialogVisible: false,
+          });
           const id = await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.add(await this.createEcommitteeObject(statusOfForm, "1000"));
           // console.log(id.Id, "id");
           // console.log(id.Id, "id -----", status, "Status");
 
-          await this._generateRequsterNumber(id.Id);
+          const createFolder = await this._generateRequsterNumber(id.Id);
+          console.log(createFolder);
           this.setState({ autosave: false });
           clearInterval(this.autoSaveInterval);
 
@@ -3542,10 +3616,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // isWarningPeoplePicker: false,
         });
 
-        this.setState({
-          isVisibleAlter: true,
-          isConfirmationDialogVisible: false,
-        });
+        // this.setState({
+        //   isVisibleAlter: true,
+        //   isConfirmationDialogVisible: false,
+        // });
       } catch (error) {
         // console.error("Error adding item: ", error);
       }
@@ -3574,8 +3648,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     Status: status,
     StatusNumber: statusNumber,
     AuditTrail: this.state.itemId
-      ? (this.state.successStatus==="submitted"? this._getAuditTrail("Submitted"):this._getAuditTrail("Drafted"))
-      : this._getAuditTrail("Submitted"),     // ReSubmitted
+      ? this.state.successStatus === "submitted"
+        ? this._getAuditTrail("Submitted")
+        : this._getAuditTrail("Drafted")
+      : this._getAuditTrail("Submitted"), // ReSubmitted
     // Reviewer:{result:this._getReviewerId()}
     ReviewersId: this._getReviewerId(),
     ApproversId: this._getApproverId(),
@@ -3593,7 +3669,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     CommitteeType:
       this.props.formType === "BoardNoteNew" ? "Board" : "Committee",
     PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
-    startProcessing:this.state.itemId?false: true,
+    startProcessing: this.state.itemId ? false : true,
   });
 
   public async clearFolder(
@@ -3823,6 +3899,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(puroposeFeildValue, "-----------puroposeFeildValue");
 
     try {
+      this.setState({ isConfirmationDialogVisible: false , isLoadingOnForm: true});
       // this.setState({ status: "Updated", statusNumber: "1000" });
 
       // Update SharePoint item
@@ -3867,11 +3944,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         ));
 
       // console.log(itemToUpdate, "item updated");
-      this.setState({ isConfirmationDialogVisible: false });
+      this.setState({ isConfirmationDialogVisible: false , isLoadingOnForm: false, isVisibleAlter: true});
 
-      if (showAlert) {
-        this.setState({ isVisibleAlter: true });
-      }
+      // if (showAlert) {
+      //   this.setState({ isVisibleAlter: true });
+      // }
     } catch (error) {
       // console.log(error);
     }
@@ -4034,15 +4111,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   //   console.log(dataDeleted)
   // }
 
-
-  private _getCummulativeError = (data:any):any=>{
+  private _getCummulativeError = (data: any): any => {
     // console.log(data)
-    data!==null?this.setState({errorForCummulative:true,
-      // dialogboxForCummulativeError:true
-    }):this.setState({errorForCummulative:false,
-      // dialogboxForCummulativeError:false
-    })
-  }
+    data !== null
+      ? this.setState({
+          errorForCummulative: true,
+          // dialogboxForCummulativeError:true
+        })
+      : this.setState({
+          errorForCummulative: false,
+          // dialogboxForCummulativeError:false
+        });
+  };
 
   private _getFileWithError = (data: any): any => {
     // console.log(data);
@@ -4083,7 +4163,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //     newObj.cummlativeError = data[0];
 
     //   }
-     
+
     //   // newObj.supportingDocument=[]
     // }
     const newObj = this.state.errorFilesList;
@@ -4185,6 +4265,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     statusFromEvent: string,
     statusNumber: string
   ) => {
+    this.setState({showCancelDialog:false,isLoadingOnForm:true})
     try {
       const updateAuditTrail = await this._getAuditTrail(statusFromEvent);
       // console.log(updateAuditTrail);
@@ -4202,7 +4283,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // console.log(itemToUpdate);
       // Close the dialog after successful cancellation
-      this.setState({ showCancelDialog: false });
+      this.setState({ isLoadingOnForm: false });
       this.setState({ isVisibleAlter: true });
     } catch (error) {
       // console.error("Error updating the item:", error);
@@ -4216,9 +4297,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public _closeDialogAlter = () => {
-    const pageURL: string = this.props.homePageUrl;
-    // console.log(pageURL);
-    window.location.href = `${pageURL}`;
+    const pageURL: string =this.props.existPageUrl;
+          window.location.href = `${pageURL}`;
     this.setState({ isVisibleAlter: false });
   };
 
@@ -4348,7 +4428,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
+
+    //   }
     // console.log(this._committeeType)
     // console.log(this._checkValidation())
     // console.log(this.props.formType, "Type of Form");
@@ -4376,17 +4458,41 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   "Data..........Approver PeoplePicker"
     // );
 
-    return (  
+    return (
       // <ThemeProvider theme={customTheme}>
       <div>
         {this.state.isLoading ? (
+          // <div>
+          //   <Spinner
+          //     label="Wait, wait..."
+          //     ariaLive="assertive"
+          //     // labelPosition="right"
+          //   />
+          // </div>
+          // <PageLoader/>
           <div>
-            <Spinner
-              label="Wait, wait..."
-              ariaLive="assertive"
-              // labelPosition="right"
-            />
+            <Modal
+            isOpen={this.state.isLoading}
+
+             containerClassName={styles.spinnerModalTranparency}
+             styles={{
+              main: {
+                background: 'transparent', // Removes background color
+                boxShadow: 'none', // Removes box shadow
+              },
+            }}
+          >
+            <div className="spinner" >
+              <Spinner
+                label="still loading..."
+                ariaLive="assertive"
+                size={SpinnerSize.large}
+              />
+            </div>
+          </Modal>
+
           </div>
+          
         ) : (
           // </Stack>
           <div className={styles.form}>
@@ -4396,9 +4502,38 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 this.setState({ autoSavedialog: true });
               }}
             />
-            <CummulativeErrorDialog isVisibleAlter={this.state.dialogboxForCummulativeError} onCloseAlter={() => {
+            <CummulativeErrorDialog
+              isVisibleAlter={this.state.dialogboxForCummulativeError}
+              onCloseAlter={() => {
                 this.setState({ dialogboxForCummulativeError: false });
-              } } statusOfReq={undefined}/>
+              }}
+              statusOfReq={undefined}
+            />
+
+            {this.state.isLoadingOnForm && (
+                <div>
+                <Modal
+                isOpen={this.state.isLoadingOnForm}
+    
+                 containerClassName={styles.spinnerModalTranparency}
+                 styles={{
+                  main: {
+                    background: 'transparent', // Removes background color
+                    boxShadow: 'none', // Removes box shadow
+                  },
+                }}
+              >
+                <div className="spinner" >
+                  <Spinner
+                    label="still loading..."
+                    ariaLive="assertive"
+                    size={SpinnerSize.large}
+                  />
+                </div>
+              </Modal>
+    
+              </div>
+            )}
             {/* <Header /> */}
             <Title
               itemId={this._itemId}
@@ -4411,7 +4546,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             {/* success  dialog */}
             <SuccessDialog
-              existUrl = {this.props.existPageUrl}
+              existUrl={this.props.existPageUrl}
               typeOfNote={this._committeeType}
               statusOfReq={this.state.successStatus}
               isVisibleAlter={this.state.isVisibleAlter}
@@ -4557,6 +4692,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   Subject <SpanComponent />
                 </label>
                 <textarea
+                  className={styles.textAreaWithOutline}
                   style={{
                     display: "block",
                     paddingLeft: "12px",
@@ -4737,6 +4873,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 <textarea
+                 className={styles.textAreaWithOutline}
                   style={{
                     display: "block",
                     borderRadius: "2px",
@@ -4788,7 +4925,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                           !this.state.amountFeildValue &&
                           this.state.isWarningAmountField
                             ? "red"
-                            : "rgb(86, 118, 152)"
+                            : ""
                         }`,
                       },
                     }}
@@ -4828,14 +4965,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }
                         styles={{
                           dropdown: {
-                           
                             borderRadius: "2px",
-                            marginTop:'8px',
-                           
+                            marginTop: "8px",
 
                             fontSize: "16px",
-                           
-                           
+
                             border: `1px solid ${
                               !this.state.puroposeFeildValue &&
                               this.state.isWarningPurposeField
@@ -4878,7 +5012,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                                 : "transparent"
                             }`,
                             borderRadius: "2px",
-                           marginTop:'8px',
+                            marginTop: "8px",
 
                             fontSize: "16px",
                           },
@@ -4902,20 +5036,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       <SpanComponent />
                     </label>
                     <textarea
+                     className={styles.textAreaWithOutline}
                       style={{
                         display: "block",
-                        paddingLeft:'12px',
+                        paddingLeft: "12px",
                         paddingTop: "5px",
                         borderRadius: "2px",
                         height: "32px",
-                        marginTop:'8px',
+                        marginTop: "8px",
                         boxSizing: "border-box",
                         width: "100%",
                         border: `1px solid ${
                           !this.state.puroposeFeildValue &&
                           this.state.isWarningPurposeField
                             ? "red"
-                            : "rgb(86, 118, 152)"
+                            : ""
                         }`,
                       }}
                       rows={
@@ -4940,6 +5075,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <SpanComponent />
                   </label>
                   <textarea
+                   className={styles.textAreaWithOutline}
                     style={{
                       borderRadius: "2px",
                       display: "block",
@@ -4952,7 +5088,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         !this.state.othersFieldValue &&
                         this.state.isWarningOthersField
                           ? "red"
-                          : "rgb(86, 118, 152)"
+                          : ""
                       }`,
                     }}
                     rows={!this.state.othersFieldValue ? 3 : 1}
@@ -4989,7 +5125,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     marginBottom: "8px",
                   }}
                 >
-                  <div style={{ display: "flex" ,flexWrap:'wrap'}}>
+                  <div style={{ display: "flex", flexWrap: "wrap" }}>
                     <PeoplePicker
                       key={this.state.reviewerKey}
                       placeholder="Reviewer Details"
@@ -5044,7 +5180,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     marginBottom: "8px",
                   }}
                 >
-                  <div style={{ display: "flex",flexWrap:'wrap' }}>
+                  <div style={{ display: "flex", flexWrap: "wrap" }}>
                     <PeoplePicker
                       key={this.state.approverKey}
                       placeholder="Approver Details"
@@ -5072,7 +5208,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       Add
                     </DefaultButton>
                   </div>
-                  <span className={`${styles.spanForPeoplePicker}`} >
+                  <span className={`${styles.spanForPeoplePicker}`}>
                     (Please enter minimum 3 character to search)
                   </span>
                 </div>
@@ -5106,6 +5242,28 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               </div>
             )}
 
+
+              {/*  Comments Section */}
+
+              {this.state.statusNumber === '5000' &&<div
+              className={`${styles.generalSectionMainContainer}`}
+              style={{ flexGrow: 1, margin: "10 10px" }}
+            >
+              <h1 className={styles.viewFormHeaderSectionContainer}>
+                Comments
+              </h1>
+            </div>}
+            {this.state.statusNumber === '5000' &&  <div className={`${styles.tableContainer}`}>
+                          <CommentsLogTable
+                            data={this.state.commentsLog} //have change data valu
+                            type="commentsLog"
+                            formType = {this._formType}
+                          />
+                        </div>}
+              
+          
+          
+
             {/*  File Attachments Section */}
             <div
               className={`${styles.generalSectionMainContainer}`}
@@ -5134,15 +5292,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   this.state.noteTofiles.length > 0 ? (
                     <div style={{ width: "100%", margin: "0px" }}>
                       <UploadFileComponent
-                          cummulativeError={undefined}
-                          errorData={this._getFileWithError}
-                          typeOfDoc="notePdF"
-                          onChange={this.handleNoteToFileChange}
-                          accept=".pdf"
-                          multiple={false}
-                          maxFileSizeMB={10}
-                          maxTotalSizeMB={10}
-                          data={this.state.noteTofiles} addtionalData={[]}                        // value={this.state.noteTofiles}
+                        cummulativeError={undefined}
+                        errorData={this._getFileWithError}
+                        typeOfDoc="notePdF"
+                        onChange={this.handleNoteToFileChange}
+                        accept=".pdf"
+                        multiple={false}
+                        maxFileSizeMB={10}
+                        maxTotalSizeMB={10}
+                        data={this.state.noteTofiles}
+                        addtionalData={[]} // value={this.state.noteTofiles}
                       />
                     </div>
                   ) : (
@@ -5154,29 +5313,33 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       }}
                     >
                       <UploadFileComponent
-                            errorData={this._getFileWithError}
-                            typeOfDoc="notePdF"
-                            onChange={this.handleNoteToFileChange}
-                            accept=".pdf"
-                            multiple={false}
-                            maxFileSizeMB={10}
-                            maxTotalSizeMB={10}
-                            data={this.state.noteTofiles} addtionalData={[]} // value={this.state.noteTofiles}
-                            cummulativeError={undefined}                      />
+                        errorData={this._getFileWithError}
+                        typeOfDoc="notePdF"
+                        onChange={this.handleNoteToFileChange}
+                        accept=".pdf"
+                        multiple={false}
+                        maxFileSizeMB={10}
+                        maxTotalSizeMB={10}
+                        data={this.state.noteTofiles}
+                        addtionalData={[]} // value={this.state.noteTofiles}
+                        cummulativeError={undefined}
+                      />
                     </div>
                   )
                 ) : (
                   <div style={{ width: "100%", margin: "0px" }}>
                     <UploadFileComponent
-                          errorData={this._getFileWithError}
-                          typeOfDoc="notePdF"
-                          onChange={this.handleNoteToFileChange}
-                          accept=".pdf"
-                          multiple={false}
-                          maxFileSizeMB={10}
-                          maxTotalSizeMB={10}
-                          data={this.state.noteTofiles} addtionalData={[]} // value={this.state.noteTofiles}
-                          cummulativeError={undefined}                    />
+                      errorData={this._getFileWithError}
+                      typeOfDoc="notePdF"
+                      onChange={this.handleNoteToFileChange}
+                      accept=".pdf"
+                      multiple={false}
+                      maxFileSizeMB={10}
+                      maxTotalSizeMB={10}
+                      data={this.state.noteTofiles}
+                      addtionalData={[]} // value={this.state.noteTofiles}
+                      cummulativeError={undefined}
+                    />
                   </div>
                 )}
 
@@ -5197,15 +5360,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     this.state.wordDocumentfiles.length > 0 ? (
                       <div style={{ width: "100%", margin: "0px" }}>
                         <UploadFileComponent
-                            errorData={this._getFileWithError}
-                            typeOfDoc="wordDocument"
-                            onChange={this.handleWordDocumentFileChange}
-                            accept=".doc,.docx"
-                            multiple={false}
-                            maxFileSizeMB={10}
-                            maxTotalSizeMB={10}
-                            data={this.state.wordDocumentfiles} addtionalData={[]} // value={this.state.wordDocumentfiles}
-                            cummulativeError={undefined}                        />
+                          errorData={this._getFileWithError}
+                          typeOfDoc="wordDocument"
+                          onChange={this.handleWordDocumentFileChange}
+                          accept=".doc,.docx"
+                          multiple={false}
+                          maxFileSizeMB={10}
+                          maxTotalSizeMB={10}
+                          data={this.state.wordDocumentfiles}
+                          addtionalData={[]} // value={this.state.wordDocumentfiles}
+                          cummulativeError={undefined}
+                        />
                       </div>
                     ) : (
                       <div
@@ -5216,29 +5381,33 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }}
                       >
                         <UploadFileComponent
-                              errorData={this._getFileWithError}
-                              typeOfDoc="wordDocument"
-                              onChange={this.handleWordDocumentFileChange}
-                              accept=".doc,.docx"
-                              multiple={false}
-                              maxFileSizeMB={10}
-                              maxTotalSizeMB={10}
-                              data={this.state.wordDocumentfiles} addtionalData={[]} // value={this.state.wordDocumentfiles}
-                              cummulativeError={undefined}                        />
+                          errorData={this._getFileWithError}
+                          typeOfDoc="wordDocument"
+                          onChange={this.handleWordDocumentFileChange}
+                          accept=".doc,.docx"
+                          multiple={false}
+                          maxFileSizeMB={10}
+                          maxTotalSizeMB={10}
+                          data={this.state.wordDocumentfiles}
+                          addtionalData={[]} // value={this.state.wordDocumentfiles}
+                          cummulativeError={undefined}
+                        />
                       </div>
                     )
                   ) : (
                     <div style={{ width: "100%", margin: "0px" }}>
                       <UploadFileComponent
-                            errorData={this._getFileWithError}
-                            typeOfDoc="wordDocument"
-                            onChange={this.handleWordDocumentFileChange}
-                            accept=".doc,.docx"
-                            multiple={false}
-                            maxFileSizeMB={10}
-                            maxTotalSizeMB={10}
-                            data={this.state.wordDocumentfiles} addtionalData={[]} // value={this.state.wordDocumentfiles}
-                            cummulativeError={undefined}                      />
+                        errorData={this._getFileWithError}
+                        typeOfDoc="wordDocument"
+                        onChange={this.handleWordDocumentFileChange}
+                        accept=".doc,.docx"
+                        multiple={false}
+                        maxFileSizeMB={10}
+                        maxTotalSizeMB={10}
+                        data={this.state.wordDocumentfiles}
+                        addtionalData={[]} // value={this.state.wordDocumentfiles}
+                        cummulativeError={undefined}
+                      />
                     </div>
                   )}
 
@@ -5263,28 +5432,32 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     }}
                   >
                     <SupportingDocumentsUploadFileComponent
-                        errorData={this._getFileWithError}
-                        typeOfDoc="supportingDocument"
-                        onChange={this.handleSupportingFileChange}
-                        accept=".xlsx,.pdf,.doc,.docx"
-                        multiple={true}
-                        maxFileSizeMB={25}
-                        maxTotalSizeMB={25}
-                        data={this.state.supportingDocumentfiles} addtionalData={[]} // value={this.state.supportingDocumentfiles}
-                        cummulativeError={this._getCummulativeError}                    />
+                      errorData={this._getFileWithError}
+                      typeOfDoc="supportingDocument"
+                      onChange={this.handleSupportingFileChange}
+                      accept=".xlsx,.pdf,.doc,.docx"
+                      multiple={true}
+                      maxFileSizeMB={25}
+                      maxTotalSizeMB={25}
+                      data={this.state.supportingDocumentfiles}
+                      addtionalData={[]} // value={this.state.supportingDocumentfiles}
+                      cummulativeError={this._getCummulativeError}
+                    />
                   </div>
                 ) : (
                   <div style={{ width: "100%", margin: "0px" }}>
                     <SupportingDocumentsUploadFileComponent
-                          errorData={this._getFileWithError}
-                          typeOfDoc="supportingDocument"
-                          onChange={this.handleSupportingFileChange}
-                          accept=".xlsx,.pdf,.doc,.docx"
-                          multiple={true}
-                          maxFileSizeMB={25}
-                          maxTotalSizeMB={25}
-                          data={this.state.supportingDocumentfiles} addtionalData={[]} // value={this.state.supportingDocumentfiles}
-                          cummulativeError={this._getCummulativeError}                    />
+                      errorData={this._getFileWithError}
+                      typeOfDoc="supportingDocument"
+                      onChange={this.handleSupportingFileChange}
+                      accept=".xlsx,.pdf,.doc,.docx"
+                      multiple={true}
+                      maxFileSizeMB={25}
+                      maxTotalSizeMB={25}
+                      data={this.state.supportingDocumentfiles}
+                      addtionalData={[]} // value={this.state.supportingDocumentfiles}
+                      cummulativeError={this._getCummulativeError}
+                    />
                   </div>
                 )}
 
@@ -5333,33 +5506,31 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                           onClick={(
                             e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                           ) => {
-
-                            if(this.state.errorForCummulative){
-                              this.setState({dialogboxForCummulativeError:true})
-                              return
+                            if (this.state.errorForCummulative) {
+                              this.setState({
+                                dialogboxForCummulativeError: true,
+                              });
+                              return;
                             }
 
+                            if (
+                              this.state.errorFilesList.wordDocument.length >
+                                0 ||
+                              this.state.errorFilesList.notePdF.length > 0 ||
+                              this.state.errorFilesList.supportingDocument
+                                .length > 0
+                            ) {
+                              this.setState({ isAutoSaveFailedDialog: true });
+                            } else {
+                              e.preventDefault();
+                              this.setState({
+                                successStatus: "drafted",
+                                autosave: false,
+                              });
+                              this.handleSubmit("Drafted");
 
-                           
-                          if (
-                            this.state.errorFilesList.wordDocument.length > 0 ||
-                            this.state.errorFilesList.notePdF.length > 0 ||
-                            this.state.errorFilesList.supportingDocument.length > 0
-                          ) {
-                             this.setState({ isAutoSaveFailedDialog: true });
-                          }else{
-                            e.preventDefault();
-                            this.setState({
-                              successStatus: "drafted",
-                              autosave: false,
-                            });
-                            this.handleSubmit("Drafted");
-
-                            clearInterval(this.autoSaveInterval);
-
-                          }
-                         
-                           
+                              clearInterval(this.autoSaveInterval);
+                            }
                           }}
                         >
                           Save as Draft
@@ -5382,19 +5553,21 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         onClick={(
                           e: React.MouseEvent<HTMLButtonElement, MouseEvent>
                         ) => {
-
-                          if(this.state.errorForCummulative){
-                            this.setState({dialogboxForCummulativeError:true})
-                            return
+                          if (this.state.errorForCummulative) {
+                            this.setState({
+                              dialogboxForCummulativeError: true,
+                            });
+                            return;
                           }
 
                           if (
                             this.state.errorFilesList.wordDocument.length > 0 ||
                             this.state.errorFilesList.notePdF.length > 0 ||
-                            this.state.errorFilesList.supportingDocument.length > 0
+                            this.state.errorFilesList.supportingDocument
+                              .length > 0
                           ) {
                             this.setState({ isAutoSaveFailedDialog: true });
-                          }else{
+                          } else {
                             e.preventDefault();
                             this.setState({
                               successStatus: "drafted",
@@ -5403,10 +5576,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                             this.handleSubmit("Drafted");
 
                             clearInterval(this.autoSaveInterval);
-
                           }
-                         
-                     
                         }}
                       >
                         Save as Draft
@@ -5484,6 +5654,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             </div>
           </div>
         )}
+        {/* {this.state.isLoadingOnForm && <PageLoader/>} */}
       </div>
     );
   }

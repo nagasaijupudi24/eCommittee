@@ -73,6 +73,8 @@ h4{
   color:"[theme: themePrimary]"
 }
 
+
+
 .generalSection {
   border: 1px solid rgb(211, 211, 211);
   // border:1px solid red;
@@ -888,6 +890,10 @@ h4{
 .welcome {
   text-align: center;
 }
+
+.textAreaWithOutline{
+  outline-color: "[theme: themePrimary]" ;
+}
  
 .welcomeImage {
   width: 100%;
@@ -1139,6 +1145,28 @@ canvas {
   font-size: 16px;
   font-weight: 400;
 }
+
+
+.pageLoader{
+  background: rgba(0, 0, 0, .4);
+    inset: 0;
+    position: absolute;
+    z-index: 1000;
+    display: flex
+;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+
+.spinnerModalTranparency{
+  background: 'transparent'; // Removes background color
+  box-shadow: 'none', 
+
+}
+
+
 
 
 

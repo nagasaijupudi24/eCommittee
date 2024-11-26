@@ -144,6 +144,28 @@ canvas {
 }
 
 
+.pdfViewerContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+
+.shadow{
+  // background-color: #e0f7fa;
+  background-color: #f0f8ff !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+
+}
+.toolbarLeft, .toolbarMiddle, .toolbarRight {
+  display: flex;
+  align-items: center;
+}
+
+
 // @import '~@fluentui/react/dist/sass/References.scss';
  
 
