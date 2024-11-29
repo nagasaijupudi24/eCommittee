@@ -368,22 +368,7 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
     });
   }
 
-  private _truncateFileName = (fileName: any): any => {
-    const maxNameLength = 80; // Adjust as needed based on width
-
-    // Get the extension
-    const extensionIndex = fileName.lastIndexOf(".");
-    const extensionConcate = fileName.split(".");
-    const namePart =
-      extensionIndex === -1 ? fileName : fileName.slice(0, extensionIndex);
-    // const extension =
-    //   extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
-
-    // Truncate only the filename, not the extension
-    return namePart.length > maxNameLength
-      ? `${namePart.slice(0, maxNameLength)}...${extensionConcate[1]}`
-      : fileName;
-  };
+  
 
   private handleDeleteFile = (fileId: string): void => {
     const updatedFiles = this.state.selectedFiles.filter(
@@ -518,11 +503,11 @@ export default class SupportingDocumentsUploadFileComponent extends React.Compon
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         display: "inline-block",
-                        maxWidth: "150px", // Adjust max width as needed
+                       
                       }}
                     >
                       {/* Dynamic truncation of filename */}
-                      {this._truncateFileName(file.name)}
+                      {(file.name)}
                     </span>
                     {error && (
                       <span

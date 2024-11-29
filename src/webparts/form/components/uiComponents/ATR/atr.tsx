@@ -37,6 +37,7 @@ interface IDropdownOption {
 
 // Interface for the component's props
 interface IATRAssigneeProps {
+  _atrJoinedCommentsToDTO:any;
   atrType:any;
   getATRTypeOnChange:any;
   clearAtrGridDataOnSelectionOFATRType:any;
@@ -179,9 +180,10 @@ export class ATRAssignee extends React.Component<
       onRender: (item: ITableItem) => (
         <IconButton
           iconProps={{ iconName: "Delete" }}
+          disabled={this.state.isDisabled}
           title="Delete"
           ariaLabel="Delete"
-          styles={{ root: { paddingBottom: '16px' } }}
+          styles={{ root: { paddingBottom: '16px',background:'transparent' } }}
           onClick={() => this.handleDeleteRow(item.key)} // Delete row handler
         />
       ),
@@ -263,8 +265,9 @@ export class ATRAssignee extends React.Component<
   };
 
   public _getDetailsFromPeoplePicker = (): any => {
-    // console.log("add btn triggered in ATR Assignee")
+    console.log("add btn triggered in ATR Assignee")
     // console.log(this.state.selectedValue)
+    // this.props._atrJoinedCommentsToDTO()
     if (Object.keys(this.state.selectedValue).length === 0) {
       // console.log('entered into empty value')
       this.setState({
@@ -454,6 +457,7 @@ export class ATRAssignee extends React.Component<
       <div>
         <div>
           <ChoiceGroup
+          disabled={isDisabled}
             selectedKey={selectedChoice}
             options={choiceOptions}
             onChange={this.onChoiceChange}

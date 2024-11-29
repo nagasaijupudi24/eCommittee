@@ -46,6 +46,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^3.6.0",
     "fluentui-editable-grid": "^1.12.1",
+    "html2canvas": "^1.4.1",
     "pdfjs-dist": "^3.11.174",
     "pspdfkit": "^2024.5.2",
     "react": "17.0.1",

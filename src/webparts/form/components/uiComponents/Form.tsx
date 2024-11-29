@@ -217,7 +217,7 @@ interface IMainFormState {
   autoSavedialog: boolean;
 
   isReviewerDialogHandel: boolean;
-  commentsLog:any;
+  commentsLog: any;
 }
 
 export const FormContext = React.createContext<any>(null);
@@ -376,7 +376,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       successStatus: "",
       autosave: true,
       autoSavedialog: true,
-      commentsLog:[]
+      commentsLog: [],
     };
     const listTitle = this.props.listId;
 
@@ -629,7 +629,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     return filterdata;
   };
 
-
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
       .getByTitle(this._listname)
@@ -684,9 +683,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       draftResolutionFieldValue: item.DraftResolution,
       noteSecretaryDetails: JSON.parse(item.NoteSecretaryDTO),
       commentsLog:
-      item.NoteApproverCommentsDTO !== null
-        ? this._getCommentsData(JSON.parse(item.NoteApproverCommentsDTO))
-        : [],
+        item.NoteApproverCommentsDTO !== null
+          ? this._getCommentsData(JSON.parse(item.NoteApproverCommentsDTO))
+          : [],
     });
 
     return item;
@@ -784,7 +783,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // Assuming fieldDetails is an array of items you want to add
       this.setState((prevState) => ({
         itemsFromSpList: [...prevState.itemsFromSpList, ...finalList],
-        isLoading: false,isLoadingOnForm:false
+        isLoading: false,
+        isLoadingOnForm: false,
       }));
     } catch (error) {
       console.error("Error fetching field details: ", error);
@@ -1295,27 +1295,36 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   private handleSearchTextChange = (event: any) => {
     const { value } = event.target;
+  
+    // Check if the search text field is empty and the warning state
     const isWarning = !value && this.state.isWarningSearchText;
-
+  
     this.setState({
-      searchTextFeildValue: value,
+      searchTextFeildValue: value.substring(0, 250), // Restrict to 250 characters
       isWarningSearchText: isWarning,
     });
   };
 
   private handleAmountChange = (event: any) => {
     const { value } = event.target;
-    const isWarning = !value && this.state.isWarningAmountField;
-
-    // Ensure the value is a positive number or empty
-    if (value === "" || parseFloat(value) >= 0) {
-      this.setState({
-        amountFeildValue: value,
-        isWarningAmountField: isWarning,
-      });
+  
+    // Allow only numbers and optionally a decimal point
+    const isValid = /^[0-9]*\.?[0-9]*$/.test(value);
+  
+    // If the input is valid, update the state
+    if (isValid) {
+      const isWarning = !value && this.state.isWarningAmountField;
+  
+      // Ensure the value is either empty or a positive number
+      if (value === "" || parseFloat(value) >= 0) {
+        this.setState({
+          amountFeildValue: value,
+          isWarningAmountField: isWarning,
+        });
+      }
     }
   };
-
+  
   private handlePurposeDropDown = (
     event: React.FormEvent<HTMLDivElement>,
     option?: IDropdownOption
@@ -1482,7 +1491,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             });
         }
       }
-      this.setState({ isLoadingOnForm: false, isVisibleAlter: true });
+      // this.setState({ isLoadingOnForm: false, isVisibleAlter: true });
     } catch (error) {
       console.error(`Error creating folder: ${error}`);
     }
@@ -1540,6 +1549,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(this.state.itemId)
 
       if (this.state.itemId) {
+        console.log("auto save triggered")
         await this.autoCreateSubFolder(parentFolderPath);
 
         return;
@@ -1601,8 +1611,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         // console.log(`Folder '${folderName}' created successfully in list`);/
       }
+      console.log(this._itemId)
+      this.setState({isLoadingOnForm: false})
 
-      this.setState({ isLoadingOnForm: false, isVisibleAlter: true });
+      this._itemId && this.setState({ isLoadingOnForm: false, isVisibleAlter: true });
     } catch (error) {
       // console.error(`Error creating folder: ${error}`);
     }
@@ -2495,7 +2507,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     } else {
-      conditionNumber = 9;
+      conditionNumber = 8;
 
       fieldValues = {
         committeeName: this.state.committeeNameFeildValue,
@@ -2505,6 +2517,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         noteType: this.state.noteTypeFeildValue,
 
         searchText: this.state.searchTextFeildValue,
+        purpose: this.state.puroposeFeildValue,
 
         ////
 
@@ -2531,7 +2544,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
-    // console.log(conditionNumber,"Condition Number")
+    console.log(conditionNumber,"Condition Number")
 
     const warn: any = {
       committeeName: [
@@ -2655,6 +2668,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             searchText: [this.state.searchTextFeildValue, "Search Text"],
             purpose: [this.state.puroposeFeildValue, "Purpose"],
             others: [this.state.othersFieldValue, "others"],
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
 
             noteTofiles: [
               this.state.noteTofiles,
@@ -2681,10 +2698,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Supporting Files...",
             ],
 
-            AppoverData: [
-              this.state.peoplePickerApproverData,
-              "Please select atleast one Approver to submit request",
-            ],
+           
             cummulativeErrorDisplay: [
               this.state.errorForCummulative,
               "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -2718,10 +2732,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.searchTextFeildValue,
               "Search Text",
             ],
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
             noteTofiles: [
               this.state.noteTofiles,
               "Please select Valid Pdf File",
             ],
+           
             wordDocumentfiles:
               this.state.noteSecretaryDetails.length > 0
                 ? [
@@ -2743,10 +2762,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Supporting Files...",
             ],
 
-            AppoverData: [
-              this.state.peoplePickerApproverData,
-              "Please select atleast one Approver to submit request",
-            ],
+          
             cummulativeErrorDisplay: [
               this.state.errorForCummulative,
               "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -2773,6 +2789,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           amount: [this.state.amountFeildValue, "Amount"],
           searchText: [this.state.searchTextFeildValue, "Search Text"],
           purpose: [this.state.puroposeFeildValue, "Purpose"],
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
@@ -2796,10 +2816,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select Valid Supporting Files...",
           ],
 
-          AppoverData: [
-            this.state.peoplePickerApproverData,
-            "Please select atleast one Approver to submit request",
-          ],
+         
           cummulativeErrorDisplay: [
             this.state.errorForCummulative,
             "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -2836,6 +2853,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             searchText: [this.state.searchTextFeildValue, "Search Text"],
             purpose: [this.state.puroposeFeildValue, "Purpose"],
             others: [this.state.othersFieldValue, "others"],
+            
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
 
             noteTofiles: [
               this.state.noteTofiles,
@@ -2862,10 +2884,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Supporting Files...",
             ],
 
-            AppoverData: [
-              this.state.peoplePickerApproverData,
-              "Please select atleast one Approver to submit request",
-            ],
             cummulativeErrorDisplay: [
               this.state.errorForCummulative,
               "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -2890,6 +2908,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             searchText: [this.state.searchTextFeildValue, "Search Text"],
             purpose: [this.state.puroposeFeildValue, "Purpose"],
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
 
             noteTofiles: [
               this.state.noteTofiles,
@@ -2916,10 +2938,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Supporting Files...",
             ],
 
-            AppoverData: [
-              this.state.peoplePickerApproverData,
-              "Please select atleast one Approver to submit request",
-            ],
+           
             cummulativeErrorDisplay: [
               this.state.errorForCummulative,
               "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -2942,6 +2961,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           searchText: [this.state.searchTextFeildValue, "Search Text"],
           purpose: [this.state.puroposeFeildValue, "Purpose"],
+          
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
@@ -2965,10 +2989,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select Valid Supporting Files...",
           ],
 
-          AppoverData: [
-            this.state.peoplePickerApproverData,
-            "Please select atleast one Approver to submit request",
-          ],
           cummulativeErrorDisplay: [
             this.state.errorForCummulative,
             "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -2999,6 +3019,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           amount: [this.state.amountFeildValue, "Amount"],
           searchText: [this.state.searchTextFeildValue, "Search Text"],
           purpose: [this.state.puroposeFeildValue, "Purpose"],
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
@@ -3022,10 +3046,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select Valid Supporting Files...",
           ],
 
-          AppoverData: [
-            this.state.peoplePickerApproverData,
-            "Please select atleast one Approver to submit request",
-          ],
+        
           cummulativeErrorDisplay: [
             this.state.errorForCummulative,
             "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3048,6 +3069,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           amount: [this.state.amountFeildValue, "Amount"],
           searchText: [this.state.searchTextFeildValue, "Search Text"],
           purpose: [this.state.puroposeFeildValue, "Purpose"],
+          
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
@@ -3071,10 +3097,6 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select Valid Supporting Files...",
           ],
 
-          AppoverData: [
-            this.state.peoplePickerApproverData,
-            "Please select atleast one Approver to submit request",
-          ],
           cummulativeErrorDisplay: [
             this.state.errorForCummulative,
             "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3101,6 +3123,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           searchText: [this.state.searchTextFeildValue, "Search Text"],
           purpose: [this.state.puroposeFeildValue, "Purpose"],
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
@@ -3124,10 +3150,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select Valid Supporting Files...",
           ],
 
-          AppoverData: [
-            this.state.peoplePickerApproverData,
-            "Please select atleast one Approver to submit request",
-          ],
+       
           cummulativeErrorDisplay: [
             this.state.errorForCummulative,
             "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3146,6 +3169,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           searchText: [this.state.searchTextFeildValue, "Search Text"],
           purpose: [this.state.puroposeFeildValue, "Purpose"],
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
@@ -3169,10 +3196,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select Valid Supporting Files...",
           ],
 
-          AppoverData: [
-            this.state.peoplePickerApproverData,
-            "Please select atleast one Approver to submit request",
-          ],
+        
           cummulativeErrorDisplay: [
             this.state.errorForCummulative,
             "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3207,6 +3231,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             searchText: [this.state.searchTextFeildValue, "Search Text"],
             purpose: [this.state.puroposeFeildValue, "Purpose"],
             others: [this.state.othersFieldValue, "others"],
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
 
             ////
 
@@ -3235,10 +3263,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Supporting Files...",
             ],
 
-            AppoverData: [
-              this.state.peoplePickerApproverData,
-              "Please select atleast one Approver to submit request",
-            ],
+           
             cummulativeErrorDisplay: [
               this.state.errorForCummulative,
               "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3263,6 +3288,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
             searchText: [this.state.searchTextFeildValue, "Search Text"],
             purpose: [this.state.puroposeFeildValue, "Purpose"],
+            AppoverData: [
+              this.state.peoplePickerApproverData,
+              "Please select atleast one Approver to submit request",
+            ],
 
             ////
             noteTofiles: [
@@ -3290,10 +3319,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Supporting Files...",
             ],
 
-            AppoverData: [
-              this.state.peoplePickerApproverData,
-              "Please select atleast one Approver to submit request",
-            ],
+           
             cummulativeErrorDisplay: [
               this.state.errorForCummulative,
               "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3316,8 +3342,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           searchText: [this.state.searchTextFeildValue, "Search Text"],
           purpose: [this.state.puroposeFeildValue, "Purpose"],
+          AppoverData: [
+            this.state.peoplePickerApproverData,
+            "Please select atleast one Approver to submit request",
+          ],
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
+          
           wordDocumentfiles:
             this.state.noteSecretaryDetails.length > 0
               ? [
@@ -3339,10 +3370,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             "Please select Valid Supporting Files...",
           ],
 
-          AppoverData: [
-            this.state.peoplePickerApproverData,
-            "Please select atleast one Approver to submit request",
-          ],
+        
           cummulativeErrorDisplay: [
             this.state.errorForCummulative,
             "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3367,6 +3395,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         ],
         amount: [this.state.amountFeildValue, "Amount"],
         searchText: [this.state.searchTextFeildValue, "Search Text"],
+        AppoverData: [
+          this.state.peoplePickerApproverData,
+          "Please select atleast one Approver to submit request",
+        ],
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         wordDocumentfiles:
@@ -3390,10 +3422,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           "Please select Valid Supporting Files...",
         ],
 
-        AppoverData: [
-          this.state.peoplePickerApproverData,
-          "Please select atleast one Approver to submit request",
-        ],
+       
         cummulativeErrorDisplay: [
           this.state.errorForCummulative,
           "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3413,6 +3442,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         noteType: [this.state.noteTypeFeildValue, "Note Type"],
 
         searchText: [this.state.searchTextFeildValue, "Search Text"],
+        AppoverData: [
+          this.state.peoplePickerApproverData,
+          "Please select atleast one Approver to submit request",
+        ],
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         wordDocumentfiles:
@@ -3436,10 +3469,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           "Please select Valid Supporting Files...",
         ],
 
-        AppoverData: [
-          this.state.peoplePickerApproverData,
-          "Please select atleast one Approver to submit request",
-        ],
+       
         cummulativeErrorDisplay: [
           this.state.errorForCummulative,
           "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3460,6 +3490,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         searchText: [this.state.searchTextFeildValue, "Search Text"],
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
+        purpose: [this.state.puroposeFeildValue, "Purpose"],
+        AppoverData: [
+          this.state.peoplePickerApproverData,
+          "Please select atleast one Approver to submit request",
+        ],
         wordDocumentfiles:
           this.state.noteSecretaryDetails.length > 0
             ? [
@@ -3481,10 +3516,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           "Please select Valid Supporting Files...",
         ],
 
-        AppoverData: [
-          this.state.peoplePickerApproverData,
-          "Please select atleast one Approver to submit request",
-        ],
+       
         cummulativeErrorDisplay: [
           this.state.errorForCummulative,
           "Cumulative size of all the supporting documents should not exceed 25 MB.",
@@ -3499,7 +3531,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   fieldValues,
     //   "Dialog FieldValues........................................"
     // );
-    // console.log(conditionNumArray,"condition Num Array")
+    console.log(conditionNumArray,"condition Num Array")
   };
 
   private handleSubmit = async (
@@ -3518,8 +3550,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       } else {
         // Create new item
         console.log("save as draft triggered");
-
-        this.setState({
+        console.log(this._itemId)
+        this._itemId && this.setState({
           isLoadingOnForm: true,
         });
         const response = await this.props.sp.web.lists
@@ -3549,7 +3581,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.statusNumber === "200" ||
           this.state.statusNumber === "5000"
         ) {
-          console.log("Draft , Returned Submission")
+          console.log("Draft , Returned Submission");
           this.setState({
             isLoadingOnForm: true,
             isConfirmationDialogVisible: false,
@@ -3557,7 +3589,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           await this.handleUpdate();
         } else if (statusOfForm === "update") {
           // console.log("entered into updatee else if block");
-          console.log('update submission')
+          console.log("update submission");
           await this.handleUpdate();
         } else {
           this.setState({
@@ -3899,7 +3931,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // console.log(puroposeFeildValue, "-----------puroposeFeildValue");
 
     try {
-      this.setState({ isConfirmationDialogVisible: false , isLoadingOnForm: true});
+      this.setState({
+        isConfirmationDialogVisible: false,
+        isLoadingOnForm: true,
+      });
       // this.setState({ status: "Updated", statusNumber: "1000" });
 
       // Update SharePoint item
@@ -3909,11 +3944,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // );
 
       this._itemId
-        ? await this.props.sp.web.lists
+        ? (this.state.successStatus === "submitted"?
+
+          await this.props.sp.web.lists
+          .getByTitle(this._listname)
+          .items.getById(this._itemId)
+          .update(await this.getObject("Submitted", "1000")):
+          await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.getById(this._itemId)
-            .update(await this.getObject("Submitted", "1000"))
-        : this.state.successStatus === "submitted"
+            .update(await this.getObject("Draft", "100"))
+         )
+        : (this.state.successStatus === "submitted"
         ? await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.getById(this.state.itemId)
@@ -3921,7 +3963,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         : await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.getById(this.state.itemId)
-            .update(await this.getObject("Draft", "100"));
+            .update(await this.getObject("Draft", "100")));
 
       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
       // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
@@ -3944,7 +3986,11 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         ));
 
       // console.log(itemToUpdate, "item updated");
-      this.setState({ isConfirmationDialogVisible: false , isLoadingOnForm: false, isVisibleAlter: true});
+      this.setState({
+        isConfirmationDialogVisible: false,
+        isLoadingOnForm: false,
+        isVisibleAlter: true,
+      });
 
       // if (showAlert) {
       //   this.setState({ isVisibleAlter: true });
@@ -3971,35 +4017,44 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       // console.log("Fetched items from Departments:", items);
 
-      // Step 2: Find the department entry where the Title or Department contains "Development"
-      const specificDepartment = items.find(
-        (each: any) =>
-          each.Department.includes("Development") ||
-          each.Title?.includes("Development")
-      );
+      // let deparement = '';
 
-      if (specificDepartment) {
-        const departmentAlias = specificDepartment.DepartmentAlias;
-        // console.log(
-        //   "Department alias for department with 'Development' in title:",
-        //   departmentAlias
-        // );
+      const profile = await this.props.sp.profiles.myProperties();
 
-        // Step 3: Update state with the department alias
-        this.setState(
-          {
-            departmentAlias: departmentAlias, // Store the department alias
-          },
-          () => {
+      // this._userName = profile.DisplayName;
+      // this._role = profile.Title;
+
+      profile.UserProfileProperties.filter((element: any) => {
+        if (element.Key === "Department") {
+          // department: element.Value
+
+          const specificDepartment = items.find(
+            (each: any) =>
+              each.Department.includes(element.Value) ||
+              each.Title?.includes(element.Value)
+          );
+    
+          if (specificDepartment) {
+            const departmentAlias = specificDepartment.DepartmentAlias;
             // console.log(
-            //   "Updated state with department alias:",
-            //   this.state.departmentAlias
+            //   "Department alias for department with 'Development' in title:",
+            //   departmentAlias
             // );
+    
+            // Step 3: Update state with the department alias
+            this.setState(
+              {
+                departmentAlias: departmentAlias, // Store the department alias
+              },
+              
+            );
           }
-        );
-      } else {
-        // console.log("No department found with 'Development' in title.");
-      }
+        }
+      });
+
+
+      // Step 2: Find the department entry where the Title or Department contains "Development"
+      
     } catch (error) {
       // console.error("Error fetching department alias: ", error);
     }
@@ -4265,7 +4320,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     statusFromEvent: string,
     statusNumber: string
   ) => {
-    this.setState({showCancelDialog:false,isLoadingOnForm:true})
+    this.setState({ showCancelDialog: false, isLoadingOnForm: true });
     try {
       const updateAuditTrail = await this._getAuditTrail(statusFromEvent);
       // console.log(updateAuditTrail);
@@ -4297,8 +4352,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public _closeDialogAlter = () => {
-    const pageURL: string =this.props.existPageUrl;
-          window.location.href = `${pageURL}`;
+    const pageURL: string = this.props.existPageUrl;
+    window.location.href = `${pageURL}`;
     this.setState({ isVisibleAlter: false });
   };
 
@@ -4428,7 +4483,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    console.log(this.state);
+    // console.log(this.state);
 
     //   }
     // console.log(this._committeeType)
@@ -4472,27 +4527,29 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // <PageLoader/>
           <div>
             <Modal
-            isOpen={this.state.isLoading}
-
-             containerClassName={styles.spinnerModalTranparency}
-             styles={{
-              main: {
-                background: 'transparent', // Removes background color
-                boxShadow: 'none', // Removes box shadow
-              },
-            }}
-          >
-            <div className="spinner" >
-              <Spinner
-                label="still loading..."
-                ariaLive="assertive"
-                size={SpinnerSize.large}
-              />
-            </div>
-          </Modal>
-
+              isOpen={this.state.isLoading}
+              containerClassName={styles.spinnerModalTranparency}
+              styles={{
+              
+                  main: {
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "transparent", // Removes background color
+                    boxShadow: "none", // Removes box shadow
+                  }, // Removes box shadow
+                
+              }}
+            >
+              <div className="spinner">
+                <Spinner
+                  label="still loading..."
+                  ariaLive="assertive"
+                  size={SpinnerSize.large}
+                />
+              </div>
+            </Modal>
           </div>
-          
         ) : (
           // </Stack>
           <div className={styles.form}>
@@ -4511,27 +4568,30 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             />
 
             {this.state.isLoadingOnForm && (
-                <div>
+              <div>
                 <Modal
-                isOpen={this.state.isLoadingOnForm}
-    
-                 containerClassName={styles.spinnerModalTranparency}
-                 styles={{
-                  main: {
-                    background: 'transparent', // Removes background color
-                    boxShadow: 'none', // Removes box shadow
-                  },
+                  isOpen={this.state.isLoadingOnForm}
+                  containerClassName={styles.spinnerModalTranparency}
+                  styles={{
+              
+                    main: {
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "transparent", // Removes background color
+                      boxShadow: "none", // Removes box shadow
+                    }, // Removes box shadow
+                  
                 }}
-              >
-                <div className="spinner" >
-                  <Spinner
-                    label="still loading..."
-                    ariaLive="assertive"
-                    size={SpinnerSize.large}
-                  />
-                </div>
-              </Modal>
-    
+                >
+                  <div className="spinner">
+                    <Spinner
+                      label="still loading..."
+                      ariaLive="assertive"
+                      size={SpinnerSize.large}
+                    />
+                  </div>
+                </Modal>
               </div>
             )}
             {/* <Header /> */}
@@ -4663,7 +4723,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     dropdown: {
                       // width: 300,
                       borderRadius: "2px",
-                      fontSize: "16px",
+                      // fontSize: "16px",
                       // fontFamily: 'Poppins',
                       border:
                         this.state.committeeNameFeildValue === "" &&
@@ -4680,7 +4740,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
               <div
                 className={styles.halfWidth}
-                style={{ margin: "4px", marginTop: "25px" }}
+                style={{ margin: "4px", marginTop: "10px" }}
               >
                 <label
                   style={{
@@ -4698,7 +4758,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     paddingLeft: "12px",
                     paddingTop: "5px",
                     borderRadius: "2px",
-                    height: "31px",
+                    height: "32px",
+                    marginTop: "9px",
                     boxSizing: "border-box",
                     width: "100%",
                     border:
@@ -4709,13 +4770,25 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   }}
                   value={this.state.subjectFeildValue}
                   onChange={this.handleSubjectChange}
+                  maxLength={250}
                 ></textarea>
+                 <div
+    style={{
+      textAlign: "right",
+      fontSize: "12px",
+      marginTop: "5px",
+      fontStyle: "italic",
+      color: this.state.subjectFeildValue.length === 250 ? "red" : "gray",
+    }}
+  >
+    {this.state.subjectFeildValue.length}/250
+  </div>
               </div>
               {/* Nature of Note Sub Section */}
 
               <div
                 className={styles.halfWidth}
-                style={{ margin: "4px", marginTop: "18px" }}
+                style={{ margin: "4px", marginTop: "10px" }}
               >
                 <Dropdown
                   placeholder="Select nature of note"
@@ -4735,7 +4808,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   styles={{
                     dropdown: {
                       borderRadius: "2px",
-                      fontSize: "16px",
+                      // fontSize: "16px",
                       // fontFamily: 'Poppins',
                       border:
                         this.state.natureOfNoteFeildValue === "" &&
@@ -4745,6 +4818,17 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     },
                   }}
                 />
+
+{/* <div
+    style={{
+      textAlign: "right",
+      fontSize: "12px",
+      marginTop: "5px",
+      color: this.state.subjectFeildValue.length === 250 ? "red" : "gray",
+    }}
+  >
+    <p>{" "}</p>
+  </div> */}
               </div>
 
               {/* Nature of Approval/Sanction Sub Section */}
@@ -4752,7 +4836,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.natureOfNoteFeildValue === "Sanction" ? (
                 <div
                   className={styles.halfWidth}
-                  style={{ margin: "4px", marginTop: "18px" }}
+                  style={{ margin: "4px", marginTop: "10px" }}
                 >
                   <Dropdown
                     placeholder="Select an approval or sanction type"
@@ -4779,7 +4863,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                             ? "1px solid red"
                             : "1px solid transparent",
                         borderRadius: "2px",
-                        fontSize: "16px",
+                        // fontSize: "16px",
                         // fontFamily: 'Poppins',
                       },
                     }}
@@ -4791,7 +4875,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               {/*  Note Type Sub Section */}
               <div
                 className={styles.halfWidth}
-                style={{ margin: "4px", marginTop: "18px" }}
+                style={{ margin: "4px", marginTop: "10px" }}
               >
                 <Dropdown
                   placeholder="Select a note type"
@@ -4815,7 +4899,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                           ? "1px solid red"
                           : "1px solid transparent",
                       borderRadius: "2px",
-                      fontSize: "16px",
+                      // fontSize: "16px",
                       // fontFamily: 'Poppins',
                     },
                   }}
@@ -4825,7 +4909,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
-                  style={{ margin: "4px", marginTop: "18px" }}
+                  style={{ margin: "4px", marginTop: "10px" }}
                 >
                   <Dropdown
                     placeholder="Select a financial note"
@@ -4860,7 +4944,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
               <div
                 className={styles.halfWidth}
-                style={{ margin: "4px", marginTop: "18px" }}
+                style={{ margin: "4px", marginTop: "10px" }}
               >
                 <label
                   style={{
@@ -4873,7 +4957,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 <textarea
-                 className={styles.textAreaWithOutline}
+                  className={styles.textAreaWithOutline}
                   style={{
                     display: "block",
                     borderRadius: "2px",
@@ -4892,14 +4976,26 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   rows={!this.state.searchTextFeildValue ? 3 : 1} // Adjust rows based on warning state
                   value={this.state.searchTextFeildValue}
                   onChange={this.handleSearchTextChange}
+                  maxLength={250} // Enforce max character limit
                 />
+                 <div
+    style={{
+      textAlign: "right",
+      fontSize: "12px",
+      marginTop: "5px",
+      fontStyle: "italic",
+      color: this.state.searchTextFeildValue.length === 250 ? "red" : "gray",
+    }}
+  >
+    {this.state.searchTextFeildValue.length}/250
+  </div>
               </div>
 
               {/* Amount Sub Section */}
               {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
-                  style={{ margin: "4px", marginTop: "18px" }}
+                  style={{ margin: "4px", marginTop: "10px" }}
                 >
                   <label
                     style={{
@@ -4943,7 +5039,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   this.state.natureOfNoteFeildValue === "Approval" ? (
                     <div
                       className={styles.halfWidth}
-                      style={{ margin: "4px", marginTop: "18px" }}
+                      style={{ margin: "4px", marginTop: "10px" }}
                     >
                       <label
                         style={{
@@ -4966,11 +5062,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         styles={{
                           dropdown: {
                             borderRadius: "2px",
-                            marginTop: "8px",
+                            // marginTop: "8px",
 
-                            fontSize: "16px",
+                            // fontSize: "16px",
+                            height:'32px',
 
-                            border: `1px solid ${
+                            border: `2px solid ${
                               !this.state.puroposeFeildValue &&
                               this.state.isWarningPurposeField
                                 ? "red"
@@ -4983,7 +5080,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   ) : (
                     <div
                       className={styles.halfWidth}
-                      style={{ margin: "4px", marginTop: "18px" }}
+                      style={{ margin: "4px", marginTop: "10px" }}
                     >
                       <label
                         style={{
@@ -5012,9 +5109,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                                 : "transparent"
                             }`,
                             borderRadius: "2px",
-                            marginTop: "8px",
+                            // marginTop: "8px",
 
-                            fontSize: "16px",
+                            // fontSize: "16px",
                           },
                         }}
                       />
@@ -5023,7 +5120,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 ) : (
                   <div
                     className={styles.halfWidth}
-                    style={{ margin: "4px", marginTop: "18px" }}
+                    style={{ margin: "4px", marginTop: "10px" }}
                   >
                     <label
                       style={{
@@ -5036,7 +5133,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       <SpanComponent />
                     </label>
                     <textarea
-                     className={styles.textAreaWithOutline}
+                      className={styles.textAreaWithOutline}
                       style={{
                         display: "block",
                         paddingLeft: "12px",
@@ -5068,14 +5165,14 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               this.state.puroposeFeildValue === "Others" ? (
                 <div
                   className={styles.halfWidth}
-                  style={{ margin: "4px", marginTop: "18px" }}
+                  style={{ margin: "4px", marginTop: "10px" }}
                 >
                   <label style={{ fontWeight: "600" }}>
                     Others
                     <SpanComponent />
                   </label>
                   <textarea
-                   className={styles.textAreaWithOutline}
+                    className={styles.textAreaWithOutline}
                     style={{
                       borderRadius: "2px",
                       display: "block",
@@ -5242,27 +5339,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               </div>
             )}
 
+            {/*  Comments Section */}
 
-              {/*  Comments Section */}
-
-              {this.state.statusNumber === '5000' &&<div
-              className={`${styles.generalSectionMainContainer}`}
-              style={{ flexGrow: 1, margin: "10 10px" }}
-            >
-              <h1 className={styles.viewFormHeaderSectionContainer}>
-                Comments
-              </h1>
-            </div>}
-            {this.state.statusNumber === '5000' &&  <div className={`${styles.tableContainer}`}>
-                          <CommentsLogTable
-                            data={this.state.commentsLog} //have change data valu
-                            type="commentsLog"
-                            formType = {this._formType}
-                          />
-                        </div>}
-              
-          
-          
+            {this.state.statusNumber === "5000" && (
+              <div
+                className={`${styles.generalSectionMainContainer}`}
+                style={{ flexGrow: 1, margin: "10 10px" }}
+              >
+                <h1 className={styles.viewFormHeaderSectionContainer}>
+                  Comments
+                </h1>
+              </div>
+            )}
+            {this.state.statusNumber === "5000" && (
+              <div className={`${styles.tableContainer}`}>
+                <CommentsLogTable
+                  data={this.state.commentsLog} //have change data valu
+                  type="commentsLog"
+                  formType="new"
+                />
+              </div>
+            )}
 
             {/*  File Attachments Section */}
             <div
@@ -5492,9 +5589,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       gap: "5px",
                     }}
                   >
-                    {this._itemId && this.state.status !== "Returned" ? (
+                    {this._itemId  ? (
                       !(
-                        this.state.statusNumber === "100" ||
+                        
                         this.state.statusNumber === "1000" ||
                         this.state.statusNumber === "5000" ||
                         this.state.statusNumber === "200"

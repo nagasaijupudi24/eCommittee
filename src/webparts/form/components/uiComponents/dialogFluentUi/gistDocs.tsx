@@ -68,7 +68,7 @@ const GistDocSubmitted: React.FC<{ isVisibleAlter: boolean; onCloseAlter: () => 
         <IconButton iconProps={{ iconName: 'Cancel' }} onClick={onCloseAlter} />
       </div>
       <div className={styles.body}>
-        <p>The request has been updated Successfully</p>
+        <p>The request has been updated successfully</p>
       </div>
       <div className={styles.footer}>
         <PrimaryButton iconProps={{ iconName: 'ReplyMirrored' }} onClick={()=>{

@@ -17,6 +17,7 @@ import { Icon } from '@fluentui/react';
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
+ 
 
   const { pdfPath, noteNumber } = props;
   const pdfViewerRef = useRef<HTMLDivElement>(null);
@@ -121,6 +122,7 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
     for (let pageNum = 1; pageNum <= numPages; pageNum++) {
       await renderPage(pageNum); // Await each page render
     }
+    setCurrentPage(currentPage); 
   };
 
   const handleNextPage = () => {
@@ -128,9 +130,9 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
       const nextPage = Math.min(prevPage + 1, numPages);
       if (pdfViewerRef.current) {
         const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
-        const nextPageTop = pageHeight * (nextPage - 1) * zoomLevel; // Adjust scroll position
+        const nextPageTop = pageHeight * (nextPage - 1); // Adjust scroll position without zoom level
         pdfViewerRef.current.scrollTo({
-          top: nextPageTop,
+          top: nextPageTop * zoomLevel, // Apply zoom level here
           behavior: 'smooth',
         });
       }
@@ -143,9 +145,9 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
       const newPage = Math.max(prevPage - 1, 1); // Calculate the new page number
       if (pdfViewerRef.current) {
         const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
-        const prevPageTop = pageHeight * (newPage - 1) * zoomLevel; // Adjust scroll position
+        const prevPageTop = pageHeight * (newPage - 1); // Adjust scroll position without zoom level
         pdfViewerRef.current.scrollTo({
-          top: prevPageTop,
+          top: prevPageTop * zoomLevel, // Apply zoom level here
           behavior: 'smooth',
         });
       }
@@ -164,32 +166,39 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
   };
 
   const handlePrint = async () => {
-    const containerRef: React.RefObject<HTMLDivElement> = React.createRef() ;
-    const pdfContainer = containerRef.current;
-    if (!pdfContainer) return;
+    console.log('Print triggered');
+    
+   
+    if (!pdfDocument) return;
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
-    const canvases = Array.from(pdfContainer.querySelectorAll('canvas[data-page-number]')) as HTMLCanvasElement[];
-    let printContent = '<html><head><title>Print PDF</title>';
-    printContent += '<style>@media print { canvas { page-break-after: always; } }</style>';
-    printContent += '</head><body>';
+    const printContent = document.createElement('div');
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      await renderPage(pageNum);
+      const imgSrc = renderedPages.get(pageNum);
+      if (imgSrc) {
+        const img = new Image();
+        img.src = imgSrc;
+        img.style.width = '100%';
+        printContent.appendChild(img);
+        printContent.appendChild(document.createElement('br'));
+      }
+    }
 
-    canvases.forEach(canvas => {
-      const imgData = canvas.toDataURL("image/png");
-      printContent += `<img src="${imgData}" style="width: 100%; height: auto;" />`;
-    });
-
-    printContent += '</body></html>';
-    printWindow.document.write(printContent);
+    printWindow.document.write('<html><head><title>Print PDF</title></head><body></body></html>');
+    printWindow.document.body.appendChild(printContent);
     printWindow.document.close();
 
     printWindow.onload = () => {
       printWindow.print();
       printWindow.close();
     };
-  };
+
+
+};
+
 
   // Zoom Levels
   const zoomLevels = [
@@ -207,17 +216,30 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
   ];
 
   // Modify handleZoomChange to handle different zoom levels
-  const handleZoomChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newZoomLevel = parseFloat(event.target.value);
-    console.log(newZoomLevel)
-    setZoomLevel(newZoomLevel);
+  
+// Ensure current page is set correctly when zoom changes
+const handleZoomChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const newZoomLevel = parseFloat(event.target.value);
+  console.log(newZoomLevel);
+  setZoomLevel(newZoomLevel);
 
-    // Reset rendered pages to re-render with new zoom level
-    setRenderedPages(new Map());
-    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-      await renderPage(pageNum);
-    }
-  };
+  // Reset rendered pages to re-render with new zoom level
+  setRenderedPages(new Map());
+  for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+    await renderPage(pageNum);
+  }
+  
+  // Adjust scroll position based on the current page and new zoom level
+  if (pdfViewerRef.current) {
+    const pageHeight = pdfViewerRef.current.scrollHeight / numPages;
+    const currentPageTop = pageHeight * (currentPage - 1); // Adjust scroll position without zoom level
+    pdfViewerRef.current.scrollTo({
+      top: currentPageTop * newZoomLevel, // Apply new zoom level here
+      behavior: 'smooth',
+    });
+  }
+  
+};
 
 
   
@@ -279,6 +301,8 @@ const PDFViewer: React.FC<{ pdfPath: string; noteNumber: any }> = (props) => {
 };
 
 export default PDFViewer;
+
+
 
 
 

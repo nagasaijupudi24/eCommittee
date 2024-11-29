@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as React from "react";
-import { DetailsList, IColumn, Link, SelectionMode } from '@fluentui/react';
+import { DetailsList, IColumn, SelectionMode } from '@fluentui/react';
+import styles from "../../Form.module.scss";
 
 const FileAttachmentTable = (props: any) => {
   const gridData = props.data;
@@ -15,13 +16,15 @@ const FileAttachmentTable = (props: any) => {
       minWidth: 250,
       maxWidth: 300, // Set max width for Document Link
       onRender: (item: any) => (
-        <Link 
-        href={item.fileUrl} 
-        target="_blank" 
-        rel="noopener noreferrer"
-      >
-        {item.name}
-      </Link>
+        <a 
+  href={item.name.toLowerCase().endsWith('.pdf') ? item.fileUrl : item.LinkingUri} 
+  target="_blank" 
+  rel="noopener noreferrer"
+  data-interception="off"
+  className={styles.notePdfCustom}
+>
+  {item.name}
+</a>
       ),
     },
     {

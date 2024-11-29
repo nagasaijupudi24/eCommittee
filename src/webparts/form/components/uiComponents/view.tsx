@@ -8,7 +8,7 @@
 /* eslint-disable no-void */
 import * as React from "react";
 import { IViewFormProps } from "../IViewFormProps"; // Ensure this file exists
-import { IDropdownOption, Link, Modal, Stack } from "office-ui-fabric-react";
+import { IDropdownOption, Modal, Stack } from "office-ui-fabric-react";
 import {
   IconButton,
   Text,
@@ -70,6 +70,7 @@ export interface IViewFormState {
   expandSections: { [key: string]: boolean };
   pdfLink: string;
   isLoading: boolean;
+  isDataLoading: boolean;
   department: string;
   departmentAlias: string;
   noteTypeValue?: IDropdownOption;
@@ -260,7 +261,8 @@ export default class ViewForm extends React.Component<
     super(props);
     this.state = {
       title: "",
-      isLoading: true,
+      isLoading: false,
+      isDataLoading: true,
       department: "",
       departmentAlias: "",
       isNoteType: false,
@@ -857,6 +859,26 @@ export default class ViewForm extends React.Component<
     return filterdata;
   };
 
+
+  private _getATRGridData= (data:any)=>{
+    const newATRGridData = JSON.parse(data).map(
+      (each:any)=>{
+        console.log(each)
+        return {
+          comments:each.noteApproverComments,
+          assignedTo:each.atrAssigneeEmailName,
+          status:'Submitted',
+
+
+
+        }
+      }
+    )
+    console.log(newATRGridData,"newATRGridData")
+    return newATRGridData
+
+  }
+
   private _getItemData = async (id: any, folderPath: any) => {
     const item: any = await this.props.sp.web.lists
       .getByTitle(this._listname)
@@ -883,7 +905,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    // console.log(`${id} ------Details`, item);
+    console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -952,7 +974,7 @@ export default class ViewForm extends React.Component<
             },
             item.Amount !== null && {
               column1: "Amount",
-              column2: `${item.Amount}`,
+              column2:  `₹ ${item.Amount}`,
             },
             purposeData[0] !== "" && {
               column1: "Purpose",
@@ -1006,7 +1028,7 @@ export default class ViewForm extends React.Component<
         "Approver"
       ),
       auditTrail: JSON.parse(item.AuditTrail),
-      isLoading: false,
+      isDataLoading: false,
       createdByEmail: item.Author.EMail,
       createdByEmailName: item.Author.Title,
       createdByID: item.AuthorId,
@@ -1070,6 +1092,7 @@ export default class ViewForm extends React.Component<
         item.NoteATRAssigneeDTO !== null
           ? JSON.parse(item.NoteATRAssigneeDTO)
           : [],
+          atrGridData:this._getATRGridData(item.NoteATRAssigneeDTO),
       noteMarkedInfoDTOState:
         item.NoteMarkedInfoDTO !== null
           ? await this._getdataofMarkedInfo(
@@ -1245,11 +1268,12 @@ export default class ViewForm extends React.Component<
     };
 
     const result = formatDateTime(data.TimeCreated);
-
+    console.log(data)
     const filesObj = {
       name: data.Name,
       content: data,
       index: 0,
+      LinkingUri:data.LinkingUri || data.LinkingUrl,
       fileUrl: tenantUrl + data.ServerRelativeUrl,
       ServerRelativeUrl: "",
       isExists: true,
@@ -1344,7 +1368,7 @@ export default class ViewForm extends React.Component<
         tempFilesGistDocument.push(this._getFileObj(values));
       });
       // console.log(tempFilesGistDocument);
-      this.setState({ secretaryGistDocsList: tempFilesGistDocument });
+      this.setState({ secretaryGistDocsList: tempFilesGistDocument ,secretaryGistDocs:tempFilesGistDocument});
     } catch {
       // console.log("failed to fetch");
     }
@@ -1407,7 +1431,7 @@ export default class ViewForm extends React.Component<
     // const { pdfLink } = this.state;
     return (
       <div style={{ width: "100%" }}>
-                <PDFViewer pdfPath={this.state.pdfLink} noteNumber={this.state.title}  />
+        <PDFViewer pdfPath={this.state.pdfLink} noteNumber={this.state.title} />
 
         {/* <PDFViewer pdfLink={this.state.pdfLink} noteNumber={this.state.title} itemId={this._itemId} /> */}
       </div>
@@ -1634,6 +1658,9 @@ export default class ViewForm extends React.Component<
       text: this.state.createdByEmailName,
     };
     console.log(assigneeDetails);
+    this._atrJoinedCommentsToDTO()
+
+    
 
     const defaultNoteATRAssigneeDetails = [
       {
@@ -1646,9 +1673,11 @@ export default class ViewForm extends React.Component<
         approverEmailName: this.state.currentApprover[0].text,
         atrCreatorEmailName: currentAtrCreator[0].atrCreatorEmailName,
 
-        createdDate: new Date(),
+        createdDate:
+          new Date().toDateString() + " " + new Date().toLocaleTimeString(),
         createdBy: this.props.context.pageContext.user.email,
-        modifiedDate: new Date(),
+        modifiedDate:
+          new Date().toDateString() + " " + new Date().toLocaleTimeString(),
         modifiedBy: this.props.context.pageContext.user.email,
         statusMessage: null,
         atrId: "",
@@ -1657,10 +1686,11 @@ export default class ViewForm extends React.Component<
         approverOrder: this.state.currentApprover[0].approverOrder,
         approverStatus: 1,
         approverEmail: this.state.currentApprover[0].approverEmail,
-        noteApproverComments: "T",
+        noteApproverComments: this._atrJoinedCommentsToDTO(),
         strATRStatus: "Submitted",
         atrStatus: 1,
         noteId: this._itemId,
+      
       },
     ];
     this.setState({
@@ -1737,6 +1767,7 @@ export default class ViewForm extends React.Component<
           NoteApproversDTO: JSON.stringify(this.state.ApproverDetails),
           startProcessing: true,
           ATRType: this.state.atrType,
+         
         });
         // console.log(itemAddResult);
         // console.log(`Item added with ID: ${itemAddResult.Id}`);
@@ -1783,6 +1814,7 @@ export default class ViewForm extends React.Component<
         NoteID: `${this._itemId}`,
         CurrentApproverId: this.state.createdByID,
         NoteType: this._committeeTypeForATR,
+        
         CommitteeName: this.state.committeeNameFeildValue,
         NoteApproversDTO: JSON.stringify(this.state.ApproverDetails),
         startProcessing: true,
@@ -1809,6 +1841,8 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+    this._closeDialog();
+    this.setState({ isLoading: true });
     let previousApprover: any;
     // console.log(await this._defaultUserAsATR())
     const modifyApproveDetails = this.state.ApproverDetails.map(
@@ -1893,8 +1927,15 @@ export default class ViewForm extends React.Component<
         ? null
         : currentApproverDetail.id;
 
-        this._closeDialog();
-        this.setState({isLoading:true})
+    this._closeDialog();
+    this.setState({ isLoading: true });
+
+    const updateNoteATRAssigneeDTO = this.state.noteATRAssigneeDetails.map(
+      (each:any) =>{
+        return {...each,noteApproverComments:this._atrJoinedCommentsToDTO()}
+
+      }
+    )
 
     try {
       const updateAuditTrial = await this._getAuditTrail(
@@ -1919,9 +1960,9 @@ export default class ViewForm extends React.Component<
 
         NoteATRAssigneeDTO: this._checkCurrentUserIsAATRAssignee()
           ? this.state.atrGridData.length > 0
-            ? JSON.stringify(this.state.noteATRAssigneeDetails)
+            ? JSON.stringify(updateNoteATRAssigneeDTO)
             : JSON.stringify(await this._updateDefaultNoteATRAssigneeDetails())
-          : JSON.stringify(this.state.noteATRAssigneeDetails),
+          : JSON.stringify(updateNoteATRAssigneeDTO),
 
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
         startProcessing: true,
@@ -1957,9 +1998,8 @@ export default class ViewForm extends React.Component<
 
         // console.log(itemToUpdateStatusToApproved);
       }
-    
 
-      this.setState({isLoading:false, isVisibleAlter: true });
+      this.setState({ isLoading: false, isVisibleAlter: true });
     } catch (error) {
       console.error("Error in _handleApproverButton:", error);
     }
@@ -1987,7 +2027,9 @@ export default class ViewForm extends React.Component<
   //   );
   // };
 
-  private _checkingCurrentUserInSecretaryDTO = (): any => {
+  private _checkingCurrentUserInSecretaryDTO = 
+  
+  (): any => {
     // const currrentUserSect = this.state.noteSecretaryDetails.filter((each: any) => {
     //   console.log(each);
     //   // console.log(this._currentUserEmail);
@@ -2006,8 +2048,13 @@ export default class ViewForm extends React.Component<
 
     // const currentUserIsAnSec =currrentUserSect.length>0 && currrentUserSect.some((each:any)=>each.secretaryEmail ===this._currentUserEmail)
     // console.log(currentUserIsAnSec,"currentUserIsAnSec")
-    const checkCurrentUserIsAnApprover = this.state.ApproverDetails.filter((each:any)=>((each.secretaryEmail) && each.approverType === "Approver"))
-    // console.log(checkCurrentUserIsAnApprover,"checkCurrentUserIsAnApprover having Secretary")
+    const checkCurrentUserIsAnApprover = this.state.ApproverDetails.filter(
+      (each: any) => each.secretaryEmail && each.approverType === "Approver"
+    );
+    // console.log(
+    //   checkCurrentUserIsAnApprover,
+    //   "checkCurrentUserIsAnApprover having Secretary"
+    // );
 
     // const currentUserHavingSecratoryAndHeIsAnApprover = checkCurrentUserIsAnApprover.some((each:any)=>each.approverEmail===this._currentUserEmail)
     // console.log(currentUserHavingSecratoryAndHeIsAnApprover,"currentUserHavingSecratoryAndHeIsAnApprover")
@@ -2017,7 +2064,59 @@ export default class ViewForm extends React.Component<
     //   this.state.currentApprover?.[0]?.approverType === "Approver";
     // // console.log(checkCurrentApproverIsAnApproverOrNot)
 
+    const currentUserIsFromSecDTOAndHeIsSECOrApp =
+      this.state.noteSecretaryDetails.some((each: any) => {
+        // console.log(each);
+        // console.log(this._currentUserEmail);
+        // console.log(
+        //   each.secretaryEmail === this._currentUserEmail ||
+        //     each.approverEmail === this._currentUserEmail
+        // );
+        const currentApproverEmail =
+          this.state.currentApprover?.[0]?.approverEmail;
+          console.log( ( each.secretaryEmail === this._currentUserEmail 
+            )
+          )
+            console.log( ( 
+              each.approverEmail === this._currentUserEmail )
+            )
+              console.log( (
+                each.approverEmail === currentApproverEmail))
+
+                console.log( ( each.secretaryEmail === this._currentUserEmail ||
+                  each.approverEmail === this._currentUserEmail )
+                 )
+          
+          console.log( ( each.secretaryEmail === this._currentUserEmail ||
+            each.approverEmail === this._currentUserEmail )
+            &&
+            each.approverEmail === currentApproverEmail)
+        if (
+         ( each.secretaryEmail === this._currentUserEmail ||
+          each.approverEmail === this._currentUserEmail )
+          // &&
+          // each.approverEmail === currentApproverEmail
+        ) {
+          return true;
+        }
+      });
+    // console.log(currentUserIsFromSecDTOAndHeIsSECOrApp);
+    // console.log(
+    //   checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
+    // );
+    return (
+      checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
+    );
+  };
+
+  // _checkingCurrentUserInSecretaryDTOAfterApproved
+
+  private _checkingCurrentUserInSecretaryDTOAfterApproved = 
+  
+  (): any => {
     
+   
+   
 
     const currentUserIsFromSecDTOAndHeIsSECOrApp =
       this.state.noteSecretaryDetails.some((each: any) => {
@@ -2027,21 +2126,89 @@ export default class ViewForm extends React.Component<
         //   each.secretaryEmail === this._currentUserEmail ||
         //     each.approverEmail === this._currentUserEmail
         // );
+       
+          
         if (
-          each.secretaryEmail === this._currentUserEmail  &&
-          each.approverEmail === this.state.currentApprover[0]?.approverEmail
+         ( each.secretaryEmail === this._currentUserEmail)
+          // &&
+          // each.approverEmail === currentApproverEmail
         ) {
           return true;
         }
       });
-    // console.log(currentUserIsFromSecDTOAndHeIsSECOrApp)
-    // console.log(checkCurrentUserIsAnApprover &&
-    //   currentUserIsFromSecDTOAndHeIsSECOrApp)
+    // console.log(currentUserIsFromSecDTOAndHeIsSECOrApp);
+    // console.log(
+    //   checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
+    // );
     return (
-      checkCurrentUserIsAnApprover &&
-      currentUserIsFromSecDTOAndHeIsSECOrApp
+       currentUserIsFromSecDTOAndHeIsSECOrApp
     );
   };
+
+ 
+
+  private _checkingCurrentUserAsApproverDTOInSecretaryDTO = (): any => {
+    // const currrentUserSect = this.state.noteSecretaryDetails.filter((each: any) => {
+    //   console.log(each);
+    //   // console.log(this._currentUserEmail);
+    //   // console.log(
+    //   //   each.secretaryEmail === this._currentUserEmail ||
+    //   //     each.approverEmail === this._currentUserEmail
+    //   // );
+    //   if (
+    //    ( each.secretaryEmail === this._currentUserEmail)
+    //   ) {
+    //     return each;
+    //   }
+    // });
+
+    // console.log(currrentUserSect)
+
+    // const currentUserIsAnSec =currrentUserSect.length>0 && currrentUserSect.some((each:any)=>each.secretaryEmail ===this._currentUserEmail)
+    // console.log(currentUserIsAnSec,"currentUserIsAnSec")
+    const checkCurrentUserIsAnApprover = this.state.ApproverDetails.filter(
+      (each: any) => each.secretaryEmail && each.approverType === "Approver"
+    );
+    // console.log(
+    //   checkCurrentUserIsAnApprover,
+    //   "checkCurrentUserIsAnApprover having Secretary"
+    // );
+
+    // const currentUserHavingSecratoryAndHeIsAnApprover = checkCurrentUserIsAnApprover.some((each:any)=>each.approverEmail===this._currentUserEmail)
+    // console.log(currentUserHavingSecratoryAndHeIsAnApprover,"currentUserHavingSecratoryAndHeIsAnApprover")
+
+    // return currentUserIsAnSec && checkCurrentUserIsAnApprover.length > 0
+    // const checkCurrentApproverIsAnApproverOrNot =
+    //   this.state.currentApprover?.[0]?.approverType === "Approver";
+    // // console.log(checkCurrentApproverIsAnApproverOrNot)
+
+    const currentUserIsFromSecDTOAndHeIsSECOrApp =
+      this.state.noteSecretaryDetails.some((each: any) => {
+        // console.log(each);
+        // console.log(this._currentUserEmail);
+        // console.log(
+        //   each.secretaryEmail === this._currentUserEmail ||
+        //     each.approverEmail === this._currentUserEmail
+        // );
+        const currentApproverEmail =
+          this.state.currentApprover?.[0]?.approverEmail;
+        if (
+         
+          each.approverEmail === this._currentUserEmail &&
+          each.approverEmail === currentApproverEmail
+        ) {
+          return true;
+        }
+      });
+    // console.log(currentUserIsFromSecDTOAndHeIsSECOrApp);
+    // console.log(
+    //   checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
+    // );
+    return (
+      checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
+    );
+  };
+
 
   // private _checkingCurrentUserInSecretaryDTOOrApprover = (): any => {
   //   return this.state.noteSecretaryDetails.fi((each: any) => {
@@ -2124,9 +2291,8 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
-
     this._closeDialog();
-    this.setState({isLoading:true})
+    this.setState({ isLoading: true });
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
@@ -2190,8 +2356,7 @@ export default class ViewForm extends React.Component<
       );
     }
 
-    
-    this.setState({ isVisibleAlter: true ,isLoading:false});
+    this.setState({ isVisibleAlter: true, isLoading: false });
   };
 
   private referPassCodeTrigger = (): any => {
@@ -2231,6 +2396,8 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     commentsObj: any
   ) => {
+    this._closeDialog();
+    this.setState({ isLoading: true });
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         // console.log(each);
@@ -2390,8 +2557,7 @@ export default class ViewForm extends React.Component<
 
       // console.log(itemToUpdateStatusToApproved);
     }
-    this._closeDialog();
-    this.setState({ isVisibleAlter: true });
+    this.setState({ isVisibleAlter: true, isLoading: false });
   };
 
   private handleReferBack = async (
@@ -2399,6 +2565,8 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     commentsObj: any
   ) => {
+    this._closeDialog();
+    this.setState({ isLoading: true });
     let currentApproverId = "";
     // if (this._checkNoteReferIdHavingComments()){
     const modifyApproveDetails = this.state.ApproverDetails.map(
@@ -2515,8 +2683,7 @@ export default class ViewForm extends React.Component<
 
       // console.log(itemToUpdateStatusToApproved);
     }
-    this._closeDialog();
-    this.setState({ isVisibleAlter: true });
+    this.setState({ isVisibleAlter: true, isLoading: false });
 
     // }else{
     //   this.setState({isReferBackAlterDialog:true})
@@ -2528,6 +2695,8 @@ export default class ViewForm extends React.Component<
     statusFromEvent: string,
     statusNumber: string
   ) => {
+    this._closeDialog();
+    this.setState({ isLoading: true });
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
@@ -2582,14 +2751,15 @@ export default class ViewForm extends React.Component<
 
       // console.log(itemToUpdateStatusToApproved);
     }
-    this._closeDialog();
-    this.setState({ isVisibleAlter: true });
+    this.setState({ isVisibleAlter: true, isLoading: false });
   };
 
   private handleCallBack = async (
     statusFromEvent: string,
     statusNumber: string
   ) => {
+    this._closeDialog();
+    this.setState({ isLoading: true });
     const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
     // console.log(updateAuditTrial);
     await this.props.sp.web.lists
@@ -2610,8 +2780,7 @@ export default class ViewForm extends React.Component<
     //   `${this._folderName}/SupportingDocument`,
     //   "Supporting documents"
     // );
-    this._closeDialog();
-    this.setState({ isVisibleAlter: true });
+    this.setState({ isVisibleAlter: true, isLoading: false });
   };
 
   // private updateCurrentApprover = ()=>{
@@ -2656,6 +2825,8 @@ export default class ViewForm extends React.Component<
     statusNumber: string,
     data: any
   ) => {
+    this._closeDialog();
+    this.setState({ isLoading: true });
     if (this.state.statusNumber === "4000") {
       const updateAuditTrial = await this._getAuditTrail(statusFromEvent);
 
@@ -2699,8 +2870,6 @@ export default class ViewForm extends React.Component<
           NoteReferrerDTO: JSON.stringify(updateNoteReferDTO),
           PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
         });
-      this._closeDialog();
-      this.setState({ isVisibleAlter: true });
 
       return;
     }
@@ -2843,8 +3012,7 @@ export default class ViewForm extends React.Component<
       });
 
     // console.log(itemToUpdate);
-    this._closeDialog();
-    this.setState({ isVisibleAlter: true });
+    this.setState({ isVisibleAlter: true, isLoading: false });
 
     checkSelectedApproverHasSecretary.length > 0 &&
       this.setState({
@@ -3112,6 +3280,7 @@ export default class ViewForm extends React.Component<
     // console.log(id);
     if (type === "add") {
       // console.log("entered into Add");
+    
       this.setState((prev) => {
         // console.log(commentsData);
         // console.log(prev.commentsData);
@@ -3128,6 +3297,9 @@ export default class ViewForm extends React.Component<
             ],
           });
         }
+
+       
+
         return {
           commentsLog: [...prev.commentsLog, commentsData],
           commentsData: [...prev.commentsData, commentsData],
@@ -3213,6 +3385,24 @@ export default class ViewForm extends React.Component<
     }
   };
 
+
+  public _atrJoinedCommentsToDTO = ():void =>{
+    const joinedCommentsData =this.state.generalComments
+    .filter((each: any) => !!each)
+    .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`).join(", ");
+    console.log(joinedCommentsData,"Joined Comments Data....")
+
+
+    // const updateAtrAssigneeDTO = this.state.noteATRAssigneeDetails.map(
+    //   (each:any)=>{
+    //     return {...each,noteApproverComments:joinedCommentsData}
+    //   }
+    // )
+
+    // console.log(updateAtrAssigneeDTO)
+    return joinedCommentsData
+  }
+
   private handleSupportingFileChangeInViewForm = (
     files: File[],
     typeOfDoc: string
@@ -3267,11 +3457,11 @@ export default class ViewForm extends React.Component<
       // console.log(filesArray);
       if (files.length > 0) {
         this.setState({
-          secretaryGistDocs: filesArray,
+          secretaryGistDocs: filesArray,secretaryGistDocsList:filesArray
         });
       } else {
         this.setState({
-          secretaryGistDocs: filesArray,
+          secretaryGistDocs: filesArray,secretaryGistDocsList:filesArray
         });
       }
     }
@@ -3723,13 +3913,21 @@ export default class ViewForm extends React.Component<
 
   private _getAtrCommentsGrid = (data: any): any => {
     // console.log(data)/
-    const joinedCommentsData = this.state.generalComments
+
+    if (this.state.currentApprover !== null && this.state.currentApprover[0].approverEmail === this._currentUserEmail){
+      const joinedCommentsData = this.state.generalComments
       .filter((each: any) => !!each)
       .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`);
     // console.log(joinedCommentsData.join(', '))
     return data.map((each: any) => {
       return { ...each, comments: joinedCommentsData.join(", ") };
     });
+
+    }else{
+      return  this.state.atrGridData
+    }
+
+   
   };
 
   private closeUserExistsModal = () => {
@@ -3825,6 +4023,10 @@ export default class ViewForm extends React.Component<
 
   public render(): React.ReactElement<IViewFormProps> {
     console.log(this.state);
+    console.log(this.props)
+    // console.log(this.state.currentApprover?.[0]?.approverEmail || this.state.currentApprover?.[0]?.email)
+    // console.log(this._currentUserEmail)
+    // console.log((this.state.currentApprover?.[0]?.approverEmail|| this.state.currentApprover?.[0]?.email) ===this._currentUserEmail)
     // console.log(this._committeeType)
     // this._checkApproveredStatusIsFound()
     // this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest();
@@ -3863,33 +4065,36 @@ export default class ViewForm extends React.Component<
 
     return (
       <div className={styles.viewForm}>
-        {this.state.isLoading ? (
+        {this.state.isDataLoading ? (
           <div>
-          <Modal
-          isOpen={this.state.isLoading}
-
-           containerClassName={styles.spinnerModalTranparency}
-           styles={{
-            main: {
-              background: 'transparent', // Removes background color
-              boxShadow: 'none', // Removes box shadow
-            },
-          }}
-        >
-          <div className="spinner" >
-            <Spinner
-              label="still loading..."
-              ariaLive="assertive"
-              size={SpinnerSize.large}
-            />
+            <Modal
+              isOpen={this.state.isDataLoading}
+              containerClassName={styles.spinnerModalTranparency}
+              styles={{
+              
+                main: {
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent", // Removes background color
+                  boxShadow: "none", // Removes box shadow
+                }, // Removes box shadow
+              
+            }}
+            >
+              <div className="spinner">
+                <Spinner
+                  label="still loading..."
+                  ariaLive="assertive"
+                  size={SpinnerSize.large}
+                />
+              </div>
+            </Modal>
           </div>
-        </Modal>
-
-        </div>
         ) : (
           <div className={styles.viewFormMainContainer}>
             {/* Passcode Modal */}
-            
+
             <form>
               <PasscodeModal
                 createPasscodeUrl={this.props.passCodeUrl}
@@ -3931,28 +4136,29 @@ export default class ViewForm extends React.Component<
               }}
             />
 
-{this.state.isLoading && (
-                <div>
+            {this.state.isLoading && (
+              <div>
                 <Modal
-                isOpen={this.state.isLoading}
-    
-                 containerClassName={styles.spinnerModalTranparency}
-                 styles={{
-                  main: {
-                    background: 'transparent', // Removes background color
-                    boxShadow: 'none', // Removes box shadow
-                  },
-                }}
-              >
-                <div className="spinner" >
-                  <Spinner
-                    label="still loading..."
-                    ariaLive="assertive"
-                    size={SpinnerSize.large}
-                  />
-                </div>
-              </Modal>
-    
+                  isOpen={this.state.isLoading}
+                  containerClassName={styles.spinnerModalTranparency}
+                  styles={{
+                    main: {
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "transparent", // Removes background color
+                      boxShadow: "none", // Removes box shadow
+                    },
+                  }}
+                >
+                  <div className="spinner">
+                    <Spinner
+                      label="still loading..."
+                      ariaLive="assertive"
+                      size={SpinnerSize.large}
+                    />
+                  </div>
+                </Modal>
               </div>
             )}
 
@@ -4010,6 +4216,8 @@ export default class ViewForm extends React.Component<
                 this.setState({ isGistDocCnrf: false });
               }}
               handleConfirmatBtn={async () => {
+                this.setState({ isGistDocCnrf: false, isLoading: true });
+
                 try {
                   await this.updateGistDocumentFolderItems(
                     this.state.secretaryGistDocs,
@@ -4028,7 +4236,7 @@ export default class ViewForm extends React.Component<
                   });
 
                   this.setState({
-                    isGistDocCnrf: false,
+                    isLoading: false,
                     isGistSuccessVisibleAlter: true,
                   });
                 } catch (e) {
@@ -4338,6 +4546,8 @@ export default class ViewForm extends React.Component<
                               currentUserDetails={
                                 this.props.context.pageContext.user
                               }
+                              _atrJoinedCommentsToDTO = {this._atrJoinedCommentsToDTO}
+
                               type="generalComments"
                             />
                           </div>
@@ -4387,6 +4597,7 @@ export default class ViewForm extends React.Component<
                                     noteATRAssigneeDetails: [],
                                   });
                                 }}
+                                _atrJoinedCommentsToDTO = {this._atrJoinedCommentsToDTO}
                                 checkingCurrentATRCreatorisCurrentApproverOrNot={this._checkingCurrentATRCreatorisCurrentApproverOrNot()}
                                 getATRJoinedComments={(data: any) => {
                                   // console.log(data,'joined data comments')
@@ -4407,8 +4618,11 @@ export default class ViewForm extends React.Component<
                                   this.setState({ atrGridData: data });
                                 }}
                                 updategirdData={(data: any): void => {
-                                  // console.log(data);
+                                  console.log(data);
                                   this.setState({ atrType: data.atrType });
+
+                                   // console.log(this.state.commentsData)
+        
 
                                   const currentAtrCreator =
                                     this.state.atrCreatorsList.filter(
@@ -4420,8 +4634,10 @@ export default class ViewForm extends React.Component<
                                   // console.log(currentAtrCreator);
                                   const { assigneeDetails } = data;
                                   // console.log(assigneeDetails)
+                                  console.log(data.comments)
                                   this.setState({
                                     atrGridData: data.comments,
+                                    
                                     //  [
                                     //   data.comments,
                                     //   ...this.state.atrGridData,
@@ -4467,7 +4683,7 @@ export default class ViewForm extends React.Component<
                                         approverEmail:
                                           this.state.currentApprover[0]
                                             .approverEmail,
-                                        noteApproverComments: "T",
+                                        noteApproverComments: "",
                                         strATRStatus: "Pending",
                                         atrStatus: 1,
                                         noteId: this._itemId,
@@ -4511,16 +4727,19 @@ export default class ViewForm extends React.Component<
                           <CommentsLogTable
                             data={this.state.commentsLog} //have change data valu
                             type="commentsLog"
-                            formType = {" "}
+                            formType="view"
                           />
                         </div>
                       </div>
                     )}
                   </div>
                   {/*Attach Supporting Documents */}
-                  {(this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
-                    this._currentUserEmail !== this.state.createdByEmail) ||
-                  this._checkRefereeAvailable() ? (
+                  {
+                  // (this._checkCurrentUserIs_Approved_Refered_Reject_TheCurrentRequest() &&
+                  //   this._currentUserEmail !== this.state.createdByEmail) ||
+                  // this._checkRefereeAvailable()
+                  
+                  (this.state.currentApprover?.[0]?.approverEmail|| this.state.currentApprover?.[0]?.email) ===this._currentUserEmail? (
                     <div className={styles.sectionContainer}>
                       <div
                         className={styles.header}
@@ -4620,7 +4839,7 @@ export default class ViewForm extends React.Component<
                             >
                               {/* <h5 style={{marginTop:'5px',marginBottom:'5px'}}>Gist Documents</h5> */}
 
-                              {this._checkingCurrentUserIsSecretaryDTO() && (
+                              {this._checkingCurrentUserIsSecretaryDTO()?(
                                 <UploadFileComponent
                                   errorData={this._getFileWithError}
                                   typeOfDoc="gistDocument"
@@ -4635,7 +4854,111 @@ export default class ViewForm extends React.Component<
                                   }
                                   cummulativeError={undefined} // value={this.state.supportingDocumentfiles}
                                 />
+                              ):
+                              (this._checkingCurrentUserInSecretaryDTOAfterApproved() &&<div
+                              style={{
+                                padding: "6px",
+                                border: "1px solid rgb(211, 211, 211)",
+                                width: "100%",
+                              }}
+                            >
+                              <p>Gist Document</p>
+                              {this._checkingCurrentUserInSecretaryDTO() &&
+                              this.state.secretaryGistDocsList.length > 0 ? (
+                                this.state.secretaryGistDocsList.map(
+                                  (file, index) => {
+                                    // Check if file exists and has the expected properties
+                                    if (!file || !file.name) {
+                                      return null; // Skip this iteration if the file is invalid
+                                    }
+
+                                    // console.log(file);
+                                    // console.log(file.fileUrl);
+                                    // const { iconName, color } =
+                                    //   this.getFileTypeIcon(file.name);
+                                    return (
+                                      <li
+                                        key={index} // Use index as the key here, assuming files are unique
+                                        style={{
+                                          width: "100%",
+                                          marginTop: "5px",
+                                        }}
+                                        className={`${styles.basicLi} ${styles.attachementli}`}
+                                      >
+                                        <div
+                                          className={`${styles.fileIconAndNameWithErrorContainer}`}
+                                        >
+                                          {/* <div> */}
+
+                                          <img
+                                            // className={ `${styles.fileImgIcon} `}
+                                            src={this._randomFileIcon(
+                                              file.name
+                                            )}
+                                            width={32}
+                                            height={32}
+                                          />
+                                          {/* <Icon
+                                          iconName={iconName}
+                                          style={{
+                                            fontSize: "24px",
+                                            marginTop: "8px",
+                                            color: color,
+                                          }}
+                                        /> */}
+
+                                          <a
+                                           data-interception="off"
+                                           className={styles.notePdfCustom}
+                                            // href={file.fileUrl}/
+                                            href={file.name.toLowerCase().endsWith('.pdf') ? file.fileUrl : file.LinkingUri} 
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{
+                                              // paddingBottom: "8px",
+                                              // marginBottom: "12px",
+                                              marginTop: "9px",
+                                              paddingLeft: "4px",
+                                              textDecoration: "none", // Optional: removes underline
+                                              // color: "#0078d4", // Optional: sets Fluent UI link color
+                                            }}
+                                          >
+                                            <span
+                                              style={{
+                                                paddingBottom: "0px",
+                                                marginBottom: "0px",
+                                                paddingLeft: "4px",
+                                              }}
+                                            >
+                                              {file.name.length > 30
+                                                ? `${file.name.slice(
+                                                    0,
+                                                    20
+                                                  )}...`
+                                                : file.name}
+                                            </span>
+                                          </a>
+                                          {/* </div> */}
+                                        </div>
+
+                                        {/* <IconButton
+                                          iconProps={{ iconName: "Cancel" }}
+                                          title="Delete File"
+                                          ariaLabel="Delete File"
+                                          onClick={() => {
+                                            this.setState({
+                                              secretaryGistDocsList: [],
+                                            });
+                                          }}
+                                        /> */}
+                                      </li>
+                                    );
+                                  }
+                                )
+                              ) : (
+                                <h4>No File Found</h4>
                               )}
+                            </div>)}
                               {this._checkingCurrentUserIsSecretaryDTO() && (
                                 <p
                                   className={styles.message}
@@ -4645,9 +4968,16 @@ export default class ViewForm extends React.Component<
                                   max.
                                 </p>
                               )}
-                              <div style={{padding:"6px",border:'1px solid rgb(211, 211, 211)',width:'100%'}}>
-                                {(this._checkingCurrentUserInSecretaryDTO() &&
-                                  this.state.secretaryGistDocsList.length > 0) ?
+                              {this._checkingCurrentUserAsApproverDTOInSecretaryDTO() && <div
+                                style={{
+                                  padding: "6px",
+                                  border: "1px solid rgb(211, 211, 211)",
+                                  width: "100%",
+                                }}
+                              >
+                                <p>Gist Document</p>
+                                {
+                                this.state.secretaryGistDocsList.length > 0 ? (
                                   this.state.secretaryGistDocsList.map(
                                     (file, index) => {
                                       // Check if file exists and has the expected properties
@@ -4690,8 +5020,11 @@ export default class ViewForm extends React.Component<
                                             }}
                                           /> */}
 
-                                            <Link
-                                              href={file.fileUrl}
+                                            <a
+                                             data-interception="off"
+                                             className={styles.notePdfCustom}
+                                              // href={file.fileUrl}/
+                                              href={file.name.toLowerCase().endsWith('.pdf') ? file.fileUrl : file.LinkingUri} 
                                               target="_blank"
                                               rel="noopener noreferrer"
                                               style={{
@@ -4717,7 +5050,7 @@ export default class ViewForm extends React.Component<
                                                     )}...`
                                                   : file.name}
                                               </span>
-                                            </Link>
+                                            </a>
                                             {/* </div> */}
                                           </div>
 
@@ -4734,8 +5067,12 @@ export default class ViewForm extends React.Component<
                                         </li>
                                       );
                                     }
-                                  ):<h4>No Files Found</h4>}
-                              </div>
+                                  )
+                                ) : (
+                                  <h4>No File Found</h4>
+                                )}
+                              </div>}
+                              
                             </div>
                           </div>
                           {""}
@@ -4812,14 +5149,16 @@ export default class ViewForm extends React.Component<
                         >
                           <p className={styles.responsiveHeading}>
                             Main Note Link:
-                            <Link
+                            <a
                               href={this.state.noteTofiles[0]?.fileUrl}
                               target="_blank"
                               rel="noopener noreferrer"
+                              data-interception="off"
+                              className={styles.notePdfCustom}
                             >
                               {" "}
                               {this.state.noteTofiles[0]?.name}
-                            </Link>
+                            </a>
                           </p>
                           {this._checkingCurrentUserInSecretaryDTO() &&
                             this.state.wordDocumentfiles.length > 0 && (
@@ -4828,16 +5167,18 @@ export default class ViewForm extends React.Component<
                                 style={{ minWidth: "150px" }}
                               >
                                 Word Documents:
-                                <Link
+                                <a
                                   href={
-                                    this.state.wordDocumentfiles[0]?.fileUrl
+                                    this.state.wordDocumentfiles[0]?.LinkingUri
                                   }
                                   target="_blank"
                                   rel="noopener noreferrer"
+                                  data-interception="off"
+                                  className={styles.notePdfCustom}
                                 >
                                   {" "}
                                   {this.state.wordDocumentfiles[0]?.name}
-                                </Link>
+                                </a>
                               </p>
                             )}
                           {/* {this.state.supportingDocumentfiles.length > 0 && ( */}

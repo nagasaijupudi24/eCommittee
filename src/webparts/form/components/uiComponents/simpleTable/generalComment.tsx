@@ -38,6 +38,7 @@ interface IGridRow {
 }
 
 interface IGridProps {
+  _atrJoinedCommentsToDTO:any;
   data: any;
   currentUserDetails: any;
   type: any;
@@ -182,6 +183,7 @@ export default class GeneralCommentsFluentUIGrid extends React.Component<
 
   // Trigger Add Dialog
   private handleAddBtn = () => {
+    // this.props._atrJoinedCommentsToDTO()
     this.setState({
       pageNumValue: "",
       pageValue: "",

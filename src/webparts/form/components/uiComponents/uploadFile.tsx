@@ -375,22 +375,22 @@ export default class UploadFileComponent extends React.Component<
     );
   };
 
-  private _truncateFileName = (fileName: any): any => {
-    const maxNameLength = 80; // Adjust as needed based on width
+  // private _truncateFileName = (fileName: any): any => {
+  //   const maxNameLength = 80; // Adjust as needed based on width
 
-    // Get the extension
-    const extensionIndex = fileName.lastIndexOf(".");
-    const extensionConcate = fileName.split(".");
-    const namePart =
-      extensionIndex === -1 ? fileName : fileName.slice(0, extensionIndex);
-    // const extension =
-    //   extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
+  //   // Get the extension
+  //   const extensionIndex = fileName.lastIndexOf(".");
+  //   const extensionConcate = fileName.split(".");
+  //   const namePart =
+  //     extensionIndex === -1 ? fileName : fileName.slice(0, extensionIndex);
+  //   // const extension =
+  //   //   extensionIndex === -1 ? "" : fileName.slice(extensionIndex);
 
-    // Truncate only the filename, not the extension
-    return namePart.length > maxNameLength
-      ? `${namePart.slice(0, maxNameLength)}...${extensionConcate[1]}`
-      : fileName;
-  };
+  //   // Truncate only the filename, not the extension
+  //   return namePart.length > maxNameLength
+  //     ? `${namePart.slice(0, maxNameLength)}...${extensionConcate[1]}`
+  //     : fileName;
+  // };
 
   public render(): React.ReactElement<IUploadFileProps> {
     const { accept, typeOfDoc, multiple } = this.props;
@@ -461,6 +461,7 @@ export default class UploadFileComponent extends React.Component<
                   <span className={`${styles.fileNameAndErrorContainer} `}>
                     <span
                       style={{
+                        flexGrow:1,
                         paddingBottom: "0px",
                         marginBottom: "0px",
                         paddingLeft: "4px",
@@ -468,11 +469,11 @@ export default class UploadFileComponent extends React.Component<
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         display: "inline-block",
-                        maxWidth: "150px", // Adjust max width as needed
+                       
                       }}
                     >
                       {/* Dynamic truncation of filename */}
-                      {this._truncateFileName(file.name)}
+                      {file.name}
                     </span>
                     {error && (
                       <span

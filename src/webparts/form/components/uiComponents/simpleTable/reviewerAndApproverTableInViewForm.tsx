@@ -41,13 +41,13 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
             switch (item.statusNumber) {
               case "2000": // pending reviewer
               case "3000": // pending approver
-                iconName = 'Clock';
+                iconName = 'AwayStatus';
                 break;
               case 'Waiting':
-                iconName = 'HourGlass';
+                iconName = 'Refresh';
                 break;
               case '4000':
-                iconName = 'Send';
+                iconName = 'Forward';
                 break;
               case '6000':
                 iconName = 'Reply';
@@ -56,13 +56,13 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
                 iconName = 'Cancel';
                 break;
               case '5000':
-                iconName = 'ReturnKey';
+                iconName = 'ReturnToSession';
                 break;
               case '9000':
-                iconName = 'DocumentApproval';
+                iconName = 'CompletedSolid';
                 break;
               default:
-                iconName = 'HourGlass';
+                iconName = 'AwayStatus';
                 break;
             }
         
