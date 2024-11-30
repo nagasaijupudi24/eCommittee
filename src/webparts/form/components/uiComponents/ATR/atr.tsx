@@ -423,7 +423,7 @@ export class ATRAssignee extends React.Component<
       peoplePickerAndAddCombo: {
         display: "flex",
         gap: "5px",
-        width: "60%",
+        width: "80%",
         flexWrap:'wrap',
       },
       body: {

@@ -172,6 +172,7 @@ export interface IViewFormState {
   atrCreatorsList: any;
   atrGridData: any;
   noteATRAssigneeDetails: any;
+  noteATRAssigneeDetailsAllUser:any;
   atrJoinedComments: any;
   atrType: any;
 
@@ -365,6 +366,7 @@ export default class ViewForm extends React.Component<
       atrCreatorsList: [],
       atrGridData: [],
       noteATRAssigneeDetails: [],
+      noteATRAssigneeDetailsAllUser: [],
       atrJoinedComments: [],
       atrType: "Default",
 
@@ -434,8 +436,7 @@ export default class ViewForm extends React.Component<
     // console.log(this.props.context.pageContext.user);
     this._fetchApproverDetails();
     this._fetchATRCreatorDetails();
-    this._getItemData(this._itemId, this._folderName);
-    this._fetchDepartmentAlias().then(async () => {
+    this._getItemData(this._itemId, this._folderName).then(async () => {
       // console.log(this.state.departmentAlias);
 
       this._folderName = await `${this._absUrl}/${
@@ -444,58 +445,59 @@ export default class ViewForm extends React.Component<
 
       await this._getItemDocumentsData();
     });
+    // this._fetchDepartmentAlias()
   }
 
-  private _fetchDepartmentAlias = async (): Promise<void> => {
-    try {
-      // console.log("Starting to fetch department alias...");
+  // private _fetchDepartmentAlias = async (): Promise<void> => {
+  //   try {
+  //     // console.log("Starting to fetch department alias...");
 
-      // Step 1: Fetch items from the Departments list
-      const items: any[] = await this.props.sp.web.lists
-        .getByTitle("Departments")
-        .items.select(
-          "Department",
-          "DepartmentAlias",
-          "Admin/EMail",
-          "Admin/Title"
-        ) // Fetching relevant fields
-        .expand("Admin")();
+  //     // Step 1: Fetch items from the Departments list
+  //     const items: any[] = await this.props.sp.web.lists
+  //       .getByTitle("Departments")
+  //       .items.select(
+  //         "Department",
+  //         "DepartmentAlias",
+  //         "Admin/EMail",
+  //         "Admin/Title"
+  //       ) // Fetching relevant fields
+  //       .expand("Admin")();
 
-      // console.log("Fetched items from Departments:", items);
+  //     // console.log("Fetched items from Departments:", items);
 
-      // Step 2: Find the department entry where the Title or Department contains "Development"
-      const specificDepartment = items.find(
-        (each: any) =>
-          each.Department.includes("Development") ||
-          each.Title?.includes("Development")
-      );
+  //     // Step 2: Find the department entry where the Title or Department contains "Development"
+  //     const specificDepartment = items.find(
+  //       (each: any) =>
+  //         each.Department.includes("Development") ||
+  //         each.Title?.includes("Development")
+  //     );
 
-      if (specificDepartment) {
-        const departmentAlias = specificDepartment.DepartmentAlias;
-        // console.log(
-        //   "Department alias for department with 'Development' in title:",
-        //   departmentAlias
-        // );
+  //     if (specificDepartment) {
+  //       const departmentAlias = specificDepartment.DepartmentAlias;
+  //       // console.log(
+  //       //   "Department alias for department with 'Development' in title:",
+  //       //   departmentAlias
+  //       // );
 
-        // Step 3: Update state with the department alias
-        this.setState(
-          {
-            departmentAlias: departmentAlias, // Store the department alias
-          },
-          () => {
-            // console.log(
-            //   "Updated state with department alias:",
-            //   this.state.departmentAlias
-            // );
-          }
-        );
-      } else {
-        // console.log("No department found with 'Development' in title.");
-      }
-    } catch (error) {
-      // console.error("Error fetching department alias: ", error);
-    }
-  };
+  //       // Step 3: Update state with the department alias
+  //       this.setState(
+  //         {
+  //           departmentAlias: departmentAlias, // Store the department alias
+  //         },
+  //         () => {
+  //           // console.log(
+  //           //   "Updated state with department alias:",
+  //           //   this.state.departmentAlias
+  //           // );
+  //         }
+  //       );
+  //     } else {
+  //       // console.log("No department found with 'Development' in title.");
+  //     }
+  //   } catch (error) {
+  //     // console.error("Error fetching department alias: ", error);
+  //   }
+  // };
 
   private _getUserProperties = async (loginName: any): Promise<any> => {
     // console.log(loginName)
@@ -702,10 +704,13 @@ export default class ViewForm extends React.Component<
     // const requesterNo = this.props.formType==="BoardNoteView"? `DEP/${currentyear}-${nextYear}/B${id}`:`DEP/${currentyear}-${nextYear}/C${id}`;
     // console.log(requesterNo)
 
+    // console.log(this.state.title.split('/'))
+    // console.log(this.state.title.split('/')[0])
+
     const requesterNo =
       this.props.formType === "BoardNoteView"
-        ? `${this.state.departmentAlias}/${currentyear}-${nextYear}/B${id}`
-        : `${this.state.departmentAlias}/${currentyear}-${nextYear}/C${id}`;
+        ? `${this.state.title.split('/')[0]}/${currentyear}-${nextYear}/B${id}`
+        : `${this.state.title.split('/')[0]}/${currentyear}-${nextYear}/C${id}`;
     // console.log(requesterNo);
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
@@ -864,16 +869,21 @@ export default class ViewForm extends React.Component<
     const newATRGridData = JSON.parse(data).map(
       (each:any)=>{
         console.log(each)
-        return {
-          comments:each.noteApproverComments,
-          assignedTo:each.atrAssigneeEmailName,
-          status:'Submitted',
+        if (each.atrCreatorEmail === this._currentUserEmail){
 
-
-
+          return {
+            comments:each.noteApproverComments,
+            assignedTo:each.atrAssigneeEmailName,
+            status:'Submitted',
+  
+  
+  
+          }
         }
+        
+     
       }
-    )
+    ).filter((each:any)=>each!==undefined)
     console.log(newATRGridData,"newATRGridData")
     return newATRGridData
 
@@ -1092,7 +1102,11 @@ export default class ViewForm extends React.Component<
         item.NoteATRAssigneeDTO !== null
           ? JSON.parse(item.NoteATRAssigneeDTO)
           : [],
-          atrGridData:this._getATRGridData(item.NoteATRAssigneeDTO),
+          atrGridData:item.NoteATRAssigneeDTO !== null
+          ?this._getATRGridData(item.NoteATRAssigneeDTO) : [],
+          noteATRAssigneeDetailsAllUser:  item.NoteATRAssigneeDTO !== null
+          ? JSON.parse(item.NoteATRAssigneeDTO)
+          : [],
       noteMarkedInfoDTOState:
         item.NoteMarkedInfoDTO !== null
           ? await this._getdataofMarkedInfo(
@@ -1703,7 +1717,7 @@ export default class ViewForm extends React.Component<
     });
 
     // console.log(defaultNoteATRAssigneeDetails);
-    return defaultNoteATRAssigneeDetails;
+    return [...this.state.noteATRAssigneeDetailsAllUser,...defaultNoteATRAssigneeDetails];
   };
 
   private _updateATRRequest = async (currentApproverId: any): Promise<void> => {
@@ -1960,9 +1974,9 @@ export default class ViewForm extends React.Component<
 
         NoteATRAssigneeDTO: this._checkCurrentUserIsAATRAssignee()
           ? this.state.atrGridData.length > 0
-            ? JSON.stringify(updateNoteATRAssigneeDTO)
+            ? JSON.stringify([...this.state.noteATRAssigneeDetailsAllUser,...updateNoteATRAssigneeDTO])
             : JSON.stringify(await this._updateDefaultNoteATRAssigneeDetails())
-          : JSON.stringify(updateNoteATRAssigneeDTO),
+          : JSON.stringify([...this.state.noteATRAssigneeDetailsAllUser,...updateNoteATRAssigneeDTO]),
 
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
         startProcessing: true,
@@ -2072,25 +2086,25 @@ export default class ViewForm extends React.Component<
         //   each.secretaryEmail === this._currentUserEmail ||
         //     each.approverEmail === this._currentUserEmail
         // );
-        const currentApproverEmail =
-          this.state.currentApprover?.[0]?.approverEmail;
-          console.log( ( each.secretaryEmail === this._currentUserEmail 
-            )
-          )
-            console.log( ( 
-              each.approverEmail === this._currentUserEmail )
-            )
-              console.log( (
-                each.approverEmail === currentApproverEmail))
+        // const currentApproverEmail =
+        //   this.state.currentApprover?.[0]?.approverEmail;
+          // console.log( ( each.secretaryEmail === this._currentUserEmail 
+          //   )
+          // )
+          //   console.log( ( 
+          //     each.approverEmail === this._currentUserEmail )
+          //   )
+          //     console.log( (
+          //       each.approverEmail === currentApproverEmail))
 
-                console.log( ( each.secretaryEmail === this._currentUserEmail ||
-                  each.approverEmail === this._currentUserEmail )
-                 )
+          //       console.log( ( each.secretaryEmail === this._currentUserEmail ||
+          //         each.approverEmail === this._currentUserEmail )
+          //        )
           
-          console.log( ( each.secretaryEmail === this._currentUserEmail ||
-            each.approverEmail === this._currentUserEmail )
-            &&
-            each.approverEmail === currentApproverEmail)
+          // console.log( ( each.secretaryEmail === this._currentUserEmail ||
+          //   each.approverEmail === this._currentUserEmail )
+          //   &&
+          //   each.approverEmail === currentApproverEmail)
         if (
          ( each.secretaryEmail === this._currentUserEmail ||
           each.approverEmail === this._currentUserEmail )
@@ -2190,20 +2204,21 @@ export default class ViewForm extends React.Component<
         //   each.secretaryEmail === this._currentUserEmail ||
         //     each.approverEmail === this._currentUserEmail
         // );
-        const currentApproverEmail =
-          this.state.currentApprover?.[0]?.approverEmail;
+        // const currentApproverEmail =
+        //   this.state.currentApprover?.[0]?.approverEmail;
         if (
          
-          each.approverEmail === this._currentUserEmail &&
-          each.approverEmail === currentApproverEmail
+          each.approverEmail === this._currentUserEmail||
+          each.approverEmail === this._currentUserEmail 
         ) {
           return true;
         }
       });
-    // console.log(currentUserIsFromSecDTOAndHeIsSECOrApp);
-    // console.log(
-    //   checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
-    // );
+    console.log(currentUserIsFromSecDTOAndHeIsSECOrApp);
+    console.log(checkCurrentUserIsAnApprover);
+    console.log(
+      checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
+    );
     return (
       checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
     );
@@ -2700,7 +2715,7 @@ export default class ViewForm extends React.Component<
     const modifyApproveDetails = this.state.ApproverDetails.map(
       (each: any, index: number) => {
         if (each.approverEmail === this._currentUserEmail) {
-          return { ...each, status: statusFromEvent, actionDate: new Date() };
+          return { ...each, status: statusFromEvent,statusNumber:'5000', actionDate: new Date() };
         }
         // if (each.approverOrder===currentApproverOrder+1){
 
@@ -2799,6 +2814,7 @@ export default class ViewForm extends React.Component<
   };
 
   private _handleMarkInfoSubmit = async (): Promise<any> => {
+    this.setState({isLoading:true})
     const updateAuditTrial = await this._getAuditTrail("Mark Info Added");
     await this.props.sp.web.lists
       .getByTitle(this._listname)
@@ -2808,6 +2824,8 @@ export default class ViewForm extends React.Component<
         AuditTrail: updateAuditTrial,
         PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
       });
+
+      this.setState({isLoading:false})
 
     // console.log(itemToUpdate);
   };
@@ -2870,6 +2888,8 @@ export default class ViewForm extends React.Component<
           NoteReferrerDTO: JSON.stringify(updateNoteReferDTO),
           PreviousActionerId: [(await this.props.sp?.web.currentUser())?.Id],
         });
+
+        this.setState({ isVisibleAlter: true, isLoading: false },()=>console.log('set during refer change StateCalled'));
 
       return;
     }
@@ -3011,8 +3031,9 @@ export default class ViewForm extends React.Component<
         ApproversId: approverId,
       });
 
-    // console.log(itemToUpdate);
-    this.setState({ isVisibleAlter: true, isLoading: false });
+    console.log("itemToUpdate in change Approver");
+    
+    this.setState({ isVisibleAlter: true, isLoading: false },()=>console.log('set during Approver Change StateCalled'));
 
     checkSelectedApproverHasSecretary.length > 0 &&
       this.setState({
@@ -3308,7 +3329,7 @@ export default class ViewForm extends React.Component<
       });
     } else if (type === "delete") {
       // console.log("entered into delete");
-      const filteredComments = this.state.commentsLog.filter(
+      const filteredComments = this.state.generalComments.filter(
         (comment: any) => comment !== null
       );
 
@@ -3320,10 +3341,14 @@ export default class ViewForm extends React.Component<
         return each.id !== id;
       });
       // console.log(updatingCommentData);
+
+      const filterCommentLogOFNotCurrentUser = this.state.commentsLog.filter(
+        (each:any)=>each.commentedByEmail!==this._currentUserEmail
+      )
       this.setState({
         commentsData: updatingCommentData,
         generalComments: updatingCommentData,
-        commentsLog: updatingCommentData,
+        commentsLog:[...filterCommentLogOFNotCurrentUser,... updatingCommentData],
       });
     } else {
       // console.log("entered into save");
@@ -5315,12 +5340,13 @@ export default class ViewForm extends React.Component<
                         Change Approver
                       </PrimaryButton>
                     ) : (
-                      <PrimaryButton
+                      
+                     this.state.statusNumber!=='100' && <PrimaryButton
                         className={`${styles.responsiveButton}`}
                         iconProps={{ iconName: "Previous" }}
                         onClick={(e) => {
                           // console.log("Call Back btn Triggered");
-                          this.setState({ successStatus: "call backed" });
+                          this.setState({ successStatus: "call back" });
 
                           if (!this.state.isPasscodeValidated) {
                             this.setState({

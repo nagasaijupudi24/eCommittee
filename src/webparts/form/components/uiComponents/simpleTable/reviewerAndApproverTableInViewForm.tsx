@@ -36,16 +36,14 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
             // console.log(item);
         
             let iconName = '';
-            // console.log(item);
-            // console.log(item.statusNumber);
+            console.log(item);
+            console.log(item.statusNumber);
             switch (item.statusNumber) {
               case "2000": // pending reviewer
               case "3000": // pending approver
                 iconName = 'AwayStatus';
                 break;
-              case 'Waiting':
-                iconName = 'Refresh';
-                break;
+             
               case '4000':
                 iconName = 'Forward';
                 break;
@@ -62,7 +60,7 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
                 iconName = 'CompletedSolid';
                 break;
               default:
-                iconName = 'AwayStatus';
+                iconName = 'Refresh';
                 break;
             }
         

@@ -378,7 +378,7 @@ export class MarkInfo extends React.Component<
     this.setState({ isModalOpen: false });
   };
 
-  private _handleSubmit = (): void => {
+  private _handleSubmit =async (): Promise<void> => {
     if (this.state.tableData.length === 0) {
       this.setState({
         
@@ -389,7 +389,7 @@ export class MarkInfo extends React.Component<
       return;
     }
 
-    this.props.submitFunctionForMarkInfo();
+    await this.props.submitFunctionForMarkInfo();
     this.setState({
       isModalOpen: true,
       modalMessage: "The mark for information has been updated successfully.",
@@ -437,7 +437,7 @@ export class MarkInfo extends React.Component<
       peoplePickerAndAddCombo:{
         display:'flex',
         gap:'5px',
-        width:'60%',
+        width:'80%',
         flexWrap:'wrap',
 
 
@@ -460,7 +460,7 @@ export class MarkInfo extends React.Component<
     });
 
     return (
-      <div>
+      <>
         {/* Stack to align PeoplePicker, ComboBox, and Add Button beside each other */}
         <div className={styles.peoplePickerAndAddCombo}>
           <PnPPeoplePicker
@@ -547,7 +547,7 @@ export class MarkInfo extends React.Component<
             />
           </div>
         </Modal>
-      </div>
+      </>
     );
   }
 }
