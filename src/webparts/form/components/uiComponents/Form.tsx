@@ -27,7 +27,7 @@ import {
 import { PrimaryButton } from "@fluentui/react/lib/Button";
 
 //spinner related
-
+import '../CustomStyles/custom.css'
 // import { Spinner } from "@fluentui/react/lib/Spinner";
 import UploadFileComponent from "./uploadFile";
 import Title from "./titleSectionComponent/title";
@@ -190,6 +190,7 @@ interface IMainFormState {
   noteSecretaryDetails: any;
 
   draftResolutionFieldValue: any;
+  isSmallScreen:any;
 
   /// submit form state dialog box
 
@@ -373,6 +374,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       isAutoSaveFailedDialog: false,
 
       draftResolutionFieldValue: "",
+      isSmallScreen: window.innerWidth < 568,
       successStatus: "",
       autosave: true,
       autoSavedialog: true,
@@ -419,6 +421,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
   public componentDidMount(): void {
     const milliseconds = 180000;
+    window.addEventListener('resize', this.handleResize);
 
     if (this.state.autosave) {
       this.autoSaveInterval = setInterval(this.autoSave, milliseconds);
@@ -431,11 +434,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   }
 
   public componentWillUnmount(): void {
+    window.removeEventListener('resize', this.handleResize);
     if (this.autoSaveInterval) {
       clearInterval(this.autoSaveInterval);
       this.autoSaveInterval = null; // Set to null to prevent accidental re-use
     }
   }
+
+  private handleResize = () => {
+    this.setState({ isSmallScreen: window.innerWidth < 768 });
+  };
 
   private autoSave = async (): Promise<void> => {
     try {
@@ -646,7 +654,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       .expand("Approvers", "Reviewers", "CurrentApprover")();
 
     this.title = item.Title;
-    console.log(item,"Item..........")
+    // console.log(item,"Item..........")
 
     this.setState({
       committeeNameFeildValue:
@@ -1482,7 +1490,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         // Proceed with file upload if no error condition
         for (const file of files) {
-          console.log("File Uploading .........")
+          // console.log("File Uploading .........")
           const arrayBuffer = await getFileArrayBuffer(file);
           try{
             await sp.web
@@ -1492,7 +1500,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             });
 
           }catch(e){
-            console.log(console.log('e',e));
+            // console.log(console.log('e',e));
             
           }
          
@@ -1558,7 +1566,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(this.state.itemId)
 
       if (this.state.itemId) {
-        console.log("auto save triggered");
+        // console.log("auto save triggered");
         await this.autoCreateSubFolder(parentFolderPath);
 
         return;
@@ -1586,6 +1594,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // }
 
       for (const { folderName, files } of filesDataArray) {
+        // console.log(folderName)
         const siteUrl = `${parentFolderPath}/${folderName}`;
         // console.log(siteUrl);
 
@@ -1618,14 +1627,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // Upload the file to the SharePoint Library
           await sp.web
             .getFolderByServerRelativePath(siteUrl)
-            .files.addChunked(file.name, arrayBuffer, {
+            .files.addUsingPath(file.name, arrayBuffer, {
               Overwrite: true,
             });
+            // console.log(file.name,`update ${file.name}`)
         }
 
-        // console.log(`Folder '${folderName}' created successfully in list`);/
+        // console.log(`Folder '${folderName}' created successfully in list`);
       }
-      console.log(this._itemId);
+      // console.log(this._itemId);
       
 
      
@@ -2559,7 +2569,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       // console.log(fieldValues);
       this.setState({ eCommitteDataForValidataion: fieldValues });
     }
-    console.log(conditionNumber, "Condition Number");
+    // console.log(conditionNumber, "Condition Number");
 
     const warn: any = {
       committeeName: [
@@ -3533,7 +3543,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     //   fieldValues,
     //   "Dialog FieldValues........................................"
     // );
-    console.log(conditionNumArray, "condition Num Array");
+    // console.log(conditionNumArray, "condition Num Array");
   };
 
   private handleSubmit = async (
@@ -3546,7 +3556,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
       if (this.state.itemId || this._itemId) {
         // Update existing item
-        console.log( !this.state.autosave)
+        // console.log( !this.state.autosave)
         !this.state.autosave &&
         this.setState({
           isLoadingOnForm: true,
@@ -3556,9 +3566,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         // this.setState({autosave:false})
       } else {
         // Create new item
-        console.log("save as draft triggered");
-        console.log(this._itemId);
-        console.log( !this.state.autosave)
+        // console.log("save as draft triggered");
+        // console.log(this._itemId);
+        // console.log( !this.state.autosave)
         !this.state.autosave &&
           this.setState({
             isLoadingOnForm: true,
@@ -3591,7 +3601,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           this.state.statusNumber === "200" ||
           this.state.statusNumber === "5000"
         ) {
-          console.log("Draft ,Call back, Returned Submission");
+          // console.log("Draft ,Call back, Returned Submission");
           this.setState({
             isLoadingOnForm: true,
             isConfirmationDialogVisible: false,
@@ -3599,9 +3609,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           await this.handleUpdate();
         } else if (statusOfForm === "update") {
           // console.log("entered into updatee else if block");
-          console.log("update submission");
+          // console.log("update submission");
           await this.handleUpdate();
         } else {
+          // console.log('save as draft, submit',statusOfForm)
           this.setState({
             isLoadingOnForm: true,
             isConfirmationDialogVisible: false,
@@ -3612,8 +3623,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           // console.log(id.Id, "id");
           // console.log(id.Id, "id -----", status, "Status");
 
-          const createFolder = await this._generateRequsterNumber(id.Id);
-          console.log(createFolder);
+           await this._generateRequsterNumber(id.Id);
+          // console.log(createFolder);
           this.setState({ autosave: false });
           clearInterval(this.autoSaveInterval);
 
@@ -3630,6 +3641,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           natureOfNoteFeildValue: "",
           noteTypeFeildValue: "",
           typeOfFinancialNoteFeildValue: "",
+          draftResolutionFieldValue:'',
           amountFeildValue: null,
           searchTextFeildValue: "",
           noteTofiles: [],
@@ -3693,7 +3705,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       ? this.state.successStatus === "submitted"
         ? this._getAuditTrail("Submitted")
         : this._getAuditTrail("Drafted")
-      : this._getAuditTrail("Submitted"), // ReSubmitted
+      :this._itemId?this._getAuditTrail("Drafted"): this._getAuditTrail("Submitted"), // ReSubmitted
     // Reviewer:{result:this._getReviewerId()}
     ReviewersId: this._getReviewerId(),
     ApproversId: this._getApproverId(),
@@ -3776,6 +3788,29 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     }
 
+
+    const siteUrl = folderPath;
+    // console.log(siteUrl);
+
+    // Check if the folder already exists
+    let folderExists = false;
+    if (!folderExists) {
+      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+      // console.log(`Folder '${folderName}' created successfully`);
+    } else {
+      try {
+        // Check if folder already exists
+        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+        folderExists = true;
+      } catch (error) {
+        if (error.status === 404) {
+          folderExists = false;
+        } else {
+          throw error;
+        }
+      }
+    }
+
     try {
       for (const file of libraryName) {
         // console.log(file);
@@ -3832,6 +3867,28 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     }
 
+    const siteUrl = folderPath;
+    // console.log(siteUrl);
+
+    // Check if the folder already exists
+    let folderExists = false;
+    if (!folderExists) {
+      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+      // console.log(`Folder '${folderName}' created successfully`);
+    } else {
+      try {
+        // Check if folder already exists
+        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+        folderExists = true;
+      } catch (error) {
+        if (error.status === 404) {
+          folderExists = false;
+        } else {
+          throw error;
+        }
+      }
+    }
+
     try {
       for (const file of libraryName) {
         // console.log(file);
@@ -3885,6 +3942,28 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           reader.onerror = reject;
           reader.readAsArrayBuffer(blob);
         });
+      }
+    }
+
+    const siteUrl = folderPath;
+    // console.log(siteUrl);
+
+    // Check if the folder already exists
+    let folderExists = false;
+    if (!folderExists) {
+      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+      // console.log(`Folder '${folderName}' created successfully`);
+    } else {
+      try {
+        // Check if folder already exists
+        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+        folderExists = true;
+      } catch (error) {
+        if (error.status === 404) {
+          folderExists = false;
+        } else {
+          throw error;
+        }
       }
     }
 
@@ -3953,9 +4032,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       //   this.getObject(),
       //   "*********************Edited passed Object*********************"
       // );
+      // console.log(this.state.successStatus)
 
       this._itemId
-        ? this.state.successStatus === "submitted"
+        ?( this.state.successStatus === "submitted"
           ? await this.props.sp.web.lists
               .getByTitle(this._listname)
               .items.getById(this._itemId)
@@ -3963,8 +4043,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           : await this.props.sp.web.lists
               .getByTitle(this._listname)
               .items.getById(this._itemId)
-              .update(await this.getObject("Draft", "100"))
-        : this.state.successStatus === "submitted"
+              .update(await this.getObject("Draft", "100")))
+        : (this.state.successStatus === "submitted"
         ? await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.getById(this.state.itemId)
@@ -3972,7 +4052,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         : await this.props.sp.web.lists
             .getByTitle(this._listname)
             .items.getById(this.state.itemId)
-            .update(await this.getObject("Draft", "100"));
+            .update(await this.getObject("Draft", "100")));
 
       // errorInPdfFiles:this.state.errorFilesList.notePdF.length > 0,
       // errorInWordDocFiles:this.state.errorFilesList.wordDocument.length > 0,
@@ -4717,7 +4797,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 <Dropdown
-                  placeholder="Select an option"
+                  placeholder=
+                  {this.props.formType === "BoardNoteNew"
+                    ? "Select an Board Committee Name"
+                    : "Select an Committee Name"}
                   options={this.state.committename}
                   selectedKey={this.state.committeeNameFeildValue}
                   onChange={this.handleCommittename}
@@ -4757,6 +4840,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   Subject <SpanComponent />
                 </label>
                 <textarea
+                placeholder="Enter Subject"
                   className={styles.textAreaWithOutline}
                   style={{
                     display: "block",
@@ -4809,7 +4893,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 <Dropdown
-                  placeholder="Select nature of note"
+                  placeholder="Select Nature of Note"
                   // label="Nature of Note"
 
                   options={this.state.natureOfNote}
@@ -4863,7 +4947,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <SpanComponent />
                   </label>
                   <Dropdown
-                    placeholder="Select an approval or sanction type"
+                    placeholder="Select Nature of Approval/Sanction"
                     // label="Nature of Approval or Sanction"
 
                     options={this.state.natureOfApprovalSancation}
@@ -4908,7 +4992,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 <Dropdown
-                  placeholder="Select a note type"
+                  placeholder="Select Note Type"
                   options={this.state.noteType}
                   selectedKey={this.state.noteTypeFeildValue}
                   onChange={this.handleNoteTypeChange}
@@ -4947,7 +5031,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <SpanComponent />
                   </label>
                   <Dropdown
-                    placeholder="Select a financial note"
+                    placeholder="Select Type of Financial Note"
                     options={this.state.typeOfFinancialNote}
                     selectedKey={this.state.typeOfFinancialNoteFeildValue}
                     onRenderCaretDown={() =>
@@ -4987,6 +5071,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 <textarea
+                 placeholder="Enter Search Text"
                   className={styles.textAreaWithOutline}
                   style={{
                     display: "block",
@@ -5041,6 +5126,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     <SpanComponent />
                   </label>
                   <TextField
+                  placeholder="Enter Amount"
                     type="text"
                     styles={{
                       fieldGroup: {
@@ -5085,7 +5171,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         <SpanComponent />
                       </label>
                       <Dropdown
-                        placeholder="Select a purpose"
+                        placeholder="Select Purpose"
                         options={this.state.purpose.slice(0, 4)}
                         selectedKey={this.state.puroposeFeildValue}
                         onChange={this.handlePurposeDropDown}
@@ -5126,7 +5212,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         <SpanComponent />
                       </label>
                       <Dropdown
-                        placeholder="Select a purpose"
+                         placeholder="Select Purpose"
                         options={this.state.purpose.slice(4)} // Slice starting from index 4 to get remaining items
                         selectedKey={this.state.puroposeFeildValue}
                         onChange={this.handlePurposeDropDown}
@@ -5166,6 +5252,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       <SpanComponent />
                     </label>
                     <textarea
+                     placeholder="Enter Purpose"
                       className={styles.textAreaWithOutline}
                       style={{
                         display: "block",
@@ -5199,11 +5286,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "10px" }}
                 >
-                  <label style={{ fontWeight: "600" }}>
+                  <label  style={{
+                        display: "block",
+                        fontWeight: "600",
+                        marginBottom: "5px",
+                      }}>
                     Others
                     <SpanComponent />
                   </label>
                   <textarea
+                   placeholder="Enter Others"
                     className={styles.textAreaWithOutline}
                     style={{
                       borderRadius: "2px",
@@ -5213,12 +5305,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       height: "32px",
                       boxSizing: "border-box",
                       width: "100%",
-                      border: `1px solid ${
-                        !this.state.othersFieldValue &&
-                        this.state.isWarningOthersField
-                          ? "red"
-                          : ""
-                      }`,
+                      border:
+                      this.state.othersFieldValue === "" &&
+                      this.state.isWarningOthersField
+                        ? "2px solid red"
+                        : "",
+                     
                     }}
                     rows={!this.state.othersFieldValue ? 3 : 1}
                     value={this.state.othersFieldValue}
@@ -5360,13 +5452,58 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     Draft Resoultion
                   </h1>
                 </div>
-                <div className={`${styles.generalSectionApproverDetails}`}>
+                <div className={`${styles.generalSectionApproverDetails}`} style={{ minHeight:'140px' }}  >
                   <div className={styles.richTextContainer}>
                     <RichText
+                     styleOptions={this.state.isSmallScreen?{showBold: true,
+                      showItalic:true,showUnderline:true,showList:true,
+                      showMore:true}:{
+                        showBold: true,
+  
+                      showItalic:true,showUnderline:true,showList:true,
+                      showAlign:true,
+                      showImage:true,
+                      showLink:true,
+                      showStyles:true,
+  
+                      showMore:true
+  
+                      }}
                       value={this.state.draftResolutionFieldValue}
                       onChange={(text) => this.onTextChange(text)}
                     />
                   </div>
+
+
+{/* <div className={styles.richTextContainer}
+              //  className={` ${styles.richTextContainer}`}
+              >
+                <RichText
+                  value={this.state.draftResolutionFieldValue}
+                  styleOptions={this.state.isSmallScreen?{showBold: true,
+                    showItalic:true,showUnderline:true,showList:true,
+                    showMore:true}:{
+                      showBold: true,
+
+                    showItalic:true,showUnderline:true,showList:true,
+                    showAlign:true,
+                    showImage:true,
+                    showLink:true,
+                    showStyles:true,
+
+                    showMore:true
+
+                    }}
+                  onChange={(text: string) =>
+                    this.onTextChange(text)
+                  }
+
+                  
+
+                 
+                />
+              </div> */}
+
                 </div>
               </div>
             )}
@@ -5516,12 +5653,13 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       gap: "5px",
                     }}
                   >
-                    {this._itemId ? (
-                      !(
-                        this.state.statusNumber === "1000" ||
-                        this.state.statusNumber === "5000" ||
-                        this.state.statusNumber === "200"
-                      ) && (
+                    {this._itemId && this.state.status !== "Returned" ? (
+                !(
+                  // this.state.statusNumber === "100" ||
+                  this.state.statusNumber === "1000" ||
+                  this.state.statusNumber === "5000" ||
+                  this.state.statusNumber === "200"
+                ) && (
                         <PrimaryButton
                           type="button"
                           className={`${styles.responsiveButton}`}
@@ -5546,11 +5684,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                               this.setState({ isAutoSaveFailedDialog: true });
                             } else {
                               e.preventDefault();
-                              this.setState({
-                                successStatus: "drafted",
-                                autosave: false,
-                              });
-                              this.handleSubmit("Draft");
+                              this.setState(
+                                {
+                                  successStatus: "drafted",
+                                  autosave: false,
+                                },
+                                () => {
+                                  // Callback to ensure the state is updated before this function executes
+                                  this.handleSubmit("Draft");
+                                }
+                              );
 
                               clearInterval(this.autoSaveInterval);
                             }
@@ -5592,11 +5735,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                             this.setState({ isAutoSaveFailedDialog: true });
                           } else {
                             e.preventDefault();
-                            this.setState({
-                              successStatus: "drafted",
-                              autosave: false,
-                            });
-                            this.handleSubmit("Draft");
+                            this.setState(
+                              {
+                                successStatus: "drafted",
+                                autosave: false,
+                              },
+                              () => {
+                                // Callback to ensure the state is updated before this function executes
+                                this.handleSubmit("Draft");
+                              }
+                            );
 
                             clearInterval(this.autoSaveInterval);
                           }

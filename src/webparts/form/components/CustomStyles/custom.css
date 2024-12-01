@@ -1,0 +1,23 @@
+div > .ql-container{
+  top:30px
+}
+
+div > .ql-toolbar {
+  display: inline-block!important;
+ 
+  /* border: 1px solid red !important; */
+    /* left: 65px; */
+    position: absolute !important;
+    top: -10px !important;
+     /* left: 200px; */
+}
+
+/* Responsive styles for width less than 768px */
+/* @media (max-width: 768px) { */
+  
+  
+  /* div > .ql-toolbar { */
+    /* left: 50px !important;  */
+  /* } */
+/* } */
+

@@ -868,7 +868,7 @@ export default class ViewForm extends React.Component<
   private _getATRGridData= (data:any)=>{
     const newATRGridData = JSON.parse(data).map(
       (each:any)=>{
-        console.log(each)
+        // console.log(each)
         if (each.atrCreatorEmail === this._currentUserEmail){
 
           return {
@@ -884,7 +884,7 @@ export default class ViewForm extends React.Component<
      
       }
     ).filter((each:any)=>each!==undefined)
-    console.log(newATRGridData,"newATRGridData")
+    // console.log(newATRGridData,"newATRGridData")
     return newATRGridData
 
   }
@@ -915,7 +915,7 @@ export default class ViewForm extends React.Component<
         "NoteMarkedInfoDTO"
       )();
 
-    console.log(`${id} ------Details`, item);
+    // console.log(`${id} ------Details`, item);
     // console.log(folderPath);
     // const folderItem =  await this.props.sp.web.getFolderByServerRelativePath(`${folderPath}/Pdf`)
     // .files().then(res => res);
@@ -1282,7 +1282,7 @@ export default class ViewForm extends React.Component<
     };
 
     const result = formatDateTime(data.TimeCreated);
-    console.log(data)
+    // console.log(data)
     const filesObj = {
       name: data.Name,
       content: data,
@@ -1579,6 +1579,28 @@ export default class ViewForm extends React.Component<
       }
     }
 
+    const siteUrl = folderPath;
+    // console.log(siteUrl);
+
+    // Check if the folder already exists
+    let folderExists = false;
+    if (!folderExists) {
+      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+      // console.log(`Folder '${folderName}' created successfully`);
+    } else {
+      try {
+        // Check if folder already exists
+        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+        folderExists = true;
+      } catch (error) {
+        if (error.status === 404) {
+          folderExists = false;
+        } else {
+          throw error;
+        }
+      }
+    }
+
     try {
       for (const file of libraryName) {
         // console.log(file);
@@ -1639,6 +1661,31 @@ export default class ViewForm extends React.Component<
       }
     }
 
+
+
+    const siteUrl = folderPath;
+    // console.log(siteUrl);
+
+    // Check if the folder already exists
+    let folderExists = false;
+    if (!folderExists) {
+      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+      // console.log(`Folder '${folderName}' created successfully`);
+    } else {
+      try {
+        // Check if folder already exists
+        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+        folderExists = true;
+      } catch (error) {
+        if (error.status === 404) {
+          folderExists = false;
+        } else {
+          throw error;
+        }
+      }
+    }
+
+
     try {
       for (const file of libraryName) {
         // console.log(file);
@@ -1666,12 +1713,13 @@ export default class ViewForm extends React.Component<
         each.atrCreatorEmail === this.props.context.pageContext.user.email
     );
     // console.log(currentAtrCreator);
-    const assigneeDetails = {
-      id: this.state.createdByID,
-      email: this.state.createdByEmail,
-      text: this.state.createdByEmailName,
-    };
-    console.log(assigneeDetails);
+    // const assigneeDetails =
+    //  {
+    //   id: this.state.createdByID,
+    //   email: this.state.createdByEmail,
+    //   text: this.state.createdByEmailName,
+    // };
+    // console.log(assigneeDetails);
     this._atrJoinedCommentsToDTO()
 
     
@@ -2214,11 +2262,11 @@ export default class ViewForm extends React.Component<
           return true;
         }
       });
-    console.log(currentUserIsFromSecDTOAndHeIsSECOrApp);
-    console.log(checkCurrentUserIsAnApprover);
-    console.log(
-      checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
-    );
+    // console.log(currentUserIsFromSecDTOAndHeIsSECOrApp);
+    // console.log(checkCurrentUserIsAnApprover);
+    // console.log(
+    //   checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
+    // );
     return (
       checkCurrentUserIsAnApprover && currentUserIsFromSecDTOAndHeIsSECOrApp
     );
@@ -2736,7 +2784,8 @@ export default class ViewForm extends React.Component<
       .items.getById(this._itemId)
       .update({
         NoteApproversDTO: JSON.stringify(modifyApproveDetails),
-
+        
+        NoteATRAssigneeDTO:JSON.stringify([]),
         Status: statusFromEvent,
         StatusNumber: statusNumber,
         AuditTrail: updateAuditTrial,
@@ -3031,7 +3080,7 @@ export default class ViewForm extends React.Component<
         ApproversId: approverId,
       });
 
-    console.log("itemToUpdate in change Approver");
+    // console.log("itemToUpdate in change Approver");
     
     this.setState({ isVisibleAlter: true, isLoading: false },()=>console.log('set during Approver Change StateCalled'));
 
@@ -3415,7 +3464,7 @@ export default class ViewForm extends React.Component<
     const joinedCommentsData =this.state.generalComments
     .filter((each: any) => !!each)
     .map((each: any) => `${each?.pageNum} ${each?.page} ${each?.comment}`).join(", ");
-    console.log(joinedCommentsData,"Joined Comments Data....")
+    // console.log(joinedCommentsData,"Joined Comments Data....")
 
 
     // const updateAtrAssigneeDTO = this.state.noteATRAssigneeDetails.map(
@@ -4047,8 +4096,8 @@ export default class ViewForm extends React.Component<
   };
 
   public render(): React.ReactElement<IViewFormProps> {
-    console.log(this.state);
-    console.log(this.props)
+    // console.log(this.state);
+    // console.log(this.props)
     // console.log(this.state.currentApprover?.[0]?.approverEmail || this.state.currentApprover?.[0]?.email)
     // console.log(this._currentUserEmail)
     // console.log((this.state.currentApprover?.[0]?.approverEmail|| this.state.currentApprover?.[0]?.email) ===this._currentUserEmail)
@@ -4453,6 +4502,7 @@ export default class ViewForm extends React.Component<
                           <div style={{ padding: "15px", paddingTop: "4px" }}>
                             <RichText
                               value={this.state.draftResolutionFieldValue}
+                              isEditMode={false}
                             />
                           </div>
                         </div>
@@ -4643,7 +4693,7 @@ export default class ViewForm extends React.Component<
                                   this.setState({ atrGridData: data });
                                 }}
                                 updategirdData={(data: any): void => {
-                                  console.log(data);
+                                  // console.log(data);
                                   this.setState({ atrType: data.atrType });
 
                                    // console.log(this.state.commentsData)
@@ -4659,7 +4709,7 @@ export default class ViewForm extends React.Component<
                                   // console.log(currentAtrCreator);
                                   const { assigneeDetails } = data;
                                   // console.log(assigneeDetails)
-                                  console.log(data.comments)
+                                  // console.log(data.comments)
                                   this.setState({
                                     atrGridData: data.comments,
                                     

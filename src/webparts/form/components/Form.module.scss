@@ -1044,7 +1044,7 @@ canvas {
 .richTextContainer {
   position: relative;
   // max-width: 600px; /* Optional: Limit the width of the RichText field */
-  // margin: 0 auto;
+  margin: 0 auto;
 
   .msRichTextToolbar {
     position: sticky; /* Makes the toolbar stick to the top */
@@ -1057,7 +1057,7 @@ canvas {
 
   .msRichTextField {
     margin-top: 40px; /* Add margin to ensure space for the sticky toolbar */
-    height: 300px; /* Set a height for scrolling purposes */
+    // height: 300px; /* Set a height for scrolling purposes */
     overflow-y: auto; /* Allow vertical scrolling */
   }
 }

@@ -352,7 +352,7 @@ export default class FormWebPart extends BaseClientSideWebPart<IFormWebPartProps
                 PropertyPaneTextField('existPageUrl', {
                   label: "Exist Page URL",
                   // Use a default value for the home URL if the description is not provided.
-                  value: this.properties.homePageUrl,
+                  value: this.properties.existPageUrl,
                   resizable: true,
                   // placeholder: "Enter home URL or description here"
                 }),

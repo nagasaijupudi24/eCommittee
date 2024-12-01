@@ -36,8 +36,8 @@ const ApproverAndReviewerTableInViewForm = (props: any) => {
             // console.log(item);
         
             let iconName = '';
-            console.log(item);
-            console.log(item.statusNumber);
+            // console.log(item);
+            // console.log(item.statusNumber);
             switch (item.statusNumber) {
               case "2000": // pending reviewer
               case "3000": // pending approver
