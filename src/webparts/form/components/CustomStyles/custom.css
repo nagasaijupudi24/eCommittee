@@ -21,3 +21,36 @@ div > .ql-toolbar {
   /* } */
 /* } */
 
+div > .ms-Dropdown  {
+  color: rgb(32, 31, 30);
+  border-color: red!important;
+}
+
+div > .ms-Dropdown:active  {
+  color: rgb(32, 31, 30);
+  border-color: red!important;
+}
+
+div > .ms-Dropdown:hover  {
+  color: rgb(32, 31, 30);
+  border-color: red!important;
+}
+
+
+
+/* div > .dropdown:hover .ms-Dropdown-title {
+  color: rgb(32, 31, 30);
+  border-color: transparent !important;
+} */
+
+/* div > span:hover  {
+  color: rgb(32, 31, 30);
+  border-color: red!important;
+}
+
+
+span > .ms-Dropdown-title{
+  color: rgb(32, 31, 30);
+  border-color: red!important;
+
+} */

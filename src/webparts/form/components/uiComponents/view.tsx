@@ -658,7 +658,9 @@ export default class ViewForm extends React.Component<
       (
         await this.props.sp.web.lists
           .getByTitle("ATRCreators")
-          .items.select(
+          .items
+          // .filter(`ATRCreatorsId eq ${this.curre}`)
+          .select(
             "*",
             "Author/Title",
             "Author/EMail",
@@ -1319,7 +1321,7 @@ export default class ViewForm extends React.Component<
         this.setState({ pdfLink: this._getFileObj(values).fileUrl });
       });
 
-      // console.log(tempFilesPdf);
+      console.log(tempFilesPdf);
       this.setState({ noteTofiles: tempFilesPdf });
 
       //Word Documents
@@ -1579,27 +1581,27 @@ export default class ViewForm extends React.Component<
       }
     }
 
-    const siteUrl = folderPath;
-    // console.log(siteUrl);
+    // const siteUrl = folderPath;
+    // // console.log(siteUrl);
 
-    // Check if the folder already exists
-    let folderExists = false;
-    if (!folderExists) {
-      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
-      // console.log(`Folder '${folderName}' created successfully`);
-    } else {
-      try {
-        // Check if folder already exists
-        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
-        folderExists = true;
-      } catch (error) {
-        if (error.status === 404) {
-          folderExists = false;
-        } else {
-          throw error;
-        }
-      }
-    }
+    // // Check if the folder already exists
+    // let folderExists = false;
+    // if (!folderExists) {
+    //   await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+    //   // console.log(`Folder '${folderName}' created successfully`);
+    // } else {
+    //   try {
+    //     // Check if folder already exists
+    //     await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+    //     folderExists = true;
+    //   } catch (error) {
+    //     if (error.status === 404) {
+    //       folderExists = false;
+    //     } else {
+    //       throw error;
+    //     }
+    //   }
+    // }
 
     try {
       for (const file of libraryName) {
@@ -1663,27 +1665,27 @@ export default class ViewForm extends React.Component<
 
 
 
-    const siteUrl = folderPath;
-    // console.log(siteUrl);
+    // const siteUrl = folderPath;
+    // // console.log(siteUrl);
 
-    // Check if the folder already exists
-    let folderExists = false;
-    if (!folderExists) {
-      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
-      // console.log(`Folder '${folderName}' created successfully`);
-    } else {
-      try {
-        // Check if folder already exists
-        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
-        folderExists = true;
-      } catch (error) {
-        if (error.status === 404) {
-          folderExists = false;
-        } else {
-          throw error;
-        }
-      }
-    }
+    // // Check if the folder already exists
+    // let folderExists = false;
+    // if (!folderExists) {
+    //   await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+    //   // console.log(`Folder '${folderName}' created successfully`);
+    // } else {
+    //   try {
+    //     // Check if folder already exists
+    //     await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+    //     folderExists = true;
+    //   } catch (error) {
+    //     if (error.status === 404) {
+    //       folderExists = false;
+    //     } else {
+    //       throw error;
+    //     }
+    //   }
+    // }
 
 
     try {

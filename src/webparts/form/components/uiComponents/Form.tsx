@@ -96,6 +96,10 @@ export interface IFileDetails {
 }
 
 interface IMainFormState {
+  title:any;
+  createdByEmail: any;
+  createdByID: any;
+  createdByEmailName: any;
   isLoading: boolean;
   isLoadingOnForm: boolean;
   department: string;
@@ -266,6 +270,10 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     super(props);
     this.state = {
       // auto save
+      title:'',
+      createdByEmail: "",
+      createdByID: "",
+      createdByEmailName: "",
       itemId: null,
       autoSaveStatus: "Drafted",
       isLoading: true,
@@ -399,15 +407,29 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.getfield();
 
-    this._itemId && this._getItemData(this._itemId, this._folderName);
+    this._fetchDepartmentAlias()
 
-    this._fetchDepartmentAlias().then(async () => {
-      this._folderName = await `${this._absUrl}/${
-        this._libraryName
-      }/${this._folderNameGenerate(this._itemId)}`;
+    this._itemId && this._getItemData(this._itemId, this._folderName).then(async () => {
+      // console.log(this.state.departmentAlias);
 
-      this._itemId && (await this._getItemDocumentsData());
+      this._fetchDepartmentAlias().then(async () => {
+        this._folderName = await `${this._absUrl}/${
+          this._libraryName
+        }/${this._folderNameGenerateEdit(this._itemId)}`;
+  
+        this._itemId && (await this._getItemDocumentsData());
+      });
     });
+
+    
+
+    // this._fetchDepartmentAlias().then(async () => {
+    //   this._folderName = await `${this._absUrl}/${
+    //     this._libraryName
+    //   }/${this._folderNameGenerate(this._itemId)}`;
+
+    //   this._itemId && (await this._getItemDocumentsData());
+    // });
   }
 
   public convertMilliseconds = (
@@ -571,7 +593,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   private _getItemDocumentsData = async () => {
-    // console.log(this._folderName)
+    console.log(this._folderName)
     try {
       const tempFilesPdf: File[] = [];
       const tempFilesWordDocument: File[] = [];
@@ -583,7 +605,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         .files.select("*")
         .expand("Author", "Editor")();
 
-      // console.log(folderItemsPdf)
+      console.log(folderItemsPdf)
       for (const file of folderItemsPdf) {
         const fileObj = await this._getFileObj(file);
         tempFilesPdf.push(fileObj);
@@ -643,6 +665,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       .items.getById(id)
       .select(
         "*",
+        "Author/Title",
+        "Author/EMail",
         "Approvers",
         "Approvers/Title",
         "Reviewers/Title",
@@ -651,12 +675,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         "CurrentApprover/Title",
         "CurrentApprover/EMail"
       )
-      .expand("Approvers", "Reviewers", "CurrentApprover")();
+      .expand("Author","Approvers", "Reviewers", "CurrentApprover")();
 
     this.title = item.Title;
-    // console.log(item,"Item..........")
+    console.log(item,"Item..........")
 
     this.setState({
+      title: item.Title,
+      createdByEmail: item.Author.EMail,
+      createdByEmailName: item.Author.Title,
+      createdByID: item.AuthorId,
       committeeNameFeildValue:
         item.CommitteeName !== null ? item.CommitteeName : "",
       subjectFeildValue: item.Subject !== null ? item.Subject : "",
@@ -2703,7 +2731,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles:
-              this.state.noteSecretaryDetails.length > 0
+            (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
                 ? [
                     this.state.wordDocumentfiles,
                     "Please select Valid Word Doc File",
@@ -2766,7 +2794,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
             ],
 
             wordDocumentfiles:
-              this.state.noteSecretaryDetails.length > 0
+            (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
                 ? [
                     this.state.wordDocumentfiles,
                     "Please select Valid Word Doc File",
@@ -2819,7 +2847,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
-            this.state.noteSecretaryDetails.length > 0
+          (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
               ? [
                   this.state.wordDocumentfiles,
                   "Please select Valid Word Doc File",
@@ -2886,7 +2914,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles:
-              this.state.noteSecretaryDetails.length > 0
+            (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
                 ? [
                     this.state.wordDocumentfiles,
                     "Please select Valid Word Doc File",
@@ -2940,12 +2968,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles:
-              this.state.noteSecretaryDetails.length > 0
-                ? [
-                    this.state.wordDocumentfiles,
-                    "Please select Valid Word Doc File",
-                  ]
-                : [false, "Please select Valid Word Doc File"],
+        (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
+            ? [
+                this.state.wordDocumentfiles,
+                "Please select Valid Word Doc File",
+              ]
+            : [false, "Please select Valid Word Doc File"],
             // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
             errorInPdfFiles: [
               this.state.errorFilesList.notePdF.length > 0,
@@ -2990,7 +3018,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
-            this.state.noteSecretaryDetails.length > 0
+          (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
               ? [
                   this.state.wordDocumentfiles,
                   "Please select Valid Word Doc File",
@@ -3047,12 +3075,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
-            this.state.noteSecretaryDetails.length > 0
-              ? [
-                  this.state.wordDocumentfiles,
-                  "Please select Valid Word Doc File",
-                ]
-              : [false, "Please select Valid Word Doc File"],
+        (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
+            ? [
+                this.state.wordDocumentfiles,
+                "Please select Valid Word Doc File",
+              ]
+            : [false, "Please select Valid Word Doc File"],
           // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
           errorInPdfFiles: [
             this.state.errorFilesList.notePdF.length > 0,
@@ -3097,7 +3125,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
-            this.state.noteSecretaryDetails.length > 0
+          (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
               ? [
                   this.state.wordDocumentfiles,
                   "Please select Valid Word Doc File",
@@ -3150,7 +3178,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
-            this.state.noteSecretaryDetails.length > 0
+          (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
               ? [
                   this.state.wordDocumentfiles,
                   "Please select Valid Word Doc File",
@@ -3195,7 +3223,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
           wordDocumentfiles:
-            this.state.noteSecretaryDetails.length > 0
+          (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
               ? [
                   this.state.wordDocumentfiles,
                   "Please select Valid Word Doc File",
@@ -3261,7 +3289,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles:
-              this.state.noteSecretaryDetails.length > 0
+            (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
                 ? [
                     this.state.wordDocumentfiles,
                     "Please select Valid Word Doc File",
@@ -3316,12 +3344,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
               "Please select Valid Pdf File",
             ],
             wordDocumentfiles:
-              this.state.noteSecretaryDetails.length > 0
-                ? [
-                    this.state.wordDocumentfiles,
-                    "Please select Valid Word Doc File",
-                  ]
-                : [false, "Please select Valid Word Doc File"],
+        (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
+            ? [
+                this.state.wordDocumentfiles,
+                "Please select Valid Word Doc File",
+              ]
+            : [false, "Please select Valid Word Doc File"],
             // supportingDocumentfiles: [this.state.supportingDocumentfiles, ""],
             errorInPdfFiles: [
               this.state.errorFilesList.notePdF.length > 0,
@@ -3366,7 +3394,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
           noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
 
           wordDocumentfiles:
-            this.state.noteSecretaryDetails.length > 0
+          (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
               ? [
                   this.state.wordDocumentfiles,
                   "Please select Valid Word Doc File",
@@ -3417,7 +3445,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         wordDocumentfiles:
-          this.state.noteSecretaryDetails.length > 0
+        (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
             ? [
                 this.state.wordDocumentfiles,
                 "Please select Valid Word Doc File",
@@ -3463,7 +3491,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
         noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         wordDocumentfiles:
-          this.state.noteSecretaryDetails.length > 0
+        (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
             ? [
                 this.state.wordDocumentfiles,
                 "Please select Valid Word Doc File",
@@ -3501,15 +3529,16 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
         noteType: [this.state.noteTypeFeildValue, "Note Type"],
 
         searchText: [this.state.searchTextFeildValue, "Search Text"],
-
-        noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
         purpose: [this.state.puroposeFeildValue, "Purpose"],
         AppoverData: [
           this.state.peoplePickerApproverData,
           "Please select atleast one Approver to submit request",
         ],
+        noteTofiles: [this.state.noteTofiles, "Please select Valid Pdf File"],
+      
+       
         wordDocumentfiles:
-          this.state.noteSecretaryDetails.length > 0
+        (this._checkSecertaryIsAvailable() && this.state.wordDocumentfiles.length ===0)
             ? [
                 this.state.wordDocumentfiles,
                 "Please select Valid Word Doc File",
@@ -3705,7 +3734,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       ? this.state.successStatus === "submitted"
         ? this._getAuditTrail("Submitted")
         : this._getAuditTrail("Drafted")
-      :this._itemId?this._getAuditTrail("Drafted"): this._getAuditTrail("Submitted"), // ReSubmitted
+      :this._itemId?(this.state.statusNumber==='200' || this.state.statusNumber ==='5000' ?this._getAuditTrail("Submitted"):this._getAuditTrail("Drafted")): this._getAuditTrail("Submitted"), // ReSubmitted
     // Reviewer:{result:this._getReviewerId()}
     ReviewersId: this._getReviewerId(),
     ApproversId: this._getApproverId(),
@@ -3757,6 +3786,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   private async updatePdfFolderItems(libraryName: any[], folderPath: string) {
     await this.clearFolder(libraryName, folderPath);
     // console.log(libraryName);
+    // console.log(folderPath)
 
     async function getFileArrayBuffer(file: any): Promise<ArrayBuffer> {
       if (file.arrayBuffer) {
@@ -3789,27 +3819,18 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     }
 
 
-    const siteUrl = folderPath;
-    // console.log(siteUrl);
+    // const siteUrl = folderPath;
+    // // console.log(siteUrl);
 
-    // Check if the folder already exists
-    let folderExists = false;
-    if (!folderExists) {
-      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
-      // console.log(`Folder '${folderName}' created successfully`);
-    } else {
-      try {
-        // Check if folder already exists
-        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
-        folderExists = true;
-      } catch (error) {
-        if (error.status === 404) {
-          folderExists = false;
-        } else {
-          throw error;
-        }
-      }
-    }
+    // // Check if the folder already exists
+    // let folderExists = false;
+    // if (!folderExists) {
+    //   await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+    //   // console.log(`Folder '${folderName}' created successfully`);
+    // } else {
+    //   await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+    //   folderExists = true;
+    // }
 
     try {
       for (const file of libraryName) {
@@ -3867,27 +3888,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     }
 
-    const siteUrl = folderPath;
-    // console.log(siteUrl);
+    // const siteUrl = folderPath;
+    // // console.log(siteUrl);
 
-    // Check if the folder already exists
-    let folderExists = false;
-    if (!folderExists) {
-      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
-      // console.log(`Folder '${folderName}' created successfully`);
-    } else {
-      try {
-        // Check if folder already exists
-        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
-        folderExists = true;
-      } catch (error) {
-        if (error.status === 404) {
-          folderExists = false;
-        } else {
-          throw error;
-        }
-      }
-    }
+    // // Check if the folder already exists
+    // let folderExists = false;
+    // if (!folderExists) {
+    //   await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+    //   // console.log(`Folder '${folderName}' created successfully`);
+    // } else {
+    //   try {
+    //     // Check if folder already exists
+    //     await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+    //     folderExists = true;
+    //   } catch (error) {
+    //     if (error.status === 404) {
+    //       folderExists = false;
+    //     } else {
+    //       throw error;
+    //     }
+    //   }
+    // }
 
     try {
       for (const file of libraryName) {
@@ -3945,27 +3966,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
       }
     }
 
-    const siteUrl = folderPath;
-    // console.log(siteUrl);
+    // const siteUrl = folderPath;
+    // // console.log(siteUrl);
 
-    // Check if the folder already exists
-    let folderExists = false;
-    if (!folderExists) {
-      await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
-      // console.log(`Folder '${folderName}' created successfully`);
-    } else {
-      try {
-        // Check if folder already exists
-        await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
-        folderExists = true;
-      } catch (error) {
-        if (error.status === 404) {
-          folderExists = false;
-        } else {
-          throw error;
-        }
-      }
-    }
+    // // Check if the folder already exists
+    // let folderExists = false;
+    // if (!folderExists) {
+    //   await this.props.sp.web.rootFolder.folders.addUsingPath(siteUrl);
+    //   // console.log(`Folder '${folderName}' created successfully`);
+    // } else {
+    //   try {
+    //     // Check if folder already exists
+    //     await this.props.sp.web.getFolderByServerRelativePath(siteUrl)();
+    //     folderExists = true;
+    //   } catch (error) {
+    //     if (error.status === 404) {
+    //       folderExists = false;
+    //     } else {
+    //       throw error;
+    //     }
+    //   }
+    // }
 
     try {
       for (const file of libraryName) {
@@ -4199,6 +4220,27 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
     const folderName = requesterNo.replace(/\//g, "-");
     return folderName;
   }
+
+  public _folderNameGenerateEdit(id: any): any {
+    // console.log(this.state.departmentAlias);
+    const currentyear = new Date().getFullYear();
+    const nextYear = (currentyear + 1).toString().slice(-2);
+
+    // const requesterNo = this.props.formType==="BoardNoteView"? `DEP/${currentyear}-${nextYear}/B${id}`:`DEP/${currentyear}-${nextYear}/C${id}`;
+    // console.log(requesterNo)
+
+    // console.log(this.state.title.split('/'))
+    // console.log(this.state.title.split('/')[0])
+
+    const requesterNo =
+      this.props.formType === "BoardNoteView"
+        ? `${this.state.title.split('/')[0]}/${currentyear}-${nextYear}/B${id}`
+        : `${this.state.title.split('/')[0]}/${currentyear}-${nextYear}/C${id}`;
+    // console.log(requesterNo);
+    const folderName = requesterNo.replace(/\//g, "-");
+    return folderName;
+  }
+
 
   private handleNoteToFileChange = (files: File[], typeOfDoc: string) => {
     // console.log(typeOfDoc, files);
@@ -4568,7 +4610,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
   };
 
   public render(): React.ReactElement<IFormProps> {
-    // console.log(this.state);
+    console.log(this.state);
 
     //   }
     // console.log(this._committeeType)
@@ -4797,6 +4839,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   <SpanComponent />
                 </label>
                 <Dropdown
+                 onFocus="this.style.borderColor='transparent';" 
                   placeholder=
                   {this.props.formType === "BoardNoteNew"
                     ? "Select an Board Committee Name"
@@ -4808,17 +4851,25 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     this.onRenderCaretDowncommitteeNameFeildValue()
                   }
                   styles={{
+                    root:{
+
+                    },
+                    
                     dropdown: {
                       // width: 300,
                       borderRadius: "2px",
                       // fontSize: "16px",
                       // fontFamily: 'Poppins',
-                      border:
-                        this.state.committeeNameFeildValue === "" &&
-                        this.state.isWarningCommitteeName
-                          ? "2px solid red"
-                          : "1px solid transparent",
+                    //   outline:
+                    //     this.state.committeeNameFeildValue === "" &&
+                    //     this.state.isWarningCommitteeName
+                    //       ? "2px solid red"
+                    //       : "1px solid transparent",
                     },
+                    title: {
+                      borderColor: (this.state.committeeNameFeildValue === "" && this.state.isWarningCommitteeName) ? 'transparent' : undefined
+                    }
+                    
                   }}
                 />
               </div>
@@ -4849,7 +4900,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     borderRadius: "2px",
                     height: "32px",
                     marginTop: "9px",
-                    boxSizing: "border-box",
+                    // boxSizing: "border-box",
                     width: "100%",
                     border:
                       this.state.subjectFeildValue === "" &&
@@ -4914,6 +4965,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                           ? "2px solid red"
                           : "1px solid transparent",
                     },
+                    title: {
+                      borderColor: (this.state.natureOfNoteFeildValue === "" && this.state.isWarningNatureOfNote) ? 'transparent' : undefined
+                    }
                   }}
                 />
 
@@ -4964,12 +5018,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         border:
                           this.state.natureOfApprovalOrSanctionFeildValue ===
                             "" && this.state.isWarningNatureOfApporvalOrSanction
-                            ? "1px solid red"
+                            ? "2px solid red"
                             : "1px solid transparent",
                         borderRadius: "2px",
                         // fontSize: "16px",
                         // fontFamily: 'Poppins',
                       },
+                      title: {
+                        borderColor: (this.state.natureOfApprovalOrSanctionFeildValue === "" && this.state.isWarningNatureOfApporvalOrSanction) ? 'transparent' : undefined
+                      }
                     }}
                   />
                 </div>
@@ -5005,12 +5062,15 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       border:
                         this.state.noteTypeFeildValue === "" &&
                         this.state.isWarningNoteType
-                          ? "1px solid red"
+                          ? "2px solid red"
                           : "1px solid transparent",
                       borderRadius: "2px",
                       // fontSize: "16px",
                       // fontFamily: 'Poppins',
                     },
+                    title: {
+                      borderColor: (this.state.noteTypeFeildValue === "" && this.state.isWarningNoteType) ? 'transparent' : undefined
+                    }
                   }}
                 />
               </div>
@@ -5041,14 +5101,31 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     styles={{
                       dropdown: {
                         marginTop: "9px",
-                        border: `1px solid ${
+                        border: `2px solid ${
                           !this.state.typeOfFinancialNoteFeildValue &&
                           this.state.isWarningTypeOfFinancialNote
                             ? "red"
                             : "transparent"
                         }`,
+                        // selectors: {
+                        //   ":hover": {
+                        //     border: "1px solid transparent",
+                        //   },
+                        // },
                         borderRadius: "2px",
                       },
+                      title: {
+                        borderColor: (this.state.typeOfFinancialNoteFeildValue === "" && this.state.isWarningTypeOfFinancialNote) ? 'transparent' : undefined,
+                        selectors: {
+                          ":hover": {
+                            borderColor:
+                              this.state.typeOfFinancialNoteFeildValue === "" &&
+                              this.state.isWarningTypeOfFinancialNote
+                                ? "transparent"
+                                : undefined,
+                          },
+                        },
+                      }
                     }}
                   />
                 </div>
@@ -5075,12 +5152,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   className={styles.textAreaWithOutline}
                   style={{
                     display: "block",
-                    borderRadius: "2px",
                     paddingLeft: "12px",
-                    paddingTop: "6px",
+                    paddingTop: "5px",
+                    borderRadius: "2px",
                     height: "32px",
                     marginTop: "9px",
-                    boxSizing: "border-box",
+                    // boxSizing: "border-box",
                     width: "100%",
                     border:
                       this.state.searchTextFeildValue === "" &&
@@ -5109,8 +5186,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                 </div>
               </div>
 
-              {/* Amount Sub Section */}
-              {this.state.noteTypeFeildValue === "Financial" && (
+                {/* Amount Sub Section */}
+                {this.state.noteTypeFeildValue === "Financial" && (
                 <div
                   className={styles.halfWidth}
                   style={{ margin: "4px", marginTop: "10px" }}
@@ -5135,12 +5212,12 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         marginTop: "9px",
                         paddingTop: "5px",
                         height: "32px",
-                        boxSizing: "border-box",
+                        // boxSizing: "border-box",
                         width: "100%",
                         border:
                           !this.state.amountFeildValue &&
                           this.state.isWarningAmountField
-                            ? "1px solid red"
+                            ? "2px solid red"
                             : undefined,
                       },
                     }}
@@ -5149,6 +5226,8 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                   />
                 </div>
               )}
+
+            
 
               {/* Purpose Sub Section */}
 
@@ -5193,6 +5272,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                                 : "transparent"
                             }`,
                           },
+                          title: {
+                            borderColor: (this.state.puroposeFeildValue === "" && this.state.isWarningPurposeField) ? 'transparent' : undefined
+                          }
                         }}
                       />
                     </div>
@@ -5221,7 +5303,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         }
                         styles={{
                           dropdown: {
-                            border: `1px solid ${
+                            border: `2px solid ${
                               !this.state.puroposeFeildValue &&
                               this.state.isWarningPurposeField
                                 ? "red"
@@ -5232,6 +5314,9 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
 
                             // fontSize: "16px",
                           },
+                          title: {
+                            borderColor: (this.state.puroposeFeildValue === "" && this.state.isWarningPurposeField) ? 'transparent' : undefined
+                          }
                         }}
                       />
                     </div>
@@ -5261,7 +5346,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                         borderRadius: "2px",
                         height: "32px",
                         marginTop: "8px",
-                        boxSizing: "border-box",
+                        // boxSizing: "border-box",
                         width: "100%",
                         border:
                           this.state.puroposeFeildValue === "" &&
@@ -5303,7 +5388,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       paddingLeft: "12px",
                       paddingTop: "5px",
                       height: "32px",
-                      boxSizing: "border-box",
+                      // boxSizing: "border-box",
                       width: "100%",
                       border:
                       this.state.othersFieldValue === "" &&
@@ -5704,6 +5789,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                       )
                     ) : this.state.status === "Returned" ? (
                       <PrimaryButton
+                        hidden={this.state.createdByEmail !==this._currentUserEmail}
                         type="button"
                         className={styles.responsiveButton} // Use the CSS module
                         iconProps={{ iconName: "Cancel" }}
@@ -5755,6 +5841,7 @@ export default class Form extends React.Component<IFormProps, IMainFormState> {
                     )}
                     {this._itemId ? (
                       <PrimaryButton
+                      hidden={this.state.createdByEmail !==this._currentUserEmail}
                         type="button"
                         className={`${styles.responsiveButton}`}
                         onClick={(e: any) => {
